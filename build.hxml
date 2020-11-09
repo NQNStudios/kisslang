@@ -1,0 +1,4 @@
+-cp src
+--macro nullSafety("hiss", Strict)
+--main hiss.Main
+--interp
