@@ -15,6 +15,9 @@ class Stream {
 	public function new(file:String) {
 		// Banish ye Windows line-endings
 		content = File.getContent(file).replace('\r', '');
+		// Life is easier with a trailing newline
+		if (content.charAt(content.length - 1) != "\n")
+			content += "\n";
 
 		this.file = file;
 		line = 1;

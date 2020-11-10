@@ -1,1 +1,6 @@
 (defvar message "Hello, world!")
+(defvar math #|5 + 6 * 3|#) // inject raw haxe
+(defun floor [num] (Math.floor num))
+(defun main []
+    (trace message)
+    (trace (floor 7.5)))
