@@ -1,4 +1,4 @@
 -cp src
---macro nullSafety("hiss", Strict)
---main hiss.Main
+--macro nullSafety("kiss", Strict)
+--main kiss.Main
 --interp

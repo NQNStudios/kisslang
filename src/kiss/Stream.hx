@@ -1,4 +1,4 @@
-package hiss;
+package kiss;
 
 import sys.io.File;
 import haxe.ds.Option;

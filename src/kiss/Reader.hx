@@ -1,7 +1,7 @@
-package hiss;
+package kiss;
 
 import haxe.ds.Option;
-import hiss.Stream;
+import kiss.Stream;
 
 enum ReaderExp {
 	Call(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)

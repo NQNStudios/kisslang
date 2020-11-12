@@ -1,18 +1,18 @@
-package hiss;
+package kiss;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import hiss.Stream;
-import hiss.Reader;
+import kiss.Stream;
+import kiss.Reader;
 
-class Hiss {
+class Kiss {
 	/**
-		Build a Haxe class from a corresponding .hiss file
+		Build a Haxe class from a corresponding .kiss file
 	**/
-	macro static public function build(hissFile:String):Array<Field> {
+	macro static public function build(kissFile:String):Array<Field> {
 		var classFields = Context.getBuildFields();
 
-		var stream = new Stream(hissFile);
+		var stream = new Stream(kissFile);
 		var reader = new Reader();
 		while (true) {
 			stream.dropWhitespace();
