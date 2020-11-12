@@ -54,13 +54,13 @@ Licenses are confusing and GPL licenses can be intimidating. I've chosen the LGP
 
 As of November 2020:
 
-* No one. So far there is only the most basic proof-of-concept in a branch of the Hiss repository.
+* No one. So far it is only a VERY basic proof-of-concept.
 
 At the next milestone:
 
 * Language design enthusiasts
 * Hobbyists writing disposable code without deadlines
 
-Maybe someday:
+Hopefully someday:
 
 * Professional game developers who want to learn the ways of Lisp
