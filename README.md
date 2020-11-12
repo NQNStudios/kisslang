@@ -4,7 +4,7 @@
 
 ## What is Kiss?
 
-Kiss is a work in progress. (See: [Who should use Kiss?](#Who-should-use-Kiss?))
+Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 
 **Kiss aims to be:**
 
