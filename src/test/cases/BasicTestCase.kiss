@@ -1,0 +1,10 @@
+// (defvar) declares static variables
+(defvar message "Howdy")
+// #| ... |# parses and injects raw Haxe code
+(defvar mathResult #|5 + 6 * 3|#) // Order of operations will apply
+// (defun) declares static functions
+(defun myFloor [num] 
+    // funcalls can use dot access
+    (Math.floor num))
+// functions are resolved in the macro context
+(defvar funResult (myFloor 7.5))
