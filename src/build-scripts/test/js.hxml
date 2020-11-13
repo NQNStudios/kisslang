@@ -1,0 +1,3 @@
+src/build-scripts/common-test-args.hxml
+--js bin/js/test.js
+--cmd node bin/js/test.js

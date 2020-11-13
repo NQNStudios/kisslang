@@ -1,0 +1,3 @@
+src/build-scripts/common-test-args.hxml
+-cpp bin/cpp/test
+-cmd bash src/build-scripts/test/cpp.sh

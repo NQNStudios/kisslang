@@ -1,0 +1,38 @@
+language: haxe
+dist: xenial
+os:
+  - mac
+  - linux
+  - windows
+haxe:
+  - stable
+  - development
+env:
+  - HISS_TARGET=cpp
+  - HISS_TARGET=interp
+  - HISS_TARGET=js
+  - HISS_TARGET=nodejs
+  - HISS_TARGET=py3
+
+jobs:
+  # Allow Haxe development to fail.
+  allow_failures:
+    - haxe: development
+  fast_finish: true
+  # Check the formatting in a separate job so formatting failures don't hide more important ones
+  include:
+    - script: haxelib install formatter && haxelib run formatter --check -s .
+      os: linux
+      haxe: stable
+
+install:
+  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
+      choco install nodejs-lts --version 12.13.1 -y; export PATH="/c/Program Files/nodejs:$PATH";
+      choco install python --version 3.7.1 -y; export PATH="/c/Python37/Scripts:/c/Python37:$PATH";
+    fi
+  # Magic to make haxelib works https://github.com/HaxeFoundation/neko/issues/196
+  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
+      curl -sSLf https://lib.haxe.org/p/jQueryExtern/3.2.1/download/ -o /dev/null;
+    fi
+
+script: ./test-travis.sh
