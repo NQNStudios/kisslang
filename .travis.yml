@@ -12,7 +12,7 @@ env:
   - HISS_TARGET=interp
   - HISS_TARGET=js
   - HISS_TARGET=nodejs
-  - HISS_TARGET=py3
+  - HISS_TARGET=py
 
 jobs:
   # Allow Haxe development to fail.
@@ -35,4 +35,4 @@ install:
       curl -sSLf https://lib.haxe.org/p/jQueryExtern/3.2.1/download/ -o /dev/null;
     fi
 
-script: ./test-travis.sh
+script: ./test.sh
