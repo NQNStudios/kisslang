@@ -20,4 +20,12 @@ class BasicTestCase extends Test {
 	function testFuncall() {
 		Assert.equals(7, BasicTestCase.funResult);
 	}
+
+	function testField() {
+		Assert.equals(5, new BasicTestCase().myField);
+	}
+
+	function testMethod() {
+		Assert.equals(5, new BasicTestCase().myMethod());
+	}
 }

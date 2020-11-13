@@ -8,3 +8,9 @@
     (Math.floor num))
 // functions are resolved in the macro context
 (defvar funResult (myFloor 7.5))
+
+// (defprop) declares instance variables
+(defprop myField 5)
+
+// (defmethod) declares instance methods
+(defmethod myMethod [] this.myField)

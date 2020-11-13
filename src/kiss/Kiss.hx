@@ -4,6 +4,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import kiss.Stream;
 import kiss.Reader;
+import kiss.FieldForms;
 
 class Kiss {
 	/**
@@ -14,6 +15,9 @@ class Kiss {
 
 		var stream = new Stream(kissFile);
 		var reader = new Reader();
+
+		var fieldForms = FieldForms.builtins();
+
 		while (true) {
 			stream.dropWhitespace();
 			if (stream.isEmpty())
@@ -26,7 +30,7 @@ class Kiss {
 			// The last expression might be a comment, in which case None will be returned
 			switch (nextExp) {
 				case Some(nextExp):
-					classFields.push(readerExpToField(nextExp, position));
+					classFields.push(readerExpToField(nextExp, position, fieldForms));
 				case None:
 					stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
 			}
@@ -35,58 +39,12 @@ class Kiss {
 		return classFields;
 	}
 
-	static function readerExpToField(exp:ReaderExp, position:String):Field {
+	static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>):Field {
 		return switch (exp) {
-			case Call(Symbol("defvar"), args) if (args.length == 2):
-				{
-					name: switch (args[0]) {
-						case Symbol(name):
-							name;
-						default:
-							throw 'The first argument to defvar at $position should be a variable name';
-					},
-					access: [APublic, AStatic],
-					kind: FVar(null, // TODO allow type anotations
-						readerExpToHaxeExpr(args[1])),
-					pos: Context.currentPos()
-				};
-			case Call(Symbol("defun"), args) if (args.length > 2):
-				{
-					name: switch (args[0]) {
-						case Symbol(name):
-							name;
-						default:
-							throw 'The first argument to defun at $position should be a function name';
-					},
-					access: [APublic, AStatic],
-					kind: FFun({
-						args: switch (args[1]) {
-							case List(funcArgs):
-								[
-									for (funcArg in funcArgs)
-										{
-											name: switch (funcArg) {
-												case Symbol(name):
-													name;
-												default:
-													throw '$funcArg should be a symbol for a function argument';
-											},
-											type: null
-										}
-								];
-							default:
-								throw '$args[1] should be an argument list';
-						},
-						ret: null,
-						expr: {
-							pos: Context.currentPos(),
-							expr: EReturn(readerExpToHaxeExpr(Call(Symbol("begin"), args.slice(2))))
-						}
-					}),
-					pos: Context.currentPos()
-				};
+			case Call(Symbol(formName), args) if (fieldForms.exists(formName)):
+				fieldForms[formName](position, args, readerExpToHaxeExpr);
 			default:
-				throw '$exp at $position is not a valid defvar or defun expression';
+				throw '$exp at $position is not a valid field form';
 		};
 	}
 
