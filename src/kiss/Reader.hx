@@ -38,12 +38,15 @@ class Reader {
 			case Some(exp):
 				exp;
 			case None:
-				throw "There were no expressions left in the stream at $position";
+				throw 'There were no expressions left in the stream at $position';
 		};
 	}
 
 	public function read(stream:Stream):Option<ReaderExp> {
 		stream.dropWhitespace();
+
+		if (stream.isEmpty())
+			return None;
 
 		var readTableKeys = [for (key in readTable.keys()) key];
 		readTableKeys.sort((a, b) -> b.length - a.length);
@@ -53,7 +56,7 @@ class Reader {
 				case Some(k) if (k == key):
 					stream.dropString(key);
 					var expOrNull = readTable[key](stream);
-					return if (expOrNull != null) Some(expOrNull) else None;
+					return if (expOrNull != null) Some(expOrNull) else read(stream);
 				default:
 			}
 		}
