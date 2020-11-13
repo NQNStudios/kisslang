@@ -1,3 +1,4 @@
 src/build-scripts/common-args.hxml
 -lib utest
+-D test
 --main test.TestMain

@@ -20,7 +20,9 @@ class Kiss {
 				break;
 			var position = stream.position();
 			var nextExp = reader.read(stream);
+			#if test
 			trace(nextExp);
+			#end
 			// The last expression might be a comment, in which case None will be returned
 			switch (nextExp) {
 				case Some(nextExp):
@@ -112,7 +114,9 @@ class Kiss {
 			default:
 				throw 'cannot convert $exp yet';
 		};
+		#if test
 		trace(expr.expr);
+		#end
 		return expr;
 	}
 }
