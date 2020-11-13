@@ -3,12 +3,9 @@ package kiss;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
+import kiss.Types;
 
 using StringTools;
-
-// Fields usually are set to expressions, so a ReaderExp conversion function
-// needs to be passed to field forms
-typedef ExprConversion = (ReaderExp) -> Expr;
 
 // Field forms convert Kiss reader expressions into Haxe macro class fields
 typedef FieldFormFunction = (position:String, args:Array<ReaderExp>, convert:ExprConversion) -> Field;

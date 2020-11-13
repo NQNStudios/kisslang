@@ -5,6 +5,7 @@ import haxe.macro.Expr;
 import kiss.Stream;
 import kiss.Reader;
 import kiss.FieldForms;
+import kiss.SpecialForms;
 
 class Kiss {
 	/**
@@ -17,6 +18,7 @@ class Kiss {
 		var reader = new Reader();
 
 		var fieldForms = FieldForms.builtins();
+		var specialForms = SpecialForms.builtins();
 
 		while (true) {
 			stream.dropWhitespace();
@@ -30,7 +32,7 @@ class Kiss {
 			// The last expression might be a comment, in which case None will be returned
 			switch (nextExp) {
 				case Some(nextExp):
-					classFields.push(readerExpToField(nextExp, position, fieldForms));
+					classFields.push(readerExpToField(nextExp, position, fieldForms, specialForms));
 				case None:
 					stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
 			}
@@ -39,16 +41,17 @@ class Kiss {
 		return classFields;
 	}
 
-	static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>):Field {
+	static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>,
+			specialForms:Map<String, SpecialFormFunction>):Field {
 		return switch (exp) {
 			case Call(Symbol(formName), args) if (fieldForms.exists(formName)):
-				fieldForms[formName](position, args, readerExpToHaxeExpr);
+				fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, specialForms));
 			default:
 				throw '$exp at $position is not a valid field form';
 		};
 	}
 
-	static function readerExpToHaxeExpr(exp:ReaderExp):Expr {
+	static function readerExpToHaxeExpr(exp:ReaderExp, specialForms:Map<String, SpecialFormFunction>):Expr {
 		var expr = switch (exp) {
 			case Symbol(name):
 				Context.parse(name, Context.currentPos());
@@ -57,15 +60,12 @@ class Kiss {
 					pos: Context.currentPos(),
 					expr: EConst(CString(s))
 				};
-			case Call(Symbol("begin"), body):
-				{
-					pos: Context.currentPos(),
-					expr: EBlock([for (bodyExp in body) readerExpToHaxeExpr(bodyExp)])
-				};
+			case Call(Symbol(specialForm), args) if (specialForms.exists(specialForm)):
+				specialForms[specialForm](args, readerExpToHaxeExpr.bind(_, specialForms));
 			case Call(func, body):
 				{
 					pos: Context.currentPos(),
-					expr: ECall(readerExpToHaxeExpr(func), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp)])
+					expr: ECall(readerExpToHaxeExpr(func, specialForms), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp, specialForms)])
 				};
 			case RawHaxe(code):
 				Context.parse(code, Context.currentPos());
