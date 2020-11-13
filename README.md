@@ -2,6 +2,8 @@
 
 *A type-safe, compiled Lisp for Haxe programs*
 
+[![Build Status](https://travis-ci.org/hissvn/kisslang.svg?branch=main)](https://travis-ci.org/hissvn/kisslang)
+
 ## What is Kiss?
 
 Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
