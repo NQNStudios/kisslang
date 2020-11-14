@@ -1,3 +1,2 @@
-src/build-scripts/common-test-args.hxml
 --python bin/py/test.py
 --cmd bash src/build-scripts/py/test-py.sh

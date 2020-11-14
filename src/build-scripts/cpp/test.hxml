@@ -1,4 +1,3 @@
-src/build-scripts/common-test-args.hxml
 -lib hxcpp
 -cpp bin/cpp/test
 -cmd bash src/build-scripts/cpp/test-cpp.sh
