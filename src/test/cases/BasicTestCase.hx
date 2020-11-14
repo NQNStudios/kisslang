@@ -70,4 +70,8 @@ class BasicTestCase extends Test {
 	function testPow() {
 		Assert.equals(256, BasicTestCase.myPower);
 	}
+
+	function testUnop() {
+		Assert.equals(7, BasicTestCase.myInc);
+	}
 }

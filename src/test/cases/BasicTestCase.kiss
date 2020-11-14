@@ -36,3 +36,6 @@
 (defvar myRemainder (% 10 6))
 
 (defvar myPower (^ 2 8))
+
+(defvar _myNum 6)
+(defvar myInc ++_myNum)
