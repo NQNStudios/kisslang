@@ -17,6 +17,11 @@ class SpecialForms {
 			expr: EBlock([for (bodyExp in args) convert(bodyExp)])
 		};
 
+		map["nth"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+			pos: Context.currentPos(),
+			expr: EArray(convert(args[0]), convert(args[1]))
+		};
+
 		return map;
 	}
 }

@@ -21,6 +21,9 @@
 // [...] returns a Kiss array (they have special features and convert implicitly)
 (defvar myArray [1 2 3])
 
+// Array access is via nth
+(defvar myArrayLast (nth myArray -1))
+
 // Variadic math uses haxe's Lambda.fold under the hood
 (defvar mySum (+ 1 2 3))
 

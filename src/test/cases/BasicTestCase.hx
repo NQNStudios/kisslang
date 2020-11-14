@@ -43,6 +43,10 @@ class BasicTestCase extends Test {
 		Assert.equals(1, arr[-3]);
 	}
 
+	function testArrayAccess() {
+		Assert.equals(3, BasicTestCase.myArrayLast);
+	}
+
 	function testVariadicAdd() {
 		Assert.equals(6, BasicTestCase.mySum);
 	}
