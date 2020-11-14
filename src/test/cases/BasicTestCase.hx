@@ -50,4 +50,20 @@ class BasicTestCase extends Test {
 	function testVariadicSubtract() {
 		Assert.equals(-2, BasicTestCase.myDifference);
 	}
+
+	function testVariadicMultiply() {
+		Assert.equals(60, BasicTestCase.myProduct);
+	}
+
+	function testVariadicDivide() {
+		Assert.equals(0.5, BasicTestCase.myQuotient);
+	}
+
+	function testMod() {
+		Assert.equals(4, BasicTestCase.myRemainder);
+	}
+
+	function testPow() {
+		Assert.equals(256, BasicTestCase.myPower);
+	}
 }

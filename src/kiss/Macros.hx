@@ -9,14 +9,34 @@ class Macros {
 	public static function builtins() {
 		var macros:Map<String, MacroFunction> = [];
 
-		macros["+"] = (exps) -> {
-			CallExp(Symbol("Lambda.fold"), [ListExp(exps), Symbol("Prelude.add"), Symbol("0")]);
+		macros["+"] = foldMacro("Prelude.add");
+
+		macros["-"] = foldMacro("Prelude.subtract");
+
+		macros["*"] = foldMacro("Prelude.multiply");
+
+		macros["/"] = foldMacro("Prelude.divide");
+
+		macros["%"] = (exps:Array<ReaderExp>) -> {
+			if (exps.length != 2) {
+				throw 'Got ${exps.length} arguments for % instead of 2.';
+			}
+			CallExp(Symbol("Prelude.mod"), [exps[1], exps[0]]);
 		};
 
-		macros["-"] = (exps:Array<ReaderExp>) -> {
-			CallExp(Symbol("Lambda.fold"), [ListExp(exps.slice(1)), Symbol("Prelude.subtract"), exps[0]]);
-		}
+		macros["^"] = (exps:Array<ReaderExp>) -> {
+			if (exps.length != 2) {
+				throw 'Got ${exps.length} arguments for ^ instead of 2.';
+			}
+			CallExp(Symbol("Prelude.pow"), [exps[1], exps[0]]);
+		};
 
 		return macros;
+	}
+
+	static function foldMacro(func:String):MacroFunction {
+		return (exps) -> {
+			CallExp(Symbol("Lambda.fold"), [ListExp(exps.slice(1)), Symbol(func), exps[0]]);
+		};
 	}
 }

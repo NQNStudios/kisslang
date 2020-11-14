@@ -25,3 +25,11 @@
 (defvar mySum (+ 1 2 3))
 
 (defvar myDifference (- 5 4 3))
+
+(defvar myProduct (* 2 5 6))
+
+(defvar myQuotient (/ 6 3 2 2))
+
+(defvar myRemainder (% 10 6))
+
+(defvar myPower (^ 2 8))
