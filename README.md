@@ -26,7 +26,10 @@ Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 **Extra goodies:**
 
 - [ ] string interpolation
-- [ ] raw string literals
+- [ ] Rust-style raw string literals
+- [ ] null-safe arrays
+- [x] negative indexing
+- [ ] list comprehensions
 
 ## How does it work?
 
