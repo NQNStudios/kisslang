@@ -15,8 +15,8 @@ class Kiss {
 		var classFields = Context.getBuildFields();
 
 		var stream = new Stream(kissFile);
-		var reader = new Reader();
 
+		var readTable = Reader.builtins();
 		var fieldForms = FieldForms.builtins();
 		var specialForms = SpecialForms.builtins();
 
@@ -25,7 +25,7 @@ class Kiss {
 			if (stream.isEmpty())
 				break;
 			var position = stream.position();
-			var nextExp = reader.read(stream);
+			var nextExp = Reader.read(stream, readTable);
 			#if test
 			trace(nextExp);
 			#end

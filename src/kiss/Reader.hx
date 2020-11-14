@@ -14,11 +14,12 @@ enum ReaderExp {
 typedef ReadFunction = (Stream) -> Null<ReaderExp>;
 
 class Reader {
-	var readTable:Map<String, ReadFunction> = new Map();
+	// The built-in readtable
+	public static function builtins() {
+		var readTable:Map<String, ReadFunction> = [];
 
-	public function new() {
-		readTable["("] = (stream) -> Call(assertRead(stream), readExpArray(stream, ")"));
-		readTable["["] = (stream) -> List(readExpArray(stream, "]"));
+		readTable["("] = (stream) -> Call(assertRead(stream, readTable), readExpArray(stream, ")", readTable));
+		readTable["["] = (stream) -> List(readExpArray(stream, "]", readTable));
 		readTable["\""] = (stream) -> Str(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
 		readTable["/*"] = (stream) -> {
 			stream.dropUntil("*/");
@@ -30,11 +31,13 @@ class Reader {
 			null;
 		};
 		readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |", () -> stream.takeUntilAndDrop("|#")));
+
+		return readTable;
 	}
 
-	public function assertRead(stream:Stream):ReaderExp {
+	public static function assertRead(stream:Stream, readTable:Map<String, ReadFunction>):ReaderExp {
 		var position = stream.position();
-		return switch (read(stream)) {
+		return switch (read(stream, readTable)) {
 			case Some(exp):
 				exp;
 			case None:
@@ -42,7 +45,7 @@ class Reader {
 		};
 	}
 
-	public function read(stream:Stream):Option<ReaderExp> {
+	public static function read(stream:Stream, readTable:Map<String, ReadFunction>):Option<ReaderExp> {
 		stream.dropWhitespace();
 
 		if (stream.isEmpty())
@@ -56,7 +59,7 @@ class Reader {
 				case Some(k) if (k == key):
 					stream.dropString(key);
 					var expOrNull = readTable[key](stream);
-					return if (expOrNull != null) Some(expOrNull) else read(stream);
+					return if (expOrNull != null) Some(expOrNull) else read(stream, readTable);
 				default:
 			}
 		}
@@ -64,11 +67,11 @@ class Reader {
 		return Some(Symbol(stream.expect("a symbol name", () -> stream.takeUntilOneOf([")", "]", "/*", "\n", " "]))));
 	}
 
-	public function readExpArray(stream:Stream, end:String):Array<ReaderExp> {
+	public static function readExpArray(stream:Stream, end:String, readTable:Map<String, ReadFunction>):Array<ReaderExp> {
 		var array = [];
 		while (stream.expect('$end to terminate list', () -> stream.peekChars(end.length)) != end) {
 			stream.dropWhitespace();
-			array.push(assertRead(stream));
+			array.push(assertRead(stream, readTable));
 		}
 		stream.dropString(end);
 		return array;
