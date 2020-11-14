@@ -17,3 +17,6 @@
 
 // (defmethod) declares instance methods
 (defmethod myMethod [] this.myField)
+
+// [...] returns a Kiss array (they have special features and convert implicitly)
+(defvar myArray [1 2 3])

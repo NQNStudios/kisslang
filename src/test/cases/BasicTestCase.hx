@@ -28,4 +28,17 @@ class BasicTestCase extends Test {
 	function testMethod() {
 		Assert.equals(5, new BasicTestCase().myMethod());
 	}
+
+	function testArray() {
+		var arr = BasicTestCase.myArray;
+		Assert.equals(3, arr.length);
+		Assert.equals(1, arr[0]);
+		Assert.equals(2, arr[1]);
+		Assert.equals(3, arr[2]);
+
+		// Kiss arrays can be negatively indexed like Python
+		Assert.equals(3, arr[-1]);
+		Assert.equals(2, arr[-2]);
+		Assert.equals(1, arr[-3]);
+	}
 }

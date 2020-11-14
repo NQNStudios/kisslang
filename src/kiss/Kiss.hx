@@ -67,6 +67,19 @@ class Kiss {
 					pos: Context.currentPos(),
 					expr: ECall(readerExpToHaxeExpr(func, specialForms), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp, specialForms)])
 				};
+			case List(elements):
+				{
+					pos: Context.currentPos(),
+					expr: ENew({
+						pack: ["kiss"],
+						name: "List"
+					}, [
+						{
+							pos: Context.currentPos(),
+							expr: EArrayDecl([for (elementExp in elements) readerExpToHaxeExpr(elementExp, specialForms)])
+						}
+					])
+				}
 			case RawHaxe(code):
 				Context.parse(code, Context.currentPos());
 			default:
