@@ -4,9 +4,9 @@ import haxe.ds.Option;
 import kiss.Stream;
 
 enum ReaderExp {
-	Call(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)
-	List(exps:Array<ReaderExp>); // [v1 v2 v3]
-	Str(s:String); // "literal"
+	CallExp(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)
+	ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
+	StrExp(s:String); // "literal"
 	Symbol(name:String); // s
 	RawHaxe(code:String);
 }
@@ -18,9 +18,9 @@ class Reader {
 	public static function builtins() {
 		var readTable:Map<String, ReadFunction> = [];
 
-		readTable["("] = (stream) -> Call(assertRead(stream, readTable), readExpArray(stream, ")", readTable));
-		readTable["["] = (stream) -> List(readExpArray(stream, "]", readTable));
-		readTable["\""] = (stream) -> Str(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
+		readTable["("] = (stream) -> CallExp(assertRead(stream, readTable), readExpArray(stream, ")", readTable));
+		readTable["["] = (stream) -> ListExp(readExpArray(stream, "]", readTable));
+		readTable["\""] = (stream) -> StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
 		readTable["/*"] = (stream) -> {
 			stream.dropUntil("*/");
 			stream.dropString("*/");

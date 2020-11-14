@@ -2,6 +2,7 @@ package test.cases;
 
 import utest.Test;
 import utest.Assert;
+import kiss.Prelude;
 
 @:build(kiss.Kiss.build("src/test/cases/BasicTestCase.kiss"))
 class BasicTestCase extends Test {
@@ -40,5 +41,13 @@ class BasicTestCase extends Test {
 		Assert.equals(3, arr[-1]);
 		Assert.equals(2, arr[-2]);
 		Assert.equals(1, arr[-3]);
+	}
+
+	function testVariadicAdd() {
+		Assert.equals(6, BasicTestCase.mySum);
+	}
+
+	function testVariadicSubtract() {
+		Assert.equals(-2, BasicTestCase.myDifference);
 	}
 }

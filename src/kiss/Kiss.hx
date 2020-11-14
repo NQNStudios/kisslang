@@ -6,6 +6,7 @@ import kiss.Stream;
 import kiss.Reader;
 import kiss.FieldForms;
 import kiss.SpecialForms;
+import kiss.Macros;
 
 class Kiss {
 	/**
@@ -19,6 +20,7 @@ class Kiss {
 		var readTable = Reader.builtins();
 		var fieldForms = FieldForms.builtins();
 		var specialForms = SpecialForms.builtins();
+		var macros = Macros.builtins();
 
 		while (true) {
 			stream.dropWhitespace();
@@ -32,7 +34,7 @@ class Kiss {
 			// The last expression might be a comment, in which case None will be returned
 			switch (nextExp) {
 				case Some(nextExp):
-					classFields.push(readerExpToField(nextExp, position, fieldForms, specialForms));
+					classFields.push(readerExpToField(nextExp, position, fieldForms, macros, specialForms));
 				case None:
 					stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
 			}
@@ -41,33 +43,37 @@ class Kiss {
 		return classFields;
 	}
 
-	static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>,
+	static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>, macros:Map<String, MacroFunction>,
 			specialForms:Map<String, SpecialFormFunction>):Field {
 		return switch (exp) {
-			case Call(Symbol(formName), args) if (fieldForms.exists(formName)):
-				fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, specialForms));
+			case CallExp(Symbol(formName), args) if (fieldForms.exists(formName)):
+				fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, macros, specialForms));
 			default:
 				throw '$exp at $position is not a valid field form';
 		};
 	}
 
-	static function readerExpToHaxeExpr(exp:ReaderExp, specialForms:Map<String, SpecialFormFunction>):Expr {
+	static function readerExpToHaxeExpr(exp:ReaderExp, macros:Map<String, MacroFunction>, specialForms:Map<String, SpecialFormFunction>):Expr {
+		// Bind the table arguments of this function for easy recursive calling/passing
+		var convert = readerExpToHaxeExpr.bind(_, macros, specialForms);
 		var expr = switch (exp) {
 			case Symbol(name):
 				Context.parse(name, Context.currentPos());
-			case Str(s):
+			case StrExp(s):
 				{
 					pos: Context.currentPos(),
 					expr: EConst(CString(s))
 				};
-			case Call(Symbol(specialForm), args) if (specialForms.exists(specialForm)):
-				specialForms[specialForm](args, readerExpToHaxeExpr.bind(_, specialForms));
-			case Call(func, body):
+			case CallExp(Symbol(mac), args) if (macros.exists(mac)):
+				convert(macros[mac](args));
+			case CallExp(Symbol(specialForm), args) if (specialForms.exists(specialForm)):
+				specialForms[specialForm](args, convert);
+			case CallExp(func, body):
 				{
 					pos: Context.currentPos(),
-					expr: ECall(readerExpToHaxeExpr(func, specialForms), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp, specialForms)])
+					expr: ECall(readerExpToHaxeExpr(func, macros, specialForms), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp, macros, specialForms)])
 				};
-			case List(elements):
+			case ListExp(elements):
 				{
 					pos: Context.currentPos(),
 					expr: ENew({
@@ -76,7 +82,7 @@ class Kiss {
 					}, [
 						{
 							pos: Context.currentPos(),
-							expr: EArrayDecl([for (elementExp in elements) readerExpToHaxeExpr(elementExp, specialForms)])
+							expr: EArrayDecl([for (elementExp in elements) convert(elementExp)])
 						}
 					])
 				}

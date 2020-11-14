@@ -71,7 +71,7 @@ class FieldForms {
 			access: access,
 			kind: FFun({
 				args: switch (args[1]) {
-					case List(funcArgs):
+					case ListExp(funcArgs):
 						[
 							for (funcArg in funcArgs)
 								{
@@ -90,7 +90,7 @@ class FieldForms {
 				ret: null,
 				expr: {
 					pos: Context.currentPos(),
-					expr: EReturn(convert(Call(Symbol("begin"), args.slice(2))))
+					expr: EReturn(convert(CallExp(Symbol("begin"), args.slice(2))))
 				}
 			}),
 			pos: Context.currentPos()
