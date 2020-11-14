@@ -36,17 +36,17 @@ abstract List<T>(Array<T>) from Array<T> to Array<T> {
 		return v;
 	}
 
-	function insert(idx:Int, v:T) {
+	public function insert(idx:Int, v:T) {
 		this.insert(realIndex(idx), v);
 	}
 
-	function slice(start:Int, ?end:Int) {
+	public function slice(start:Int, ?end:Int) {
 		if (end == null)
 			end = this.length;
 		return this.slice(realIndex(start), realIndex(end));
 	}
 
-	function splice(start:Int, len:Int) {
+	public function splice(start:Int, len:Int) {
 		return this.splice(realIndex(start), len);
 	}
 }
