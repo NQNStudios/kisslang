@@ -82,4 +82,29 @@ class BasicTestCase extends Test {
     function testMax() {
         Assert.equals(9, BasicTestCase.myMax);
     }
+
+    function testLessThan() {
+        Assert.equals(true, BasicTestCase.myComp1);
+        Assert.equals(false, BasicTestCase.myComp2);
+    }
+
+    function testLesserEqual() {
+        Assert.equals(true, BasicTestCase.myComp3);
+        Assert.equals(true, BasicTestCase.myComp4);
+    }
+
+    function testGreaterThan() {
+        Assert.equals(true, BasicTestCase.myComp5);
+        Assert.equals(false, BasicTestCase.myComp6);
+    }
+
+    function testGreaterEqual() {
+        Assert.equals(true, BasicTestCase.myComp7);
+        Assert.equals(true, BasicTestCase.myComp8);
+    }
+
+    function testEqual() {
+        Assert.equals(true, BasicTestCase.myComp9);
+        Assert.equals(false, BasicTestCase.myComp10);
+    }
 }

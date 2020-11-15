@@ -29,19 +29,19 @@ class Prelude {
         return Math.min(a, b);
     }
 
-    public static function minExclusive(a, b) {
-        return if (a == b) null else Math.min(a, b);
+    public static function _minExclusive(a, b) {
+        return if (a == b) Math.NEGATIVE_INFINITY else Math.min(a, b);
     }
 
     public static function maxInclusive(a, b) {
         return Math.max(a, b);
     }
 
-    public static function maxExclusive(a, b) {
-        return if (a == b) null else Math.max(a, b);
+    public static function _maxExclusive(a, b) {
+        return if (a == b) Math.POSITIVE_INFINITY else Math.max(a, b);
     }
 
     public static function areEqual(a, b) {
-        return if (a == b) a else null;
+        return if (a == b) a else Math.NaN;
     }
 }

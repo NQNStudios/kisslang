@@ -22,6 +22,19 @@ class SpecialForms {
             expr: EArray(convert(args[0]), convert(args[1]))
         };
 
+        map["<"] = foldComparison("_min");
+        map["<="] = foldComparison("min");
+        map[">"] = foldComparison("_max");
+        map[">="] = foldComparison("max");
+        map["="] = foldComparison("_eq");
+
         return map;
+    }
+
+    static function foldComparison(func:String) {
+        return (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            pos: Context.currentPos(),
+            expr: EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func), args)))
+        };
     }
 }

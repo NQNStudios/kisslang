@@ -42,3 +42,14 @@
 
 (defvar myMin (min 9 3 7 1))
 (defvar myMax (max 9 3 7 1))
+
+(defvar myComp1 (< 1 2 3 4))
+(defvar myComp2 (< 1 1 3 4))
+(defvar myComp3 (<= 1 2 3 4))
+(defvar myComp4 (<= 1 1 3 4))
+(defvar myComp5 (> 4 3 2 1))
+(defvar myComp6 (> 4 4 2 1))
+(defvar myComp7 (>= 4 3 2 1))
+(defvar myComp8 (>= 4 4 2 1))
+(defvar myComp9 (= 1 1 1 1))
+(defvar myComp10 (= 1 2 1 1))

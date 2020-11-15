@@ -33,7 +33,13 @@ class Macros {
 
         macros["min"] = foldMacro("Prelude.minInclusive");
 
+        macros["_min"] = foldMacro("Prelude._minExclusive");
+
         macros["max"] = foldMacro("Prelude.maxInclusive");
+
+        macros["_max"] = foldMacro("Prelude._maxExclusive");
+
+        macros["_eq"] = foldMacro("Prelude.areEqual");
 
         return macros;
     }
