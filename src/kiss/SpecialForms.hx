@@ -9,19 +9,19 @@ import kiss.Types;
 typedef SpecialFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Expr;
 
 class SpecialForms {
-	public static function builtins() {
-		var map:Map<String, SpecialFormFunction> = [];
+    public static function builtins() {
+        var map:Map<String, SpecialFormFunction> = [];
 
-		map["begin"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-			pos: Context.currentPos(),
-			expr: EBlock([for (bodyExp in args) convert(bodyExp)])
-		};
+        map["begin"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            pos: Context.currentPos(),
+            expr: EBlock([for (bodyExp in args) convert(bodyExp)])
+        };
 
-		map["nth"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-			pos: Context.currentPos(),
-			expr: EArray(convert(args[0]), convert(args[1]))
-		};
+        map["nth"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            pos: Context.currentPos(),
+            expr: EArray(convert(args[0]), convert(args[1]))
+        };
 
-		return map;
-	}
+        return map;
+    }
 }
