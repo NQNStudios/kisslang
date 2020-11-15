@@ -30,7 +30,9 @@ class Reader {
             stream.dropUntil("\n");
             null;
         };
-        readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |", () -> stream.takeUntilAndDrop("|#")));
+        readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
+        // Unquote is syntactic sugar for calling a Quote (Void->T)
+        readTable[","] = (stream) -> CallExp(assertRead(stream, readTable), []);
 
         return readTable;
     }

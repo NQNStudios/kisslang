@@ -7,12 +7,15 @@ import kiss.Reader;
 import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
+import kiss.Types;
 
 typedef KissState = {
+    className:String,
     readTable:Map<String, ReadFunction>,
     fieldForms:Map<String, FieldFormFunction>,
     specialForms:Map<String, SpecialFormFunction>,
-    macros:Map<String, MacroFunction>
+    macros:Map<String, MacroFunction>,
+    convert:ExprConversion
 };
 
 class Kiss {
@@ -21,15 +24,19 @@ class Kiss {
     **/
     macro static public function build(kissFile:String):Array<Field> {
         var classFields = Context.getBuildFields();
+        var className = Context.getLocalClass().get().name;
 
         var stream = new Stream(kissFile);
 
         var k = {
+            className: className,
             readTable: Reader.builtins(),
             fieldForms: FieldForms.builtins(),
             specialForms: SpecialForms.builtins(),
-            macros: Macros.builtins()
-        };
+            macros: Macros.builtins(),
+            convert: null
+        }
+        k.convert = readerExpToHaxeExpr.bind(_, k);
 
         while (true) {
             stream.dropWhitespace();
@@ -55,7 +62,12 @@ class Kiss {
     static function readerExpToField(exp:ReaderExp, position:String, k:KissState):Field {
         var fieldForms = k.fieldForms;
 
+        // Macros at top-level are allowed if they expand into a fieldform, or don't become an expression, like defmacro
+        var macros = k.macros;
+
         return switch (exp) {
+            case CallExp(Symbol(mac), args) if (macros.exists(mac)):
+                readerExpToField(macros[mac](args, k), position, k);
             case CallExp(Symbol(formName), args) if (fieldForms.exists(formName)):
                 fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, k));
             default:
@@ -77,7 +89,7 @@ class Kiss {
                     expr: EConst(CString(s))
                 };
             case CallExp(Symbol(mac), args) if (macros.exists(mac)):
-                convert(macros[mac](args));
+                convert(macros[mac](args, k));
             case CallExp(Symbol(specialForm), args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](args, convert);
             case CallExp(func, body):

@@ -62,3 +62,15 @@
 (defvar myIf6 (if false true false))
 (defvar myIf7 (if "string" true false))
 (defvar myIf8 (if "" true false))
+
+(defmacro doTwiceInt [intOp]
+    ,intOp
+    ,intOp)
+
+// I think this causes doTwiceInt's runtime function to be typed as requiring Quote<Int> and returning Int
+(defun incrementTwice [val]
+    (doTwiceInt ++val))
+
+(defmacro doTwiceString [stringOp]
+    ,stringOp
+    ,stringOp)

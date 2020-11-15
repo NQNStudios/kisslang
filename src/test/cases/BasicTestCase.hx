@@ -118,4 +118,13 @@ class BasicTestCase extends Test {
         Assert.equals(true, BasicTestCase.myIf7);
         Assert.equals(false, BasicTestCase.myIf8);
     }
+
+    function testMacros() {
+        Assert.equals(7, BasicTestCase.incrementTwice(5));
+
+        var seasonsGreetings = "ho ";
+        Assert.equals("ho ho ho ", BasicTestCase.doTwiceString(() -> {
+            seasonsGreetings += "ho ";
+        }));
+    }
 }
