@@ -26,6 +26,28 @@ class SpecialForms {
 
         // TODO first through tenth
 
+        // TODO special form for object declaration
+
+        // TODO special form for new
+
+        // TODO special form for assignment
+
+        // TODO special form for lambda
+
+        // TODO special form for for loop
+
+        // TODO special form for list comprehension
+
+        // TODO special form for while loop
+
+        // TODO special form for do-while loop
+
+        // TODO special form for switch
+
+        // TODO special form for try
+
+        // TODO special form for throw
+
         map["<"] = foldComparison("_min");
         map["<="] = foldComparison("min");
         map[">"] = foldComparison("_max");
