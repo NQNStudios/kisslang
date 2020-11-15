@@ -74,4 +74,12 @@ class BasicTestCase extends Test {
     function testUnop() {
         Assert.equals(7, BasicTestCase.myInc);
     }
+
+    function testMin() {
+        Assert.equals(1, BasicTestCase.myMin);
+    }
+
+    function testMax() {
+        Assert.equals(9, BasicTestCase.myMax);
+    }
 }

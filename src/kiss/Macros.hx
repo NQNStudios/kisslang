@@ -31,6 +31,10 @@ class Macros {
             CallExp(Symbol("Prelude.pow"), [exps[1], exps[0]]);
         };
 
+        macros["min"] = foldMacro("Prelude.minInclusive");
+
+        macros["max"] = foldMacro("Prelude.maxInclusive");
+
         return macros;
     }
 

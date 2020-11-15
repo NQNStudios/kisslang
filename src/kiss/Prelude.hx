@@ -24,4 +24,24 @@ class Prelude {
     public static function pow(exponent, base) {
         return Math.pow(base, exponent);
     }
+
+    public static function minInclusive(a, b) {
+        return Math.min(a, b);
+    }
+
+    public static function minExclusive(a, b) {
+        return if (a == b) null else Math.min(a, b);
+    }
+
+    public static function maxInclusive(a, b) {
+        return Math.max(a, b);
+    }
+
+    public static function maxExclusive(a, b) {
+        return if (a == b) null else Math.max(a, b);
+    }
+
+    public static function areEqual(a, b) {
+        return if (a == b) a else null;
+    }
 }

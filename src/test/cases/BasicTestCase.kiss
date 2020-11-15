@@ -39,3 +39,6 @@
 
 (defvar _myNum 6)
 (defvar myInc ++_myNum)
+
+(defvar myMin (min 9 3 7 1))
+(defvar myMax (max 9 3 7 1))
