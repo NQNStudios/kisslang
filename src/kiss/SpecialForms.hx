@@ -32,6 +32,10 @@ class SpecialForms {
 
         // TODO special form for assignment
 
+        // TODO special form for local var declaration
+
+        // TODO let
+
         // TODO special form for lambda
 
         // TODO special form for for loop
@@ -65,6 +69,8 @@ class SpecialForms {
 
             EIf(condition, thenExp, elseExp).withPos();
         };
+
+        // TODO cond
 
         return map;
     }
