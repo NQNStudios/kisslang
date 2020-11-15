@@ -44,4 +44,21 @@ class Prelude {
     public static function areEqual(a, b) {
         return if (a == b) a else Math.NaN;
     }
+
+    public static dynamic function truthy(v:Any) {
+        return switch (Type.typeof(v)) {
+            case TNull: false;
+            case TInt | TFloat: (v : Float) > 0;
+            case TBool: (v : Bool);
+            default:
+                // Empty strings are falsy
+                var str = cast(v, String);
+                if (str != null) {
+                    str.length > 0;
+                } else {
+                    // Any other value is true by default
+                    true;
+                }
+        }
+    }
 }

@@ -53,3 +53,12 @@
 (defvar myComp8 (>= 4 4 2 1))
 (defvar myComp9 (= 1 1 1 1))
 (defvar myComp10 (= 1 2 1 1))
+
+(defvar myIf1 (if 1 true false))
+(defvar myIf2 (if 0 true false))
+(defvar myIf3 (if -1 true false))
+(defvar myIf4 (if null true false))
+(defvar myIf5 (if true true false))
+(defvar myIf6 (if false true false))
+(defvar myIf7 (if "string" true false))
+(defvar myIf8 (if "" true false))

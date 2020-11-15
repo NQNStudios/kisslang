@@ -107,4 +107,15 @@ class BasicTestCase extends Test {
         Assert.equals(true, BasicTestCase.myComp9);
         Assert.equals(false, BasicTestCase.myComp10);
     }
+
+    function testIf() {
+        Assert.equals(true, BasicTestCase.myIf1);
+        Assert.equals(false, BasicTestCase.myIf2);
+        Assert.equals(false, BasicTestCase.myIf3);
+        Assert.equals(false, BasicTestCase.myIf4);
+        Assert.equals(true, BasicTestCase.myIf5);
+        Assert.equals(false, BasicTestCase.myIf6);
+        Assert.equals(true, BasicTestCase.myIf7);
+        Assert.equals(false, BasicTestCase.myIf8);
+    }
 }

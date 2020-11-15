@@ -5,6 +5,8 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Types;
 
+using kiss.Helpers;
+
 // Special forms convert Kiss reader expressions into Haxe macro expressions
 typedef SpecialFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Expr;
 
@@ -22,11 +24,25 @@ class SpecialForms {
             expr: EArray(convert(args[0]), convert(args[1]))
         };
 
+        // TODO first through tenth
+
         map["<"] = foldComparison("_min");
         map["<="] = foldComparison("min");
         map[">"] = foldComparison("_max");
         map[">="] = foldComparison("max");
         map["="] = foldComparison("_eq");
+
+        map["if"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length < 2 || args.length > 3) {
+                throw 'if statement has wrong number of arguments: ${args.length}';
+            }
+
+            var condition = macro Prelude.truthy(${convert(args[0])});
+            var thenExp = convert(args[1]);
+            var elseExp = if (args.length > 2) convert(args[2]) else null;
+
+            EIf(condition, thenExp, elseExp).withPos();
+        };
 
         return map;
     }
