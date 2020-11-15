@@ -8,6 +8,13 @@ import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
 
+typedef KissState = {
+    readTable:Map<String, ReadFunction>,
+    fieldForms:Map<String, FieldFormFunction>,
+    specialForms:Map<String, SpecialFormFunction>,
+    macros:Map<String, MacroFunction>
+};
+
 class Kiss {
     /**
         Build a Haxe class from a corresponding .kiss file
@@ -17,24 +24,26 @@ class Kiss {
 
         var stream = new Stream(kissFile);
 
-        var readTable = Reader.builtins();
-        var fieldForms = FieldForms.builtins();
-        var specialForms = SpecialForms.builtins();
-        var macros = Macros.builtins();
+        var k = {
+            readTable: Reader.builtins(),
+            fieldForms: FieldForms.builtins(),
+            specialForms: SpecialForms.builtins(),
+            macros: Macros.builtins()
+        };
 
         while (true) {
             stream.dropWhitespace();
             if (stream.isEmpty())
                 break;
             var position = stream.position();
-            var nextExp = Reader.read(stream, readTable);
+            var nextExp = Reader.read(stream, k.readTable);
             #if test
             trace(nextExp);
             #end
             // The last expression might be a comment, in which case None will be returned
             switch (nextExp) {
                 case Some(nextExp):
-                    classFields.push(readerExpToField(nextExp, position, fieldForms, macros, specialForms));
+                    classFields.push(readerExpToField(nextExp, position, k));
                 case None:
                     stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
             }
@@ -43,19 +52,22 @@ class Kiss {
         return classFields;
     }
 
-    static function readerExpToField(exp:ReaderExp, position:String, fieldForms:Map<String, FieldFormFunction>, macros:Map<String, MacroFunction>,
-            specialForms:Map<String, SpecialFormFunction>):Field {
+    static function readerExpToField(exp:ReaderExp, position:String, k:KissState):Field {
+        var fieldForms = k.fieldForms;
+
         return switch (exp) {
             case CallExp(Symbol(formName), args) if (fieldForms.exists(formName)):
-                fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, macros, specialForms));
+                fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, k));
             default:
                 throw '$exp at $position is not a valid field form';
         };
     }
 
-    static function readerExpToHaxeExpr(exp:ReaderExp, macros:Map<String, MacroFunction>, specialForms:Map<String, SpecialFormFunction>):Expr {
+    static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
+        var macros = k.macros;
+        var specialForms = k.specialForms;
         // Bind the table arguments of this function for easy recursive calling/passing
-        var convert = readerExpToHaxeExpr.bind(_, macros, specialForms);
+        var convert = readerExpToHaxeExpr.bind(_, k);
         var expr = switch (exp) {
             case Symbol(name):
                 Context.parse(name, Context.currentPos());
@@ -71,7 +83,7 @@ class Kiss {
             case CallExp(func, body):
                 {
                     pos: Context.currentPos(),
-                    expr: ECall(readerExpToHaxeExpr(func, macros, specialForms), [for (bodyExp in body) readerExpToHaxeExpr(bodyExp, macros, specialForms)])
+                    expr: ECall(convert(func), [for (bodyExp in body) convert(bodyExp)])
                 };
             case ListExp(elements):
                 {
