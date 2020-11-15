@@ -45,6 +45,8 @@ class Prelude {
         return if (a == b) a else Math.NaN;
     }
 
+    // TODO put truthy in KissState
+    // TODO make [] falsy
     public static dynamic function truthy(v:Any) {
         return switch (Type.typeof(v)) {
             case TNull: false;

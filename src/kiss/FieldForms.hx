@@ -58,6 +58,7 @@ class FieldForms {
         };
     }
 
+    // TODO &rest, &body and &optional arguments
     static function funcOrMethod(formName:String, position:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length <= 2) {
             throw '$formName with $args is not a valid function/method definition';
@@ -84,8 +85,10 @@ class FieldForms {
                                     type: null
                                 }
                         ];
+                    case CallExp(_, _):
+                        throw '${args[1]} should be an argument list. Change the parens () to brackets []';
                     default:
-                        throw '$args[1] should be an argument list';
+                        throw '${args[1]} should be an argument list';
                 },
                 ret: null,
                 expr: {

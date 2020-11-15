@@ -1,5 +1,8 @@
 package kiss;
 
+/**
+    Kiss enhances Haxe Arrays to support negative indices and return nullable-typed values.
+**/
 @:forward(length, concat, contains, copy, filter, indexOf, // insert is re-implemented with negative index support
     iterator, join, keyValueIterator,
     lastIndexOf, map, pop, push, remove, resize, reverse, shift, // slice is re-implemented with negative index support
