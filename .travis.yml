@@ -26,8 +26,13 @@ jobs:
       haxe: stable
     # Test experiments in separate job
     - script: KISS_HEADLESS=true ./test-projects.sh
+      os:
+        - mac
+        - linux
+        - windows
       haxe: stable
-    
+      env:
+        - KISS_TARGET=projects 
 
 install:
   - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then

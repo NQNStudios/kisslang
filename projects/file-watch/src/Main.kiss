@@ -1,0 +1,2 @@
+(defun main []
+    (trace "Hello, project testing!"))

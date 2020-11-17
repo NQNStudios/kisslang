@@ -1,3 +1,4 @@
 #! /bin/bash
 
-exit 0
+haxelib dev kiss ../../
+haxe build.hxml
