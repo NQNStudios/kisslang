@@ -8,22 +8,26 @@ haxe:
   - stable
   - development
 env:
-  - HISS_TARGET=cpp
-  - HISS_TARGET=interp
-  - HISS_TARGET=js
-  - HISS_TARGET=nodejs
-  - HISS_TARGET=py
+  - KISS_TARGET=cpp
+  - KISS_TARGET=interp
+  - KISS_TARGET=js
+  - KISS_TARGET=nodejs
+  - KISS_TARGET=py
 
 jobs:
   # Allow Haxe development to fail.
   allow_failures:
     - haxe: development
   fast_finish: true
-  # Check the formatting in a separate job so formatting failures don't hide more important ones
   include:
+    # Check the formatting in a separate job so formatting failures don't hide more important ones
     - script: haxelib install formatter && haxelib run formatter --check -s .
       os: linux
       haxe: stable
+    # Test experiments in separate job
+    - script: KISS_HEADLESS=true ./test-projects.sh
+      haxe: stable
+    
 
 install:
   - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
