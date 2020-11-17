@@ -13,6 +13,7 @@ env:
   - KISS_TARGET=js
   - KISS_TARGET=nodejs
   - KISS_TARGET=py
+  - KISS_TARGET=projects
 
 jobs:
   # Allow Haxe development to fail.
@@ -24,15 +25,6 @@ jobs:
     - script: haxelib install formatter && haxelib run formatter --check -s .
       os: linux
       haxe: stable
-    # Test experiments in separate job
-    - script: KISS_HEADLESS=true ./test-projects.sh
-      os:
-        - mac
-        - linux
-        - windows
-      haxe: stable
-      env:
-        - KISS_TARGET=projects 
 
 install:
   - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
