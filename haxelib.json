@@ -1,0 +1,15 @@
+{
+    "name": "kiss",
+    "url": "https://github.com/hissvn/kisslang",
+    "license": "LGPL",
+    "tags": ["cross"],
+    "description": "",
+    "version": "0.0.0",
+    "releasenote": "It isn't safe to use this library yet.",
+    "contributors": ["NQNStudios"],
+    "classPath": "src/",
+    "main": "kiss.Main",
+    "dependencies": {
+        "utest": ""
+    }
+}
