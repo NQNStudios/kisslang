@@ -8,7 +8,8 @@ enum ReaderExp {
     ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
     StrExp(s:String); // "literal"
     Symbol(name:String); // s
-    RawHaxe(code:String);
+    RawHaxe(code:String); // #| haxeCode() |#
+    TypedExp(path:String, exp:ReaderExp); // :type [exp]
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExp>;
@@ -31,10 +32,17 @@ class Reader {
             null;
         };
         readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
-        // Unquote is syntactic sugar for calling a Quote (Void->T)
+        // For defmacrofuns, unquoting with , is syntactic sugar for calling a Quote (Void->T)
         readTable[","] = (stream) -> CallExp(assertRead(stream, readTable), []);
+        // If/when proper defmacro is added, reading every Unquote directly as a CallExp won't work anymore
+
+        readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
 
         return readTable;
+    }
+
+    static function nextToken(stream:Stream, expect:String) {
+        return stream.expect(expect, () -> stream.takeUntilOneOf([")", "]", "/*", "\n", " "]));
     }
 
     public static function assertRead(stream:Stream, readTable:Map<String, ReadFunction>):ReaderExp {
@@ -66,7 +74,7 @@ class Reader {
             }
         }
 
-        return Some(Symbol(stream.expect("a symbol name", () -> stream.takeUntilOneOf([")", "]", "/*", "\n", " "]))));
+        return Some(Symbol(nextToken(stream, "a symbol name")));
     }
 
     public static function readExpArray(stream:Stream, end:String, readTable:Map<String, ReadFunction>):Array<ReaderExp> {

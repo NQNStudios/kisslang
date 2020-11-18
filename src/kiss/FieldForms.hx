@@ -77,10 +77,10 @@ class FieldForms {
                             for (funcArg in funcArgs)
                                 {
                                     name: switch (funcArg) {
-                                        case Symbol(name):
+                                        case Symbol(name) | TypedExp(_, Symbol(name)):
                                             name;
                                         default:
-                                            throw '$funcArg should be a symbol for a function argument';
+                                            throw '$funcArg should be a symbol or typed symbol for a function argument';
                                     },
                                     type: null
                                 }

@@ -68,7 +68,7 @@
     ,intOp)
 
 // I think this causes doTwiceInt's runtime function to be typed as requiring Quote<Int> and returning Int
-(defun incrementTwice [val]
+(defun incrementTwice [:Int val]
     (doTwiceInt ++val))
 
 (defmacrofun doTwiceString [stringOp]
