@@ -17,8 +17,8 @@ env:
 
 jobs:
   # Allow Haxe development to fail.
-  allow_failures:
-    - haxe: development
+  # allow_failures:
+  #   - haxe: development
   fast_finish: true
   include:
     # Check the formatting in a separate job so formatting failures don't hide more important ones
