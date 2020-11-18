@@ -137,4 +137,8 @@ class BasicTestCase extends Test {
         Assert.equals(6, BasicTestCase.myTryCatch(404));
         Assert.equals(7, BasicTestCase.myTryCatch(["list error"]));
     }
+
+    function testTypeCheck() {
+        Assert.equals(5, BasicTestCase.myTypeCheck());
+    }
 }

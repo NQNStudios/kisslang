@@ -83,3 +83,6 @@
         (catch [:String error] 5)
         (catch [:Int error] 6)
         (catch [error] 7)))
+
+(defun myTypeCheck []
+    (the Int 5))

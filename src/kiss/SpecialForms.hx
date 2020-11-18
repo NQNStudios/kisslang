@@ -48,7 +48,16 @@ class SpecialForms {
 
         // TODO special form for switch
 
-        // TODO special form for try
+        // Type check syntax:
+        map["the"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length != 2) {
+                throw '(the [type] [value]) expression has wrong number of arguments: ${args.length}';
+            }
+            ECheckType(convert(args[1]), switch (args[0]) {
+                case Symbol(type): Helpers.parseTypePath(type);
+                default: throw 'first argument to (the... ) should be a valid type';
+            }).withPos();
+        };
 
         map["try"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length == 0) {
