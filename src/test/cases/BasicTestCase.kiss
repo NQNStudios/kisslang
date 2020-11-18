@@ -76,3 +76,10 @@
 (defmacrofun doTwiceString [stringOp]
     ,stringOp
     ,stringOp)
+
+(defun myTryCatch [:Any e]
+    (try
+        (throw e)
+        (catch [:String error] 5)
+        (catch [:Int error] 6)
+        (catch [error] 7)))

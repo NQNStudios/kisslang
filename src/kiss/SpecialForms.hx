@@ -50,7 +50,41 @@ class SpecialForms {
 
         // TODO special form for try
 
-        // TODO special form for throw
+        map["try"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length == 0) {
+                throw '(try...) expression has nothing to try';
+            }
+            var tryKissExp = args[0];
+            var catchKissExps = args.slice(1);
+            ETry(convert(tryKissExp), [
+                for (catchKissExp in catchKissExps) {
+                    switch (catchKissExp) {
+                        case CallExp(Symbol("catch"), catchArgs):
+                            {
+                                name: switch (catchArgs[0]) {
+                                    case ListExp([Symbol(name) | TypedExp(_, Symbol(name))]): name;
+                                    default: throw 'first argument to (catch... ) should be a one-element argument list, not ${catchArgs[0]}';
+                                },
+                                type: switch (catchArgs[0]) {
+                                    case ListExp([TypedExp(type, _)]):
+                                        Helpers.parseTypePath(type);
+                                    default: null;
+                                },
+                                expr: convert(CallExp(Symbol("begin"), catchArgs.slice(1)))
+                            };
+                        default:
+                            throw 'expressions following the first expression in a (try... ) should all be (catch... ) expressions, but you used $catchKissExp';
+                    }
+                }
+            ]).withPos();
+        };
+
+        map["throw"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length != 1) {
+                throw 'throw expression should only throw one value, not: $args';
+            }
+            EThrow(convert(args[0])).withPos();
+        };
 
         map["<"] = foldComparison("_min");
         map["<="] = foldComparison("min");
@@ -60,7 +94,7 @@ class SpecialForms {
 
         map["if"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length < 2 || args.length > 3) {
-                throw 'if statement has wrong number of arguments: ${args.length}';
+                throw '(if...) expression has wrong number of arguments: ${args.length}';
             }
 
             var condition = macro Prelude.truthy(${convert(args[0])});

@@ -131,4 +131,10 @@ class BasicTestCase extends Test {
     function testTypedDefvar() {
         Assert.equals(8, BasicTestCase.myInt);
     }
+
+    function testTryCatch() {
+        Assert.equals(5, BasicTestCase.myTryCatch("string error"));
+        Assert.equals(6, BasicTestCase.myTryCatch(404));
+        Assert.equals(7, BasicTestCase.myTryCatch(["list error"]));
+    }
 }
