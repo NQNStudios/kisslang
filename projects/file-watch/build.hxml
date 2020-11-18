@@ -2,4 +2,4 @@
 -lib kiss
 -cp src
 --main Main
---interp
+--python bin/main.py

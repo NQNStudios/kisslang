@@ -1,2 +1,2 @@
 (defun main []
-    (trace "Hello, project testing!"))
+    (trace (nth (Sys.args) 0)))
