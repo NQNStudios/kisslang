@@ -1,5 +1,6 @@
 package kiss;
 
+#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import kiss.Stream;
@@ -121,3 +122,4 @@ class Kiss {
         return expr;
     }
 }
+#end
