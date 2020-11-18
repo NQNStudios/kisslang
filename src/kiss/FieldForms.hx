@@ -4,6 +4,7 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Types;
+import kiss.Helpers;
 
 using StringTools;
 
@@ -34,10 +35,10 @@ class FieldForms {
 
     static function fieldName(formName:String, position:String, nameExp:ReaderExp) {
         return switch (nameExp) {
-            case Symbol(name):
+            case Symbol(name) | TypedExp(_, Symbol(name)):
                 name;
             default:
-                throw 'The first argument to $formName at $position should be a variable name';
+                throw 'The first argument to $formName at $position should be a variable name or typed variable name';
         };
     }
 
@@ -52,8 +53,11 @@ class FieldForms {
         return {
             name: name,
             access: access,
-            kind: FVar(null, // TODO allow type anotations
-                convert(args[1])),
+            kind: FVar(switch (args[0]) {
+                case TypedExp(type, _):
+                    Helpers.parseTypePath(type);
+                default: null;
+            }, convert(args[1])),
             pos: Context.currentPos()
         };
     }
@@ -70,10 +74,12 @@ class FieldForms {
         return {
             name: name,
             access: access,
+            // TODO type parameter declarations
             kind: FFun({
                 args: switch (args[1]) {
                     case ListExp(funcArgs):
                         [
+                            // TODO optional arguments, default values
                             for (funcArg in funcArgs)
                                 {
                                     name: switch (funcArg) {
@@ -82,7 +88,11 @@ class FieldForms {
                                         default:
                                             throw '$funcArg should be a symbol or typed symbol for a function argument';
                                     },
-                                    type: null
+                                    type: switch (funcArg) {
+                                        case TypedExp(type, _):
+                                            Helpers.parseTypePath(type);
+                                        default: null;
+                                    }
                                 }
                         ];
                     case CallExp(_, _):
@@ -90,7 +100,10 @@ class FieldForms {
                     default:
                         throw '${args[1]} should be an argument list';
                 },
-                ret: null,
+                ret: switch (args[0]) {
+                    case TypedExp(type, _): Helpers.parseTypePath(type);
+                    default: null;
+                },
                 expr: {
                     pos: Context.currentPos(),
                     expr: EReturn(convert(CallExp(Symbol("begin"), args.slice(2))))

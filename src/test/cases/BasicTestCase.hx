@@ -127,4 +127,8 @@ class BasicTestCase extends Test {
             seasonsGreetings += "ho ";
         }));
     }
+
+    function testTypedDefvar() {
+        Assert.equals(8, BasicTestCase.myInt);
+    }
 }
