@@ -48,13 +48,13 @@ class Macros {
 
         // TODO when
 
-        // Under the hood, (defmacro ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macro calls
-        macros["defmacro"] = (exps:Array<ReaderExp>, k:KissState) -> {
+        // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
+        macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
-                throw '${exps.length} is not enough arguments for (defmacro [name] [args] [body])';
+                throw '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body])';
             var macroName = switch (exps[0]) {
                 case Symbol(name): name;
-                default: throw 'first argument ${exps[0]} for defmacro should be a symbol for the macro name';
+                default: throw 'first argument ${exps[0]} for defmacrofun should be a symbol for the macro name';
             };
             k.specialForms[macroName] = (callArgs:Array<ReaderExp>, convert) -> {
                 ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [

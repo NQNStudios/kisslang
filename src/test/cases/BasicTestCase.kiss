@@ -63,7 +63,7 @@
 (defvar myIf7 (if "string" true false))
 (defvar myIf8 (if "" true false))
 
-(defmacro doTwiceInt [intOp]
+(defmacrofun doTwiceInt [intOp]
     ,intOp
     ,intOp)
 
@@ -71,6 +71,6 @@
 (defun incrementTwice [val]
     (doTwiceInt ++val))
 
-(defmacro doTwiceString [stringOp]
+(defmacrofun doTwiceString [stringOp]
     ,stringOp
     ,stringOp)
