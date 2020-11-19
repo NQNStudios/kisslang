@@ -73,8 +73,8 @@ class SpecialForms {
         // TODO special form for lambda
 
         // TODO special form for for loop
-
         // TODO special form for list comprehension
+        // ^It would be nice if these were both DRY and supported list and keyvalue unpacking
 
         // TODO special form for while loop
 
