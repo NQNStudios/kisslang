@@ -6,6 +6,7 @@ import kiss.Reader;
 import kiss.Types;
 
 using kiss.Helpers;
+using kiss.Prelude;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
 typedef SpecialFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Expr;
@@ -34,7 +35,40 @@ class SpecialForms {
 
         // TODO special form for local var declaration
 
-        // TODO let
+        map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            var bindingList = switch (args[0]) {
+                case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
+                    bindingExps;
+                default:
+                    throw '${args[0]} should be a list expression with an even number of sub expressions';
+            };
+            var bindingPairs = bindingList.groups(2);
+            var varDefs = [
+                for (bindingPair in bindingPairs)
+                    {
+                        name: switch (bindingPair[0]) {
+                            case Symbol(name) | TypedExp(_, Symbol(name)):
+                                name;
+                            default:
+                                throw 'first element of binding pair $bindingPair should be a symbol or typed symbol';
+                        },
+                        type: switch (bindingPair[0]) {
+                            case TypedExp(type, _):
+                                Helpers.parseTypePath(type);
+                            default: null;
+                        },
+                        isFinal: true, // Let's give (let...) variable immutability a try
+                        expr: convert(bindingPair[1])
+                    }
+            ];
+
+            var body = args.slice(1);
+            if (body.length == 0) {
+                throw '(let....) expression with bindings $bindingPairs needs a body';
+            }
+
+            EBlock([EVars(varDefs).withPos(), EBlock(body.map(convert)).withPos()]).withPos();
+        };
 
         // TODO special form for lambda
 

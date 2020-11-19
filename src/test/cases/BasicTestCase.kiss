@@ -92,3 +92,11 @@
 
 (defun myGroups2 []
     (Prelude.groups [1 2 3 4] 3 true))
+
+(defun _testLet []
+    (let [a 5
+            b 6
+            :String c "stuff"]
+        (Assert.equals 5 a)
+        (Assert.equals 6 b)
+        (Assert.equals "stuff" c)))
