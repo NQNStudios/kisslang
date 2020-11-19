@@ -141,4 +141,9 @@ class BasicTestCase extends Test {
     function testTypeCheck() {
         Assert.equals(5, BasicTestCase.myTypeCheck());
     }
+
+    function testGroups() {
+        Assert.equals([[1, 2], [3, 4]].toString(), BasicTestCase.myGroups1().toString());
+        Assert.equals([[1, 2, 3], [4]].toString(), BasicTestCase.myGroups2().toString());
+    }
 }

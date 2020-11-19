@@ -45,6 +45,21 @@ class Prelude {
         return if (a == b) a else Math.NaN;
     }
 
+    public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
+        var numFullGroups = Math.floor(a.length / size);
+        var fullGroups = [
+            for (num in 0...numFullGroups) {
+                var start = num * size;
+                var end = (num + 1) * size;
+                a.slice(start, end);
+            }
+        ];
+        if (a.length % size != 0 && keepRemainder) {
+            fullGroups.push(a.slice(numFullGroups * size));
+        }
+        return fullGroups;
+    }
+
     // TODO put truthy in KissState
     // TODO make [] falsy
     public static dynamic function truthy(v:Any) {
