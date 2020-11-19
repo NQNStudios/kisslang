@@ -38,6 +38,9 @@ class Reader {
 
         readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
 
+        // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
+        readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
+
         return readTable;
     }
 
@@ -74,7 +77,7 @@ class Reader {
             }
         }
 
-        return Some(Symbol(nextToken(stream, "a symbol name")));
+        throw 'No macro to read next expression';
     }
 
     public static function readExpArray(stream:Stream, end:String, readTable:Map<String, ReadFunction>):Array<ReaderExp> {

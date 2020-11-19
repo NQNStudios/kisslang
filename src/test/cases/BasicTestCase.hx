@@ -128,6 +128,7 @@ class BasicTestCase extends Test {
         }));
     }
 
+    // TODO to really test typed variable definitions, check for compilation failure on a bad example
     function testTypedDefvar() {
         Assert.equals(8, BasicTestCase.myInt);
     }
