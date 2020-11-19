@@ -78,4 +78,9 @@ class Prelude {
                 }
         }
     }
+
+    public static function print(v:Any) {
+        trace(v);
+        return v;
+    }
 }
