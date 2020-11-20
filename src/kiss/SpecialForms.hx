@@ -29,7 +29,16 @@ class SpecialForms {
 
         // TODO special form for object declaration
 
-        // TODO special form for new
+        map["new"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length < 1) {
+                throw '(new [type] constructorArgs...) is missing a type!';
+            }
+            var classType = switch (args[0]) {
+                case Symbol(name): name;
+                default: throw 'first arg in (new [type] ...) should be a class to instantiate';
+            };
+            ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withPos();
+        };
 
         // TODO special form for assignment
 
@@ -54,7 +63,7 @@ class SpecialForms {
                         },
                         type: switch (bindingPair[0]) {
                             case TypedExp(type, _):
-                                Helpers.parseTypePath(type);
+                                Helpers.parseComplexType(type);
                             default: null;
                         },
                         isFinal: true, // Let's give (let...) variable immutability a try
@@ -88,7 +97,7 @@ class SpecialForms {
                 throw '(the [type] [value]) expression has wrong number of arguments: ${args.length}';
             }
             ECheckType(convert(args[1]), switch (args[0]) {
-                case Symbol(type): Helpers.parseTypePath(type);
+                case Symbol(type): Helpers.parseComplexType(type);
                 default: throw 'first argument to (the... ) should be a valid type';
             }).withPos();
         };
@@ -110,7 +119,7 @@ class SpecialForms {
                                 },
                                 type: switch (catchArgs[0]) {
                                     case ListExp([TypedExp(type, _)]):
-                                        Helpers.parseTypePath(type);
+                                        Helpers.parseComplexType(type);
                                     default: null;
                                 },
                                 expr: convert(CallExp(Symbol("begin"), catchArgs.slice(1)))

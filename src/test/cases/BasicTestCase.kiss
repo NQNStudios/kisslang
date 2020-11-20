@@ -100,3 +100,5 @@
         (Assert.equals 5 a)
         (Assert.equals 6 b)
         (Assert.equals "stuff" c)))
+
+(defvar myConstructedString (new String "sup"))

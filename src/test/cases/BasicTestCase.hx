@@ -151,4 +151,8 @@ class BasicTestCase extends Test {
     function testLet() {
         _testLet();
     }
+
+    function testConstructors() {
+        Assert.equals("sup", BasicTestCase.myConstructedString);
+    }
 }

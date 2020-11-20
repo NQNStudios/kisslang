@@ -55,7 +55,7 @@ class FieldForms {
             access: access,
             kind: FVar(switch (args[0]) {
                 case TypedExp(type, _):
-                    Helpers.parseTypePath(type);
+                    Helpers.parseComplexType(type);
                 default: null;
             }, convert(args[1])),
             pos: Context.currentPos()
@@ -90,7 +90,7 @@ class FieldForms {
                                     },
                                     type: switch (funcArg) {
                                         case TypedExp(type, _):
-                                            Helpers.parseTypePath(type);
+                                            Helpers.parseComplexType(type);
                                         default: null;
                                     }
                                 }
@@ -101,7 +101,7 @@ class FieldForms {
                         throw '${args[1]} should be an argument list';
                 },
                 ret: switch (args[0]) {
-                    case TypedExp(type, _): Helpers.parseTypePath(type);
+                    case TypedExp(type, _): Helpers.parseComplexType(type);
                     default: null;
                 },
                 expr: {

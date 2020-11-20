@@ -18,7 +18,7 @@ class Helpers {
     }
 
     // TODO this doesn't parse generic typeparams yet
-    public static function parseTypePath(path:String):ComplexType {
+    public static function parseTypePath(path:String):TypePath {
         var parts:List<String> = path.split(".");
         var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
         for (isUpcase in uppercaseParts.slice(0, -2)) {
@@ -28,7 +28,8 @@ class Helpers {
         }
         var lastIsCap = uppercaseParts[-1];
         var penultIsCap = uppercaseParts[-2];
-        return TPath(if (lastIsCap && penultIsCap) {
+
+        return if (lastIsCap && penultIsCap) {
             {
                 sub: parts[-1],
                 name: parts[-2],
@@ -41,6 +42,10 @@ class Helpers {
             };
         } else {
             throw 'Type path $path should end with a capitalized type';
-        });
+        };
+    }
+
+    public static function parseComplexType(path:String):ComplexType {
+        return TPath(parseTypePath(path));
     }
 }
