@@ -14,5 +14,10 @@ if [ ! -z "$(which python3)" ]; then
 fi
 
 haxe build.hxml && \
-timeout 0.35 $whichpy bin/main.py test-file.txt 0.1 "echo {} >> test-output.txt" 0  || \
-if [[ "$(cat test-output.txt)" != *"$expected"* ]]; then exit 1; fi
+# Give extra time to reach 3 "hey"s
+timeout 0.5 $whichpy bin/main.py test-file.txt 0.1 "echo {} >> test-output.txt" 0  || \
+if [[ "$(cat test-output.txt)" != *"$expected"* ]]
+then
+    echo "$(cat test-output.txt) should be $expected"
+    exit 1
+fi
