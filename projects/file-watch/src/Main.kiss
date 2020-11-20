@@ -1,7 +1,7 @@
 (defun check [file delay command erase]
     (let [contents
             (try
-                    (File.getContent file)
+                    (StringTools.trim (File.getContent file))
                 (catch [e] ""))]
         (if (< 0 contents.length)
             #|for (line in contents.split("\n")) {
