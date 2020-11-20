@@ -44,6 +44,7 @@ class SpecialForms {
 
         // TODO special form for local var declaration
 
+        // TODO refactor out EVar generation and allow var bindings to destructure lists and key-value pairs
         map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             var bindingList = switch (args[0]) {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
