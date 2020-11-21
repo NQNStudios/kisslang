@@ -1,0 +1,8 @@
+(defreadermacro "!" [stream] #|ReaderExp.StrExp(stream.expect("a string line", function () stream.takeLine()))|#)
+
+(defreadermacro )
+
+(defun myLine []
+    !String that takes the rest of the line
+    )
+

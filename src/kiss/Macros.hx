@@ -2,13 +2,15 @@ package kiss;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import hscript.Parser;
+import hscript.Interp;
 import kiss.Reader;
 import kiss.Kiss;
 
 using kiss.Helpers;
 
 // Macros generate new Kiss reader expressions from the arguments of their call expression.
-typedef MacroFunction = (Array<ReaderExp>, KissState) -> ReaderExp;
+typedef MacroFunction = (Array<ReaderExp>, KissState) -> Null<ReaderExp>;
 
 class Macros {
     public static function builtins() {
@@ -69,6 +71,37 @@ class Macros {
 
             CallExp(Symbol("defun"), exps);
         }
+
+        // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
+        macros["defreadermacro"] = (exps:Array<ReaderExp>, k:KissState) -> {
+            if (exps.length != 3) {
+                throw 'wrong number of expressions for defreadermacro: $exps should be String, [streamArgName], RawHaxe';
+            }
+            switch (exps[0]) {
+                case StrExp(s):
+                    switch (exps[1]) {
+                        case ListExp([Symbol(streamArgName)]):
+                            switch (exps[2]) {
+                                case RawHaxe(code):
+                                    k.readTable[s] = (stream) -> {
+                                        var parser = new Parser();
+                                        var interp = new Interp();
+                                        interp.variables.set("ReaderExp", ReaderExp);
+                                        interp.variables.set(streamArgName, stream);
+                                        interp.execute(parser.parseString(code));
+                                    };
+                                default:
+                                    throw 'third argument to defreadermacro should be #|raw haxe|#, not ${exps[2]}';
+                            }
+                        default:
+                            throw 'second argument to defreadermacro should be [steamArgName], not ${exps[1]}';
+                    }
+                default:
+                    throw 'first argument to defreadermacro should be a String, not ${exps[0]}';
+            }
+
+            return null;
+        };
 
         return macros;
     }

@@ -51,7 +51,9 @@ class Kiss {
             // The last expression might be a comment, in which case None will be returned
             switch (nextExp) {
                 case Some(nextExp):
-                    classFields.push(readerExpToField(nextExp, position, k));
+                    var field = readerExpToField(nextExp, position, k);
+                    if (field != null)
+                        classFields.push(field);
                 case None:
                     stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
             }
@@ -60,15 +62,16 @@ class Kiss {
         return classFields;
     }
 
-    static function readerExpToField(exp:ReaderExp, position:String, k:KissState):Field {
+    static function readerExpToField(exp:ReaderExp, position:String, k:KissState):Null<Field> {
         var fieldForms = k.fieldForms;
 
-        // Macros at top-level are allowed if they expand into a fieldform, or don't become an expression, like defmacro
+        // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
         var macros = k.macros;
 
         return switch (exp) {
             case CallExp(Symbol(mac), args) if (macros.exists(mac)):
-                readerExpToField(macros[mac](args, k), position, k);
+                var expandedExp = macros[mac](args, k);
+                if (expandedExp != null) readerExpToField(macros[mac](args, k), position, k) else null;
             case CallExp(Symbol(formName), args) if (fieldForms.exists(formName)):
                 fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, k));
             default:

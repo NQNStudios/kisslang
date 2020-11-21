@@ -38,6 +38,13 @@ class Stream {
         return '$file:$line:$column';
     }
 
+    public function startsWith(s:String) {
+        return switch (peekChars(s.length)) {
+            case Some(s1) if (s == s1): true;
+            default: false;
+        };
+    }
+
     /** Every drop call should end up calling dropChars() or the position tracker will be wrong. **/
     private function dropChars(count:Int) {
         for (idx in 0...count) {
@@ -94,6 +101,10 @@ class Stream {
         var toReturn = content.substr(0, idx);
         dropChars(toReturn.length + s.length);
         return Some(toReturn);
+    }
+
+    public function takeLine():Option<String> {
+        return takeUntilAndDrop("\n");
     }
 
     public function expect(whatToExpect:String, f:Void->Option<String>):String {

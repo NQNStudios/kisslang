@@ -82,9 +82,10 @@ class Reader {
 
     public static function readExpArray(stream:Stream, end:String, readTable:Map<String, ReadFunction>):Array<ReaderExp> {
         var array = [];
-        while (stream.expect('$end to terminate list', () -> stream.peekChars(end.length)) != end) {
+        while (!stream.startsWith(end)) {
             stream.dropWhitespace();
-            array.push(assertRead(stream, readTable));
+            if (!stream.startsWith(end))
+                array.push(assertRead(stream, readTable));
         }
         stream.dropString(end);
         return array;
