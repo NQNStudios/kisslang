@@ -2,6 +2,10 @@
 # Test the Kiss projects. If run manually, this runs extra manual tests that may involve GUI stuff.
 PROJECT_DIRS=projects/**/
 
+if [ ! -z "${TRAVIS_OS_NAME}" ]; then
+    (cd src/build-scripts && haxelib install all --always)
+fi
+
 for PROJECT_DIR in $PROJECT_DIRS
 do
     if [ ! -z "${TRAVIS_OS_NAME}" ]; then
