@@ -1,5 +1,7 @@
 package kiss;
 
+using Std;
+
 class Prelude {
     public static function add(a, b) {
         return a + b;
@@ -69,13 +71,17 @@ class Prelude {
             case TBool: (v : Bool);
             default:
                 // Empty strings are falsy
-                var str = cast(v, String);
-                if (str != null) {
+                if (v.isOfType(String)) {
+                    var str:String = cast v;
                     str.length > 0;
+                } else if (v.isOfType(Array)) {
+                    // Empty lists are falsy
+                    var lst:Array<Dynamic> = cast v;
+                    lst.length > 0;
                 } else {
                     // Any other value is true by default
                     true;
-                }
+                };
         }
     }
 
