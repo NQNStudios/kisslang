@@ -6,7 +6,7 @@ import haxe.macro.Context;
 using StringTools;
 
 class Helpers {
-    public static function withPos(e:ExprDef):Expr {
+    public static function withContextPos(e:ExprDef):Expr {
         return {
             pos: Context.currentPos(),
             expr: e

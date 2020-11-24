@@ -37,7 +37,7 @@ class SpecialForms {
                 case Symbol(name): name;
                 default: throw 'first arg in (new [type] ...) should be a class to instantiate';
             };
-            ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withPos();
+            ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withContextPos();
         };
 
         // TODO special form for assignment
@@ -77,7 +77,7 @@ class SpecialForms {
                 throw '(let....) expression with bindings $bindingPairs needs a body';
             }
 
-            EBlock([EVars(varDefs).withPos(), EBlock(body.map(convert)).withPos()]).withPos();
+            EBlock([EVars(varDefs).withContextPos(), EBlock(body.map(convert)).withContextPos()]).withContextPos();
         };
 
         // TODO special form for lambda
@@ -100,7 +100,7 @@ class SpecialForms {
             ECheckType(convert(args[1]), switch (args[0]) {
                 case Symbol(type): Helpers.parseComplexType(type);
                 default: throw 'first argument to (the... ) should be a valid type';
-            }).withPos();
+            }).withContextPos();
         };
 
         map["try"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
@@ -129,14 +129,14 @@ class SpecialForms {
                             throw 'expressions following the first expression in a (try... ) should all be (catch... ) expressions, but you used $catchKissExp';
                     }
                 }
-            ]).withPos();
+            ]).withContextPos();
         };
 
         map["throw"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 1) {
                 throw 'throw expression should only throw one value, not: $args';
             }
-            EThrow(convert(args[0])).withPos();
+            EThrow(convert(args[0])).withContextPos();
         };
 
         map["<"] = foldComparison("_min");
@@ -154,7 +154,7 @@ class SpecialForms {
             var thenExp = convert(args[1]);
             var elseExp = if (args.length > 2) convert(args[2]) else null;
 
-            EIf(condition, thenExp, elseExp).withPos();
+            EIf(condition, thenExp, elseExp).withContextPos();
         };
 
         // TODO cond

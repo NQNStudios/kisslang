@@ -64,9 +64,9 @@ class Macros {
                         EFunction(FArrow, {
                             args: [],
                             ret: null,
-                            expr: EReturn(k.convert(callArg)).withPos()
-                        }).withPos()
-                ]).withPos();
+                            expr: EReturn(k.convert(callArg)).withContextPos()
+                        }).withContextPos()
+                ]).withContextPos();
             };
 
             CallExp(Symbol("defun"), exps);
