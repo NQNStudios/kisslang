@@ -130,6 +130,10 @@
 
 (defvar myOr1 (or null 5))
 
+(defvar myAnd1 (and 5 6))
+(defvar myAnd2 (and false 5 6))
+(defvar myAnd3 (and 5 false 6))
+
 (defun mySetLocal []
     (deflocal loc &mut "one thing")
     (set loc "another thing")

@@ -174,6 +174,12 @@ class BasicTestCase extends Test {
         Assert.equals(5, BasicTestCase.myOr1);
     }
 
+    function testAnd() {
+        Assert.equals(6, BasicTestCase.myAnd1);
+        Assert.equals(null, BasicTestCase.myAnd2);
+        Assert.equals(null, BasicTestCase.myAnd3);
+    }
+
     function testNot() {
         Assert.equals(false, BasicTestCase.myNot1);
         Assert.equals(false, BasicTestCase.myNot2);

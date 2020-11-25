@@ -75,6 +75,31 @@ class Macros {
             ]).withPos(args[0].pos);
         };
 
+        // (and... uses (cond... ) and (not ...) under the hood)
+        macros["and"] = (args:Array<ReaderExp>, k) -> {
+            var uniqueVarName = "_" + Uuid.v4().toShort();
+            var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
+
+            var condCases = [
+                for (arg in args) {
+                    CallExp(CallExp(Symbol("not").withPos(args[0].pos),
+                        [
+                            CallExp(Symbol("set").withPos(args[0].pos), [uniqueVarSymbol, arg]).withPos(args[0].pos)
+                        ]).withPos(args[0].pos), [Symbol("null").withPos(args[0].pos)]).withPos(args[0].pos);
+                }
+            ];
+            condCases.push(CallExp(Symbol("true").withPos(args[0].pos), [uniqueVarSymbol]).withPos(args[0].pos));
+
+            CallExp(Symbol("begin").withPos(args[0].pos), [
+                CallExp(Symbol("deflocal").withPos(args[0].pos), [
+                    TypedExp("Any", uniqueVarSymbol).withPos(args[0].pos),
+                    MetaExp("mut").withPos(args[0].pos),
+                    Symbol("null").withPos(args[0].pos)
+                ]).withPos(args[0].pos),
+                CallExp(Symbol("cond").withPos(args[0].pos), condCases).withPos(args[0].pos)
+            ]).withPos(args[0].pos);
+        };
+
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
