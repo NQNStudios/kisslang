@@ -6,6 +6,7 @@ import kiss.Reader;
 import kiss.Types;
 import kiss.Helpers;
 import kiss.Stream;
+import kiss.CompileError;
 
 using kiss.Reader;
 using StringTools;
@@ -40,13 +41,13 @@ class FieldForms {
             case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                 name;
             default:
-                throw 'The first argument to $formName at ${nameExp.pos} should be a variable name or typed variable name';
+                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name or typed variable name.');
         };
     }
 
     static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length < 2 || args.length > 3) {
-            throw '$formName with $args at $position has wrong number of arguments';
+            throw CompileError.fromArgs(args, '$formName has wrong number of arguments');
         }
 
         var name = fieldName(formName, args[0]);

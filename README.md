@@ -22,6 +22,7 @@ Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 - [ ] [Reader macros](https://gist.github.com/chaitanyagupta/9324402)
 - [ ] Plug-and-play with every pure-Haxe library on Haxelib
 - [ ] Smooth FFI with any non-Haxe library you can find or write Haxe bindings for
+- [ ] helpful compiler errors
 
 **Extra goodies:**
 

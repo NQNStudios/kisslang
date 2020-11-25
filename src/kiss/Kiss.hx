@@ -9,6 +9,7 @@ import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
 import kiss.Types;
+import kiss.CompileError;
 
 typedef KissState = {
     className:String,
@@ -24,42 +25,48 @@ class Kiss {
         Build a Haxe class from a corresponding .kiss file
     **/
     macro static public function build(kissFile:String):Array<Field> {
-        var classFields = Context.getBuildFields();
-        var className = Context.getLocalClass().get().name;
+        try {
+            var classFields = Context.getBuildFields();
+            var className = Context.getLocalClass().get().name;
 
-        var stream = new Stream(kissFile);
+            var stream = new Stream(kissFile);
 
-        var k = {
-            className: className,
-            readTable: Reader.builtins(),
-            fieldForms: FieldForms.builtins(),
-            specialForms: SpecialForms.builtins(),
-            macros: Macros.builtins(),
-            convert: null
-        }
-        k.convert = readerExpToHaxeExpr.bind(_, k);
-
-        while (true) {
-            stream.dropWhitespace();
-            if (stream.isEmpty())
-                break;
-            var position = stream.position();
-            var nextExp = Reader.read(stream, k.readTable);
-            #if test
-            trace(nextExp);
-            #end
-            // The last expression might be a comment, in which case None will be returned
-            switch (nextExp) {
-                case Some(nextExp):
-                    var field = readerExpToField(nextExp, position, k);
-                    if (field != null)
-                        classFields.push(field);
-                case None:
-                    stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
+            var k = {
+                className: className,
+                readTable: Reader.builtins(),
+                fieldForms: FieldForms.builtins(),
+                specialForms: SpecialForms.builtins(),
+                macros: Macros.builtins(),
+                convert: null
             }
-        }
+            k.convert = readerExpToHaxeExpr.bind(_, k);
 
-        return classFields;
+            while (true) {
+                stream.dropWhitespace();
+                if (stream.isEmpty())
+                    break;
+                var position = stream.position();
+                var nextExp = Reader.read(stream, k.readTable);
+                #if test
+                trace(nextExp);
+                #end
+                // The last expression might be a comment, in which case None will be returned
+                switch (nextExp) {
+                    case Some(nextExp):
+                        var field = readerExpToField(nextExp, position, k);
+                        if (field != null)
+                            classFields.push(field);
+                    case None:
+                        stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
+                }
+            }
+
+            return classFields;
+        } catch (err:CompileError) {
+            Sys.println(err);
+            Sys.exit(1);
+            return null; // Necessary for build() to compile
+        }
     }
 
     static function readerExpToField(exp:ReaderExp, position:Position, k:KissState):Null<Field> {
