@@ -50,6 +50,9 @@ class Reader {
 
         readTable["!"] = (stream:Stream) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, readTable)]);
 
+        // Helpful for defining predicates to pass to Haxe functions:
+        readTable["?"] = (stream:Stream) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, readTable)]);
+
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
 

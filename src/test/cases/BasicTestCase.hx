@@ -184,4 +184,8 @@ class BasicTestCase extends Test {
         Assert.equals(false, BasicTestCase.myNot1);
         Assert.equals(false, BasicTestCase.myNot2);
     }
+
+    function testLambda() {
+        Assert.equals([5, 6].toString(), BasicTestCase.myFilteredList.toString());
+    }
 }

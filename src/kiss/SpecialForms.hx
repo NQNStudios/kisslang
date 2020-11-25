@@ -110,7 +110,9 @@ class SpecialForms {
             EBlock([EVars(varDefs).withContextPos(), EBlock(body.map(convert)).withContextPos()]).withContextPos();
         };
 
-        // TODO special form for lambda
+        map["lambda"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), convert)).withContextPos();
+        };
 
         // TODO special form for for loop
         // TODO special form for list comprehension

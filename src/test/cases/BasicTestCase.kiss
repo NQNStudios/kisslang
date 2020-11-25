@@ -141,3 +141,7 @@
 
 (defvar myNot1 (not 5))
 (defvar myNot2 !5)
+
+(defvar myFilteredList (begin 
+    (deflocal l [-1 -2 5 -3 6])
+    (l.filter (lambda [v] (< 0 v)))))
