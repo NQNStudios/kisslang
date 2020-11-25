@@ -185,8 +185,8 @@ class SpecialForms {
 
             macro if ($condition)
                 $thenExp
-                else
-                    $elseExp;
+            else
+                $elseExp;
         };
 
         return map;

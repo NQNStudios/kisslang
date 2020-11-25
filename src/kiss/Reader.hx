@@ -16,7 +16,8 @@ enum ReaderExpDef {
     StrExp(s:String); // "literal"
     Symbol(name:String); // s
     RawHaxe(code:String); // #| haxeCode() |#
-    TypedExp(path:String, exp:ReaderExp); // :type [exp]
+    TypedExp(path:String, exp:ReaderExp); // :type [exp]]
+    MetaExp(meta:String); // &meta
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
@@ -44,6 +45,8 @@ class Reader {
         // If/when proper defmacro is added, reading every Unquote directly as a CallExp won't work anymore
 
         readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
+
+        readTable["&"] = (stream) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"));
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));

@@ -46,12 +46,25 @@ class FieldForms {
 
     // TODO make immutability the default
     static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
-        if (args.length != 2) {
-            throw '$formName with $args at $position is not a valid field definition';
+        if (args.length < 2 || args.length > 3) {
+            throw '$formName with $args at $position has wrong number of arguments';
         }
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name);
+
+        var valueIndex = 1;
+        // Variables are immutable by default
+        if (args.length == 3) {
+            valueIndex = 2;
+            switch (args[1].def) {
+                case MetaExp("mut"):
+                default:
+                    throw 'the only argument acceptable after name and value in $formName is &mut, not ${args[2]}';
+            }
+        } else {
+            access.push(AFinal);
+        }
 
         return {
             name: name,
@@ -60,7 +73,7 @@ class FieldForms {
                 case TypedExp(type, _):
                     Helpers.parseComplexType(type);
                 default: null;
-            }, convert(args[1])),
+            }, convert(args[valueIndex])),
             pos: Context.currentPos()
         };
     }
