@@ -53,7 +53,7 @@ class Kiss {
                 // The last expression might be a comment, in which case None will be returned
                 switch (nextExp) {
                     case Some(nextExp):
-                        var field = readerExpToField(nextExp, position, k);
+                        var field = readerExpToField(nextExp, k);
                         if (field != null)
                             classFields.push(field);
                     case None:
@@ -69,7 +69,7 @@ class Kiss {
         }
     }
 
-    static function readerExpToField(exp:ReaderExp, position:Position, k:KissState):Null<Field> {
+    static function readerExpToField(exp:ReaderExp, k:KissState):Null<Field> {
         var fieldForms = k.fieldForms;
 
         // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
@@ -78,11 +78,11 @@ class Kiss {
         return switch (exp.def) {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expandedExp = macros[mac](args, k);
-                if (expandedExp != null) readerExpToField(macros[mac](args, k), position, k) else null;
+                if (expandedExp != null) readerExpToField(macros[mac](args, k), k) else null;
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
-                fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, k));
+                fieldForms[formName](args, readerExpToHaxeExpr.bind(_, k));
             default:
-                throw '$exp at $position is not a valid field form';
+                throw CompileError.fromExp(exp, 'invalid valid field form');
         };
     }
 
@@ -124,7 +124,7 @@ class Kiss {
             case RawHaxe(code):
                 Context.parse(code, Context.currentPos());
             default:
-                throw 'cannot convert $exp yet';
+                throw CompileError.fromExp(exp, 'conversion not implemented');
         };
         #if test
         trace(expr.expr);

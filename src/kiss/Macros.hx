@@ -7,6 +7,7 @@ import hscript.Interp;
 import uuid.Uuid;
 import kiss.Reader;
 import kiss.Kiss;
+import kiss.CompileError;
 
 using uuid.Uuid;
 using kiss.Reader;
@@ -29,14 +30,14 @@ class Macros {
 
         macros["%"] = (exps:Array<ReaderExp>, k) -> {
             if (exps.length != 2) {
-                throw 'Got ${exps.length} arguments for % instead of 2.';
+                throw CompileError.fromArgs(exps, 'Got ${exps.length} arguments for % instead of 2.');
             }
             CallExp(Symbol("Prelude.mod").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
         };
 
         macros["^"] = (exps:Array<ReaderExp>, k) -> {
             if (exps.length != 2) {
-                throw 'Got ${exps.length} arguments for ^ instead of 2.';
+                throw CompileError.fromArgs(exps, 'Got ${exps.length} arguments for ^ instead of 2.');
             }
             CallExp(Symbol("Prelude.pow").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
         };
@@ -103,10 +104,10 @@ class Macros {
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
-                throw '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body])';
+                throw CompileError.fromArgs(exps, '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body...])');
             var macroName = switch (exps[0].def) {
                 case Symbol(name): name;
-                default: throw 'first argument ${exps[0]} for defmacrofun should be a symbol for the macro name';
+                default: throw CompileError.fromExp(exps[0], 'first argument for defmacrofun should be a symbol for the macro name');
             };
             k.specialForms[macroName] = (callArgs:Array<ReaderExp>, convert) -> {
                 ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [
@@ -125,7 +126,7 @@ class Macros {
         // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
         macros["defreadermacro"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length != 3) {
-                throw 'wrong number of expressions for defreadermacro: $exps should be String, [streamArgName], RawHaxe';
+                throw CompileError.fromArgs(exps, 'wrong number of expressions for defreadermacro. Should be String, [streamArgName], RawHaxe');
             }
             switch (exps[0].def) {
                 case StrExp(s):
@@ -141,13 +142,13 @@ class Macros {
                                         interp.execute(parser.parseString(code));
                                     };
                                 default:
-                                    throw 'third argument to defreadermacro should be #|raw haxe|#, not ${exps[2]}';
+                                    throw CompileError.fromExp(exps[2], 'third argument to defreadermacro should be #|raw haxe|#');
                             }
                         default:
-                            throw 'second argument to defreadermacro should be [steamArgName], not ${exps[1]}';
+                            throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
                     }
                 default:
-                    throw 'first argument to defreadermacro should be a String, not ${exps[0]}';
+                    throw CompileError.fromExp(exps[0], 'first argument to defreadermacro should be a String');
             }
 
             return null;
@@ -170,7 +171,7 @@ class Macros {
                     }
                 ]).withPos(exps[0].pos);
             default:
-                throw 'top-level expression of (cond... ) cannot be ${exps[0]}, must be call lists starting with a condition expression';
+                throw CompileError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
         };
     }
 

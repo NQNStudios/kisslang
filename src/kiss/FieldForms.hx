@@ -12,7 +12,7 @@ using kiss.Reader;
 using StringTools;
 
 // Field forms convert Kiss reader expressions into Haxe macro class fields
-typedef FieldFormFunction = (pos:Position, args:Array<ReaderExp>, convert:ExprConversion) -> Field;
+typedef FieldFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Field;
 
 class FieldForms {
     public static function builtins() {
@@ -45,7 +45,7 @@ class FieldForms {
         };
     }
 
-    static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function varOrProperty(formName:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length < 2 || args.length > 3) {
             throw CompileError.fromArgs(args, '$formName has wrong number of arguments');
         }
@@ -54,16 +54,11 @@ class FieldForms {
         var access = fieldAccess(formName, name);
 
         var valueIndex = 1;
-        // Variables are immutable by default
-        if (args.length == 3) {
-            valueIndex = 2;
-            switch (args[1].def) {
-                case MetaExp("mut"):
-                default:
-                    throw 'the only argument acceptable after name and value in $formName is &mut, not ${args[2]}';
-            }
-        } else {
-            access.push(AFinal);
+        switch (args[1].def) {
+            case MetaExp("mut"):
+                valueIndex += 1;
+            default:
+                access.push(AFinal);
         }
 
         return {
@@ -71,7 +66,7 @@ class FieldForms {
             access: access,
             kind: FVar(switch (args[0].def) {
                 case TypedExp(type, _):
-                    Helpers.parseComplexType(type);
+                    Helpers.parseComplexType(type, args[0]);
                 default: null;
             }, convert(args[valueIndex])),
             pos: Context.currentPos()
@@ -79,9 +74,9 @@ class FieldForms {
     }
 
     // TODO &rest, &body and &optional arguments
-    static function funcOrMethod(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function funcOrMethod(formName:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length <= 2) {
-            throw '$formName with $args is not a valid function/method definition';
+            throw CompileError.fromArgs(args, '$formName has wrong number of args');
         }
 
         var name = fieldName(formName, args[0]);
@@ -102,22 +97,22 @@ class FieldForms {
                                         case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                                             name;
                                         default:
-                                            throw '$funcArg should be a symbol or typed symbol for a function argument';
+                                            throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
                                     },
                                     type: switch (funcArg.def) {
                                         case TypedExp(type, _):
-                                            Helpers.parseComplexType(type);
+                                            Helpers.parseComplexType(type, funcArg);
                                         default: null;
                                     }
                                 }
                         ];
                     case CallExp(_, _):
-                        throw '${args[1]} should be an argument list. Change the parens () to brackets []';
+                        throw CompileError.fromExp(args[1], 'expected an argument list. Change the parens () to brackets []');
                     default:
-                        throw '${args[1]} should be an argument list';
+                        throw CompileError.fromExp(args[1], 'expected an argument list');
                 },
                 ret: switch (args[0].def) {
-                    case TypedExp(type, _): Helpers.parseComplexType(type);
+                    case TypedExp(type, _): Helpers.parseComplexType(type, args[0]);
                     default: null;
                 },
                 expr: {

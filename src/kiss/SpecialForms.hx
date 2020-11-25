@@ -33,13 +33,13 @@ class SpecialForms {
 
         map["new"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length < 1) {
-                throw '(new [type] constructorArgs...) is missing a type!';
+                throw CompileError.fromArgs(args, '(new [type] constructorArgs...) is missing a type!');
             }
             var classType = switch (args[0].def) {
                 case Symbol(name): name;
-                default: throw 'first arg in (new [type] ...) should be a class to instantiate';
+                default: throw CompileError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');
             };
-            ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withContextPos();
+            ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(convert)).withContextPos();
         };
 
         // TODO this doesn't give an arg length warning
@@ -54,11 +54,11 @@ class SpecialForms {
                     case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                         name;
                     default:
-                        throw '$nameExp should be a symbol or typed symbol';
+                        throw CompileError.fromExp(nameExp, 'expected a symbol or typed symbol for variable name in a var binding');
                 },
                 type: switch (nameExp.def) {
                     case TypedExp(type, _):
-                        Helpers.parseComplexType(type);
+                        Helpers.parseComplexType(type, nameExp);
                     default: null;
                 },
                 isFinal: isFinal,
@@ -94,7 +94,7 @@ class SpecialForms {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
                     bindingExps;
                 default:
-                    throw '${args[0]} should be a list expression with an even number of sub expressions';
+                    throw CompileError.fromExp(args[bindingListIndex], 'let bindings should be a list expression with an even number of sub expressions');
             };
             var bindingPairs = bindingList.groups(2);
             var varDefs = [
@@ -104,7 +104,7 @@ class SpecialForms {
 
             var body = args.slice(bindingListIndex + 1);
             if (body.length == 0) {
-                throw '(let....) expression with bindings $bindingPairs needs a body';
+                throw CompileError.fromArgs(args, '(let....) expression needs a body');
             }
 
             EBlock([EVars(varDefs).withContextPos(), EBlock(body.map(convert)).withContextPos()]).withContextPos();
@@ -125,17 +125,17 @@ class SpecialForms {
         // Type check syntax:
         map["the"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 2) {
-                throw '(the [type] [value]) expression has wrong number of arguments: ${args.length}';
+                throw CompileError.fromArgs(args, '(the [type] [value]) expression has wrong number of arguments');
             }
             ECheckType(convert(args[1]), switch (args[0].def) {
-                case Symbol(type): Helpers.parseComplexType(type);
-                default: throw 'first argument to (the... ) should be a valid type';
+                case Symbol(type): Helpers.parseComplexType(type, args[0]);
+                default: throw CompileError.fromExp(args[0], 'first argument to (the... ) should be a valid type');
             }).withContextPos();
         };
 
         map["try"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length == 0) {
-                throw '(try...) expression has nothing to try';
+                throw CompileError.fromArgs(args, '(try...) expression has nothing to try');
             }
             var tryKissExp = args[0];
             var catchKissExps = args.slice(1);
@@ -151,17 +151,18 @@ class SpecialForms {
                                             def: Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)})
                                         }
                                     ]): name;
-                                    default: throw 'first argument to (catch... ) should be a one-element argument list, not ${catchArgs[0]}';
+                                    default: throw CompileError.fromExp(catchArgs[0], 'first argument to (catch... ) should be a one-element argument list');
                                 },
                                 type: switch (catchArgs[0].def) {
                                     case ListExp([{pos: _, def: TypedExp(type, _)}]):
-                                        Helpers.parseComplexType(type);
+                                        Helpers.parseComplexType(type, catchArgs[0]);
                                     default: null;
                                 },
                                 expr: convert(CallExp(Symbol("begin").withPos(catchArgs[1].pos), catchArgs.slice(1)).withPos(catchArgs[1].pos))
                             };
                         default:
-                            throw 'expressions following the first expression in a (try... ) should all be (catch... ) expressions, but you used $catchKissExp';
+                            throw CompileError.fromExp(catchKissExp,
+                                'expressions following the first expression in a (try... ) should all be (catch... ) expressions');
                     }
                 }
             ]).withContextPos();
@@ -169,7 +170,7 @@ class SpecialForms {
 
         map["throw"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 1) {
-                throw 'throw expression should only throw one value, not: $args';
+                throw CompileError.fromArgs(args, 'throw expression should only throw one value');
             }
             EThrow(convert(args[0])).withContextPos();
         };
@@ -182,7 +183,7 @@ class SpecialForms {
 
         map["if"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length < 2 || args.length > 3) {
-                throw '(if...) expression has wrong number of arguments: ${args.length}';
+                throw CompileError.fromArgs(args, '(if [cond] [then] [?else]) expression has wrong number of arguments');
             }
 
             var condition = macro Prelude.truthy(${convert(args[0])});
@@ -197,7 +198,7 @@ class SpecialForms {
 
         map["not"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 1)
-                throw '(not... ) only takes one argument, not $args';
+                throw CompileError.fromArgs(args, '(not... ) only takes one argument, not $args');
             var condition = convert(args[0]);
             var truthyExp = macro Prelude.truthy($condition);
             macro !$truthyExp;

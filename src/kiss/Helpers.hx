@@ -2,6 +2,8 @@ package kiss;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import kiss.Reader;
+import kiss.CompileError;
 
 using StringTools;
 
@@ -18,12 +20,12 @@ class Helpers {
     }
 
     // TODO this doesn't parse generic typeparams yet
-    public static function parseTypePath(path:String):TypePath {
+    public static function parseTypePath(path:String, from:ReaderExp):TypePath {
         var parts:List<String> = path.split(".");
         var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
         for (isUpcase in uppercaseParts.slice(0, -2)) {
             if (isUpcase) {
-                throw 'Type path $path should only have capitalized type and subtype';
+                throw CompileError.fromExp(from, 'Type path $path should only have capitalized type and subtype');
             }
         }
         var lastIsCap = uppercaseParts[-1];
@@ -41,11 +43,11 @@ class Helpers {
                 pack: parts.slice(0, -1)
             };
         } else {
-            throw 'Type path $path should end with a capitalized type';
+            throw CompileError.fromExp(from, 'Type path $path should end with a capitalized type');
         };
     }
 
-    public static function parseComplexType(path:String):ComplexType {
-        return TPath(parseTypePath(path));
+    public static function parseComplexType(path:String, from:ReaderExp):ComplexType {
+        return TPath(parseTypePath(path, from));
     }
 }
