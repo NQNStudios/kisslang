@@ -4,6 +4,7 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Types;
+import uuid.Uuid;
 
 using kiss.Reader;
 using kiss.Helpers;
@@ -41,9 +42,31 @@ class SpecialForms {
             ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withContextPos();
         };
 
-        // TODO special form for assignment
+        // TODO this isn't tested and doesn't give an arg length warning
+        map["set"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
+        };
 
-        // TODO special form for local var declaration
+        // TODO this isn't tested, immutable-default, or DRY with (let... ) or (defvar... ) and doesn't give an arg length warning
+        map["deflocal"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EVars([
+                {
+                    name: switch (args[0].def) {
+                        case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                            name;
+                        default:
+                            throw 'first element of (deflocal... ) with $args should be a symbol or typed symbol';
+                    },
+                    type: switch (args[0].def) {
+                        case TypedExp(type, _):
+                            Helpers.parseComplexType(type);
+                        default: null;
+                    },
+                    isFinal: false,
+                    expr: convert(args[1])
+                }
+            ]).withContextPos();
+        };
 
         // TODO refactor out EVar generation and allow var bindings to destructure lists and key-value pairs
         map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
@@ -160,7 +183,10 @@ class SpecialForms {
             var thenExp = convert(args[1]);
             var elseExp = if (args.length > 2) convert(args[2]) else null;
 
-            EIf(condition, thenExp, elseExp).withContextPos();
+            macro if ($condition)
+                $thenExp
+                else
+                    $elseExp;
         };
 
         return map;

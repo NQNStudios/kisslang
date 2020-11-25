@@ -10,6 +10,7 @@
     "classPath": "src/",
     "main": "kiss.Main",
     "dependencies": {
-        "hscript": ""
+        "hscript": "",
+        "utest": ""
     }
 }

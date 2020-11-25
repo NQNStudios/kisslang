@@ -44,6 +44,7 @@ class FieldForms {
         };
     }
 
+    // TODO make immutability the default
     static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length != 2) {
             throw '$formName with $args at $position is not a valid field definition';
