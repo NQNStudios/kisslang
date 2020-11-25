@@ -30,6 +30,8 @@ Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 - [ ] null-safe arrays
 - [x] negative indexing
 - [ ] list comprehensions
+- [x] immutability by default
+- [ ] destructuring assignment
 
 ## How does it work?
 
