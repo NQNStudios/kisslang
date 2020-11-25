@@ -11,6 +11,6 @@
     "main": "kiss.Main",
     "dependencies": {
         "hscript": "",
-        "utest": ""
+        "uuid": ""
     }
 }
