@@ -63,7 +63,8 @@ class Helpers {
             args: switch (argList.def) {
                 case ListExp(funcArgs):
                     [
-                        // TODO optional arguments, default values, rest arguments
+                        // TODO optional arguments, rest arguments
+                        // ^ rest arguments will have to define a macro with the function's name that wraps the rest args in a list when calling it from Kiss
                         for (funcArg in funcArgs)
                             {
                                 name: switch (funcArg.def) {

@@ -73,7 +73,6 @@ class FieldForms {
         };
     }
 
-    // TODO &rest, &body and &optional arguments
     static function funcOrMethod(formName:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length <= 2) {
             throw CompileError.fromArgs(args, '$formName has wrong number of args');
