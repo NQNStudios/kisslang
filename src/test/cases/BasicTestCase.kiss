@@ -134,3 +134,6 @@
     (deflocal loc &mut "one thing")
     (set loc "another thing")
     loc)
+
+(defvar myNot1 (not 5))
+(defvar myNot2 !5)

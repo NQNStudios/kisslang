@@ -173,4 +173,9 @@ class BasicTestCase extends Test {
     function testOr() {
         Assert.equals(5, BasicTestCase.myOr1);
     }
+
+    function testNot() {
+        Assert.equals(false, BasicTestCase.myNot1);
+        Assert.equals(false, BasicTestCase.myNot2);
+    }
 }

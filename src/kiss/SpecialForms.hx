@@ -195,6 +195,14 @@ class SpecialForms {
                 $elseExp;
         };
 
+        map["not"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+            if (args.length != 1)
+                throw '(not... ) only takes one argument, not $args';
+            var condition = convert(args[0]);
+            var truthyExp = macro Prelude.truthy($condition);
+            macro !$truthyExp;
+        };
+
         return map;
     }
 
