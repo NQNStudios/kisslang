@@ -16,7 +16,7 @@ enum ReaderExpDef {
     StrExp(s:String); // "literal"
     Symbol(name:String); // s
     RawHaxe(code:String); // #| haxeCode() |#
-    TypedExp(path:String, exp:ReaderExp); // :type [exp]]
+    TypedExp(path:String, exp:ReaderExp); // :type [exp]
     MetaExp(meta:String); // &meta
 }
 
@@ -113,5 +113,41 @@ class Reader {
             pos: pos,
             def: def
         };
+    }
+
+    public static function toString(exp:ReaderExpDef) {
+        return switch (exp) {
+            case CallExp(func, args):
+                // (f a1 a2...)
+                var str = '(' + func.def.toString();
+                for (arg in args) {
+                    str += arg.def.toString();
+                }
+                str += ')';
+                str;
+            case ListExp(exps):
+                // [v1 v2 v3]
+                var str = '[';
+                for (exp in exps) {
+                    str += exp.def.toString();
+                }
+                str += ']';
+                str;
+            case StrExp(s):
+                // "literal"
+                '"$s"';
+            case Symbol(name):
+                // s
+                name;
+            case RawHaxe(code):
+                // #| haxeCode() |#
+                '#| $code |#';
+            case TypedExp(path, exp):
+                // :type [exp]
+                ':$path ${exp.def.toString()}';
+            case MetaExp(meta):
+                // &meta
+                '&$meta';
+        }
     }
 }
