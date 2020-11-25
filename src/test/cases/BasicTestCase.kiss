@@ -104,3 +104,22 @@
         (Assert.equals "stuff" c)))
 
 (defvar myConstructedString (new String "sup"))
+
+(defvar myCond1 (cond 
+    ((= 5 6) "not this")
+    ((= 8 9) "not this either")
+    ((= 1 1) "this one")
+    (true "not the default")))
+
+(defvar myCond2 (cond 
+    ((= 5 6) "not this")
+    ((= 8 9) "not this either")
+    ((= 2 1) "not the third one")
+    (true "the default")))
+
+(defvar myCond3 (cond
+    ((= 5 5) "this")
+    (true "default")))
+
+(defvar myCondFallthrough (cond
+    (false "not this")))

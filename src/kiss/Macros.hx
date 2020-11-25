@@ -51,6 +51,8 @@ class Macros {
 
         // TODO when
 
+        macros["cond"] = cond;
+
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
@@ -105,6 +107,24 @@ class Macros {
         };
 
         return macros;
+    }
+
+    // cond expands telescopically into a nested if expression
+    static function cond(exps:Array<ReaderExp>, k:KissState) {
+        return switch (exps[0].def) {
+            case CallExp(condition, body):
+                CallExp(Symbol("if").withPos(exps[0].pos), [
+                    condition,
+                    CallExp(Symbol("begin").withPos(exps[0].pos), body).withPos(exps[0].pos),
+                    if (exps.length > 1) {
+                        cond(exps.slice(1), k);
+                    } else {
+                        Symbol("null").withPos(exps[0].pos);
+                    }
+                ]).withPos(exps[0].pos);
+            default:
+                throw 'top-level expression of (cond... ) cannot be ${exps[0]}, must be call lists starting with a condition expression';
+        };
     }
 
     static function foldMacro(func:String):MacroFunction {

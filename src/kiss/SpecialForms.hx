@@ -163,8 +163,6 @@ class SpecialForms {
             EIf(condition, thenExp, elseExp).withContextPos();
         };
 
-        // TODO cond
-
         return map;
     }
 

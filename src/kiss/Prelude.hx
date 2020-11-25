@@ -62,8 +62,6 @@ class Prelude {
         return fullGroups;
     }
 
-    // TODO put truthy in KissState
-    // TODO make [] falsy
     public static dynamic function truthy(v:Any) {
         return switch (Type.typeof(v)) {
             case TNull: false;
