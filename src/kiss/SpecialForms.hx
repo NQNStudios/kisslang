@@ -5,6 +5,7 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Types;
 
+using kiss.Reader;
 using kiss.Helpers;
 using kiss.Prelude;
 
@@ -33,7 +34,7 @@ class SpecialForms {
             if (args.length < 1) {
                 throw '(new [type] constructorArgs...) is missing a type!';
             }
-            var classType = switch (args[0]) {
+            var classType = switch (args[0].def) {
                 case Symbol(name): name;
                 default: throw 'first arg in (new [type] ...) should be a class to instantiate';
             };
@@ -46,7 +47,7 @@ class SpecialForms {
 
         // TODO refactor out EVar generation and allow var bindings to destructure lists and key-value pairs
         map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-            var bindingList = switch (args[0]) {
+            var bindingList = switch (args[0].def) {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
                     bindingExps;
                 default:
@@ -56,13 +57,13 @@ class SpecialForms {
             var varDefs = [
                 for (bindingPair in bindingPairs)
                     {
-                        name: switch (bindingPair[0]) {
-                            case Symbol(name) | TypedExp(_, Symbol(name)):
+                        name: switch (bindingPair[0].def) {
+                            case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                                 name;
                             default:
                                 throw 'first element of binding pair $bindingPair should be a symbol or typed symbol';
                         },
-                        type: switch (bindingPair[0]) {
+                        type: switch (bindingPair[0].def) {
                             case TypedExp(type, _):
                                 Helpers.parseComplexType(type);
                             default: null;
@@ -97,7 +98,7 @@ class SpecialForms {
             if (args.length != 2) {
                 throw '(the [type] [value]) expression has wrong number of arguments: ${args.length}';
             }
-            ECheckType(convert(args[1]), switch (args[0]) {
+            ECheckType(convert(args[1]), switch (args[0].def) {
                 case Symbol(type): Helpers.parseComplexType(type);
                 default: throw 'first argument to (the... ) should be a valid type';
             }).withContextPos();
@@ -111,19 +112,24 @@ class SpecialForms {
             var catchKissExps = args.slice(1);
             ETry(convert(tryKissExp), [
                 for (catchKissExp in catchKissExps) {
-                    switch (catchKissExp) {
-                        case CallExp(Symbol("catch"), catchArgs):
+                    switch (catchKissExp.def) {
+                        case CallExp({pos: _, def: Symbol("catch")}, catchArgs):
                             {
-                                name: switch (catchArgs[0]) {
-                                    case ListExp([Symbol(name) | TypedExp(_, Symbol(name))]): name;
+                                name: switch (catchArgs[0].def) {
+                                    case ListExp([
+                                        {
+                                            pos: _,
+                                            def: Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)})
+                                        }
+                                    ]): name;
                                     default: throw 'first argument to (catch... ) should be a one-element argument list, not ${catchArgs[0]}';
                                 },
-                                type: switch (catchArgs[0]) {
-                                    case ListExp([TypedExp(type, _)]):
+                                type: switch (catchArgs[0].def) {
+                                    case ListExp([{pos: _, def: TypedExp(type, _)}]):
                                         Helpers.parseComplexType(type);
                                     default: null;
                                 },
-                                expr: convert(CallExp(Symbol("begin"), catchArgs.slice(1)))
+                                expr: convert(CallExp(Symbol("begin").withPos(catchArgs[1].pos), catchArgs.slice(1)).withPos(catchArgs[1].pos))
                             };
                         default:
                             throw 'expressions following the first expression in a (try... ) should all be (catch... ) expressions, but you used $catchKissExp';
@@ -165,7 +171,7 @@ class SpecialForms {
     static function foldComparison(func:String) {
         return (args:Array<ReaderExp>, convert:ExprConversion) -> {
             pos: Context.currentPos(),
-            expr: EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func), args)))
+            expr: EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func).withPos(args[0].pos), args).withPos(args[0].pos)))
         };
     }
 }

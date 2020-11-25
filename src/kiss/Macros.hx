@@ -7,6 +7,7 @@ import hscript.Interp;
 import kiss.Reader;
 import kiss.Kiss;
 
+using kiss.Reader;
 using kiss.Helpers;
 
 // Macros generate new Kiss reader expressions from the arguments of their call expression.
@@ -28,14 +29,14 @@ class Macros {
             if (exps.length != 2) {
                 throw 'Got ${exps.length} arguments for % instead of 2.';
             }
-            CallExp(Symbol("Prelude.mod"), [exps[1], exps[0]]);
+            CallExp(Symbol("Prelude.mod").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
         };
 
         macros["^"] = (exps:Array<ReaderExp>, k) -> {
             if (exps.length != 2) {
                 throw 'Got ${exps.length} arguments for ^ instead of 2.';
             }
-            CallExp(Symbol("Prelude.pow"), [exps[1], exps[0]]);
+            CallExp(Symbol("Prelude.pow").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
         };
 
         macros["min"] = foldMacro("Prelude.minInclusive");
@@ -54,7 +55,7 @@ class Macros {
         macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
                 throw '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body])';
-            var macroName = switch (exps[0]) {
+            var macroName = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw 'first argument ${exps[0]} for defmacrofun should be a symbol for the macro name';
             };
@@ -69,7 +70,7 @@ class Macros {
                 ]).withContextPos();
             };
 
-            CallExp(Symbol("defun"), exps);
+            CallExp(Symbol("defun").withPos(exps[0].pos), exps).withPos(exps[0].pos);
         }
 
         // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
@@ -77,16 +78,16 @@ class Macros {
             if (exps.length != 3) {
                 throw 'wrong number of expressions for defreadermacro: $exps should be String, [streamArgName], RawHaxe';
             }
-            switch (exps[0]) {
+            switch (exps[0].def) {
                 case StrExp(s):
-                    switch (exps[1]) {
-                        case ListExp([Symbol(streamArgName)]):
-                            switch (exps[2]) {
+                    switch (exps[1].def) {
+                        case ListExp([{pos: _, def: Symbol(streamArgName)}]):
+                            switch (exps[2].def) {
                                 case RawHaxe(code):
                                     k.readTable[s] = (stream) -> {
                                         var parser = new Parser();
                                         var interp = new Interp();
-                                        interp.variables.set("ReaderExp", ReaderExp);
+                                        interp.variables.set("ReaderExp", ReaderExpDef);
                                         interp.variables.set(streamArgName, stream);
                                         interp.execute(parser.parseString(code));
                                     };
@@ -107,8 +108,12 @@ class Macros {
     }
 
     static function foldMacro(func:String):MacroFunction {
-        return (exps, k) -> {
-            CallExp(Symbol("Lambda.fold"), [ListExp(exps.slice(1)), Symbol(func), exps[0]]);
+        return (exps:Array<ReaderExp>, k) -> {
+            CallExp(Symbol("Lambda.fold").withPos(exps[0].pos), [
+                ListExp(exps.slice(1)).withPos(exps[0].pos),
+                Symbol(func).withPos(exps[0].pos),
+                exps[0]
+            ]).withPos(exps[0].pos);
         };
     }
 }

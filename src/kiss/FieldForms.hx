@@ -5,11 +5,13 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Types;
 import kiss.Helpers;
+import kiss.Stream;
 
+using kiss.Reader;
 using StringTools;
 
 // Field forms convert Kiss reader expressions into Haxe macro class fields
-typedef FieldFormFunction = (position:String, args:Array<ReaderExp>, convert:ExprConversion) -> Field;
+typedef FieldFormFunction = (pos:Position, args:Array<ReaderExp>, convert:ExprConversion) -> Field;
 
 class FieldForms {
     public static function builtins() {
@@ -33,27 +35,27 @@ class FieldForms {
         return access;
     }
 
-    static function fieldName(formName:String, position:String, nameExp:ReaderExp) {
-        return switch (nameExp) {
-            case Symbol(name) | TypedExp(_, Symbol(name)):
+    static function fieldName(formName:String, nameExp:ReaderExp) {
+        return switch (nameExp.def) {
+            case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                 name;
             default:
-                throw 'The first argument to $formName at $position should be a variable name or typed variable name';
+                throw 'The first argument to $formName at ${nameExp.pos} should be a variable name or typed variable name';
         };
     }
 
-    static function varOrProperty(formName:String, position:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length != 2) {
             throw '$formName with $args at $position is not a valid field definition';
         }
 
-        var name = fieldName(formName, position, args[0]);
+        var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name);
 
         return {
             name: name,
             access: access,
-            kind: FVar(switch (args[0]) {
+            kind: FVar(switch (args[0].def) {
                 case TypedExp(type, _):
                     Helpers.parseComplexType(type);
                 default: null;
@@ -63,12 +65,12 @@ class FieldForms {
     }
 
     // TODO &rest, &body and &optional arguments
-    static function funcOrMethod(formName:String, position:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function funcOrMethod(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length <= 2) {
             throw '$formName with $args is not a valid function/method definition';
         }
 
-        var name = fieldName(formName, position, args[0]);
+        var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name);
 
         return {
@@ -76,19 +78,19 @@ class FieldForms {
             access: access,
             // TODO type parameter declarations
             kind: FFun({
-                args: switch (args[1]) {
+                args: switch (args[1].def) {
                     case ListExp(funcArgs):
                         [
                             // TODO optional arguments, default values
                             for (funcArg in funcArgs)
                                 {
-                                    name: switch (funcArg) {
-                                        case Symbol(name) | TypedExp(_, Symbol(name)):
+                                    name: switch (funcArg.def) {
+                                        case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                                             name;
                                         default:
                                             throw '$funcArg should be a symbol or typed symbol for a function argument';
                                     },
-                                    type: switch (funcArg) {
+                                    type: switch (funcArg.def) {
                                         case TypedExp(type, _):
                                             Helpers.parseComplexType(type);
                                         default: null;
@@ -100,13 +102,13 @@ class FieldForms {
                     default:
                         throw '${args[1]} should be an argument list';
                 },
-                ret: switch (args[0]) {
+                ret: switch (args[0].def) {
                     case TypedExp(type, _): Helpers.parseComplexType(type);
                     default: null;
                 },
                 expr: {
                     pos: Context.currentPos(),
-                    expr: EReturn(convert(CallExp(Symbol("begin"), args.slice(2))))
+                    expr: EReturn(convert(CallExp(Symbol("begin").withPos(args[2].pos), args.slice(2)).withPos(args[2].pos)))
                 }
             }),
             pos: Context.currentPos()

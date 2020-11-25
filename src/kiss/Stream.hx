@@ -6,6 +6,8 @@ import haxe.ds.Option;
 using StringTools;
 using Lambda;
 
+typedef Position = String;
+
 class Stream {
     var content:String;
     var file:String;
@@ -34,7 +36,7 @@ class Stream {
         return content.length == 0;
     }
 
-    public function position() {
+    public function position():Position {
         return '$file:$line:$column';
     }
 

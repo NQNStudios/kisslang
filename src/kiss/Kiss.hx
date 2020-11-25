@@ -62,17 +62,17 @@ class Kiss {
         return classFields;
     }
 
-    static function readerExpToField(exp:ReaderExp, position:String, k:KissState):Null<Field> {
+    static function readerExpToField(exp:ReaderExp, position:Position, k:KissState):Null<Field> {
         var fieldForms = k.fieldForms;
 
         // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
         var macros = k.macros;
 
-        return switch (exp) {
-            case CallExp(Symbol(mac), args) if (macros.exists(mac)):
+        return switch (exp.def) {
+            case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expandedExp = macros[mac](args, k);
                 if (expandedExp != null) readerExpToField(macros[mac](args, k), position, k) else null;
-            case CallExp(Symbol(formName), args) if (fieldForms.exists(formName)):
+            case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
                 fieldForms[formName](position, args, readerExpToHaxeExpr.bind(_, k));
             default:
                 throw '$exp at $position is not a valid field form';
@@ -84,7 +84,7 @@ class Kiss {
         var specialForms = k.specialForms;
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
-        var expr = switch (exp) {
+        var expr = switch (exp.def) {
             case Symbol(name):
                 Context.parse(name, Context.currentPos());
             case StrExp(s):
@@ -92,9 +92,9 @@ class Kiss {
                     pos: Context.currentPos(),
                     expr: EConst(CString(s))
                 };
-            case CallExp(Symbol(mac), args) if (macros.exists(mac)):
+            case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 convert(macros[mac](args, k));
-            case CallExp(Symbol(specialForm), args) if (specialForms.exists(specialForm)):
+            case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](args, convert);
             case CallExp(func, body):
                 {

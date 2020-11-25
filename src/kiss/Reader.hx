@@ -3,7 +3,14 @@ package kiss;
 import haxe.ds.Option;
 import kiss.Stream;
 
-enum ReaderExp {
+using kiss.Reader;
+
+typedef ReaderExp = {
+    pos:Position,
+    def:ReaderExpDef
+};
+
+enum ReaderExpDef {
     CallExp(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)
     ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
     StrExp(s:String); // "literal"
@@ -12,7 +19,7 @@ enum ReaderExp {
     TypedExp(path:String, exp:ReaderExp); // :type [exp]
 }
 
-typedef ReadFunction = (Stream) -> Null<ReaderExp>;
+typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
 
 class Reader {
     // The built-in readtable
@@ -64,6 +71,7 @@ class Reader {
         if (stream.isEmpty())
             return None;
 
+        var position = stream.position();
         var readTableKeys = [for (key in readTable.keys()) key];
         readTableKeys.sort((a, b) -> b.length - a.length);
 
@@ -72,7 +80,11 @@ class Reader {
                 case Some(k) if (k == key):
                     stream.dropString(key);
                     var expOrNull = readTable[key](stream);
-                    return if (expOrNull != null) Some(expOrNull) else read(stream, readTable);
+                    return if (expOrNull != null) {
+                        Some(expOrNull.withPos(position));
+                    } else {
+                        read(stream, readTable);
+                    }
                 default:
             }
         }
@@ -89,5 +101,12 @@ class Reader {
         }
         stream.dropString(end);
         return array;
+    }
+
+    public static function withPos(def:ReaderExpDef, pos:Position) {
+        return {
+            pos: pos,
+            def: def
+        };
     }
 }
