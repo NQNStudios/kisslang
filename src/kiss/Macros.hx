@@ -63,6 +63,7 @@ class Macros {
             CallExp(Symbol("begin").withPos(args[0].pos), [
                 CallExp(Symbol("deflocal").withPos(args[0].pos), [
                     TypedExp("Any", uniqueVarSymbol).withPos(args[0].pos),
+                    MetaExp("mut").withPos(args[0].pos),
                     Symbol("null").withPos(args[0].pos)
                 ]).withPos(args[0].pos),
                 CallExp(Symbol("cond").withPos(args[0].pos), [

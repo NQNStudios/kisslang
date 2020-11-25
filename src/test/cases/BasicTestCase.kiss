@@ -101,7 +101,11 @@
             :String c "stuff"]
         (Assert.equals 5 a)
         (Assert.equals 6 b)
-        (Assert.equals "stuff" c)))
+        (Assert.equals "stuff" c))
+    (let &mut [a "str1"]
+        (Assert.equals "str1" a)
+        (set a "str2")
+        (Assert.equals "str2" a)))
 
 (defvar myConstructedString (new String "sup"))
 
@@ -125,3 +129,8 @@
     (false "not this")))
 
 (defvar myOr1 (or null 5))
+
+(defun mySetLocal []
+    (deflocal loc &mut "one thing")
+    (set loc "another thing")
+    loc)

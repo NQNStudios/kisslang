@@ -42,35 +42,55 @@ class SpecialForms {
             ENew(Helpers.parseTypePath(classType), args.slice(1).map(convert)).withContextPos();
         };
 
-        // TODO this isn't tested and doesn't give an arg length warning
+        // TODO this doesn't give an arg length warning
         map["set"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
             EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
         };
 
-        // TODO this isn't tested, immutable-default, or DRY with (let... ) or (defvar... ) and doesn't give an arg length warning
+        // TODO allow var bindings to destructure lists and key-value pairs
+        function toVar(nameExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion) {
+            return {
+                name: switch (nameExp.def) {
+                    case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                        name;
+                    default:
+                        throw '$nameExp should be a symbol or typed symbol';
+                },
+                type: switch (nameExp.def) {
+                    case TypedExp(type, _):
+                        Helpers.parseComplexType(type);
+                    default: null;
+                },
+                isFinal: isFinal,
+                expr: convert(valueExp)
+            };
+        }
+
+        // TODO this doesn't give an arg length warning
         map["deflocal"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-            EVars([
-                {
-                    name: switch (args[0].def) {
-                        case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                            name;
-                        default:
-                            throw 'first element of (deflocal... ) with $args should be a symbol or typed symbol';
-                    },
-                    type: switch (args[0].def) {
-                        case TypedExp(type, _):
-                            Helpers.parseComplexType(type);
-                        default: null;
-                    },
-                    isFinal: false,
-                    expr: convert(args[1])
-                }
-            ]).withContextPos();
+            var valueIndex = 1;
+            var isFinal = switch (args[1].def) {
+                case MetaExp("mut"):
+                    valueIndex += 1;
+                    false;
+                default:
+                    true;
+            };
+            EVars([toVar(args[0], args[valueIndex], isFinal, convert)]).withContextPos();
         };
 
-        // TODO refactor out EVar generation and allow var bindings to destructure lists and key-value pairs
+        // TODO this doesn't have an arg length check
         map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-            var bindingList = switch (args[0].def) {
+            var bindingListIndex = 0;
+            // If the first arg of (let... ) is &mut, make the bindings mutable.
+            var isFinal = switch (args[0].def) {
+                case MetaExp("mut"):
+                    bindingListIndex += 1;
+                    false;
+                default:
+                    true;
+            };
+            var bindingList = switch (args[bindingListIndex].def) {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
                     bindingExps;
                 default:
@@ -79,24 +99,10 @@ class SpecialForms {
             var bindingPairs = bindingList.groups(2);
             var varDefs = [
                 for (bindingPair in bindingPairs)
-                    {
-                        name: switch (bindingPair[0].def) {
-                            case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                                name;
-                            default:
-                                throw 'first element of binding pair $bindingPair should be a symbol or typed symbol';
-                        },
-                        type: switch (bindingPair[0].def) {
-                            case TypedExp(type, _):
-                                Helpers.parseComplexType(type);
-                            default: null;
-                        },
-                        isFinal: true, // Let's give (let...) variable immutability a try
-                        expr: convert(bindingPair[1])
-                    }
+                    toVar(bindingPair[0], bindingPair[1], isFinal, convert)
             ];
 
-            var body = args.slice(1);
+            var body = args.slice(bindingListIndex + 1);
             if (body.length == 0) {
                 throw '(let....) expression with bindings $bindingPairs needs a body';
             }

@@ -166,6 +166,10 @@ class BasicTestCase extends Test {
         Assert.equals(null, BasicTestCase.myCondFallthrough);
     }
 
+    function testSetAndDeflocal() {
+        Assert.equals("another thing", BasicTestCase.mySetLocal());
+    }
+
     function testOr() {
         Assert.equals(5, BasicTestCase.myOr1);
     }

@@ -44,7 +44,6 @@ class FieldForms {
         };
     }
 
-    // TODO make immutability the default
     static function varOrProperty(formName:String, position:Position, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length < 2 || args.length > 3) {
             throw '$formName with $args at $position has wrong number of arguments';
