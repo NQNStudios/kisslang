@@ -1,4 +1,6 @@
 -cp src
+-lib hscript
+-lib uuid
 --macro nullSafety("kiss", Strict)
 --main kiss.Main
 --interp

@@ -4,9 +4,11 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import hscript.Parser;
 import hscript.Interp;
+import uuid.Uuid;
 import kiss.Reader;
 import kiss.Kiss;
 
+using uuid.Uuid;
 using kiss.Reader;
 using kiss.Helpers;
 
@@ -52,6 +54,25 @@ class Macros {
         // TODO when
 
         macros["cond"] = cond;
+
+        // (or... ) uses (cond... ) under the hood
+        macros["or"] = (args:Array<ReaderExp>, k) -> {
+            var uniqueVarName = "_" + Uuid.v4().toShort();
+            var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
+
+            CallExp(Symbol("begin").withPos(args[0].pos), [
+                CallExp(Symbol("deflocal").withPos(args[0].pos), [
+                    TypedExp("Any", uniqueVarSymbol).withPos(args[0].pos),
+                    Symbol("null").withPos(args[0].pos)
+                ]).withPos(args[0].pos),
+                CallExp(Symbol("cond").withPos(args[0].pos), [
+                    for (arg in args) {
+                        CallExp(CallExp(Symbol("set").withPos(args[0].pos), [uniqueVarSymbol, arg]).withPos(args[0].pos),
+                            [uniqueVarSymbol]).withPos(args[0].pos);
+                    }
+                ]).withPos(args[0].pos)
+            ]).withPos(args[0].pos);
+        };
 
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {

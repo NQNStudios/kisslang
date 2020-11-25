@@ -164,4 +164,8 @@ class BasicTestCase extends Test {
         Assert.equals("this", BasicTestCase.myCond3);
         Assert.equals(null, BasicTestCase.myCondFallthrough);
     }
+
+    function testOr() {
+        Assert.equals(5, BasicTestCase.myOr1);
+    }
 }

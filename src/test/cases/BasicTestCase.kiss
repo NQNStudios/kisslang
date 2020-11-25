@@ -123,3 +123,5 @@
 
 (defvar myCondFallthrough (cond
     (false "not this")))
+
+(defvar myOr1 (or null 5))
