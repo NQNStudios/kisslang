@@ -4,7 +4,9 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
 import kiss.CompileError;
+import kiss.Types;
 
+using kiss.Reader;
 using StringTools;
 
 class Helpers {
@@ -49,5 +51,43 @@ class Helpers {
 
     public static function parseComplexType(path:String, from:ReaderExp):ComplexType {
         return TPath(parseTypePath(path, from));
+    }
+
+    // TODO generic type parameter declarations
+    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, convert:ExprConversion):Function {
+        return {
+            ret: if (name != null) switch (name.def) {
+                case TypedExp(type, _): Helpers.parseComplexType(type, name);
+                default: null;
+            } else null,
+            args: switch (argList.def) {
+                case ListExp(funcArgs):
+                    [
+                        // TODO optional arguments, default values, rest arguments
+                        for (funcArg in funcArgs)
+                            {
+                                name: switch (funcArg.def) {
+                                    case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                                        name;
+                                    default:
+                                        throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
+                                },
+                                type: switch (funcArg.def) {
+                                    case TypedExp(type, _):
+                                        Helpers.parseComplexType(type, funcArg);
+                                    default: null;
+                                }
+                            }
+                    ];
+                case CallExp(_, _):
+                    throw CompileError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
+                default:
+                    throw CompileError.fromExp(argList, 'expected an argument list');
+            },
+            expr: {
+                pos: Context.currentPos(),
+                expr: EReturn(convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos)))
+            }
+        }
     }
 }

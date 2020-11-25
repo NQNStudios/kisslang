@@ -85,41 +85,7 @@ class FieldForms {
         return {
             name: name,
             access: access,
-            // TODO type parameter declarations
-            kind: FFun({
-                args: switch (args[1].def) {
-                    case ListExp(funcArgs):
-                        [
-                            // TODO optional arguments, default values
-                            for (funcArg in funcArgs)
-                                {
-                                    name: switch (funcArg.def) {
-                                        case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                                            name;
-                                        default:
-                                            throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
-                                    },
-                                    type: switch (funcArg.def) {
-                                        case TypedExp(type, _):
-                                            Helpers.parseComplexType(type, funcArg);
-                                        default: null;
-                                    }
-                                }
-                        ];
-                    case CallExp(_, _):
-                        throw CompileError.fromExp(args[1], 'expected an argument list. Change the parens () to brackets []');
-                    default:
-                        throw CompileError.fromExp(args[1], 'expected an argument list');
-                },
-                ret: switch (args[0].def) {
-                    case TypedExp(type, _): Helpers.parseComplexType(type, args[0]);
-                    default: null;
-                },
-                expr: {
-                    pos: Context.currentPos(),
-                    expr: EReturn(convert(CallExp(Symbol("begin").withPos(args[2].pos), args.slice(2)).withPos(args[2].pos)))
-                }
-            }),
+            kind: FFun(Helpers.makeFunction(args[0], args[1], args.slice(2), convert)),
             pos: Context.currentPos()
         };
     }
