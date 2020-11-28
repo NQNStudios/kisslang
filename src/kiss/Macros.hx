@@ -52,7 +52,12 @@ class Macros {
 
         macros["_eq"] = foldMacro("Prelude.areEqual");
 
-        // TODO when
+        macros["when"] = (args:Array<ReaderExp>, k) -> {
+            CallExp(Symbol("if").withPos(args[0].pos), [
+                args[0],
+                CallExp(Symbol("begin").withPos(args[0].pos), args.slice(1)).withPos(args[0].pos)
+            ]).withPos(args[0].pos);
+        };
 
         macros["cond"] = cond;
 

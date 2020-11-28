@@ -190,4 +190,8 @@ class BasicTestCase extends Test {
     function testLambda() {
         Assert.equals([5, 6].toString(), BasicTestCase.myFilteredList.toString());
     }
+
+    function testWhen() {
+        Assert.equals(6, BasicTestCase.myWhen1);
+    }
 }

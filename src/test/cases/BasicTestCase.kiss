@@ -147,3 +147,5 @@
 (defvar myFilteredList (begin 
     (deflocal l [-1 -2 5 -3 6])
     (l.filter (lambda [v] (< 0 v)))))
+
+(defvar myWhen1 (when true 5 6))
