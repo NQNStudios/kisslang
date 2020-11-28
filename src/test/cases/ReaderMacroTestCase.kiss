@@ -4,3 +4,8 @@
     !String that takes the rest of the line
     )
 
+(defalias pluppers +)
+(defalias fluffers 5)
+(defalias buffers 4)
+
+(defvar mySum (pluppers fluffers buffers))

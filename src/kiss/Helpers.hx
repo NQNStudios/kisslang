@@ -5,6 +5,7 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.CompileError;
 import kiss.Types;
+import kiss.Kiss;
 
 using kiss.Reader;
 using kiss.Helpers;
@@ -88,5 +89,10 @@ class Helpers {
             },
             expr: EReturn(convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withContextPos()
         }
+    }
+
+    // alias replacements are processed by the reader
+    public static function defAlias(k:KissState, whenItsThis:String, makeItThisInstead:String) {
+        k.readTable[whenItsThis] = (_:Stream) -> Symbol(makeItThisInstead);
     }
 }

@@ -159,6 +159,23 @@ class Macros {
             return null;
         };
 
+        // TODO length checks
+        macros["defalias"] = (exps:Array<ReaderExp>, k:KissState) -> {
+            k.defAlias(switch (exps[0].def) {
+                case Symbol(whenItsThis):
+                    whenItsThis;
+                default:
+                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias');
+            }, switch (exps[1].def) {
+                case Symbol(makeItThis):
+                    makeItThis;
+                default:
+                    throw CompileError.fromExp(exps[1], 'second argument to defalias should be a symbol for what the alias becomes');
+            });
+
+            return null;
+        };
+
         return macros;
     }
 
