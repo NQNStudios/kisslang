@@ -29,16 +29,12 @@ class Macros {
         macros["/"] = foldMacro("Prelude.divide");
 
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            if (exps.length != 2) {
-                throw CompileError.fromExp(wholeExp, 'Got ${exps.length} arguments for % instead of 2.');
-            }
+            wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
             CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
         macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            if (exps.length != 2) {
-                throw CompileError.fromExp(wholeExp, 'Got ${exps.length} arguments for ^ instead of 2.');
-            }
+            wholeExp.checkNumArgs(2, 2, '(^ [base] [exponent])');
             CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
@@ -52,8 +48,8 @@ class Macros {
 
         macros["_eq"] = foldMacro("Prelude.areEqual");
 
-        // TODO length check?
         macros["when"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, null, "(when [condition] [body...])");
             CallExp(Symbol("if").withPosOf(wholeExp), [
                 args[0],
                 CallExp(Symbol("begin").withPosOf(wholeExp), args.slice(1)).withPosOf(wholeExp)
@@ -108,14 +104,18 @@ class Macros {
 
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            if (exps.length < 3)
-                throw CompileError.fromExp(wholeExp, '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body...])');
+            wholeExp.checkNumArgs(3, null, "(defmacrofun [name] [args] [body...])");
             var macroName = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw CompileError.fromExp(exps[0], 'first argument for defmacrofun should be a symbol for the macro name');
             };
-            // TODO length check?
+            var macroNumArgs = switch (exps[1].def) {
+                case ListExp(argNames): argNames.length;
+                default: throw CompileError.fromExp(exps[1], 'second argument of defmacrofun should be a list of argument names');
+            };
             k.specialForms[macroName] = (wholeExp:ReaderExp, callArgs:Array<ReaderExp>, convert) -> {
+                // Macro functions check their argument numbers
+                wholeExp.checkNumArgs(macroNumArgs, macroNumArgs); // TODO when rest/optional arguments are added, this will be more complex
                 ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [
                     for (callArg in callArgs)
                         EFunction(FArrow, {
@@ -126,14 +126,12 @@ class Macros {
                 ]).withContextPos();
             };
 
-            CallExp(Symbol("defun").withPos(exps[0].pos), exps).withPos(exps[0].pos);
+            CallExp(Symbol("defun").withPosOf(wholeExp), exps).withPosOf(wholeExp);
         }
 
         // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            if (exps.length != 3) {
-                throw CompileError.fromExp(wholeExp, 'wrong number of expressions for defreadermacro. Should be String, [streamArgName], RawHaxe');
-            }
+            wholeExp.checkNumArgs(3, 3, '(defreadermacro "[startingString]" [[streamArgName]] [RawHaxe])');
             switch (exps[0].def) {
                 case StrExp(s):
                     switch (exps[1].def) {
@@ -160,8 +158,8 @@ class Macros {
             return null;
         };
 
-        // TODO length checks
         macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(defalias [whenItsThis] [makeItThis])");
             k.defAlias(switch (exps[0].def) {
                 case Symbol(whenItsThis):
                     whenItsThis;
@@ -181,8 +179,8 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
-    // TODO length check?
     static function cond(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+        wholeExp.checkNumArgs(1, null, "(cond [cases...])");
         return switch (exps[0].def) {
             case CallExp(condition, body):
                 CallExp(Symbol("if").withPosOf(wholeExp), [
@@ -199,9 +197,10 @@ class Macros {
         };
     }
 
-    // TODO >0 arg length check?
     static function foldMacro(func:String):MacroFunction {
         return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+            // Lambda.fold calls need at least 1 argument
+            wholeExp.checkNumArgs(1, null);
             CallExp(Symbol("Lambda.fold").withPos(exps[0].pos), [
                 ListExp(exps.slice(1)).withPos(exps[0].pos),
                 Symbol(func).withPos(exps[0].pos),

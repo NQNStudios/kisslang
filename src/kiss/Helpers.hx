@@ -101,7 +101,17 @@ class Helpers {
     **/
     public static function checkNumArgs(wholeExp:ReaderExp, min:Null<Int>, max:Null<Int>, ?expectedForm:String) {
         if (expectedForm == null) {
-            expectedForm = if (max == min) '$min arguments' else 'between $min and $max arguments';
+            expectedForm = if (max == min) {
+                '$min arguments';
+            } else if (max == null) {
+                'at least $min arguments';
+            } else if (min == null) {
+                'no more than $max arguments';
+            } else if (min == null && max == null) {
+                throw 'checkNumArgs() needs a min or a max';
+            } else {
+                'between $min and $max arguments';
+            };
         }
 
         var args = switch (wholeExp.def) {
@@ -111,7 +121,7 @@ class Helpers {
 
         if (min != null && args.length < min) {
             throw CompileError.fromExp(wholeExp, 'Not enough arguments. Expected $expectedForm');
-        } else if (max != null && args.length > min) {
+        } else if (max != null && args.length > max) {
             throw CompileError.fromExp(wholeExp, 'Too many arguments. Expected $expectedForm');
         }
     }

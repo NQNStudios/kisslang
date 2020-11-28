@@ -38,9 +38,8 @@ class SpecialForms {
             ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(convert)).withContextPos();
         };
 
-        // TODO this doesn't give an arg length warning
-        // TODO this could be variadic?
         map["set"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            wholeExp.checkNumArgs(2, 2, "(set [variable] [value])");
             EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
         };
 
@@ -63,8 +62,8 @@ class SpecialForms {
             };
         }
 
-        // TODO this doesn't give an arg length warning
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            wholeExp.checkNumArgs(2, 3, "(deflocal [optional :type] [variable] [optional: &mut] [value])");
             var valueIndex = 1;
             var isFinal = switch (args[1].def) {
                 case MetaExp("mut"):
@@ -76,8 +75,8 @@ class SpecialForms {
             EVars([toVar(args[0], args[valueIndex], isFinal, convert)]).withContextPos();
         };
 
-        // TODO this doesn't have an arg length check
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            wholeExp.checkNumArgs(2, null, "(let [optional: &mut] [[bindings...]] [body...])");
             var bindingListIndex = 0;
             // If the first arg of (let... ) is &mut, make the bindings mutable.
             var isFinal = switch (args[0].def) {
@@ -108,6 +107,7 @@ class SpecialForms {
         };
 
         map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            wholeExp.checkNumArgs(2, null, "(lambda [[argsNames...]] [body...])");
             EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), convert)).withContextPos();
         };
 
@@ -123,9 +123,7 @@ class SpecialForms {
 
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            if (args.length != 2) {
-                throw CompileError.fromExp(wholeExp, '(the [type] [value]) expression has wrong number of arguments');
-            }
+            wholeExp.checkNumArgs(2, 2, '(the [type] [value])');
             ECheckType(convert(args[1]), switch (args[0].def) {
                 case Symbol(type): Helpers.parseComplexType(type, args[0]);
                 default: throw CompileError.fromExp(args[0], 'first argument to (the... ) should be a valid type');
@@ -134,9 +132,7 @@ class SpecialForms {
 
         // TODO will this return null if there are no catches? It probably should, for last-expression return semantics
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            if (args.length == 0) {
-                throw CompileError.fromExp(wholeExp, '(try...) expression has nothing to try');
-            }
+            wholeExp.checkNumArgs(1, null, "(try [thing] [catches...])");
             var tryKissExp = args[0];
             var catchKissExps = args.slice(1);
             ETry(convert(tryKissExp), [
@@ -182,9 +178,7 @@ class SpecialForms {
         map["="] = foldComparison("_eq");
 
         map["if"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            if (args.length < 2 || args.length > 3) {
-                throw CompileError.fromExp(wholeExp, '(if [cond] [then] [?else]) expression has wrong number of arguments');
-            }
+            wholeExp.checkNumArgs(2, 3, '(if [cond] [then] [?else])');
 
             var condition = macro Prelude.truthy(${convert(args[0])});
             var thenExp = convert(args[1]);
@@ -213,11 +207,10 @@ class SpecialForms {
         return map;
     }
 
-    // TODO >0 arg length check?
     static function foldComparison(func:String) {
         return (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            pos: Context.currentPos(),
-            expr: EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func).withPos(args[0].pos), args).withPos(args[0].pos)))
+            wholeExp.checkNumArgs(1, null);
+            EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp))).withContextPos();
         };
     }
 }

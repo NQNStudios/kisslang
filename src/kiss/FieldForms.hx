@@ -8,6 +8,7 @@ import kiss.Helpers;
 import kiss.Stream;
 import kiss.CompileError;
 
+using kiss.Helpers;
 using kiss.Reader;
 using StringTools;
 
@@ -46,9 +47,7 @@ class FieldForms {
     }
 
     static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
-        if (args.length < 2 || args.length > 3) {
-            throw CompileError.fromExp(wholeExp, '$formName has wrong number of arguments');
-        }
+        wholeExp.checkNumArgs(2, 3, '($formName [optional :type] [variable] [optional: &mut] [value])');
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name);
@@ -74,9 +73,7 @@ class FieldForms {
     }
 
     static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
-        if (args.length <= 2) {
-            throw CompileError.fromExp(wholeExp, '$formName has wrong number of args');
-        }
+        wholeExp.checkNumArgs(3, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name);
