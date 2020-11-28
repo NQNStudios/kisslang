@@ -11,6 +11,8 @@ import kiss.Macros;
 import kiss.Types;
 import kiss.CompileError;
 
+using kiss.Reader;
+
 typedef KissState = {
     className:String,
     readTable:Map<String, ReadFunction>,
@@ -47,12 +49,13 @@ class Kiss {
                     break;
                 var position = stream.position();
                 var nextExp = Reader.read(stream, k.readTable);
-                #if test
-                trace(nextExp);
-                #end
+
                 // The last expression might be a comment, in which case None will be returned
                 switch (nextExp) {
                     case Some(nextExp):
+                        #if test
+                        trace(nextExp.def.toString());
+                        #end
                         var field = readerExpToField(nextExp, k);
                         if (field != null)
                             classFields.push(field);

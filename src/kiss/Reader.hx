@@ -123,17 +123,23 @@ class Reader {
             case CallExp(func, args):
                 // (f a1 a2...)
                 var str = '(' + func.def.toString();
-                for (arg in args) {
-                    str += arg.def.toString();
-                }
+                if (args.length > 0)
+                    str += " ";
+                str += [
+                    for (arg in args) {
+                        arg.def.toString();
+                    }
+                ].join(" ");
                 str += ')';
                 str;
             case ListExp(exps):
                 // [v1 v2 v3]
                 var str = '[';
-                for (exp in exps) {
-                    str += exp.def.toString();
-                }
+                str += [
+                    for (exp in exps) {
+                        exp.def.toString();
+                    }
+                ].join(" ");
                 str += ']';
                 str;
             case StrExp(s):
