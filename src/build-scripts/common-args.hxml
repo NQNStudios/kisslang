@@ -1,4 +1,5 @@
 -lib hscript
 -lib uuid
+-lib tink_macro
 -cp src
 -D analyzer-optimize

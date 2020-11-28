@@ -11,6 +11,7 @@
     "main": "kiss.Main",
     "dependencies": {
         "hscript": "",
-        "uuid": ""
+        "uuid": "",
+        "tink_macro": ""
     }
 }

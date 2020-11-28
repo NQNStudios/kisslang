@@ -12,6 +12,7 @@ import kiss.Types;
 import kiss.CompileError;
 
 using kiss.Reader;
+using tink.MacroApi;
 
 typedef KissState = {
     className:String,
@@ -54,7 +55,7 @@ class Kiss {
                 switch (nextExp) {
                     case Some(nextExp):
                         #if test
-                        trace(nextExp.def.toString());
+                        Sys.println(nextExp.def.toString());
                         #end
                         var field = readerExpToField(nextExp, k);
                         if (field != null)
@@ -130,7 +131,7 @@ class Kiss {
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };
         #if test
-        trace(expr.expr);
+        Sys.println(expr.toString());
         #end
         return expr;
     }
