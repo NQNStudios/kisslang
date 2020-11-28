@@ -84,7 +84,11 @@ class Prelude {
     }
 
     public static function print(v:Any) {
+        #if (sys || hxnodejs)
+        Sys.println(v);
+        #else
         trace(v);
+        #end
         return v;
     }
 }
