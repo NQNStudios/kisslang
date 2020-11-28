@@ -11,29 +11,27 @@ using kiss.Helpers;
 using kiss.Prelude;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
-typedef SpecialFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Expr;
+typedef SpecialFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> Expr;
 
 class SpecialForms {
     public static function builtins() {
         var map:Map<String, SpecialFormFunction> = [];
 
-        map["begin"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-            pos: Context.currentPos(),
-            expr: EBlock([for (bodyExp in args) convert(bodyExp)])
+        map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EBlock([for (bodyExp in args) convert(bodyExp)]).withContextPos();
         };
 
-        map["nth"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
-            pos: Context.currentPos(),
-            expr: EArray(convert(args[0]), convert(args[1]))
+        map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EArray(convert(args[0]), convert(args[1])).withContextPos();
         };
 
         // TODO first through tenth
 
         // TODO special form for object declaration
 
-        map["new"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["new"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length < 1) {
-                throw CompileError.fromArgs(args, '(new [type] constructorArgs...) is missing a type!');
+                throw CompileError.fromExp(wholeExp, '(new [type] constructorArgs...) is missing a type to instantiate!');
             }
             var classType = switch (args[0].def) {
                 case Symbol(name): name;
@@ -43,7 +41,8 @@ class SpecialForms {
         };
 
         // TODO this doesn't give an arg length warning
-        map["set"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        // TODO this could be variadic?
+        map["set"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
         };
 
@@ -67,7 +66,7 @@ class SpecialForms {
         }
 
         // TODO this doesn't give an arg length warning
-        map["deflocal"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             var valueIndex = 1;
             var isFinal = switch (args[1].def) {
                 case MetaExp("mut"):
@@ -80,7 +79,7 @@ class SpecialForms {
         };
 
         // TODO this doesn't have an arg length check
-        map["let"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             var bindingListIndex = 0;
             // If the first arg of (let... ) is &mut, make the bindings mutable.
             var isFinal = switch (args[0].def) {
@@ -110,7 +109,7 @@ class SpecialForms {
             EBlock([EVars(varDefs).withContextPos(), EBlock(body.map(convert)).withContextPos()]).withContextPos();
         };
 
-        map["lambda"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), convert)).withContextPos();
         };
 
@@ -125,9 +124,9 @@ class SpecialForms {
         // TODO special form for switch
 
         // Type check syntax:
-        map["the"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 2) {
-                throw CompileError.fromArgs(args, '(the [type] [value]) expression has wrong number of arguments');
+                throw CompileError.fromExp(wholeExp, '(the [type] [value]) expression has wrong number of arguments');
             }
             ECheckType(convert(args[1]), switch (args[0].def) {
                 case Symbol(type): Helpers.parseComplexType(type, args[0]);
@@ -135,9 +134,10 @@ class SpecialForms {
             }).withContextPos();
         };
 
-        map["try"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        // TODO will this return null if there are no catches? It probably should, for last-expression return semantics
+        map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length == 0) {
-                throw CompileError.fromArgs(args, '(try...) expression has nothing to try');
+                throw CompileError.fromExp(wholeExp, '(try...) expression has nothing to try');
             }
             var tryKissExp = args[0];
             var catchKissExps = args.slice(1);
@@ -170,9 +170,9 @@ class SpecialForms {
             ]).withContextPos();
         };
 
-        map["throw"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["throw"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 1) {
-                throw CompileError.fromArgs(args, 'throw expression should only throw one value');
+                throw CompileError.fromExp(wholeExp, 'throw expression should only throw one value');
             }
             EThrow(convert(args[0])).withContextPos();
         };
@@ -183,9 +183,9 @@ class SpecialForms {
         map[">="] = foldComparison("max");
         map["="] = foldComparison("_eq");
 
-        map["if"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["if"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length < 2 || args.length > 3) {
-                throw CompileError.fromArgs(args, '(if [cond] [then] [?else]) expression has wrong number of arguments');
+                throw CompileError.fromExp(wholeExp, '(if [cond] [then] [?else]) expression has wrong number of arguments');
             }
 
             var condition = macro Prelude.truthy(${convert(args[0])});
@@ -204,9 +204,9 @@ class SpecialForms {
                 $elseExp;
         };
 
-        map["not"] = (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        map["not"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             if (args.length != 1)
-                throw CompileError.fromArgs(args, '(not... ) only takes one argument, not $args');
+                throw CompileError.fromExp(wholeExp, '(not... ) only takes one argument, not $args');
             var condition = convert(args[0]);
             var truthyExp = macro Prelude.truthy($condition);
             macro !$truthyExp;
@@ -215,8 +215,9 @@ class SpecialForms {
         return map;
     }
 
+    // TODO >0 arg length check?
     static function foldComparison(func:String) {
-        return (args:Array<ReaderExp>, convert:ExprConversion) -> {
+        return (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             pos: Context.currentPos(),
             expr: EBinop(OpEq, convert(args[0]), convert(CallExp(Symbol(func).withPos(args[0].pos), args).withPos(args[0].pos)))
         };

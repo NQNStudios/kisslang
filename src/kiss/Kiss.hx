@@ -47,6 +47,7 @@ class Kiss {
 
             // Helpful aliases
             k.defAlias("print", "Prelude.print");
+            // TODO Lambda.map, filter, etc?
 
             while (true) {
                 stream.dropWhitespace();
@@ -85,10 +86,10 @@ class Kiss {
 
         return switch (exp.def) {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                var expandedExp = macros[mac](args, k);
-                if (expandedExp != null) readerExpToField(macros[mac](args, k), k) else null;
+                var expandedExp = macros[mac](exp, args, k);
+                if (expandedExp != null) readerExpToField(macros[mac](expandedExp, args, k), k) else null;
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
-                fieldForms[formName](args, readerExpToHaxeExpr.bind(_, k));
+                fieldForms[formName](exp, args, readerExpToHaxeExpr.bind(_, k));
             default:
                 throw CompileError.fromExp(exp, 'invalid valid field form');
         };
@@ -108,27 +109,17 @@ class Kiss {
                     expr: EConst(CString(s))
                 };
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                convert(macros[mac](args, k));
+                convert(macros[mac](exp, args, k));
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
-                specialForms[specialForm](args, convert);
+                specialForms[specialForm](exp, args, convert);
             case CallExp(func, body):
-                {
-                    pos: Context.currentPos(),
-                    expr: ECall(convert(func), [for (bodyExp in body) convert(bodyExp)])
-                };
+                ECall(convert(func), [for (bodyExp in body) convert(bodyExp)]).withContextPos();
             case ListExp(elements):
-                {
-                    pos: Context.currentPos(),
-                    expr: ENew({
-                        pack: ["kiss"],
-                        name: "List"
-                    }, [
-                        {
-                            pos: Context.currentPos(),
-                            expr: EArrayDecl([for (elementExp in elements) convert(elementExp)])
-                        }
-                    ])
-                }
+                ENew({
+                    pack: ["kiss"],
+                    name: "List"
+                },
+                    [EArrayDecl([for (elementExp in elements) convert(elementExp)]).withContextPos()]).withContextPos();
             case RawHaxe(code):
                 Context.parse(code, Context.currentPos());
             default:

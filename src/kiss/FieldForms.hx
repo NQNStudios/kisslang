@@ -12,7 +12,7 @@ using kiss.Reader;
 using StringTools;
 
 // Field forms convert Kiss reader expressions into Haxe macro class fields
-typedef FieldFormFunction = (args:Array<ReaderExp>, convert:ExprConversion) -> Field;
+typedef FieldFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> Field;
 
 class FieldForms {
     public static function builtins() {
@@ -45,9 +45,9 @@ class FieldForms {
         };
     }
 
-    static function varOrProperty(formName:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length < 2 || args.length > 3) {
-            throw CompileError.fromArgs(args, '$formName has wrong number of arguments');
+            throw CompileError.fromExp(wholeExp, '$formName has wrong number of arguments');
         }
 
         var name = fieldName(formName, args[0]);
@@ -73,9 +73,9 @@ class FieldForms {
         };
     }
 
-    static function funcOrMethod(formName:String, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
         if (args.length <= 2) {
-            throw CompileError.fromArgs(args, '$formName has wrong number of args');
+            throw CompileError.fromExp(wholeExp, '$formName has wrong number of args');
         }
 
         var name = fieldName(formName, args[0]);

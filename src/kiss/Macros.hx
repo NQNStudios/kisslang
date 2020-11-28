@@ -14,7 +14,7 @@ using kiss.Reader;
 using kiss.Helpers;
 
 // Macros generate new Kiss reader expressions from the arguments of their call expression.
-typedef MacroFunction = (Array<ReaderExp>, KissState) -> Null<ReaderExp>;
+typedef MacroFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Null<ReaderExp>;
 
 class Macros {
     public static function builtins() {
@@ -28,18 +28,18 @@ class Macros {
 
         macros["/"] = foldMacro("Prelude.divide");
 
-        macros["%"] = (exps:Array<ReaderExp>, k) -> {
+        macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             if (exps.length != 2) {
-                throw CompileError.fromArgs(exps, 'Got ${exps.length} arguments for % instead of 2.');
+                throw CompileError.fromExp(wholeExp, 'Got ${exps.length} arguments for % instead of 2.');
             }
-            CallExp(Symbol("Prelude.mod").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
+            CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
-        macros["^"] = (exps:Array<ReaderExp>, k) -> {
+        macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             if (exps.length != 2) {
-                throw CompileError.fromArgs(exps, 'Got ${exps.length} arguments for ^ instead of 2.');
+                throw CompileError.fromExp(wholeExp, 'Got ${exps.length} arguments for ^ instead of 2.');
             }
-            CallExp(Symbol("Prelude.pow").withPos(exps[0].pos), [exps[1], exps[0]]).withPos(exps[0].pos);
+            CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
         macros["min"] = foldMacro("Prelude.minInclusive");
@@ -52,69 +52,70 @@ class Macros {
 
         macros["_eq"] = foldMacro("Prelude.areEqual");
 
-        macros["when"] = (args:Array<ReaderExp>, k) -> {
-            CallExp(Symbol("if").withPos(args[0].pos), [
+        // TODO length check?
+        macros["when"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
+            CallExp(Symbol("if").withPosOf(wholeExp), [
                 args[0],
-                CallExp(Symbol("begin").withPos(args[0].pos), args.slice(1)).withPos(args[0].pos)
+                CallExp(Symbol("begin").withPosOf(wholeExp), args.slice(1)).withPosOf(wholeExp)
             ]).withPos(args[0].pos);
         };
 
         macros["cond"] = cond;
 
         // (or... ) uses (cond... ) under the hood
-        macros["or"] = (args:Array<ReaderExp>, k) -> {
+        macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             var uniqueVarName = "_" + Uuid.v4().toShort();
             var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
 
-            CallExp(Symbol("begin").withPos(args[0].pos), [
-                CallExp(Symbol("deflocal").withPos(args[0].pos), [
-                    TypedExp("Any", uniqueVarSymbol).withPos(args[0].pos),
-                    MetaExp("mut").withPos(args[0].pos),
-                    Symbol("null").withPos(args[0].pos)
+            CallExp(Symbol("begin").withPosOf(wholeExp), [
+                CallExp(Symbol("deflocal").withPosOf(wholeExp), [
+                    TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp),
+                    MetaExp("mut").withPosOf(wholeExp),
+                    Symbol("null").withPosOf(wholeExp)
                 ]).withPos(args[0].pos),
-                CallExp(Symbol("cond").withPos(args[0].pos), [
+                CallExp(Symbol("cond").withPosOf(wholeExp), [
                     for (arg in args) {
-                        CallExp(CallExp(Symbol("set").withPos(args[0].pos), [uniqueVarSymbol, arg]).withPos(args[0].pos),
-                            [uniqueVarSymbol]).withPos(args[0].pos);
+                        CallExp(CallExp(Symbol("set").withPosOf(wholeExp), [uniqueVarSymbol, arg]).withPosOf(wholeExp), [uniqueVarSymbol]).withPosOf(wholeExp);
                     }
-                ]).withPos(args[0].pos)
-            ]).withPos(args[0].pos);
+                ]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
         };
 
         // (and... uses (cond... ) and (not ...) under the hood)
-        macros["and"] = (args:Array<ReaderExp>, k) -> {
+        macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             var uniqueVarName = "_" + Uuid.v4().toShort();
-            var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
+            var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
 
             var condCases = [
                 for (arg in args) {
-                    CallExp(CallExp(Symbol("not").withPos(args[0].pos),
+                    CallExp(CallExp(Symbol("not").withPosOf(wholeExp),
                         [
-                            CallExp(Symbol("set").withPos(args[0].pos), [uniqueVarSymbol, arg]).withPos(args[0].pos)
-                        ]).withPos(args[0].pos), [Symbol("null").withPos(args[0].pos)]).withPos(args[0].pos);
+                            CallExp(Symbol("set").withPosOf(wholeExp), [uniqueVarSymbol, arg]).withPosOf(wholeExp)
+                        ]).withPosOf(wholeExp), [Symbol("null").withPosOf(wholeExp)]).withPosOf(wholeExp);
                 }
             ];
-            condCases.push(CallExp(Symbol("true").withPos(args[0].pos), [uniqueVarSymbol]).withPos(args[0].pos));
+            condCases.push(CallExp(Symbol("true").withPosOf(wholeExp), [uniqueVarSymbol]).withPosOf(wholeExp));
 
-            CallExp(Symbol("begin").withPos(args[0].pos), [
-                CallExp(Symbol("deflocal").withPos(args[0].pos), [
-                    TypedExp("Any", uniqueVarSymbol).withPos(args[0].pos),
-                    MetaExp("mut").withPos(args[0].pos),
-                    Symbol("null").withPos(args[0].pos)
-                ]).withPos(args[0].pos),
-                CallExp(Symbol("cond").withPos(args[0].pos), condCases).withPos(args[0].pos)
-            ]).withPos(args[0].pos);
+            CallExp(Symbol("begin").withPosOf(wholeExp), [
+                CallExp(Symbol("deflocal").withPosOf(wholeExp), [
+                    TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp),
+                    MetaExp("mut").withPosOf(wholeExp),
+                    Symbol("null").withPosOf(wholeExp)
+                ]).withPosOf(wholeExp),
+                CallExp(Symbol("cond").withPosOf(wholeExp), condCases).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
         };
 
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
-        macros["defmacrofun"] = (exps:Array<ReaderExp>, k:KissState) -> {
+        macros["defmacrofun"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length < 3)
-                throw CompileError.fromArgs(exps, '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body...])');
+                throw CompileError.fromExp(wholeExp, '${exps.length} is not enough arguments for (defmacrofun [name] [args] [body...])');
             var macroName = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw CompileError.fromExp(exps[0], 'first argument for defmacrofun should be a symbol for the macro name');
             };
-            k.specialForms[macroName] = (callArgs:Array<ReaderExp>, convert) -> {
+            // TODO length check?
+            k.specialForms[macroName] = (wholeExp:ReaderExp, callArgs:Array<ReaderExp>, convert) -> {
                 ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [
                     for (callArg in callArgs)
                         EFunction(FArrow, {
@@ -129,9 +130,9 @@ class Macros {
         }
 
         // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
-        macros["defreadermacro"] = (exps:Array<ReaderExp>, k:KissState) -> {
+        macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             if (exps.length != 3) {
-                throw CompileError.fromArgs(exps, 'wrong number of expressions for defreadermacro. Should be String, [streamArgName], RawHaxe');
+                throw CompileError.fromExp(wholeExp, 'wrong number of expressions for defreadermacro. Should be String, [streamArgName], RawHaxe');
             }
             switch (exps[0].def) {
                 case StrExp(s):
@@ -160,7 +161,7 @@ class Macros {
         };
 
         // TODO length checks
-        macros["defalias"] = (exps:Array<ReaderExp>, k:KissState) -> {
+        macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             k.defAlias(switch (exps[0].def) {
                 case Symbol(whenItsThis):
                     whenItsThis;
@@ -180,25 +181,27 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
-    static function cond(exps:Array<ReaderExp>, k:KissState) {
+    // TODO length check?
+    static function cond(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
         return switch (exps[0].def) {
             case CallExp(condition, body):
-                CallExp(Symbol("if").withPos(exps[0].pos), [
+                CallExp(Symbol("if").withPosOf(wholeExp), [
                     condition,
-                    CallExp(Symbol("begin").withPos(exps[0].pos), body).withPos(exps[0].pos),
+                    CallExp(Symbol("begin").withPosOf(wholeExp), body).withPosOf(wholeExp),
                     if (exps.length > 1) {
-                        cond(exps.slice(1), k);
+                        cond(CallExp(Symbol("cond").withPosOf(wholeExp), exps.slice(1)).withPosOf(wholeExp), exps.slice(1), k);
                     } else {
-                        Symbol("null").withPos(exps[0].pos);
+                        Symbol("null").withPosOf(wholeExp);
                     }
-                ]).withPos(exps[0].pos);
+                ]).withPosOf(wholeExp);
             default:
                 throw CompileError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
         };
     }
 
+    // TODO >0 arg length check?
     static function foldMacro(func:String):MacroFunction {
-        return (exps:Array<ReaderExp>, k) -> {
+        return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             CallExp(Symbol("Lambda.fold").withPos(exps[0].pos), [
                 ListExp(exps.slice(1)).withPos(exps[0].pos),
                 Symbol(func).withPos(exps[0].pos),

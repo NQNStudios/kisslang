@@ -118,6 +118,13 @@ class Reader {
         };
     }
 
+    public static function withPosOf(def:ReaderExpDef, exp:ReaderExp) {
+        return {
+            pos: exp.pos,
+            def: def
+        };
+    }
+
     public static function toString(exp:ReaderExpDef) {
         return switch (exp) {
             case CallExp(func, args):
