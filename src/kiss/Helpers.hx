@@ -7,6 +7,7 @@ import kiss.CompileError;
 import kiss.Types;
 
 using kiss.Reader;
+using kiss.Helpers;
 using StringTools;
 
 class Helpers {
@@ -85,10 +86,7 @@ class Helpers {
                 default:
                     throw CompileError.fromExp(argList, 'expected an argument list');
             },
-            expr: {
-                pos: Context.currentPos(),
-                expr: EReturn(convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos)))
-            }
+            expr: EReturn(convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withContextPos()
         }
     }
 }

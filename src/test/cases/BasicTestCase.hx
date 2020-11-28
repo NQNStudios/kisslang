@@ -120,6 +120,8 @@ class BasicTestCase extends Test {
         Assert.equals(false, BasicTestCase.myIf8);
         Assert.equals(false, BasicTestCase.myIf9);
         Assert.equals(true, BasicTestCase.myIf10);
+        Assert.equals(5, BasicTestCase.myIf11);
+        Assert.equals(null, BasicTestCase.myIf12);
     }
 
     function testMacros() {

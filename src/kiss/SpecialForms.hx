@@ -190,7 +190,13 @@ class SpecialForms {
 
             var condition = macro Prelude.truthy(${convert(args[0])});
             var thenExp = convert(args[1]);
-            var elseExp = if (args.length > 2) convert(args[2]) else null;
+            var elseExp = if (args.length > 2) {
+                convert(args[2]);
+            } else {
+                // Kiss (if... ) expressions all need to generate a Haxe else block
+                // to make sure they always return something
+                macro null;
+            };
 
             macro if ($condition)
                 $thenExp

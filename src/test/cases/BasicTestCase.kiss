@@ -64,6 +64,8 @@
 (defvar myIf8 (if "" true false))
 (defvar myIf9 (if [] true false))
 (defvar myIf10 (if [1] true false))
+(defvar myIf11 (if true 5))
+(defvar myIf12 (if false 5))
 
 (defvar :Int myInt 8)
 
