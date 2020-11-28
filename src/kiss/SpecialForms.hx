@@ -18,14 +18,35 @@ class SpecialForms {
         var map:Map<String, SpecialFormFunction> = [];
 
         map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            // Sometimes empty blocks are useful, so a checkNumArgs() seems unnecessary here for now.
+
             EBlock([for (bodyExp in args) convert(bodyExp)]).withContextPos();
         };
 
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            wholeExp.checkNumArgs(2, 2, "(nth [list] [idx])");
             EArray(convert(args[0]), convert(args[1])).withContextPos();
         };
 
-        // TODO first through tenth
+        function makeQuickNth(idx:Int, name:String) {
+            map[name] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+                wholeExp.checkNumArgs(1, 1, '($name [list])');
+                EArray(convert(args[0]), macro $v{idx}).withContextPos();
+            };
+        }
+        makeQuickNth(0, "first");
+        makeQuickNth(1, "second");
+        makeQuickNth(2, "third");
+        makeQuickNth(3, "fourth");
+        makeQuickNth(4, "fifth");
+        makeQuickNth(5, "sixth");
+        makeQuickNth(6, "seventh");
+        makeQuickNth(7, "eighth");
+        makeQuickNth(8, "ninth");
+        makeQuickNth(9, "tenth");
+        makeQuickNth(-1, "last");
+
+        // TODO rest
 
         // TODO special form for object declaration
 

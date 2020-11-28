@@ -149,3 +149,18 @@
     (l.filter (lambda [v] (< 0 v)))))
 
 (defvar myWhen1 (when true 5 6))
+
+(defvar myListOfTen [1 2 3 4 5 6 7 8 9 10])
+
+(defun _testQuickNths []
+    (Assert.equals 1 (first myListOfTen))
+    (Assert.equals 2 (second myListOfTen))
+    (Assert.equals 3 (third myListOfTen))
+    (Assert.equals 4 (fourth myListOfTen))
+    (Assert.equals 5 (fifth myListOfTen))
+    (Assert.equals 6 (sixth myListOfTen))
+    (Assert.equals 7 (seventh myListOfTen))
+    (Assert.equals 8 (eighth myListOfTen))
+    (Assert.equals 9 (ninth myListOfTen))
+    (Assert.equals 10 (tenth myListOfTen))
+    (Assert.equals 10 (last myListOfTen)))

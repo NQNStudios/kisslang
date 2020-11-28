@@ -194,4 +194,8 @@ class BasicTestCase extends Test {
     function testWhen() {
         Assert.equals(6, BasicTestCase.myWhen1);
     }
+
+    function testQuickNths() {
+        _testQuickNths();
+    }
 }
