@@ -1,2 +1,2 @@
 (defun main []
-    (trace "Hello, world!"))
+    (print "Hello, world!"))

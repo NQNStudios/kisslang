@@ -11,6 +11,7 @@ import kiss.Macros;
 import kiss.Types;
 import kiss.CompileError;
 
+using kiss.Helpers;
 using kiss.Reader;
 using tink.MacroApi;
 
@@ -43,6 +44,9 @@ class Kiss {
                 convert: null
             }
             k.convert = readerExpToHaxeExpr.bind(_, k);
+
+            // Helpful aliases
+            k.defAlias("print", "Prelude.print");
 
             while (true) {
                 stream.dropWhitespace();
