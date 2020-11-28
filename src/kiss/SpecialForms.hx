@@ -30,9 +30,7 @@ class SpecialForms {
         // TODO special form for object declaration
 
         map["new"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            if (args.length < 1) {
-                throw CompileError.fromExp(wholeExp, '(new [type] constructorArgs...) is missing a type to instantiate!');
-            }
+            wholeExp.checkNumArgs(1, null, '(new [type] [constructorArgs...])');
             var classType = switch (args[0].def) {
                 case Symbol(name): name;
                 default: throw CompileError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');

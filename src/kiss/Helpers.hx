@@ -95,4 +95,24 @@ class Helpers {
     public static function defAlias(k:KissState, whenItsThis:String, makeItThisInstead:String) {
         k.readTable[whenItsThis] = (_:Stream) -> Symbol(makeItThisInstead);
     }
+
+    /**
+        Throw a CompileError if the given expression has the wrong number of arguments
+    **/
+    public static function checkNumArgs(wholeExp:ReaderExp, min:Null<Int>, max:Null<Int>, ?expectedForm:String) {
+        if (expectedForm == null) {
+            expectedForm = if (max == min) '$min arguments' else 'between $min and $max arguments';
+        }
+
+        var args = switch (wholeExp.def) {
+            case CallExp(_, args): args;
+            default: throw CompileError.fromExp(wholeExp, "Can only check number of args in a CallExp");
+        };
+
+        if (min != null && args.length < min) {
+            throw CompileError.fromExp(wholeExp, 'Not enough arguments. Expected $expectedForm');
+        } else if (max != null && args.length > min) {
+            throw CompileError.fromExp(wholeExp, 'Too many arguments. Expected $expectedForm');
+        }
+    }
 }
