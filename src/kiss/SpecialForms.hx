@@ -65,8 +65,16 @@ class SpecialForms {
             EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
         };
 
-        function toVar(nameExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion):Var {
-            return {
+        function toVar(nameExp:ReaderExp, valueExp:ReaderExp, convert:ExprConversion, ?isFinal:Bool):Var {
+            // This check seems like unnecessary repetition but it's not. It allows is so that individual destructured bindings can specify mutability
+            return if (isFinal == null) {
+                switch (nameExp.def) {
+                    case MetaExp("mut", innerNameExp):
+                        toVar(innerNameExp, valueExp, convert, false);
+                    default:
+                        toVar(nameExp, valueExp, convert, true);
+                };
+            } else {
                 name: switch (nameExp.def) {
                     case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                         name;
@@ -83,60 +91,52 @@ class SpecialForms {
             };
         }
 
-        function toVars(namesExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion):Array<Var> {
-            return switch (namesExp.def) {
-                case Symbol(_) | TypedExp(_, {pos: _, def: Symbol(_)}):
-                    [toVar(namesExp, valueExp, isFinal, convert)];
-                case ListExp(nameExps):
-                    var idx = 0;
-                    [
-                        for (nameExp in nameExps)
-                            toVar(nameExp,
-                                CallExp(Symbol("nth").withPosOf(valueExp), [valueExp, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
-                                isFinal, convert)
-                    ];
-                default:
-                    throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
+        function toVars(namesExp:ReaderExp, valueExp:ReaderExp, convert:ExprConversion, ?isFinal:Bool):Array<Var> {
+            return if (isFinal == null) {
+                switch (namesExp.def) {
+                    case MetaExp("mut", innerNamesExp):
+                        toVars(innerNamesExp, valueExp, convert, false);
+                    default:
+                        toVars(namesExp, valueExp, convert, true);
+                };
+            } else {
+                switch (namesExp.def) {
+                    case Symbol(_) | TypedExp(_, {pos: _, def: Symbol(_)}):
+                        [toVar(namesExp, valueExp, convert, isFinal)];
+                    case ListExp(nameExps):
+                        var idx = 0;
+                        [
+                            for (nameExp in nameExps)
+                                toVar(nameExp,
+                                    CallExp(Symbol("nth").withPosOf(valueExp), [valueExp, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
+                                    convert, if (isFinal == false) false else null)
+                        ];
+                    default:
+                        throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
+                };
             };
         }
 
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             wholeExp.checkNumArgs(2, 3, "(deflocal [optional :type] [variable] [optional: &mut] [value])");
-            var valueIndex = 1;
-            var isFinal = switch (args[1].def) {
-                case MetaExp("mut"):
-                    valueIndex += 1;
-                    false;
-                default:
-                    true;
-            };
-            EVars(toVars(args[0], args[valueIndex], isFinal, convert)).withContextPos();
+            EVars(toVars(args[0], args[1], convert)).withContextPos();
         };
 
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
-            wholeExp.checkNumArgs(2, null, "(let [optional: &mut] [[bindings...]] [body...])");
-            var bindingListIndex = 0;
-            // If the first arg of (let... ) is &mut, make the bindings mutable.
-            var isFinal = switch (args[0].def) {
-                case MetaExp("mut"):
-                    bindingListIndex += 1;
-                    false;
-                default:
-                    true;
-            };
-            var bindingList = switch (args[bindingListIndex].def) {
+            wholeExp.checkNumArgs(2, null, "(let [[bindings...]] [body...])");
+            var bindingList = switch (args[0].def) {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
                     bindingExps;
                 default:
-                    throw CompileError.fromExp(args[bindingListIndex], 'let bindings should be a list expression with an even number of sub expressions');
+                    throw CompileError.fromExp(args[0], 'let bindings should be a list expression with an even number of sub expressions');
             };
             var bindingPairs = bindingList.groups(2);
             var varDefs = [];
             for (bindingPair in bindingPairs) {
-                varDefs = varDefs.concat(toVars(bindingPair[0], bindingPair[1], isFinal, convert));
+                varDefs = varDefs.concat(toVars(bindingPair[0], bindingPair[1], convert));
             }
 
-            var body = args.slice(bindingListIndex + 1);
+            var body = args.slice(1);
             if (body.length == 0) {
                 throw CompileError.fromArgs(args, '(let....) expression needs a body');
             }

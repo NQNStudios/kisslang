@@ -65,8 +65,7 @@ class Macros {
 
             CallExp(Symbol("begin").withPosOf(wholeExp), [
                 CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp),
-                    MetaExp("mut").withPosOf(wholeExp),
+                    MetaExp("mut", TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
                     Symbol("null").withPosOf(wholeExp)
                 ]).withPos(args[0].pos),
                 CallExp(Symbol("cond").withPosOf(wholeExp), [
@@ -94,8 +93,7 @@ class Macros {
 
             CallExp(Symbol("begin").withPosOf(wholeExp), [
                 CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp),
-                    MetaExp("mut").withPosOf(wholeExp),
+                    MetaExp("mut", TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
                     Symbol("null").withPosOf(wholeExp)
                 ]).withPosOf(wholeExp),
                 CallExp(Symbol("cond").withPosOf(wholeExp), condCases).withPosOf(wholeExp)

@@ -28,19 +28,34 @@ class FieldForms {
         return map;
     }
 
-    static function fieldAccess(formName:String, fieldName:String) {
-        var access = [];
-        if (formName == "defvar" || formName == "defun") {
-            access.push(AStatic);
+    static function fieldAccess(formName:String, fieldName:String, nameExp:ReaderExp, ?access:Array<Access>) {
+        if (access == null) {
+            access = if (formName == "defvar" || formName == "defprop") {
+                [AFinal];
+            } else {
+                [];
+            };
         }
-        access.push(if (fieldName.startsWith("_")) APrivate else APublic);
-        return access;
+        return switch (nameExp.def) {
+            case MetaExp("mut", nameExp):
+                access.remove(AFinal);
+                trace('ACCESS $access');
+                fieldAccess(formName, fieldName, nameExp, access);
+            default:
+                if (formName == "defvar" || formName == "defun") {
+                    access.push(AStatic);
+                }
+                access.push(if (fieldName.startsWith("_")) APrivate else APublic);
+                access;
+        };
     }
 
     static function fieldName(formName:String, nameExp:ReaderExp) {
         return switch (nameExp.def) {
             case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                 name;
+            case MetaExp(_, nameExp):
+                fieldName(formName, nameExp);
             default:
                 throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name or typed variable name.');
         };
@@ -50,15 +65,7 @@ class FieldForms {
         wholeExp.checkNumArgs(2, 3, '($formName [optional :type] [variable] [optional: &mut] [value])');
 
         var name = fieldName(formName, args[0]);
-        var access = fieldAccess(formName, name);
-
-        var valueIndex = 1;
-        switch (args[1].def) {
-            case MetaExp("mut"):
-                valueIndex += 1;
-            default:
-                access.push(AFinal);
-        }
+        var access = fieldAccess(formName, name, args[0]);
 
         return {
             name: name,
@@ -67,7 +74,7 @@ class FieldForms {
                 case TypedExp(type, _):
                     Helpers.parseComplexType(type, args[0]);
                 default: null;
-            }, convert(args[valueIndex])),
+            }, convert(args[1])),
             pos: Context.currentPos()
         };
     }
@@ -76,7 +83,7 @@ class FieldForms {
         wholeExp.checkNumArgs(3, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
 
         var name = fieldName(formName, args[0]);
-        var access = fieldAccess(formName, name);
+        var access = fieldAccess(formName, name, args[0]);
 
         return {
             name: name,

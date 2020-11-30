@@ -37,7 +37,7 @@
 
 (defvar myPower (^ 2 8))
 
-(defvar myNum &mut 6)
+(defvar &mut myNum 6)
 (defvar myInc ++myNum)
 
 (defvar myMin (min 9 3 7 1))
@@ -104,7 +104,7 @@
         (Assert.equals 5 a)
         (Assert.equals 6 b)
         (Assert.equals "stuff" c))
-    (let &mut [a "str1"]
+    (let [&mut a "str1"]
         (Assert.equals "str1" a)
         (set a "str2")
         (Assert.equals "str2" a)))
@@ -137,7 +137,7 @@
 (defvar myAnd3 (and 5 false 6))
 
 (defun mySetLocal []
-    (deflocal loc &mut "one thing")
+    (deflocal &mut loc "one thing")
     (set loc "another thing")
     loc)
 
@@ -166,23 +166,27 @@
     (Assert.equals 10 (last myListOfTen)))
 
 (defun _testListDestructuring []
-    (deflocal [a b c d e f g h i j] myListOfTen)
+    (deflocal [a b c d &mut e f g h i j] myListOfTen)
     (Assert.equals 1 a)
     (Assert.equals 2 b)
     (Assert.equals 3 c)
     (Assert.equals 4 d)
     (Assert.equals 5 e)
+    (set e 6)
+    (Assert.equals 6 e)
     (Assert.equals 6 f)
     (Assert.equals 7 g)
     (Assert.equals 8 h)
     (Assert.equals 9 i)
     (Assert.equals 10 j)
 
-    (let [[a b c d e f g h i j] myListOfTen]
+    (let [[a b c &mut d e f g h i j] myListOfTen]
         (Assert.equals 1 a)
         (Assert.equals 2 b)
         (Assert.equals 3 c)
         (Assert.equals 4 d)
+        (set d 6)
+        (Assert.equals 6 d)
         (Assert.equals 5 e)
         (Assert.equals 6 f)
         (Assert.equals 7 g)
@@ -194,7 +198,7 @@
 (defvar myMetaList [myListOfTen myListOfTen myListOfTen])
 
 (defun _testDoFor []
-    (deflocal c &mut 0)
+    (deflocal &mut c 0)
     (doFor v myListOfTen
         (Assert.equals (+ c 1) v)
         (set c v))

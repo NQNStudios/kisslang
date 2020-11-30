@@ -17,7 +17,7 @@ enum ReaderExpDef {
     Symbol(name:String); // s
     RawHaxe(code:String); // #| haxeCode() |#
     TypedExp(path:String, exp:ReaderExp); // :type [exp]
-    MetaExp(meta:String); // &meta
+    MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
@@ -46,7 +46,7 @@ class Reader {
 
         readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
 
-        readTable["&"] = (stream) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"));
+        readTable["&"] = (stream) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, readTable));
 
         readTable["!"] = (stream:Stream) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, readTable)]);
 
@@ -161,9 +161,9 @@ class Reader {
             case TypedExp(path, exp):
                 // :type [exp]
                 ':$path ${exp.def.toString()}';
-            case MetaExp(meta):
+            case MetaExp(meta, exp):
                 // &meta
-                '&$meta';
+                '&$meta ${exp.def.toString()}';
         }
     }
 }
