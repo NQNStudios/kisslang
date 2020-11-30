@@ -24,7 +24,7 @@ class Helpers {
 
     // TODO this doesn't parse generic typeparams yet
     public static function parseTypePath(path:String, from:ReaderExp):TypePath {
-        var parts:List<String> = path.split(".");
+        var parts:List<String> = path.trim().split(".");
         var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
         for (isUpcase in uppercaseParts.slice(0, -2)) {
             if (isUpcase) {
@@ -34,16 +34,28 @@ class Helpers {
         var lastIsCap = uppercaseParts[-1];
         var penultIsCap = uppercaseParts[-2];
 
-        return if (lastIsCap && penultIsCap) {
+        var genericParts = parts[-1].split("<");
+        var typeParams:Array<TypeParam> = null;
+        if (genericParts.length > 1) {
+            parts[-1] = genericParts[0];
+            typeParams = [
+                for (typeParam in genericParts[1].substr(0, genericParts[1].length - 1).split(",")) {
+                    TPType(parseComplexType(typeParam, from));
+                }
+            ];
+        }
+        return if (penultIsCap && lastIsCap) {
             {
                 sub: parts[-1],
                 name: parts[-2],
-                pack: parts.slice(0, -2)
+                pack: parts.slice(0, -2),
+                params: typeParams
             };
         } else if (lastIsCap) {
             {
                 name: parts[-1],
-                pack: parts.slice(0, -1)
+                pack: parts.slice(0, -1),
+                params: typeParams
             };
         } else {
             throw CompileError.fromExp(from, 'Type path $path should end with a capitalized type');
