@@ -206,4 +206,8 @@ class BasicTestCase extends Test {
     function testDoFor() {
         _testDoFor();
     }
+
+    function testOptionalArguments() {
+        myOptionalFunc(5);
+    }
 }

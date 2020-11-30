@@ -55,8 +55,34 @@ class Helpers {
     }
 
     // TODO generic type parameter declarations
-
     public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, k:KissState):Function {
+        // Once the &opt meta appears, all following arguments are optional until &rest
+        var opt = false;
+        // TODO rest arguments
+        // ^ rest arguments will have to define a macro with the function's name that wraps the rest args in a list when calling it from Kiss
+        function makeFuncArg(funcArg:ReaderExp):FunctionArg {
+            return switch (funcArg.def) {
+                case MetaExp("opt", innerFuncArg):
+                    opt = true;
+                    makeFuncArg(innerFuncArg);
+                default:
+                    {
+                        name: switch (funcArg.def) {
+                            case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                                name;
+                            default:
+                                throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
+                        },
+                        type: switch (funcArg.def) {
+                            case TypedExp(type, _):
+                                Helpers.parseComplexType(type, funcArg);
+                            default: null;
+                        },
+                        opt: opt
+                    };
+            };
+        }
+
         return {
             ret: if (name != null) switch (name.def) {
                 case TypedExp(type, _): Helpers.parseComplexType(type, name);
@@ -64,24 +90,7 @@ class Helpers {
             } else null,
             args: switch (argList.def) {
                 case ListExp(funcArgs):
-                    [
-                        // TODO optional arguments, rest arguments
-                        // ^ rest arguments will have to define a macro with the function's name that wraps the rest args in a list when calling it from Kiss
-                        for (funcArg in funcArgs)
-                            {
-                                name: switch (funcArg.def) {
-                                    case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                                        name;
-                                    default:
-                                        throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
-                                },
-                                type: switch (funcArg.def) {
-                                    case TypedExp(type, _):
-                                        Helpers.parseComplexType(type, funcArg);
-                                    default: null;
-                                }
-                            }
-                    ];
+                    funcArgs.map(makeFuncArg);
                 case CallExp(_, _):
                     throw CompileError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
                 default:

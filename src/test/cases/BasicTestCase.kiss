@@ -232,3 +232,8 @@
         (Assert.equals 1 a)
         (Assert.equals 5 e)
         (Assert.equals 10 i)))
+
+    (defun myOptionalFunc [a &opt b c]
+        (Assert.equals 5 a)
+        (Assert.equals null b)
+        (Assert.equals 6 (or c 6))) // (or [optionalVar] [defaultValue]) is the convention for default values
