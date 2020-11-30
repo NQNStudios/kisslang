@@ -4,7 +4,6 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
 import kiss.CompileError;
-import kiss.Types;
 import kiss.Kiss;
 
 using kiss.Reader;
@@ -56,7 +55,8 @@ class Helpers {
     }
 
     // TODO generic type parameter declarations
-    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, convert:ExprConversion):Function {
+
+    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, k:KissState):Function {
         return {
             ret: if (name != null) switch (name.def) {
                 case TypedExp(type, _): Helpers.parseComplexType(type, name);
@@ -87,7 +87,7 @@ class Helpers {
                 default:
                     throw CompileError.fromExp(argList, 'expected an argument list');
             },
-            expr: EReturn(convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withContextPos()
+            expr: EReturn(k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withContextPos()
         }
     }
 

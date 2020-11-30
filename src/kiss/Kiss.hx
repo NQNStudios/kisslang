@@ -8,12 +8,13 @@ import kiss.Reader;
 import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
-import kiss.Types;
 import kiss.CompileError;
 
 using kiss.Helpers;
 using kiss.Reader;
 using tink.MacroApi;
+
+typedef ExprConversion = (ReaderExp) -> Expr;
 
 typedef KissState = {
     className:String,
@@ -90,7 +91,7 @@ class Kiss {
                 var expandedExp = macros[mac](exp, args, k);
                 if (expandedExp != null) readerExpToField(macros[mac](expandedExp, args, k), k) else null;
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
-                fieldForms[formName](exp, args, readerExpToHaxeExpr.bind(_, k));
+                fieldForms[formName](exp, args, k);
             default:
                 throw CompileError.fromExp(exp, 'invalid valid field form');
         };
@@ -112,7 +113,7 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 convert(macros[mac](exp, args, k));
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
-                specialForms[specialForm](exp, args, convert);
+                specialForms[specialForm](exp, args, k);
             case CallExp(func, body):
                 ECall(convert(func), [for (bodyExp in body) convert(bodyExp)]).withContextPos();
             case ListExp(elements):

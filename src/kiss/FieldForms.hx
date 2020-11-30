@@ -3,17 +3,17 @@ package kiss;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
-import kiss.Types;
 import kiss.Helpers;
 import kiss.Stream;
 import kiss.CompileError;
+import kiss.Kiss;
 
 using kiss.Helpers;
 using kiss.Reader;
 using StringTools;
 
 // Field forms convert Kiss reader expressions into Haxe macro class fields
-typedef FieldFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> Field;
+typedef FieldFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Field;
 
 class FieldForms {
     public static function builtins() {
@@ -61,7 +61,7 @@ class FieldForms {
         };
     }
 
-    static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
         wholeExp.checkNumArgs(2, 3, '($formName [optional :type] [variable] [optional: &mut] [value])');
 
         var name = fieldName(formName, args[0]);
@@ -74,12 +74,12 @@ class FieldForms {
                 case TypedExp(type, _):
                     Helpers.parseComplexType(type, args[0]);
                 default: null;
-            }, convert(args[1])),
+            }, k.convert(args[1])),
             pos: Context.currentPos()
         };
     }
 
-    static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion):Field {
+    static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
         wholeExp.checkNumArgs(3, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
 
         var name = fieldName(formName, args[0]);
@@ -88,7 +88,7 @@ class FieldForms {
         return {
             name: name,
             access: access,
-            kind: FFun(Helpers.makeFunction(args[0], args[1], args.slice(2), convert)),
+            kind: FFun(Helpers.makeFunction(args[0], args[1], args.slice(2), k)),
             pos: Context.currentPos()
         };
     }
