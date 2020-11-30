@@ -165,11 +165,7 @@ class SpecialForms {
             EArrayDecl([forExpr("for", wholeExp, args, convert)]).withContextPos();
         };
 
-        // TODO special form for while loop
-
-        // TODO special form for do-while loop
-
-        // TODO special form for switch
+        // TODO (case... ) for switch
 
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
