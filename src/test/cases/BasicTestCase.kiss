@@ -209,3 +209,22 @@
         (Assert.equals 8 h)
         (Assert.equals 9 i)
         (Assert.equals 10 j)))
+
+(defun _testFor []
+    (deflocal incrementedList (for v myListOfTen (+ 1 v)))
+    (let [[a b c d e f g h i j] incrementedList]
+        (Assert.equals 2 a)
+        (Assert.equals 3 b)
+        (Assert.equals 4 c)
+        (Assert.equals 5 d)
+        (Assert.equals 6 e)
+        (Assert.equals 7 f)
+        (Assert.equals 8 g)
+        (Assert.equals 9 h)
+        (Assert.equals 10 i)
+        (Assert.equals 11 j))
+    (deflocal smallerMetaList (for [a b c d e f g h i j] myMetaList [a e i]))
+    (doFor [a e i] smallerMetaList
+        (Assert.equals 1 a)
+        (Assert.equals 5 e)
+        (Assert.equals 10 i)))

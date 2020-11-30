@@ -159,8 +159,11 @@ class SpecialForms {
             var body = CallExp(Symbol("begin").withPosOf(args[2]), bodyExps).withPosOf(args[2]);
             return EFor(EBinop(OpIn, EConst(CIdent(uniqueVarName)).withContextPos(), convert(listExp)).withContextPos(), convert(body)).withContextPos();
         }
+
         map["doFor"] = forExpr.bind("doFor");
-        // TODO special form for list comprehension
+        map["for"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
+            EArrayDecl([forExpr("for", wholeExp, args, convert)]).withContextPos();
+        };
 
         // TODO special form for while loop
 
