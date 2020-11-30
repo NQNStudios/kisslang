@@ -6,6 +6,7 @@ import kiss.Reader;
 import kiss.Types;
 import uuid.Uuid;
 
+using uuid.Uuid;
 using kiss.Reader;
 using kiss.Helpers;
 using kiss.Prelude;
@@ -148,9 +149,18 @@ class SpecialForms {
             EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), convert)).withContextPos();
         };
 
-        // TODO special form for for loop
+        function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) {
+            wholeExp.checkNumArgs(3, null, '($formName [varName] [list] [body...])');
+            var uniqueVarName = "_" + Uuid.v4().toShort();
+            var namesExp = args[0];
+            var listExp = args[1];
+            var bodyExps = args.slice(2);
+            bodyExps.insert(0, CallExp(Symbol("deflocal").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
+            var body = CallExp(Symbol("begin").withPosOf(args[2]), bodyExps).withPosOf(args[2]);
+            return EFor(EBinop(OpIn, EConst(CIdent(uniqueVarName)).withContextPos(), convert(listExp)).withContextPos(), convert(body)).withContextPos();
+        }
+        map["doFor"] = forExpr.bind("doFor");
         // TODO special form for list comprehension
-        // ^It would be nice if these were both DRY and supported list and keyvalue unpacking
 
         // TODO special form for while loop
 

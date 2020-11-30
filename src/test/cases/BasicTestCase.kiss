@@ -176,4 +176,36 @@
     (Assert.equals 7 g)
     (Assert.equals 8 h)
     (Assert.equals 9 i)
-    (Assert.equals 10 j))
+    (Assert.equals 10 j)
+
+    (let [[a b c d e f g h i j] myListOfTen]
+        (Assert.equals 1 a)
+        (Assert.equals 2 b)
+        (Assert.equals 3 c)
+        (Assert.equals 4 d)
+        (Assert.equals 5 e)
+        (Assert.equals 6 f)
+        (Assert.equals 7 g)
+        (Assert.equals 8 h)
+        (Assert.equals 9 i)
+        (Assert.equals 10 j)))
+
+
+(defvar myMetaList [myListOfTen myListOfTen myListOfTen])
+
+(defun _testDoFor []
+    (deflocal c &mut 0)
+    (doFor v myListOfTen
+        (Assert.equals (+ c 1) v)
+        (set c v))
+    (doFor [a b c d e f g h i j] myMetaList
+        (Assert.equals 1 a)
+        (Assert.equals 2 b)
+        (Assert.equals 3 c)
+        (Assert.equals 4 d)
+        (Assert.equals 5 e)
+        (Assert.equals 6 f)
+        (Assert.equals 7 g)
+        (Assert.equals 8 h)
+        (Assert.equals 9 i)
+        (Assert.equals 10 j)))

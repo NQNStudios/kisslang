@@ -202,4 +202,8 @@ class BasicTestCase extends Test {
     function testListDestructuring() {
         _testListDestructuring();
     }
+
+    function testDoFor() {
+        _testDoFor();
+    }
 }
