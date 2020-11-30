@@ -164,3 +164,16 @@
     (Assert.equals 9 (ninth myListOfTen))
     (Assert.equals 10 (tenth myListOfTen))
     (Assert.equals 10 (last myListOfTen)))
+
+(defun _testListDestructuring []
+    (deflocal [a b c d e f g h i j] myListOfTen)
+    (Assert.equals 1 a)
+    (Assert.equals 2 b)
+    (Assert.equals 3 c)
+    (Assert.equals 4 d)
+    (Assert.equals 5 e)
+    (Assert.equals 6 f)
+    (Assert.equals 7 g)
+    (Assert.equals 8 h)
+    (Assert.equals 9 i)
+    (Assert.equals 10 j))

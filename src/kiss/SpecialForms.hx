@@ -64,8 +64,7 @@ class SpecialForms {
             EBinop(OpAssign, convert(args[0]), convert(args[1])).withContextPos();
         };
 
-        // TODO allow var bindings to destructure lists and key-value pairs
-        function toVar(nameExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion) {
+        function toVar(nameExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion):Var {
             return {
                 name: switch (nameExp.def) {
                     case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
@@ -83,6 +82,23 @@ class SpecialForms {
             };
         }
 
+        function toVars(namesExp:ReaderExp, valueExp:ReaderExp, isFinal:Bool, convert:ExprConversion):Array<Var> {
+            return switch (namesExp.def) {
+                case Symbol(_) | TypedExp(_, {pos: _, def: Symbol(_)}):
+                    [toVar(namesExp, valueExp, isFinal, convert)];
+                case ListExp(nameExps):
+                    var idx = 0;
+                    [
+                        for (nameExp in nameExps)
+                            toVar(nameExp,
+                                CallExp(Symbol("nth").withPosOf(valueExp), [valueExp, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
+                                isFinal, convert)
+                    ];
+                default:
+                    throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
+            };
+        }
+
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             wholeExp.checkNumArgs(2, 3, "(deflocal [optional :type] [variable] [optional: &mut] [value])");
             var valueIndex = 1;
@@ -93,7 +109,7 @@ class SpecialForms {
                 default:
                     true;
             };
-            EVars([toVar(args[0], args[valueIndex], isFinal, convert)]).withContextPos();
+            EVars(toVars(args[0], args[valueIndex], isFinal, convert)).withContextPos();
         };
 
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
@@ -114,10 +130,10 @@ class SpecialForms {
                     throw CompileError.fromExp(args[bindingListIndex], 'let bindings should be a list expression with an even number of sub expressions');
             };
             var bindingPairs = bindingList.groups(2);
-            var varDefs = [
-                for (bindingPair in bindingPairs)
-                    toVar(bindingPair[0], bindingPair[1], isFinal, convert)
-            ];
+            var varDefs = [];
+            for (bindingPair in bindingPairs) {
+                varDefs = varDefs.concat(toVars(bindingPair[0], bindingPair[1], isFinal, convert));
+            }
 
             var body = args.slice(bindingListIndex + 1);
             if (body.length == 0) {
@@ -151,7 +167,6 @@ class SpecialForms {
             }).withContextPos();
         };
 
-        // TODO will this return null if there are no catches? It probably should, for last-expression return semantics
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, convert:ExprConversion) -> {
             wholeExp.checkNumArgs(1, null, "(try [thing] [catches...])");
             var tryKissExp = args[0];
@@ -179,7 +194,7 @@ class SpecialForms {
                             };
                         default:
                             throw CompileError.fromExp(catchKissExp,
-                                'expressions following the first expression in a (try... ) should all be (catch... ) expressions');
+                                'expressions following the first expression in a (try... ) should all be (catch [[error]] [body...]) expressions');
                     }
                 }
             ]).withContextPos();

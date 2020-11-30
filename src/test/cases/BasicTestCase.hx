@@ -198,4 +198,8 @@ class BasicTestCase extends Test {
     function testQuickNths() {
         _testQuickNths();
     }
+
+    function testListDestructuring() {
+        _testListDestructuring();
+    }
 }
