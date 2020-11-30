@@ -83,7 +83,7 @@ class Prelude {
         }
     }
 
-    public static function print(v:Any) {
+    public static function print<T>(v:T) {
         #if (sys || hxnodejs)
         Sys.println(v);
         #else
