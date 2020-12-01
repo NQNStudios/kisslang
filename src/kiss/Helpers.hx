@@ -24,7 +24,17 @@ class Helpers {
     }
 
     public static function parseTypePath(path:String, from:ReaderExp):TypePath {
-        var parts:List<String> = path.trim().split(".");
+        var genericParts = path.split("<");
+        var typeParams:Array<TypeParam> = null;
+        if (genericParts.length > 1) {
+            typeParams = [
+                for (typeParam in genericParts[1].substr(0, genericParts[1].length - 1).split(",")) {
+                    TPType(parseComplexType(typeParam, from));
+                }
+            ];
+        }
+
+        var parts:List<String> = genericParts[0].trim().split(".");
         var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
         for (isUpcase in uppercaseParts.slice(0, -2)) {
             if (isUpcase) {
@@ -34,16 +44,6 @@ class Helpers {
         var lastIsCap = uppercaseParts[-1];
         var penultIsCap = uppercaseParts[-2];
 
-        var genericParts = parts[-1].split("<");
-        var typeParams:Array<TypeParam> = null;
-        if (genericParts.length > 1) {
-            parts[-1] = genericParts[0];
-            typeParams = [
-                for (typeParam in genericParts[1].substr(0, genericParts[1].length - 1).split(",")) {
-                    TPType(parseComplexType(typeParam, from));
-                }
-            ];
-        }
         return if (penultIsCap && lastIsCap) {
             {
                 sub: parts[-1],
