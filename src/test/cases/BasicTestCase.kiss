@@ -259,3 +259,7 @@
 (defvar myCombined1 (myCombinedOptRest "a" "b" "c" "d"))
 (defvar myCombined2 (myCombinedOptRest "a"))
 (defvar myCombined3 (myCombinedOptRest "a" "b"))
+
+(defun _testFieldExps []
+    (Assert.equals "hey" (.trim "  hey "))
+    (Assert.equals "e" (.charAt (.trim "  hey ") 1)))

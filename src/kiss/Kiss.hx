@@ -132,6 +132,8 @@ class Kiss {
                 ]).withMacroPosOf(exp);
             case RawHaxe(code):
                 Context.parse(code, exp.macroPos());
+            case FieldExp(field, innerExp):
+                EField(convert(innerExp), field).withMacroPosOf(exp);
             default:
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };

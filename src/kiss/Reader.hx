@@ -18,6 +18,7 @@ enum ReaderExpDef {
     RawHaxe(code:String); // #| haxeCode() |#
     TypedExp(path:String, exp:ReaderExp); // :type [exp]
     MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
+    FieldExp(field:String, exp:ReaderExp); // .field [exp]
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
@@ -52,6 +53,9 @@ class Reader {
 
         // Helpful for defining predicates to pass to Haxe functions:
         readTable["?"] = (stream:Stream) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, readTable)]);
+
+        // Lets you dot-access a function result without binding it to a name
+        readTable["."] = (stream:Stream) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, readTable));
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
@@ -166,6 +170,8 @@ class Reader {
             case MetaExp(meta, exp):
                 // &meta
                 '&$meta ${exp.def.toString()}';
+            case FieldExp(field, exp):
+                '.$field ${exp.def.toString()}';
         }
     }
 }

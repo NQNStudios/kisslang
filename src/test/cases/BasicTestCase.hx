@@ -5,6 +5,8 @@ import utest.Assert;
 import kiss.Prelude;
 import kiss.List;
 
+using StringTools;
+
 @:build(kiss.Kiss.build("src/test/cases/BasicTestCase.kiss"))
 class BasicTestCase extends Test {
     function testStaticVar() {
@@ -225,5 +227,9 @@ class BasicTestCase extends Test {
         Assert.equals("abcd", myCombined1);
         Assert.equals("aboop", myCombined2);
         Assert.equals("ab", myCombined3);
+    }
+
+    function testFieldExps() {
+        _testFieldExps();
     }
 }
