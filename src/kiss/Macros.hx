@@ -48,13 +48,20 @@ class Macros {
 
         macros["_eq"] = foldMacro("Prelude.areEqual");
 
-        macros["when"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, null, "(when [condition] [body...])");
-            CallExp(Symbol("if").withPosOf(wholeExp), [
-                args[0],
+        function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
+            wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
+            var condition = if (negated) {
+                CallExp(Symbol("not").withPosOf(args[0]), [args[0]]).withPosOf(args[0]);
+            } else {
+                args[0];
+            }
+            return CallExp(Symbol("if").withPosOf(wholeExp), [
+                condition,
                 CallExp(Symbol("begin").withPosOf(wholeExp), args.slice(1)).withPosOf(wholeExp)
-            ]).withPos(args[0].pos);
-        };
+            ]).withPosOf(wholeExp);
+        }
+        macros["when"] = bodyIf.bind("when", false);
+        macros["unless"] = bodyIf.bind("unless", true);
 
         macros["cond"] = cond;
 

@@ -1,17 +1,16 @@
 (defun main []
     // Day 1
-    // TODO implement unless
     (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
-        (when !(and (has p 1721) (has p 299))
+        (unless (and (has p 1721) (has p 299))
             (throw "pairWithSum is broken")))
     (let [[a b] (pairWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
-        (when !(= 545379 (* a b))
+        (unless (= 545379 (* a b))
             (throw "pairWithSum is broken")))
     (let [t (trioWithSum 2020 [1721 979 366 299 675 1456])]
-        (when !(and (has t 675) (has t 366) (has t 979))
+        (unless (and (has t 675) (has t 366) (has t 979))
             (throw "trioWithSum is broken")))
     (let [[a b c] (trioWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
-        (when !(= 257778836 (* a b c))
+        (unless (= 257778836 (* a b c))
             (throw "trioWithSum is broken"))))
 
 (defun readLines [file]
