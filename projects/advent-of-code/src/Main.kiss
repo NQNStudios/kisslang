@@ -1,0 +1,2 @@
+(defun main []
+    (Solutions2020.main))

@@ -1,0 +1,4 @@
+(defun main []
+    // Day 1
+    (throw "no solutions yet")
+    )
