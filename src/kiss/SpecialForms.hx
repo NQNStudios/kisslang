@@ -177,6 +177,11 @@ class SpecialForms {
             EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
         };
 
+        map["return"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(return [value])');
+            EReturn(k.convert(args[0])).withMacroPosOf(wholeExp);
+        };
+
         // TODO (case... ) for switch
 
         // Type check syntax:
