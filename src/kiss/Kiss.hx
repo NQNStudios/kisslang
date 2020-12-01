@@ -51,6 +51,7 @@ class Kiss {
             k.defAlias("print", "Prelude.print");
             k.defAlias("map", "Lambda.map");
             k.defAlias("filter", "Lambda.filter");
+            k.defAlias("has", "Lambda.has");
 
             while (true) {
                 stream.dropWhitespace();

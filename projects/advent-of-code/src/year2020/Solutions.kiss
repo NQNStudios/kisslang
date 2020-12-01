@@ -2,12 +2,18 @@
     // Day 1
     // TODO implement unless
     // TODO list destructuring a funcall results in double evaluation
-    (let [[a b] (pairWithSum 2020 [1721 979 366 299 675 1456])]
-        (when !(and (= 1721 a) (= 299 b))
+    (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
+        (when !(and (has p 1721) (has p 299))
             (throw "pairWithSum is broken")))
     (let [[a b] (pairWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
         (when !(= 545379 (* a b))
-            (throw "pairWithSum is broken"))))
+            (throw "pairWithSum is broken")))
+    (let [t (trioWithSum 2020 [1721 979 366 299 675 1456])]
+        (when !(and (has t 675) (has t 366) (has t 979))
+            (throw "trioWithSum is broken")))
+    (let [[a b c] (trioWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
+        (when !(= 257778836 (* a b c))
+            (throw "trioWithSum is broken"))))
 
 // TODO implement .method readerexps and use them instead of let:
 (defun readLines [file]
@@ -19,17 +25,24 @@
 (defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
-    (deflocal :Map<Int,Int> numbersMap (new Map))
     // Put the numbers in a map for random access. This gives an O(n) solution
-    (doFor number numbers
-        // TODO implement dict-set, dict-get, set-nth, and use them
-        (set (nth numbersMap number) (- sum number)))
-        
-    // TODO implement early return, break
-
+    (deflocal :Map<Int,Int> numbersMap (new Map))
     (deflocal &mut pair null)
     (doFor number numbers
+        // TODO implement dict-set, dict-get, set-nth, and use them
+        (set (nth numbersMap number) (- sum number))
         (let [requiredForPair (nth numbersMap number)]
             (when (numbersMap.exists requiredForPair)
                 (set pair (or pair [number requiredForPair])))))
+        
+    // TODO implement early return, break
     pair)
+
+(defun :kiss.List<Int> trioWithSum [sum :kiss.List<Int> numbers]
+    (deflocal &mut trio null)
+    (doFor number numbers
+        (let [requiredForTrio (- sum number)
+                pairThatSatisfies (pairWithSum requiredForTrio numbers)]
+            (when pairThatSatisfies
+                (set trio [number (nth pairThatSatisfies 0) (nth pairThatSatisfies 1)]))))
+    trio)
