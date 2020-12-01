@@ -1,6 +1,7 @@
 package kiss;
 
 #if macro
+import haxe.Exception;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import kiss.Stream;
@@ -77,6 +78,8 @@ class Kiss {
             Sys.println(err);
             Sys.exit(1);
             return null; // Necessary for build() to compile
+        } catch (err:Exception) {
+            throw err; // Re-throw haxe exceptions for precise stacks
         }
     }
 
@@ -114,8 +117,8 @@ class Kiss {
                 convert(macros[mac](exp, args, k));
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](exp, args, k);
-            case CallExp(func, body):
-                ECall(convert(func), [for (bodyExp in body) convert(bodyExp)]).withContextPos();
+            case CallExp(func, args):
+                ECall(convert(func), [for (argExp in args) convert(argExp)]).withContextPos();
             case ListExp(elements):
                 ENew({
                     pack: ["kiss"],

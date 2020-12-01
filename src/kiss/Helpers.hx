@@ -5,6 +5,7 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.CompileError;
 import kiss.Kiss;
+import kiss.SpecialForms;
 
 using kiss.Reader;
 using kiss.Helpers;
@@ -22,7 +23,6 @@ class Helpers {
         return s.charAt(0) == s.charAt(0).toUpperCase();
     }
 
-    // TODO this doesn't parse generic typeparams yet
     public static function parseTypePath(path:String, from:ReaderExp):TypePath {
         var parts:List<String> = path.trim().split(".");
         var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
@@ -68,16 +68,55 @@ class Helpers {
 
     // TODO generic type parameter declarations
     public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, k:KissState):Function {
+        var funcName = if (name != null) {
+            switch (name.def) {
+                case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                    name;
+                default:
+                    throw CompileError.fromExp(name, 'function name should be a symbol or typed symbol');
+            };
+        } else {
+            "";
+        };
+
+        var numArgs = 0;
         // Once the &opt meta appears, all following arguments are optional until &rest
         var opt = false;
-        // TODO rest arguments
-        // ^ rest arguments will have to define a macro with the function's name that wraps the rest args in a list when calling it from Kiss
+        // Once the &rest meta appears, no other arguments can be declared
+        var rest = false;
+        var restProcessed = false;
+
         function makeFuncArg(funcArg:ReaderExp):FunctionArg {
+            if (restProcessed) {
+                throw CompileError.fromExp(funcArg, "cannot declare more arguments after a &rest argument");
+            }
             return switch (funcArg.def) {
+                case MetaExp("rest", innerFuncArg):
+                    if (funcName == "") {
+                        throw CompileError.fromExp(funcArg, "lambda does not support &rest arguments");
+                    }
+
+                    // rest arguments define a Kiss special form with the function's name that wraps
+                    // the rest args in a list when calling it from Kiss
+                    k.specialForms[funcName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+                        var realCallArgs = args.slice(0, numArgs);
+                        var restArgs = args.slice(numArgs);
+                        realCallArgs.push(ListExp(restArgs).withPosOf(wholeExp));
+                        ECall(k.convert(Symbol(funcName).withPosOf(wholeExp)), realCallArgs.map(k.convert)).withContextPos();
+                    };
+
+                    opt = true;
+                    rest = true;
+                    makeFuncArg(innerFuncArg);
                 case MetaExp("opt", innerFuncArg):
                     opt = true;
                     makeFuncArg(innerFuncArg);
                 default:
+                    if (rest) {
+                        restProcessed = true;
+                    } else {
+                        ++numArgs;
+                    }
                     {
                         name: switch (funcArg.def) {
                             case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
@@ -95,6 +134,7 @@ class Helpers {
             };
         }
 
+        // TODO use let instead of begin to make the args immutable by default
         return {
             ret: if (name != null) switch (name.def) {
                 case TypedExp(type, _): Helpers.parseComplexType(type, name);

@@ -3,6 +3,7 @@ package test.cases;
 import utest.Test;
 import utest.Assert;
 import kiss.Prelude;
+import kiss.List;
 
 @:build(kiss.Kiss.build("src/test/cases/BasicTestCase.kiss"))
 class BasicTestCase extends Test {
@@ -209,5 +210,17 @@ class BasicTestCase extends Test {
 
     function testOptionalArguments() {
         myOptionalFunc(5);
+    }
+
+    function testRestArguments() {
+        Assert.equals(5, myRest1);
+        Assert.equals(5, myRest2);
+        Assert.equals(5, myRest3);
+    }
+
+    function testCombinedOptRest() {
+        Assert.equals("abcd", myCombined1);
+        Assert.equals("aboop", myCombined2);
+        Assert.equals("ab", myCombined3);
     }
 }

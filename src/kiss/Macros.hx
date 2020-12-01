@@ -112,8 +112,8 @@ class Macros {
                 default: throw CompileError.fromExp(exps[1], 'second argument of defmacrofun should be a list of argument names');
             };
             k.specialForms[macroName] = (wholeExp:ReaderExp, callArgs:Array<ReaderExp>, convert) -> {
-                // Macro functions check their argument numbers
-                wholeExp.checkNumArgs(macroNumArgs, macroNumArgs); // TODO when rest/optional arguments are added, this will be more complex
+                // Macro functions don't need to check their argument numbers
+                // because macro function calls expand to function calls that the Haxe compiler will check
                 ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [
                     for (callArg in callArgs)
                         EFunction(FArrow, {

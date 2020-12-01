@@ -233,7 +233,25 @@
         (Assert.equals 5 e)
         (Assert.equals 10 i)))
 
-    (defun myOptionalFunc [a &opt b c]
-        (Assert.equals 5 a)
-        (Assert.equals null b)
-        (Assert.equals 6 (or c 6))) // (or [optionalVar] [defaultValue]) is the convention for default values
+(defun myOptionalFunc [a &opt b c]
+    (Assert.equals 5 a)
+    (Assert.equals null b)
+    (Assert.equals 6 (or c 6))) // (or [optionalVar] [defaultValue]) is the convention for default values
+
+(defun myRestSum [firstOne &rest :List<Int> others]
+    (deflocal &mut sum firstOne)
+    (doFor nextOne others (set sum (+ sum nextOne)))
+    sum)
+
+(defvar myRest1 (myRestSum 5))
+(defvar myRest2 (myRestSum 1 1 1 1 1))
+(defvar myRest3 (myRestSum 1 2 2))
+
+(defun myCombinedOptRest [firstOne &opt secondOne &rest :List<String> thirdAndMore]
+    (deflocal &mut concatString (+ firstOne (or secondOne "boop")))
+    (doFor str thirdAndMore (set concatString (+ concatString str)))
+    concatString)
+
+(defvar myCombined1 (myCombinedOptRest "a" "b" "c" "d"))
+(defvar myCombined2 (myCombinedOptRest "a"))
+(defvar myCombined3 (myCombinedOptRest "a" "b"))
