@@ -232,4 +232,8 @@ class BasicTestCase extends Test {
     function testFieldExps() {
         _testFieldExps();
     }
+
+    function testBreakContinue() {
+        _testBreakContinue();
+    }
 }

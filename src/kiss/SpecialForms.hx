@@ -182,6 +182,16 @@ class SpecialForms {
             EReturn(k.convert(args[0])).withMacroPosOf(wholeExp);
         };
 
+        map["break"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(0, 0, "(break)");
+            EBreak.withMacroPosOf(wholeExp);
+        };
+
+        map["continue"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(0, 0, "(continue)");
+            EContinue.withMacroPosOf(wholeExp);
+        };
+
         // TODO (case... ) for switch
 
         // Type check syntax:

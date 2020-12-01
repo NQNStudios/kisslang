@@ -263,3 +263,15 @@
 (defun _testFieldExps []
     (Assert.equals "hey" (.trim "  hey "))
     (Assert.equals "e" (.charAt (.trim "  hey ") 1)))
+
+(defun _testBreakContinue []
+    (let [[a b c]
+                (for val [1 2 3 4 5 6 7 8]
+                    (if (> val 6)
+                            (break)
+                        (if (% val 2)
+                                (continue)
+                            val)))]
+        (Assert.equals 2 a)
+        (Assert.equals 4 b)
+        (Assert.equals 6 c)))
