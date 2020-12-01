@@ -1,7 +1,6 @@
 (defun main []
     // Day 1
     // TODO implement unless
-    // TODO list destructuring a funcall results in double evaluation
     (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
         (when !(and (has p 1721) (has p 299))
             (throw "pairWithSum is broken")))

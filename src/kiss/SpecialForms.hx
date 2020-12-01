@@ -112,13 +112,17 @@ class SpecialForms {
                     case Symbol(_) | TypedExp(_, {pos: _, def: Symbol(_)}):
                         [toVar(namesExp, valueExp, k, isFinal)];
                     case ListExp(nameExps):
+                        var uniqueVarName = "_" + Uuid.v4().toShort();
+                        var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(valueExp);
                         var idx = 0;
-                        [
+                        // Only evaluate the list expression being destructured once:
+                        [toVar(uniqueVarSymbol, valueExp, k, true)].concat([
                             for (nameExp in nameExps)
                                 toVar(nameExp,
-                                    CallExp(Symbol("nth").withPosOf(valueExp), [valueExp, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
+                                    CallExp(Symbol("nth").withPosOf(valueExp),
+                                        [uniqueVarSymbol, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
                                     k, if (isFinal == false) false else null)
-                        ];
+                        ]);
                     default:
                         throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
                 };
