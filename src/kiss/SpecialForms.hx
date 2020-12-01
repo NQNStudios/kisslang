@@ -22,18 +22,18 @@ class SpecialForms {
         map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             // Sometimes empty blocks are useful, so a checkNumArgs() seems unnecessary here for now.
 
-            EBlock([for (bodyExp in args) k.convert(bodyExp)]).withContextPos();
+            EBlock([for (bodyExp in args) k.convert(bodyExp)]).withMacroPosOf(wholeExp);
         };
 
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 2, "(nth [list] [idx])");
-            EArray(k.convert(args[0]), k.convert(args[1])).withContextPos();
+            EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
 
         function makeQuickNth(idx:Int, name:String) {
             map[name] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
                 wholeExp.checkNumArgs(1, 1, '($name [list])');
-                EArray(k.convert(args[0]), macro $v{idx}).withContextPos();
+                EArray(k.convert(args[0]), macro $v{idx}).withMacroPosOf(wholeExp);
             };
         }
         makeQuickNth(0, "first");
@@ -58,12 +58,12 @@ class SpecialForms {
                 case Symbol(name): name;
                 default: throw CompileError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');
             };
-            ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(k.convert)).withContextPos();
+            ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(k.convert)).withMacroPosOf(wholeExp);
         };
 
         map["set"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 2, "(set [variable] [value])");
-            EBinop(OpAssign, k.convert(args[0]), k.convert(args[1])).withContextPos();
+            EBinop(OpAssign, k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
 
         function toVar(nameExp:ReaderExp, valueExp:ReaderExp, k:KissState, ?isFinal:Bool):Var {
@@ -120,7 +120,7 @@ class SpecialForms {
 
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 3, "(deflocal [optional :type] [variable] [optional: &mut] [value])");
-            EVars(toVars(args[0], args[1], k)).withContextPos();
+            EVars(toVars(args[0], args[1], k)).withMacroPosOf(wholeExp);
         };
 
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
@@ -142,12 +142,15 @@ class SpecialForms {
                 throw CompileError.fromArgs(args, '(let....) expression needs a body');
             }
 
-            EBlock([EVars(varDefs).withContextPos(), EBlock(body.map(k.convert)).withContextPos()]).withContextPos();
+            EBlock([
+                EVars(varDefs).withMacroPosOf(wholeExp),
+                EBlock(body.map(k.convert)).withMacroPosOf(wholeExp)
+            ]).withMacroPosOf(wholeExp);
         };
 
         map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(lambda [[argsNames...]] [body...])");
-            EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), k)).withContextPos();
+            EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), k)).withMacroPosOf(wholeExp);
         };
 
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
@@ -158,12 +161,13 @@ class SpecialForms {
             var bodyExps = args.slice(2);
             bodyExps.insert(0, CallExp(Symbol("deflocal").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
             var body = CallExp(Symbol("begin").withPosOf(args[2]), bodyExps).withPosOf(args[2]);
-            return EFor(EBinop(OpIn, EConst(CIdent(uniqueVarName)).withContextPos(), k.convert(listExp)).withContextPos(), k.convert(body)).withContextPos();
+            return EFor(EBinop(OpIn, EConst(CIdent(uniqueVarName)).withMacroPosOf(wholeExp), k.convert(listExp)).withMacroPosOf(wholeExp),
+                k.convert(body)).withMacroPosOf(wholeExp);
         }
 
         map["doFor"] = forExpr.bind("doFor");
         map["for"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            EArrayDecl([forExpr("for", wholeExp, args, k)]).withContextPos();
+            EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
         };
 
         // TODO (case... ) for switch
@@ -174,7 +178,7 @@ class SpecialForms {
             ECheckType(k.convert(args[1]), switch (args[0].def) {
                 case Symbol(type): Helpers.parseComplexType(type, args[0]);
                 default: throw CompileError.fromExp(args[0], 'first argument to (the... ) should be a valid type');
-            }).withContextPos();
+            }).withMacroPosOf(wholeExp);
         };
 
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
@@ -207,14 +211,14 @@ class SpecialForms {
                                 'expressions following the first expression in a (try... ) should all be (catch [[error]] [body...]) expressions');
                     }
                 }
-            ]).withContextPos();
+            ]).withMacroPosOf(wholeExp);
         };
 
         map["throw"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             if (args.length != 1) {
                 throw CompileError.fromExp(wholeExp, 'throw expression should only throw one value');
             }
-            EThrow(k.convert(args[0])).withContextPos();
+            EThrow(k.convert(args[0])).withMacroPosOf(wholeExp);
         };
 
         map["<"] = foldComparison("_min");
@@ -257,7 +261,7 @@ class SpecialForms {
         return (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             var callFoldMacroExpr = k.convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp));
             wholeExp.checkNumArgs(1, null);
-            EBinop(OpEq, k.convert(args[0]), macro ${callFoldMacroExpr}.toDynamic()).withContextPos();
+            EBinop(OpEq, k.convert(args[0]), macro ${callFoldMacroExpr}.toDynamic()).withMacroPosOf(wholeExp);
         };
     }
 }

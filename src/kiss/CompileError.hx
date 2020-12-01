@@ -3,6 +3,7 @@ package kiss;
 import kiss.Reader;
 import kiss.List;
 
+using kiss.Stream;
 using kiss.Reader;
 
 class CompileError {
@@ -25,10 +26,12 @@ class CompileError {
     public function toString() {
         var posPrefix = switch (exps.length) {
             case 1:
-                exps[0].pos;
+                exps[0].pos.toPrint();
             default:
-                var justLineAndColumnIdx = exps[-1].pos.indexOf(":") + 1;
-                exps[0].pos + '-' + exps[-1].pos.substr(justLineAndColumnIdx);
+                var firstPos = exps[0].pos.toPrint();
+                var lastPos = exps[-1].pos.toPrint();
+                var justLineAndColumnIdx = lastPos.indexOf(":") + 1;
+                firstPos + '-' + lastPos.substr(justLineAndColumnIdx);
         }
 
         return '\nKiss compilation failed!\n'

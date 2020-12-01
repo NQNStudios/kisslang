@@ -6,13 +6,19 @@ import haxe.ds.Option;
 using StringTools;
 using Lambda;
 
-typedef Position = String;
+typedef Position = {
+    file:String,
+    line:Int,
+    column:Int,
+    absoluteChar:Int
+};
 
 class Stream {
     var content:String;
     var file:String;
     var line:Int;
     var column:Int;
+    var absoluteChar:Int;
 
     public function new(file:String) {
         // Banish ye Windows line-endings
@@ -24,6 +30,7 @@ class Stream {
         this.file = file;
         line = 1;
         column = 1;
+        absoluteChar = 0;
     }
 
     public function peekChars(chars:Int):Option<String> {
@@ -37,7 +44,16 @@ class Stream {
     }
 
     public function position():Position {
-        return '$file:$line:$column';
+        return {
+            file: file,
+            line: line,
+            column: column,
+            absoluteChar: absoluteChar
+        };
+    }
+
+    public static function toPrint(p:Position) {
+        return '${p.file}:${p.line}:${p.column}';
     }
 
     public function startsWith(s:String) {
@@ -50,6 +66,7 @@ class Stream {
     /** Every drop call should end up calling dropChars() or the position tracker will be wrong. **/
     private function dropChars(count:Int) {
         for (idx in 0...count) {
+            absoluteChar += 1;
             switch (content.charAt(idx)) {
                 case "\n":
                     line += 1;

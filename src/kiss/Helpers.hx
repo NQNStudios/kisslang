@@ -2,6 +2,7 @@ package kiss;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import haxe.macro.PositionTools;
 import kiss.Reader;
 import kiss.CompileError;
 import kiss.Kiss;
@@ -12,9 +13,18 @@ using kiss.Helpers;
 using StringTools;
 
 class Helpers {
-    public static function withContextPos(e:ExprDef):Expr {
+    public static function macroPos(exp:ReaderExp) {
+        var kissPos = exp.pos;
+        return PositionTools.make({
+            min: kissPos.absoluteChar,
+            max: kissPos.absoluteChar,
+            file: kissPos.file
+        });
+    }
+
+    public static function withMacroPosOf(e:ExprDef, exp:ReaderExp):Expr {
         return {
-            pos: Context.currentPos(),
+            pos: macroPos(exp),
             expr: e
         };
     }
@@ -67,7 +77,7 @@ class Helpers {
     }
 
     // TODO generic type parameter declarations
-    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:Array<ReaderExp>, k:KissState):Function {
+    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
         var funcName = if (name != null) {
             switch (name.def) {
                 case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
@@ -102,7 +112,7 @@ class Helpers {
                         var realCallArgs = args.slice(0, numArgs);
                         var restArgs = args.slice(numArgs);
                         realCallArgs.push(ListExp(restArgs).withPosOf(wholeExp));
-                        ECall(k.convert(Symbol(funcName).withPosOf(wholeExp)), realCallArgs.map(k.convert)).withContextPos();
+                        ECall(k.convert(Symbol(funcName).withPosOf(wholeExp)), realCallArgs.map(k.convert)).withMacroPosOf(wholeExp);
                     };
 
                     opt = true;
@@ -148,7 +158,7 @@ class Helpers {
                 default:
                     throw CompileError.fromExp(argList, 'expected an argument list');
             },
-            expr: EReturn(k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withContextPos()
+            expr: EReturn(k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withMacroPosOf(body[-1])
         }
     }
 

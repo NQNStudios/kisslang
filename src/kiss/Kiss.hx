@@ -107,32 +107,30 @@ class Kiss {
         var convert = readerExpToHaxeExpr.bind(_, k);
         var expr = switch (exp.def) {
             case Symbol(name):
-                Context.parse(name, Context.currentPos());
+                Context.parse(name, exp.macroPos());
             case StrExp(s):
-                {
-                    pos: Context.currentPos(),
-                    expr: EConst(CString(s))
-                };
+                EConst(CString(s)).withMacroPosOf(exp);
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 convert(macros[mac](exp, args, k));
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](exp, args, k);
             case CallExp(func, args):
-                ECall(convert(func), [for (argExp in args) convert(argExp)]).withContextPos();
+                ECall(convert(func), [for (argExp in args) convert(argExp)]).withMacroPosOf(exp);
 
             /*
                 // Typed expressions in the wild become casts:
                 case TypedExp(type, innerExp):
-                    ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withContextPos();
+                    ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withMacroPosOf(wholeExp);
              */
             case ListExp(elements):
                 ENew({
                     pack: ["kiss"],
                     name: "List"
-                },
-                    [EArrayDecl([for (elementExp in elements) convert(elementExp)]).withContextPos()]).withContextPos();
+                }, [
+                    EArrayDecl([for (elementExp in elements) convert(elementExp)]).withMacroPosOf(exp)
+                ]).withMacroPosOf(exp);
             case RawHaxe(code):
-                Context.parse(code, Context.currentPos());
+                Context.parse(code, exp.macroPos());
             default:
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };

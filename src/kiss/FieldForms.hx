@@ -75,7 +75,7 @@ class FieldForms {
                     Helpers.parseComplexType(type, args[0]);
                 default: null;
             }, k.convert(args[1])),
-            pos: Context.currentPos()
+            pos: wholeExp.macroPos()
         };
     }
 
@@ -89,7 +89,7 @@ class FieldForms {
             name: name,
             access: access,
             kind: FFun(Helpers.makeFunction(args[0], args[1], args.slice(2), k)),
-            pos: Context.currentPos()
+            pos: wholeExp.macroPos()
         };
     }
 }

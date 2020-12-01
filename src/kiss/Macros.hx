@@ -114,14 +114,14 @@ class Macros {
             k.specialForms[macroName] = (wholeExp:ReaderExp, callArgs:Array<ReaderExp>, convert) -> {
                 // Macro functions don't need to check their argument numbers
                 // because macro function calls expand to function calls that the Haxe compiler will check
-                ECall(Context.parse('${k.className}.${macroName}', Context.currentPos()), [
+                ECall(Context.parse('${k.className}.${macroName}', wholeExp.macroPos()), [
                     for (callArg in callArgs)
                         EFunction(FArrow, {
                             args: [],
                             ret: null,
-                            expr: EReturn(k.convert(callArg)).withContextPos()
-                        }).withContextPos()
-                ]).withContextPos();
+                            expr: EReturn(k.convert(callArg)).withMacroPosOf(wholeExp)
+                        }).withMacroPosOf(wholeExp)
+                ]).withMacroPosOf(wholeExp);
             };
 
             CallExp(Symbol("defun").withPosOf(wholeExp), exps).withPosOf(wholeExp);
