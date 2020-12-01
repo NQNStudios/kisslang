@@ -59,8 +59,10 @@ class Reader {
         return readTable;
     }
 
+    public static final terminators = [")", "]", "/*", "\n", " "];
+
     static function nextToken(stream:Stream, expect:String) {
-        return stream.expect(expect, () -> stream.takeUntilOneOf([")", "]", "/*", "\n", " "]));
+        return stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
     }
 
     public static function assertRead(stream:Stream, readTable:Map<String, ReadFunction>):ReaderExp {
