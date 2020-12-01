@@ -31,7 +31,9 @@
 
 (defvar myProduct (* 2 5 6))
 
-(defvar myQuotient (/ 6 3 2 2))
+(defvar myQuotientInt (/ 6 3 2 2))
+
+(defvar myQuotientFloat (/ 6 3 2 2.0))
 
 (defvar myRemainder (% 10 6))
 
@@ -53,6 +55,8 @@
 (defvar myComp8 (>= 4 4 2 1))
 (defvar myComp9 (= 1 1 1 1))
 (defvar myComp10 (= 1 2 1 1))
+(defvar myComp11 (= "hey" "hey" "hey"))
+(defvar myComp12 (= "hey" "you" "hey"))
 
 (defvar myIf1 (if 1 true false))
 (defvar myIf2 (if 0 true false))

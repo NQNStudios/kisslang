@@ -61,7 +61,8 @@ class BasicTestCase extends Test {
     }
 
     function testVariadicDivide() {
-        Assert.equals(0.5, BasicTestCase.myQuotient);
+        Assert.equals(0, BasicTestCase.myQuotientInt);
+        Assert.equals(0.5, BasicTestCase.myQuotientFloat);
     }
 
     function testMod() {
@@ -108,6 +109,8 @@ class BasicTestCase extends Test {
     function testEqual() {
         Assert.equals(true, BasicTestCase.myComp9);
         Assert.equals(false, BasicTestCase.myComp10);
+        Assert.equals(true, BasicTestCase.myComp11);
+        Assert.equals(false, BasicTestCase.myComp12);
     }
 
     function testIf() {

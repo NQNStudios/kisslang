@@ -65,7 +65,7 @@ class Macros {
 
             CallExp(Symbol("begin").withPosOf(wholeExp), [
                 CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    MetaExp("mut", TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
+                    MetaExp("mut", TypedExp("Dynamic", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
                     Symbol("null").withPosOf(wholeExp)
                 ]).withPos(args[0].pos),
                 CallExp(Symbol("cond").withPosOf(wholeExp), [
@@ -93,7 +93,7 @@ class Macros {
 
             CallExp(Symbol("begin").withPosOf(wholeExp), [
                 CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    MetaExp("mut", TypedExp("Any", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
+                    MetaExp("mut", TypedExp("Dynamic", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
                     Symbol("null").withPosOf(wholeExp)
                 ]).withPosOf(wholeExp),
                 CallExp(Symbol("cond").withPosOf(wholeExp), condCases).withPosOf(wholeExp)
@@ -199,11 +199,25 @@ class Macros {
         return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             // Lambda.fold calls need at least 1 argument
             wholeExp.checkNumArgs(1, null);
-            CallExp(Symbol("Lambda.fold").withPos(exps[0].pos), [
-                ListExp(exps.slice(1)).withPos(exps[0].pos),
-                Symbol(func).withPos(exps[0].pos),
-                exps[0]
-            ]).withPos(exps[0].pos);
+
+            var uniqueVarExps = [];
+            var bindingList = [];
+
+            for (exp in exps) {
+                var uniqueVarName = "_" + Uuid.v4().toShort();
+                var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
+                uniqueVarExps.push(uniqueVarSymbol);
+                bindingList = bindingList.concat([TypedExp("kiss.Operand", uniqueVarSymbol).withPosOf(wholeExp), exp]);
+            };
+
+            CallExp(Symbol("let").withPosOf(wholeExp), [
+                ListExp(bindingList).withPosOf(wholeExp),
+                CallExp(Symbol("Lambda.fold").withPosOf(wholeExp), [
+                    ListExp(uniqueVarExps.slice(1)).withPosOf(wholeExp),
+                    Symbol(func).withPosOf(wholeExp),
+                    uniqueVarExps[0]
+                ]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
         };
     }
 }

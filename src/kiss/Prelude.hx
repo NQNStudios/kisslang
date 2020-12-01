@@ -2,49 +2,102 @@ package kiss;
 
 using Std;
 
+import kiss.Operand;
+import haxe.ds.Either;
+
 class Prelude {
-    public static function add(a, b) {
-        return a + b;
+    // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
+    public static function add(a:Operand, b:Operand):Operand {
+        return switch (a) {
+            case Left(str):
+                var firstStr = if (b.toString() != null) {
+                    b.toString();
+                } else {
+                    throw 'cannot add string $str and float ${b.toFloat()}';
+                };
+                Left(firstStr + str);
+            case Right(Left(i)):
+                switch (b) {
+                    case Right(Right(f)):
+                        add(b, a);
+                    case Right(Left(bI)):
+                        Right(Left(i + bI));
+                    case Left(s): throw 'cannot add int $i and string $s';
+                }
+            case Right(Right(f)):
+                Right(Right(f + if (b.toFloat() != null) b.toFloat() else throw 'cannot add float $f and string ${b.toString()}'));
+        };
     }
 
-    public static function subtract(val, from) {
-        return from - val;
+    public static function subtract(val:Operand, from:Operand):Operand {
+        return switch ([from, val]) {
+            case [Right(Left(from)), Right(Left(val))]:
+                Right(Left(from - val));
+            case [Right(_), Right(_)]:
+                Right(Right(from.toFloat() - val.toFloat()));
+            default:
+                throw 'cannot subtract $val from $from';
+        }
     }
 
-    public static function multiply(a, b) {
-        return a * b;
+    public static function multiply(a:Operand, b:Operand):Operand {
+        return switch ([a, b]) {
+            case [Right(Right(f)), Right(Left(_)) | Right(Right(_))]:
+                Right(Right(f * b.toFloat()));
+            case [Right(Left(i)), Right(Right(_))]:
+                multiply(b, a);
+            case [Right(Left(i)), Right(Left(bI))]:
+                Right(Left(i * bI));
+            case [Left(a), Left(b)]:
+                throw 'cannot multiply strings "$a" and "$b"';
+            case [Right(Left(i)), Left(s)] | [Left(s), Right(Left(i))]:
+                var result = "";
+                for (_ in 0...i) {
+                    result += s;
+                }
+                Left(result);
+            default:
+                throw 'cannot multiply $a and $b';
+        };
     }
 
-    public static function divide(bottom:Float, top:Float) {
-        return top / bottom;
+    public static function divide(bottom:Operand, top:Operand):Operand {
+        return switch ([top, bottom]) {
+            case [Right(Left(top)), Right(Left(bottom))]:
+                Math.floor(top / bottom);
+            case [Right(_), Right(_)]:
+                top.toFloat() / bottom.toFloat();
+            default:
+                throw 'cannot divide $top by $bottom';
+        };
     }
 
-    public static function mod(bottom, top) {
-        return top % bottom;
+    public static function mod(bottom:Operand, top:Operand):Operand {
+        return top.toFloat() % bottom.toFloat();
     }
 
-    public static function pow(exponent, base) {
-        return Math.pow(base, exponent);
+    public static function pow(exponent:Operand, base:Operand):Operand {
+        return Math.pow(base.toFloat(), exponent.toFloat());
     }
 
-    public static function minInclusive(a, b) {
-        return Math.min(a, b);
+    public static function minInclusive(a:Operand, b:Operand):Operand {
+        return Math.min(a.toFloat(), b.toFloat());
     }
 
-    public static function _minExclusive(a, b) {
-        return if (a == b) Math.NEGATIVE_INFINITY else Math.min(a, b);
+    public static function _minExclusive(a:Operand, b:Operand):Operand {
+        return if (a.toFloat() == b.toFloat()) Math.NEGATIVE_INFINITY else Math.min(a.toFloat(), b.toFloat());
     }
 
-    public static function maxInclusive(a, b) {
-        return Math.max(a, b);
+    public static function maxInclusive(a:Operand, b:Operand):Operand {
+        return Math.max(a.toFloat(), b.toFloat());
     }
 
-    public static function _maxExclusive(a, b) {
-        return if (a == b) Math.POSITIVE_INFINITY else Math.max(a, b);
+    public static function _maxExclusive(a:Operand, b:Operand):Operand {
+        return if (a.toFloat() == b.toFloat()) Math.POSITIVE_INFINITY else Math.max(a.toFloat(), b.toFloat());
     }
 
-    public static function areEqual(a, b) {
-        return if (a == b) a else Math.NaN;
+    public static function areEqual(a:Operand, b:Operand):Operand {
+        return if (a.toDynamic() == b.toDynamic()) a else Right(Right(Math.NaN));
     }
 
     public static function groups<T>(a:Array<T>, size, keepRemainder = false) {

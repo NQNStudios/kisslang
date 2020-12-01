@@ -255,8 +255,9 @@ class SpecialForms {
 
     static function foldComparison(func:String) {
         return (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var callFoldMacroExpr = k.convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp));
             wholeExp.checkNumArgs(1, null);
-            EBinop(OpEq, k.convert(args[0]), k.convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp))).withContextPos();
+            EBinop(OpEq, k.convert(args[0]), macro ${callFoldMacroExpr}.toDynamic()).withContextPos();
         };
     }
 }

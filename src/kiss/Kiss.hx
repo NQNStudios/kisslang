@@ -119,6 +119,12 @@ class Kiss {
                 specialForms[specialForm](exp, args, k);
             case CallExp(func, args):
                 ECall(convert(func), [for (argExp in args) convert(argExp)]).withContextPos();
+
+            /*
+                // Typed expressions in the wild become casts:
+                case TypedExp(type, innerExp):
+                    ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withContextPos();
+             */
             case ListExp(elements):
                 ENew({
                     pack: ["kiss"],
