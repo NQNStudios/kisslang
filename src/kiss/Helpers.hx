@@ -166,7 +166,10 @@ class Helpers {
     public static function defAlias(k:KissState, whenItsThis:String, makeItThisInstead:String) {
         // The alias has to be followed by a terminator to count!
         for (terminator in Reader.terminators) {
-            k.readTable[whenItsThis + terminator] = (_:Stream) -> Symbol(makeItThisInstead);
+            k.readTable[whenItsThis + terminator] = (s:Stream) -> {
+                s.putBackString(terminator);
+                Symbol(makeItThisInstead);
+            }
         }
     }
 

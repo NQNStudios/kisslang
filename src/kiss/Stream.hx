@@ -63,6 +63,8 @@ class Stream {
         };
     }
 
+    var lineLengths = [];
+
     /** Every drop call should end up calling dropChars() or the position tracker will be wrong. **/
     private function dropChars(count:Int) {
         for (idx in 0...count) {
@@ -70,12 +72,29 @@ class Stream {
             switch (content.charAt(idx)) {
                 case "\n":
                     line += 1;
+                    lineLengths.push(column);
                     column = 1;
                 default:
                     column += 1;
             }
         }
         content = content.substr(count);
+    }
+
+    public function putBackString(s:String) {
+        var idx = s.length - 1;
+        while (idx >= 0) {
+            absoluteChar -= 1;
+            switch (s.charAt(idx)) {
+                case "\n":
+                    line -= 1;
+                    column = lineLengths.pop();
+                default:
+                    column -= 1;
+            }
+            --idx;
+        }
+        content = s + content;
     }
 
     public function takeChars(count:Int):Option<String> {
