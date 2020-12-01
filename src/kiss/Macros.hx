@@ -100,6 +100,21 @@ class Macros {
             ]).withPosOf(wholeExp);
         };
 
+        function arraySet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            return CallExp(Symbol("set").withPosOf(wholeExp), [
+                CallExp(Symbol("nth").withPosOf(wholeExp), [exps[0], exps[1]]).withPosOf(wholeExp),
+                exps[2]
+            ]).withPosOf(wholeExp);
+        }
+        macros["set-nth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, 3, "(set-nth [list] [index] [value])");
+            arraySet(wholeExp, exps, k);
+        };
+        macros["dict-set"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, 3, "(dict-set [dict] [key] [value])");
+            arraySet(wholeExp, exps, k);
+        };
+
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, null, "(defmacrofun [name] [args] [body...])");

@@ -25,9 +25,16 @@ class SpecialForms {
             EBlock([for (bodyExp in args) k.convert(bodyExp)]).withMacroPosOf(wholeExp);
         };
 
+        function arrayAccess(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
+            return EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
+        };
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 2, "(nth [list] [idx])");
-            EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
+            arrayAccess(wholeExp, args, k);
+        };
+        map["dict-get"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(dict-get [dict] [key])");
+            arrayAccess(wholeExp, args, k);
         };
 
         function makeQuickNth(idx:Int, name:String) {

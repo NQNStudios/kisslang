@@ -30,9 +30,8 @@
     (deflocal :Map<Int,Int> numbersMap (new Map))
     (deflocal &mut pair null)
     (doFor number numbers
-        // TODO implement dict-set, dict-get, set-nth, and use them
-        (set (nth numbersMap number) (- sum number))
-        (let [requiredForPair (nth numbersMap number)]
+        (dict-set numbersMap number (- sum number))
+        (let [requiredForPair (dict-get numbersMap number)]
             (when (numbersMap.exists requiredForPair)
                 (set pair (or pair [number requiredForPair])))))
         
