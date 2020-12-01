@@ -15,13 +15,14 @@
         (when !(= 257778836 (* a b c))
             (throw "trioWithSum is broken"))))
 
-// TODO implement .method readerexps and use them instead of let:
 (defun readLines [file]
-    (let [content (File.getContent file)
-            lines (content.split #|"\n"|#)
-            trimmed (lines.map StringTools.trim)
-            filtered (lines.filter (lambda [l] (< 0 l.length)))]
-        filtered))
+    (.filter
+        (.map
+            // TODO implement escape sequences in kiss string literals
+            (.split (File.getContent file) #|"\n"|#)
+            StringTools.trim)
+        (lambda [l] (< 0 l.length))))
+
 (defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
