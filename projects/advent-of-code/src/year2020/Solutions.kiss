@@ -1,4 +1,35 @@
 (defun main []
     // Day 1
-    (throw "no solutions yet")
-    )
+    // TODO implement unless
+    // TODO list destructuring a funcall results in double evaluation
+    (let [[a b] (pairWithSum 2020 [1721 979 366 299 675 1456])]
+        (when !(and (= 1721 a) (= 299 b))
+            (throw "pairWithSum is broken")))
+    (let [[a b] (pairWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
+        (when !(= 545379 (* a b))
+            (throw "pairWithSum is broken"))))
+
+// TODO implement .method readerexps and use them instead of let:
+(defun readLines [file]
+    (let [content (File.getContent file)
+            lines (content.split #|"\n"|#)
+            trimmed (lines.map StringTools.trim)
+            filtered (lines.filter (lambda [l] (< 0 l.length)))]
+        filtered))
+(defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
+
+(defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
+    (deflocal :Map<Int,Int> numbersMap (new Map))
+    // Put the numbers in a map for random access. This gives an O(n) solution
+    (doFor number numbers
+        // TODO implement dict-set, dict-get, set-nth, and use them
+        (set (nth numbersMap number) (- sum number)))
+        
+    // TODO implement early return, break
+
+    (deflocal &mut pair null)
+    (doFor number numbers
+        (let [requiredForPair (nth numbersMap number)]
+            (when (numbersMap.exists requiredForPair)
+                (set pair (or pair [number requiredForPair])))))
+    pair)
