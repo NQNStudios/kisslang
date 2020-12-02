@@ -205,13 +205,7 @@ class Macros {
                     whenItsThis;
                 default:
                     throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias');
-            }, switch (exps[1].def) {
-                case Symbol(makeItThis):
-                    makeItThis;
-                default:
-                    throw CompileError.fromExp(exps[1], 'second argument to defalias should be a symbol for what the alias becomes');
-            });
-
+            }, exps[1].def);
             return null;
         };
 

@@ -48,10 +48,10 @@ class Kiss {
             k.convert = readerExpToHaxeExpr.bind(_, k);
 
             // Helpful aliases
-            k.defAlias("print", "Prelude.print");
-            k.defAlias("map", "Lambda.map");
-            k.defAlias("filter", "Lambda.filter");
-            k.defAlias("has", "Lambda.has");
+            k.defAlias("print", Symbol("Prelude.print"));
+            k.defAlias("map", Symbol("Lambda.map"));
+            k.defAlias("filter", Symbol("Lambda.filter"));
+            k.defAlias("has", Symbol("Lambda.has"));
 
             while (true) {
                 stream.dropWhitespace();
