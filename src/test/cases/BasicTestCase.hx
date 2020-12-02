@@ -63,8 +63,7 @@ class BasicTestCase extends Test {
     }
 
     function testVariadicDivide() {
-        Assert.equals(0, BasicTestCase.myQuotientInt);
-        Assert.equals(0.5, BasicTestCase.myQuotientFloat);
+        Assert.equals(0.5, BasicTestCase.myQuotient);
     }
 
     function testMod() {

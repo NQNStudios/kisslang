@@ -31,9 +31,8 @@
 
 (defvar myProduct (* 2 5 6))
 
-(defvar myQuotientInt (/ 6 3 2 2))
-
-(defvar myQuotientFloat (/ 6 3 2 2.0))
+// All math operations return floats, none truncate by default
+(defvar myQuotient (/ 6 3 2 2))
 
 (defvar myRemainder (% 10 6))
 

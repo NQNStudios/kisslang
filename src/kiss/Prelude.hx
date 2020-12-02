@@ -8,65 +8,46 @@ import haxe.ds.Either;
 class Prelude {
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
     public static function add(a:Operand, b:Operand):Operand {
-        return switch (a) {
-            case Left(str):
-                var firstStr = if (b.toString() != null) {
-                    b.toString();
-                } else {
-                    throw 'cannot add string $str and float ${b.toFloat()}';
-                };
-                Left(firstStr + str);
-            case Right(Left(i)):
-                switch (b) {
-                    case Right(Right(f)):
-                        add(b, a);
-                    case Right(Left(bI)):
-                        Right(Left(i + bI));
-                    case Left(s): throw 'cannot add int $i and string $s';
-                }
-            case Right(Right(f)):
-                Right(Right(f + if (b.toFloat() != null) b.toFloat() else throw 'cannot add float $f and string ${b.toString()}'));
+        return switch ([a, b]) {
+            case [Left(str), Left(str2)]:
+                Left(str2 + str);
+            case [Right(f), Right(f2)]:
+                Right(f + f2);
+            default:
+                throw 'cannot add mismatched types ${Operand.toDynamic(a)} and ${Operand.toDynamic(b)}';
         };
     }
 
     public static function subtract(val:Operand, from:Operand):Operand {
         return switch ([from, val]) {
-            case [Right(Left(from)), Right(Left(val))]:
-                Right(Left(from - val));
-            case [Right(_), Right(_)]:
-                Right(Right(from.toFloat() - val.toFloat()));
+            case [Right(from), Right(val)]:
+                Right(from - val);
             default:
-                throw 'cannot subtract $val from $from';
+                throw 'cannot subtract ${Operand.toDynamic(val)} from ${Operand.toDynamic(from)}';
         }
     }
 
     public static function multiply(a:Operand, b:Operand):Operand {
         return switch ([a, b]) {
-            case [Right(Right(f)), Right(Left(_)) | Right(Right(_))]:
-                Right(Right(f * b.toFloat()));
-            case [Right(Left(i)), Right(Right(_))]:
-                multiply(b, a);
-            case [Right(Left(i)), Right(Left(bI))]:
-                Right(Left(i * bI));
+            case [Right(f), Right(f2)]:
+                Right(f * f2);
             case [Left(a), Left(b)]:
                 throw 'cannot multiply strings "$a" and "$b"';
-            case [Right(Left(i)), Left(s)] | [Left(s), Right(Left(i))]:
+            case [Right(i), Left(s)] | [Left(s), Right(i)] if (i % 1 == 0):
                 var result = "";
-                for (_ in 0...i) {
+                for (_ in 0...Math.floor(i)) {
                     result += s;
                 }
                 Left(result);
             default:
-                throw 'cannot multiply $a and $b';
+                throw 'cannot multiply ${Operand.toDynamic(a)} and ${Operand.toDynamic(b)}';
         };
     }
 
     public static function divide(bottom:Operand, top:Operand):Operand {
         return switch ([top, bottom]) {
-            case [Right(Left(top)), Right(Left(bottom))]:
-                Math.floor(top / bottom);
-            case [Right(_), Right(_)]:
-                top.toFloat() / bottom.toFloat();
+            case [Right(f), Right(f2)]:
+                Right(f / f2);
             default:
                 throw 'cannot divide $top by $bottom';
         };
@@ -97,7 +78,7 @@ class Prelude {
     }
 
     public static function areEqual(a:Operand, b:Operand):Operand {
-        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else Right(Right(Math.NaN));
+        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else Right(Math.NaN);
     }
 
     public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
