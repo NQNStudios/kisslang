@@ -287,7 +287,7 @@ class SpecialForms {
         return (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             var callFoldMacroExpr = k.convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp));
             wholeExp.checkNumArgs(1, null);
-            EBinop(OpEq, k.convert(args[0]), macro ${callFoldMacroExpr}.toDynamic()).withMacroPosOf(wholeExp);
+            EBinop(OpEq, k.convert(args[0]), macro kiss.Operand.toDynamic($callFoldMacroExpr)).withMacroPosOf(wholeExp);
         };
     }
 }

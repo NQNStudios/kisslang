@@ -249,16 +249,21 @@ class Macros {
                 var uniqueVarName = "_" + Uuid.v4().toShort();
                 var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
                 uniqueVarExps.push(uniqueVarSymbol);
-                bindingList = bindingList.concat([TypedExp("kiss.Operand", uniqueVarSymbol).withPosOf(wholeExp), exp]);
+                bindingList = bindingList.concat([
+                    TypedExp("kiss.Operand", uniqueVarSymbol).withPosOf(wholeExp),
+                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exp]).withPosOf(wholeExp)
+                ]);
             };
 
             CallExp(Symbol("let").withPosOf(wholeExp), [
                 ListExp(bindingList).withPosOf(wholeExp),
-                CallExp(Symbol("Lambda.fold").withPosOf(wholeExp), [
-                    ListExp(uniqueVarExps.slice(1)).withPosOf(wholeExp),
-                    Symbol(func).withPosOf(wholeExp),
-                    uniqueVarExps[0]
-                ]).withPosOf(wholeExp)
+                CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
+                    CallExp(Symbol("Lambda.fold").withPosOf(wholeExp), [
+                        ListExp(uniqueVarExps.slice(1)).withPosOf(wholeExp),
+                        Symbol(func).withPosOf(wholeExp),
+                        uniqueVarExps[0]
+                    ]).withPosOf(wholeExp)
+                ]).withPosOf(wholeExp),
             ]).withPosOf(wholeExp);
         };
     }

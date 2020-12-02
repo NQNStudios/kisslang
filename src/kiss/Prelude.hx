@@ -72,11 +72,11 @@ class Prelude {
         };
     }
 
-    public static function mod(bottom:Operand, top:Operand):Operand {
+    public static function mod(bottom:Operand, top:Operand):Float {
         return top.toFloat() % bottom.toFloat();
     }
 
-    public static function pow(exponent:Operand, base:Operand):Operand {
+    public static function pow(exponent:Operand, base:Operand):Float {
         return Math.pow(base.toFloat(), exponent.toFloat());
     }
 
@@ -97,7 +97,7 @@ class Prelude {
     }
 
     public static function areEqual(a:Operand, b:Operand):Operand {
-        return if (a.toDynamic() == b.toDynamic()) a else Right(Right(Math.NaN));
+        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else Right(Right(Math.NaN));
     }
 
     public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
