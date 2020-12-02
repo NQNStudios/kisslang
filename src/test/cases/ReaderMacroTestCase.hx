@@ -13,4 +13,10 @@ class ReaderMacroTestCase extends Test {
     function testDefAlias() {
         Assert.equals(9, ReaderMacroTestCase.mySum);
     }
+
+    function testMultipleInitiators() {
+        Assert.equals("a", ReaderMacroTestCase.str1);
+        Assert.equals("b", ReaderMacroTestCase.str2);
+        Assert.equals("c", ReaderMacroTestCase.str3);
+    }
 }

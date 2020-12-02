@@ -9,3 +9,10 @@
 (defalias buffers 4)
 
 (defvar mySum (pluppers fluffers buffers))
+
+// Read a b c directly as strings
+(defreadermacro ["a" "b" "c"] [stream] #|ReaderExp.StrExp(stream.expect("a, b, or c", function () stream.takeChars(1)))|#)
+
+(defvar str1 a)
+(defvar str2 b)
+(defvar str3 c)

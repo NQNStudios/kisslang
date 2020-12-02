@@ -149,30 +149,50 @@ class Macros {
             CallExp(Symbol("defun").withPosOf(wholeExp), exps).withPosOf(wholeExp);
         }
 
-        // For now, reader macros only support a one-expression body implemented in #|raw haxe|#
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, '(defreadermacro "[startingString]" [[streamArgName]] [RawHaxe])');
-            switch (exps[0].def) {
+            wholeExp.checkNumArgs(3, 3, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [RawHaxe])');
+
+            // reader macros can define a list of strings that will trigger the macro. When there are multiple,
+            // the macro will put back the initiating string into the stream so you can check which one it was
+            var stringsThatMatch = switch (exps[0].def) {
                 case StrExp(s):
-                    switch (exps[1].def) {
-                        case ListExp([{pos: _, def: Symbol(streamArgName)}]):
-                            switch (exps[2].def) {
-                                case RawHaxe(code):
-                                    k.readTable[s] = (stream) -> {
-                                        var parser = new Parser();
-                                        var interp = new Interp();
-                                        interp.variables.set("ReaderExp", ReaderExpDef);
-                                        interp.variables.set(streamArgName, stream);
-                                        interp.execute(parser.parseString(code));
-                                    };
+                    [s];
+                case ListExp(strings):
+                    [
+                        for (s in strings)
+                            switch (s.def) {
+                                case StrExp(s):
+                                    s;
                                 default:
-                                    throw CompileError.fromExp(exps[2], 'third argument to defreadermacro should be #|raw haxe|#');
+                                    throw CompileError.fromExp(s, 'initiator list of defreadermacro must only contain strings');
                             }
-                        default:
-                            throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
-                    }
+                    ];
                 default:
-                    throw CompileError.fromExp(exps[0], 'first argument to defreadermacro should be a String');
+                    throw CompileError.fromExp(exps[0], 'first argument to defreadermacro should be a String or list of strings');
+            };
+
+            for (s in stringsThatMatch) {
+                switch (exps[1].def) {
+                    case ListExp([{pos: _, def: Symbol(streamArgName)}]):
+                        // For now, reader macros only support a one-expression body implemented in #|raw haxe|# (which can contain a block).
+                        switch (exps[2].def) {
+                            case RawHaxe(code):
+                                k.readTable[s] = (stream) -> {
+                                    if (stringsThatMatch.length > 1) {
+                                        stream.putBackString(s);
+                                    }
+                                    var parser = new Parser();
+                                    var interp = new Interp();
+                                    interp.variables.set("ReaderExp", ReaderExpDef);
+                                    interp.variables.set(streamArgName, stream);
+                                    interp.execute(parser.parseString(code));
+                                };
+                            default:
+                                throw CompileError.fromExp(exps[2], 'third argument to defreadermacro should be #|raw haxe|#');
+                        }
+                    default:
+                        throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
+                }
             }
 
             return null;
