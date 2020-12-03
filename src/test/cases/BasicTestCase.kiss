@@ -44,31 +44,45 @@
 (defvar myMin (min 9 3 7 1))
 (defvar myMax (max 9 3 7 1))
 
-(defvar myComp1 (< 1 2 3 4))
-(defvar myComp2 (< 1 1 3 4))
-(defvar myComp3 (<= 1 2 3 4))
-(defvar myComp4 (<= 1 1 3 4))
-(defvar myComp5 (> 4 3 2 1))
-(defvar myComp6 (> 4 4 2 1))
-(defvar myComp7 (>= 4 3 2 1))
-(defvar myComp8 (>= 4 4 2 1))
-(defvar myComp9 (= 1 1 1 1))
-(defvar myComp10 (= 1 2 1 1))
-(defvar myComp11 (= "hey" "hey" "hey"))
-(defvar myComp12 (= "hey" "you" "hey"))
+(defun _testLessThan []
+    (Assert.isTrue (< 1 2 3 4))
+    (Assert.isFalse (< 1 1 3 4))
+    (Assert.isFalse (< 1 12 12)))
+    
+(defun _testLesserEqual []
+    (Assert.isTrue (<= 1 2 3 4))
+    (Assert.isTrue (<= 1 1 3 4))
+    (Assert.isFalse (<= 1 12 11)))
 
-(defvar myIf1 (if 1 true false))
-(defvar myIf2 (if 0 true false))
-(defvar myIf3 (if -1 true false))
-(defvar myIf4 (if null true false))
-(defvar myIf5 (if true true false))
-(defvar myIf6 (if false true false))
-(defvar myIf7 (if "string" true false))
-(defvar myIf8 (if "" true false))
-(defvar myIf9 (if [] true false))
-(defvar myIf10 (if [1] true false))
-(defvar myIf11 (if true 5))
-(defvar myIf12 (if false 5))
+(defun _testGreaterThan []
+    (Assert.isTrue (> 4 3 2 1))
+    (Assert.isFalse (> 4 4 2 1))
+    (Assert.isFalse (> 9 3 3)))
+
+(defun _testGreaterEqual []
+    (Assert.isTrue (>= 4 3 2 1))
+    (Assert.isTrue (>= 4 4 2 1))
+    (Assert.isFalse (>= 9 4 5)))
+
+(defun _testEqual []
+    (Assert.isTrue (= 1 1 1 1))
+    (Assert.isFalse (= 1 2 1 1))
+    (Assert.isTrue (= "hey" "hey" "hey"))
+    (Assert.isTrue (= "hey" "you" "hey")))
+
+(defun _testIf []
+    (Assert.equals true (if 1 true false))
+    (Assert.equals false (if 0 true false))
+    (Assert.equals false (if -1 true false))
+    (Assert.equals false (if null true false))
+    (Assert.equals true (if true true false))
+    (Assert.equals false (if false true false))
+    (Assert.equals true (if "string" true false))
+    (Assert.equals false (if "" true false))
+    (Assert.equals false (if [] true false))
+    (Assert.equals true (if [1] true false))
+    (Assert.equals 5 (if true 5))
+    (Assert.equals null (if false 5)))
 
 (defvar :Int myInt 8)
 

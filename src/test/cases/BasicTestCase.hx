@@ -88,45 +88,27 @@ class BasicTestCase extends Test {
     }
 
     function testLessThan() {
-        Assert.equals(true, BasicTestCase.myComp1);
-        Assert.equals(false, BasicTestCase.myComp2);
+        _testLessThan();
     }
 
     function testLesserEqual() {
-        Assert.equals(true, BasicTestCase.myComp3);
-        Assert.equals(true, BasicTestCase.myComp4);
+        _testLesserEqual();
     }
 
     function testGreaterThan() {
-        Assert.equals(true, BasicTestCase.myComp5);
-        Assert.equals(false, BasicTestCase.myComp6);
+        _testGreaterThan();
     }
 
     function testGreaterEqual() {
-        Assert.equals(true, BasicTestCase.myComp7);
-        Assert.equals(true, BasicTestCase.myComp8);
+        _testGreaterEqual();
     }
 
     function testEqual() {
-        Assert.equals(true, BasicTestCase.myComp9);
-        Assert.equals(false, BasicTestCase.myComp10);
-        Assert.equals(true, BasicTestCase.myComp11);
-        Assert.equals(false, BasicTestCase.myComp12);
+        _testEqual();
     }
 
     function testIf() {
-        Assert.equals(true, BasicTestCase.myIf1);
-        Assert.equals(false, BasicTestCase.myIf2);
-        Assert.equals(false, BasicTestCase.myIf3);
-        Assert.equals(false, BasicTestCase.myIf4);
-        Assert.equals(true, BasicTestCase.myIf5);
-        Assert.equals(false, BasicTestCase.myIf6);
-        Assert.equals(true, BasicTestCase.myIf7);
-        Assert.equals(false, BasicTestCase.myIf8);
-        Assert.equals(false, BasicTestCase.myIf9);
-        Assert.equals(true, BasicTestCase.myIf10);
-        Assert.equals(5, BasicTestCase.myIf11);
-        Assert.equals(null, BasicTestCase.myIf12);
+        _testIf();
     }
 
     function testMacros() {
