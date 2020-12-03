@@ -15,7 +15,7 @@ abstract Operand(Either<String, Float>) from Either<String, Float> to Either<Str
     }
 
     @:from inline static function fromFloat(f:Float):Operand {
-        return Right(f);
+        return Right(0.0 + f);
     }
 
     // Doing this one implicitly just wasn't working in conjunction with Lambda.fold
@@ -23,7 +23,7 @@ abstract Operand(Either<String, Float>) from Either<String, Float> to Either<Str
     /* @:from */
     public inline static function fromDynamic(d:Dynamic):Operand {
         return switch (Type.typeof(d)) {
-            case TInt | TFloat: Right(d);
+            case TInt | TFloat: Right(0.0 + d);
             default:
                 if (Std.isOfType(d, String)) {
                     Left(d);

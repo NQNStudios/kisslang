@@ -59,7 +59,7 @@ class BasicTestCase extends Test {
     }
 
     function testVariadicMultiply() {
-        Assert.equals(60, BasicTestCase.myProduct);
+        _testMultiplication();
     }
 
     function testVariadicDivide() {
