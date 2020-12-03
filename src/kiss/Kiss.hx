@@ -52,6 +52,7 @@ class Kiss {
             k.defAlias("map", Symbol("Lambda.map"));
             k.defAlias("filter", Symbol("Lambda.filter"));
             k.defAlias("has", Symbol("Lambda.has"));
+            k.defAlias("count", Symbol("Lambda.count"));
 
             while (true) {
                 stream.dropWhitespace();

@@ -1,0 +1,9 @@
+(defun readLines [file]
+    (.filter
+        (.map
+            // TODO implement escape sequences in kiss string literals
+            (.split (File.getContent file) #|"\n"|#)
+            StringTools.trim)
+        (lambda [l] (< 0 l.length))))
+
+(defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))

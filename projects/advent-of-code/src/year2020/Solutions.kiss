@@ -3,25 +3,25 @@
     (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
         (unless (and (has p 1721) (has p 299))
             (throw "pairWithSum is broken")))
-    (let [[a b] (pairWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
+    (let [[a b] (pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
         (unless (= 545379 (* a b))
             (throw "pairWithSum is broken")))
     (let [t (trioWithSum 2020 [1721 979 366 299 675 1456])]
         (unless (and (has t 675) (has t 366) (has t 979))
             (throw "trioWithSum is broken")))
-    (let [[a b c] (trioWithSum 2020 (readInts "src/year2020/inputs/day1-1.txt"))]
+    (let [[a b c] (trioWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
         (unless (= 257778836 (* a b c))
-            (throw "trioWithSum is broken"))))
-
-(defun readLines [file]
-    (.filter
-        (.map
-            // TODO implement escape sequences in kiss string literals
-            (.split (File.getContent file) #|"\n"|#)
-            StringTools.trim)
-        (lambda [l] (< 0 l.length))))
-
-(defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
+            (throw "trioWithSum is broken")))
+            
+    // Day 2
+    (unless (Passwords.validateInputLine "1-3 a: abcde")
+        (throw "validateInputLine is broken"))
+    (when (Passwords.validateInputLine "1-3 b: cdefg")
+        (throw "validateInputLine is broken"))
+    (unless (Passwords.validateInputLine "2-9 c: ccccccccc")
+        (throw "validateInputLine is broken"))
+    (print (map (Util.readLines "src/year2020/inputs/day2-1.txt") Passwords.validateInputLine))
+    )
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution
@@ -34,7 +34,6 @@
     null)
 
 (defun :kiss.List<Int> trioWithSum [sum :kiss.List<Int> numbers]
-    (deflocal &mut trio null)
     (doFor number numbers
         (let [requiredForTrio (- sum number)
                 pairThatSatisfies (pairWithSum requiredForTrio numbers)]
