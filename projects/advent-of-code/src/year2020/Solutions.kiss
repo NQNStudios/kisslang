@@ -29,7 +29,24 @@
     (when (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2)
         (throw "parsePasswordCheck2 is broken"))
     (unless (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))
-        (throw "parsePasswordCheck2 is broken")))
+        (throw "parsePasswordCheck2 is broken"))
+        
+    // Day 3
+    (unless (= "..#.##.####" (Toboggan.pathString [
+                "..##......."                                    
+                "#...#...#.."
+                ".#....#..#."
+                "..#.#...#.#"
+                ".#...##..#."
+                "..#.##....."
+                ".#.#.#....#"
+                ".#........#"
+                "#.##...#..."
+                "#...##....#"
+                ".#..#...#.#"] 0 0 3 1))
+        (throw "Toboggan.path is broken"))
+    (unless (= 289 (Util.countChar "#" (Toboggan.pathString (Util.readLines "src/year2020/inputs/day3-1.txt") 0 0 3 1)))
+        (throw "Toboggan.path is broken")))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution

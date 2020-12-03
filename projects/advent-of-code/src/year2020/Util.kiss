@@ -7,3 +7,6 @@
         (lambda [l] (< 0 l.length))))
 
 (defun readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
+
+(defun countChar [char str]
+    (count (str.split "") (lambda [c] ?(= c char))))
