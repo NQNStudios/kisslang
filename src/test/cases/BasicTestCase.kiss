@@ -68,7 +68,7 @@
     (Assert.isTrue (= 1 1 1 1))
     (Assert.isFalse (= 1 2 1 1))
     (Assert.isTrue (= "hey" "hey" "hey"))
-    (Assert.isTrue (= "hey" "you" "hey")))
+    (Assert.isFalse (= "hey" "you" "hey")))
 
 (defun _testIf []
     (Assert.equals true (if 1 true false))

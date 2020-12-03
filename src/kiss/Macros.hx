@@ -38,13 +38,13 @@ class Macros {
             CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
-        macros["min"] = foldMacro("Prelude.minInclusive");
+        macros["min"] = foldMacro("Prelude.min");
+        macros["max"] = foldMacro("Prelude.max");
 
-        macros["_min"] = foldMacro("Prelude._minExclusive");
-
-        macros["max"] = foldMacro("Prelude.maxInclusive");
-
-        macros["_max"] = foldMacro("Prelude._maxExclusive");
+        macros["_greaterThan"] = foldMacro("Prelude.greaterThan");
+        macros["_greaterEqual"] = foldMacro("Prelude.greaterEqual");
+        macros["_lessThan"] = foldMacro("Prelude.lessThan");
+        macros["_lesserEqual"] = foldMacro("Prelude.lesserEqual");
 
         macros["_eq"] = foldMacro("Prelude.areEqual");
 

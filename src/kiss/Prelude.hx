@@ -61,24 +61,32 @@ class Prelude {
         return Math.pow(base.toFloat(), exponent.toFloat());
     }
 
-    public static function minInclusive(a:Operand, b:Operand):Operand {
-        return Math.min(a.toFloat(), b.toFloat());
+    public static function min(a:Operand, b:Operand):Operand {
+        return Right(Math.min(a.toFloat(), b.toFloat()));
     }
 
-    public static function _minExclusive(a:Operand, b:Operand):Operand {
-        return if (a.toFloat() == b.toFloat()) Math.NEGATIVE_INFINITY else Math.min(a.toFloat(), b.toFloat());
+    public static function max(a:Operand, b:Operand):Operand {
+        return Right(Math.max(a.toFloat(), b.toFloat()));
     }
 
-    public static function maxInclusive(a:Operand, b:Operand):Operand {
-        return Math.max(a.toFloat(), b.toFloat());
+    public static function greaterThan(b:Operand, a:Operand):Null<Operand> {
+        return if (a == null || b == null) null else if (a.toFloat() > b.toFloat()) b else null;
     }
 
-    public static function _maxExclusive(a:Operand, b:Operand):Operand {
-        return if (a.toFloat() == b.toFloat()) Math.POSITIVE_INFINITY else Math.max(a.toFloat(), b.toFloat());
+    public static function greaterEqual(b:Operand, a:Operand):Null<Operand> {
+        return if (a == null || b == null) null else if (a.toFloat() >= b.toFloat()) b else null;
+    }
+
+    public static function lessThan(b:Operand, a:Operand):Null<Operand> {
+        return if (a == null || b == null) null else if (a.toFloat() < b.toFloat()) b else null;
+    }
+
+    public static function lesserEqual(b:Operand, a:Operand):Null<Operand> {
+        return if (a == null || b == null) null else if (a.toFloat() <= b.toFloat()) b else null;
     }
 
     public static function areEqual(a:Operand, b:Operand):Operand {
-        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else Right(Math.NaN);
+        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else null;
     }
 
     public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
