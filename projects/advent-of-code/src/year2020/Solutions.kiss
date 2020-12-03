@@ -14,14 +14,22 @@
             (throw "trioWithSum is broken")))
             
     // Day 2
-    (unless (Passwords.validateInputLine "1-3 a: abcde")
-        (throw "validateInputLine is broken"))
-    (when (Passwords.validateInputLine "1-3 b: cdefg")
-        (throw "validateInputLine is broken"))
-    (unless (Passwords.validateInputLine "2-9 c: ccccccccc")
-        (throw "validateInputLine is broken"))
-    (print (map (Util.readLines "src/year2020/inputs/day2-1.txt") Passwords.validateInputLine))
-    )
+    (unless (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck1)
+        (throw "parsePasswordCheck1 is broken"))
+    (when (Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck1)
+        (throw "parsePasswordCheck1 is broken"))
+    (unless (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck1)
+        (throw "parsePasswordCheck1 is broken"))
+    (unless (= 655 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck1)) (lambda [v] v)))
+        (throw "parsePasswordCheck1 is broken"))
+    (unless (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck2)
+        (throw "parsePasswordCheck2 is broken"))
+    (when (Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck2)
+        (throw "parsePasswordCheck2 is broken"))
+    (when (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2)
+        (throw "parsePasswordCheck2 is broken"))
+    (unless (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))
+        (throw "parsePasswordCheck2 is broken")))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution
