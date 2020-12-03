@@ -59,6 +59,7 @@ class Reader {
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
+        // TODO make - A macro for numerical negation
 
         return readTable;
     }

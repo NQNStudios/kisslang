@@ -53,12 +53,12 @@ class Prelude {
         };
     }
 
-    public static function mod(bottom:Operand, top:Operand):Float {
-        return top.toFloat() % bottom.toFloat();
+    public static function mod(bottom:Float, top:Float):Float {
+        return top % bottom;
     }
 
-    public static function pow(exponent:Operand, base:Operand):Float {
-        return Math.pow(base.toFloat(), exponent.toFloat());
+    public static function pow(exponent:Float, base:Float):Float {
+        return Math.pow(base, exponent);
     }
 
     public static function min(a:Operand, b:Operand):Operand {
