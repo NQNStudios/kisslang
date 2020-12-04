@@ -1,35 +1,25 @@
 (defun main []
     // Day 1
     (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
-        (unless (and (has p 1721) (has p 299))
-            (throw "pairWithSum is broken")))
+        (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))
     (let [[a b] (pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
-        (unless (= 545379 (* a b))
-            (throw "pairWithSum is broken")))
+        (assert (= 545379 (* a b)) "pairWithSum is broken"))
     (let [t (trioWithSum 2020 [1721 979 366 299 675 1456])]
-        (unless (and (has t 675) (has t 366) (has t 979))
-            (throw "trioWithSum is broken")))
+        (assert (and (has t 675) (has t 366) (has t 979))
+            "trioWithSum is broken"))
     (let [[a b c] (trioWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
-        (unless (= 257778836 (* a b c))
-            (throw "trioWithSum is broken")))
+        (assert (= 257778836 (* a b c))
+            "trioWithSum is broken"))
             
     // Day 2
-    (unless (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck1)
-        (throw "parsePasswordCheck1 is broken"))
-    (when (Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck1)
-        (throw "parsePasswordCheck1 is broken"))
-    (unless (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck1)
-        (throw "parsePasswordCheck1 is broken"))
-    (unless (= 655 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck1)) (lambda [v] v)))
-        (throw "parsePasswordCheck1 is broken"))
-    (unless (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck2)
-        (throw "parsePasswordCheck2 is broken"))
-    (when (Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck2)
-        (throw "parsePasswordCheck2 is broken"))
-    (when (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2)
-        (throw "parsePasswordCheck2 is broken"))
-    (unless (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))
-        (throw "parsePasswordCheck2 is broken"))
+    (assert (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck1))
+    (assert !(Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck1))
+    (assert (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck1))
+    (assert (= 655 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck1)) (lambda [v] v))))
+    (assert (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck2))
+    (assert !(Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck2))
+    (assert !(Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2))
+    (assert (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v))))
         
     // Day 3
     (deflocal exampleHillTile [
@@ -44,26 +34,19 @@
                                     "#.##...#..."
                                     "#...##....#"
                                     ".#..#...#.#"])
-    (unless (= "..#.##.####" (Toboggan.pathString exampleHillTile 0 0 3 1))
-        (throw "Toboggan.path is broken")) 
-    (unless (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 1))
-        (throw "Toboggan.path is broken"))
-    (unless (= 3 (Toboggan.pathTrees exampleHillTile 0 0 5 1))
-        (throw "Toboggan.path is broken"))
-    (unless (= 4 (Toboggan.pathTrees exampleHillTile 0 0 7 1))
-        (throw "Toboggan.path is broken"))
-    (unless (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 2))
-        (throw "Toboggan.path is broken"))
-    (unless (= 289 (Util.countChar "#" (Toboggan.pathString (Util.readLines "src/year2020/inputs/day3-1.txt") 0 0 3 1)))
-        (throw "Toboggan.path is broken"))
-    (unless (= 5522401584 (let [hillTile (Util.readLines "src/year2020/inputs/day3-1.txt")]
+    (assert (= "..#.##.####" (Toboggan.pathString exampleHillTile 0 0 3 1)))
+    (assert (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 1)))
+    (assert (= 3 (Toboggan.pathTrees exampleHillTile 0 0 5 1)))
+    (assert (= 4 (Toboggan.pathTrees exampleHillTile 0 0 7 1)))
+    (assert (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 2)))
+    (assert (= 289 (Util.countChar "#" (Toboggan.pathString (Util.readLines "src/year2020/inputs/day3-1.txt") 0 0 3 1))))
+    (assert (= 5522401584 (let [hillTile (Util.readLines "src/year2020/inputs/day3-1.txt")]
             (*
                 (Toboggan.pathTrees hillTile 0 0 1 1)
                 (Toboggan.pathTrees hillTile 0 0 3 1)
                 (Toboggan.pathTrees hillTile 0 0 5 1)
                 (Toboggan.pathTrees hillTile 0 0 7 1)
-                (Toboggan.pathTrees hillTile 0 0 1 2))))
-        (throw "Toboggan.path is broken")))
+                (Toboggan.pathTrees hillTile 0 0 1 2))))))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution
