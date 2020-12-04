@@ -225,4 +225,21 @@ class BasicTestCase extends Test {
     function testApply() {
         _testApply();
     }
+
+    function testApplyWithMethod() {
+        Assert.equals(30, applyWithMethod(new BasicObject(5)));
+        Assert.equals(18, applyWithMethod(new BasicObject(3)));
+    }
+}
+
+class BasicObject {
+    var val:Int;
+
+    public function new(val:Int) {
+        this.val = val;
+    }
+
+    public function multiply(otherVal:Int) {
+        return val * otherVal;
+    }
 }

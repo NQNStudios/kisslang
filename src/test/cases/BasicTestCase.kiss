@@ -303,3 +303,6 @@
 
 (defun _testApply []
     (Assert.equals 6 (apply + [1 2 3])))
+
+(defun applyWithMethod [obj]
+    (apply .multiply obj [6]))
