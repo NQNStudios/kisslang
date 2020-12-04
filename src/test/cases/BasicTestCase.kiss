@@ -300,3 +300,6 @@
     
     (assert true)
     (assert ![]))
+
+(defun _testApply []
+    (Assert.equals 6 (apply + [1 2 3])))

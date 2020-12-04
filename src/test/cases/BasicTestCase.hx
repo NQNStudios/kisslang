@@ -221,4 +221,8 @@ class BasicTestCase extends Test {
     function testAssert() {
         _testAssert();
     }
+
+    function testApply() {
+        _testApply();
+    }
 }

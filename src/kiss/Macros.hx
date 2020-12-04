@@ -20,14 +20,6 @@ class Macros {
     public static function builtins() {
         var macros:Map<String, MacroFunction> = [];
 
-        macros["+"] = variadicMacro("Prelude.add");
-
-        macros["-"] = variadicMacro("Prelude.subtract");
-
-        macros["*"] = variadicMacro("Prelude.multiply");
-
-        macros["/"] = variadicMacro("Prelude.divide");
-
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
             CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
@@ -38,6 +30,14 @@ class Macros {
             CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
+        macros["+"] = variadicMacro("Prelude.add");
+
+        macros["-"] = variadicMacro("Prelude.subtract");
+
+        macros["*"] = variadicMacro("Prelude.multiply");
+
+        macros["/"] = variadicMacro("Prelude.divide");
+
         macros["min"] = variadicMacro("Prelude.min");
         macros["max"] = variadicMacro("Prelude.max");
 
@@ -47,6 +47,46 @@ class Macros {
         macros["<="] = variadicMacro("Prelude.lesserEqual");
 
         macros["="] = variadicMacro("Prelude.areEqual");
+
+        // the (apply [func] [args]) macro keeps its own list of aliases for the math operators
+        // that can't just be function aliases because they emulate &rest behavior
+        var opAliases = [
+            "+" => "Prelude.add",
+            "-" => "Prelude.subtract",
+            "*" => "Prelude.multiply",
+            "/" => "Prelude.divide",
+            ">" => "Prelude.greaterThan",
+            ">=" => "Prelude.greaterEqual",
+            "<" => "Prelude.lessThan",
+            "<=" => "Prelude.lesserEqual",
+            "=" => "Prelude.areEqual"
+        ];
+
+        macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, 2, '(apply [func] [argList])');
+
+            var callOn = switch (exps[0].def) {
+                case FieldExp(field, exp):
+                    exp;
+                default:
+                    Symbol("null").withPosOf(wholeExp);
+            };
+            var func = switch (exps[0].def) {
+                case Symbol(sym) if (opAliases.exists(sym)):
+                    Symbol(opAliases[sym]).withPosOf(wholeExp);
+                default:
+                    exps[0];
+            };
+            var args = switch (exps[0].def) {
+                case Symbol(sym) if (opAliases.exists(sym)):
+                    ListExp([
+                        CallExp(FieldExp("map", exps[1]).withPosOf(wholeExp), [Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp)]).withPosOf(wholeExp)
+                    ]).withPosOf(wholeExp);
+                default:
+                    exps[1];
+            };
+            CallExp(Symbol("Reflect.callMethod").withPosOf(wholeExp), [callOn, func, args]).withPosOf(wholeExp);
+        };
 
         function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');

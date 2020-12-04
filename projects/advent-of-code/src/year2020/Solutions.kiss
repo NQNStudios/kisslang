@@ -41,12 +41,7 @@
     (assert (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 2)))
     (assert (= 289 (Util.countChar "#" (Toboggan.pathString (Util.readLines "src/year2020/inputs/day3-1.txt") 0 0 3 1))))
     (assert (= 5522401584 (let [hillTile (Util.readLines "src/year2020/inputs/day3-1.txt")]
-            (*
-                (Toboggan.pathTrees hillTile 0 0 1 1)
-                (Toboggan.pathTrees hillTile 0 0 3 1)
-                (Toboggan.pathTrees hillTile 0 0 5 1)
-                (Toboggan.pathTrees hillTile 0 0 7 1)
-                (Toboggan.pathTrees hillTile 0 0 1 2))))))
+            (apply * (for args [[0 0 1 1] [0 0 3 1] [0 0 5 1] [0 0 7 1] [0 0 1 2]] (apply (Toboggan.pathTrees.bind hillTile) args)))))))
 
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution
