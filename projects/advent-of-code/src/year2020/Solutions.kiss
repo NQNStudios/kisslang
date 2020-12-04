@@ -1,13 +1,13 @@
 (defun main []
     // Day 1
-    (let [p (pairWithSum 2020 [1721 979 366 299 675 1456])]
+    (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
         (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))
-    (let [[a b] (pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
+    (let [[a b] (SummingTuples.pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
         (assert (= 545379 (* a b)) "pairWithSum is broken"))
-    (let [t (trioWithSum 2020 [1721 979 366 299 675 1456])]
+    (let [t (SummingTuples.trioWithSum 2020 [1721 979 366 299 675 1456])]
         (assert (and (has t 675) (has t 366) (has t 979))
             "trioWithSum is broken"))
-    (let [[a b c] (trioWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
+    (let [[a b c] (SummingTuples.trioWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
         (assert (= 257778836 (* a b c))
             "trioWithSum is broken"))
             

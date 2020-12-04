@@ -1,0 +1,17 @@
+(defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
+    // Put the numbers in a map for random access. This gives an O(n) solution
+    (deflocal :Map<Int,Int> numbersMap (new Map))
+    (doFor number numbers
+        (dict-set numbersMap number (- sum number))
+        (let [requiredForPair (dict-get numbersMap number)]
+            (when (numbersMap.exists requiredForPair)
+                (return [number requiredForPair]))))
+    null)
+
+(defun :kiss.List<Int> trioWithSum [sum :kiss.List<Int> numbers]
+    (doFor number numbers
+        (let [requiredForTrio (- sum number)
+                pairThatSatisfies (pairWithSum requiredForTrio numbers)]
+            (when pairThatSatisfies
+                (return [number (nth pairThatSatisfies 0) (nth pairThatSatisfies 1)]))))
+    null)

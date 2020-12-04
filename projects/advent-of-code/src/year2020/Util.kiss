@@ -2,7 +2,7 @@
     (.filter
         (.map
             // TODO implement escape sequences in kiss string literals
-            (.split (File.getContent file) #|"\n"|#)
+            (.split (.replace (File.getContent file) #|"\r"|# "") #|"\n"|#)
             StringTools.trim)
         (lambda [l] (< 0 l.length))))
 
