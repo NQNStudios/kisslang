@@ -116,8 +116,15 @@ class Prelude {
 
     public static var lesserEqual = variadic(_lesserEqual, true);
 
-    static function _areEqual(a:Operand, b:Operand):Operand {
-        return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else null;
+    static function _areEqual(a:Operand, b:Operand):Null<Operand> {
+        return if (a == null || b == null) null else switch ([a, b]) {
+            case [Left(aStr), Left(bStr)] if (aStr == bStr):
+                a;
+            case [Right(aFloat), Right(bFloat)] if (aFloat == bFloat):
+                a;
+            default:
+                null;
+        };
     }
 
     public static var areEqual = variadic(_areEqual, true);
