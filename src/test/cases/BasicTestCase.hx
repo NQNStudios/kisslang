@@ -217,4 +217,8 @@ class BasicTestCase extends Test {
     function testBreakContinue() {
         _testBreakContinue();
     }
+
+    function testAssert() {
+        _testAssert();
+    }
 }

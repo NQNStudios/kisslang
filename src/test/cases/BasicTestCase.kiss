@@ -290,3 +290,12 @@
         (Assert.equals 2 a)
         (Assert.equals 4 b)
         (Assert.equals 6 c)))
+
+(defun _testAssert []
+    (try
+            (assert false (+ "false " "should " "have " "been " "true"))
+        (catch [:String message]
+            (Assert.equals "Assertion false failed: false should have been true" message)))
+    
+    (assert true)
+    (assert ![]))

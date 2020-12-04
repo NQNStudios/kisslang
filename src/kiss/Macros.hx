@@ -122,6 +122,21 @@ class Macros {
             arraySet(wholeExp, exps, k);
         };
 
+        macros["assert"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 2, "(assert [expression] [message])");
+            var expression = exps[0];
+            var basicMessage = 'Assertion ${expression.def.toString()} failed';
+            var messageExp = if (exps.length > 1) {
+                CallExp(Symbol("+").withPosOf(wholeExp), [StrExp(basicMessage + ": ").withPosOf(wholeExp), exps[1]]);
+            } else {
+                StrExp(basicMessage);
+            };
+            CallExp(Symbol("unless").withPosOf(wholeExp), [
+                expression,
+                CallExp(Symbol("throw").withPosOf(wholeExp), [messageExp.withPosOf(wholeExp)]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
+        };
+
         // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
         macros["defmacrofun"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, null, "(defmacrofun [name] [args] [body...])");
