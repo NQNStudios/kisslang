@@ -20,13 +20,13 @@ class Macros {
     public static function builtins() {
         var macros:Map<String, MacroFunction> = [];
 
-        macros["+"] = foldMacro("Prelude.add");
+        macros["+"] = variadicMacro("Prelude.add");
 
-        macros["-"] = foldMacro("Prelude.subtract");
+        macros["-"] = variadicMacro("Prelude.subtract");
 
-        macros["*"] = foldMacro("Prelude.multiply");
+        macros["*"] = variadicMacro("Prelude.multiply");
 
-        macros["/"] = foldMacro("Prelude.divide");
+        macros["/"] = variadicMacro("Prelude.divide");
 
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
@@ -38,15 +38,15 @@ class Macros {
             CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
         };
 
-        macros["min"] = foldMacro("Prelude.min");
-        macros["max"] = foldMacro("Prelude.max");
+        macros["min"] = variadicMacro("Prelude.min");
+        macros["max"] = variadicMacro("Prelude.max");
 
-        macros["_greaterThan"] = foldMacro("Prelude.greaterThan");
-        macros["_greaterEqual"] = foldMacro("Prelude.greaterEqual");
-        macros["_lessThan"] = foldMacro("Prelude.lessThan");
-        macros["_lesserEqual"] = foldMacro("Prelude.lesserEqual");
+        macros[">"] = variadicMacro("Prelude.greaterThan");
+        macros[">="] = variadicMacro("Prelude.greaterEqual");
+        macros["<"] = variadicMacro("Prelude.lessThan");
+        macros["<="] = variadicMacro("Prelude.lesserEqual");
 
-        macros["_eq"] = foldMacro("Prelude.areEqual");
+        macros["="] = variadicMacro("Prelude.areEqual");
 
         function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
@@ -246,33 +246,14 @@ class Macros {
         };
     }
 
-    static function foldMacro(func:String):MacroFunction {
+    static function variadicMacro(func:String):MacroFunction {
         return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            // Lambda.fold calls need at least 1 argument
-            wholeExp.checkNumArgs(1, null);
-
-            var uniqueVarExps = [];
-            var bindingList = [];
-
-            for (exp in exps) {
-                var uniqueVarName = "_" + Uuid.v4().toShort();
-                var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
-                uniqueVarExps.push(uniqueVarSymbol);
-                bindingList = bindingList.concat([
-                    TypedExp("kiss.Operand", uniqueVarSymbol).withPosOf(wholeExp),
-                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exp]).withPosOf(wholeExp)
-                ]);
-            };
-
-            CallExp(Symbol("let").withPosOf(wholeExp), [
-                ListExp(bindingList).withPosOf(wholeExp),
-                CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
-                    CallExp(Symbol("Lambda.fold").withPosOf(wholeExp), [
-                        ListExp(uniqueVarExps.slice(1)).withPosOf(wholeExp),
-                        Symbol(func).withPosOf(wholeExp),
-                        uniqueVarExps[0]
-                    ]).withPosOf(wholeExp)
-                ]).withPosOf(wholeExp),
+            CallExp(Symbol(func).withPosOf(wholeExp), [
+                ListExp([
+                    for (exp in exps) {
+                        CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exp]).withPosOf(wholeExp);
+                    }
+                ]).withPosOf(wholeExp)
             ]).withPosOf(wholeExp);
         };
     }

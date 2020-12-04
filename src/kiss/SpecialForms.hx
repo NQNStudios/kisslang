@@ -247,12 +247,6 @@ class SpecialForms {
             EThrow(k.convert(args[0])).withMacroPosOf(wholeExp);
         };
 
-        map[">"] = foldComparison("_greaterThan");
-        map[">="] = foldComparison("_greaterEqual");
-        map["<"] = foldComparison("_lessThan");
-        map["<="] = foldComparison("_lesserEqual");
-        map["="] = foldComparison("_eq");
-
         map["if"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 3, '(if [cond] [then] [?else])');
 
@@ -281,13 +275,5 @@ class SpecialForms {
         };
 
         return map;
-    }
-
-    static function foldComparison(func:String) {
-        return (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            var callFoldMacroExpr = k.convert(CallExp(Symbol(func).withPosOf(wholeExp), args).withPosOf(wholeExp));
-            wholeExp.checkNumArgs(1, null);
-            EBinop(OpNotEq, macro null, macro kiss.Operand.toDynamic($callFoldMacroExpr)).withMacroPosOf(wholeExp);
-        };
     }
 }

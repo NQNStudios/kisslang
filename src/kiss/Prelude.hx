@@ -6,8 +6,19 @@ import kiss.Operand;
 import haxe.ds.Either;
 
 class Prelude {
+    static function variadic(op:(Operand, Operand) -> Null<Operand>, comparison = false):(Array<Operand>) -> Dynamic {
+        return (l:kiss.List<Operand>) -> switch (Lambda.fold(l.slice(1), op, l[0])) {
+            case null:
+                false;
+            case somethingElse if (comparison):
+                true;
+            case somethingElse:
+                Operand.toDynamic(somethingElse);
+        };
+    }
+
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
-    public static function add(a:Operand, b:Operand):Operand {
+    static function _add(a:Operand, b:Operand):Operand {
         return switch ([a, b]) {
             case [Left(str), Left(str2)]:
                 Left(str2 + str);
@@ -18,7 +29,9 @@ class Prelude {
         };
     }
 
-    public static function subtract(val:Operand, from:Operand):Operand {
+    public static var add = variadic(_add);
+
+    static function _subtract(val:Operand, from:Operand):Operand {
         return switch ([from, val]) {
             case [Right(from), Right(val)]:
                 Right(from - val);
@@ -27,7 +40,9 @@ class Prelude {
         }
     }
 
-    public static function multiply(a:Operand, b:Operand):Operand {
+    public static var subtract = variadic(_subtract);
+
+    static function _multiply(a:Operand, b:Operand):Operand {
         return switch ([a, b]) {
             case [Right(f), Right(f2)]:
                 Right(f * f2);
@@ -44,7 +59,9 @@ class Prelude {
         };
     }
 
-    public static function divide(bottom:Operand, top:Operand):Operand {
+    public static var multiply = variadic(_multiply);
+
+    static function _divide(bottom:Operand, top:Operand):Operand {
         return switch ([top, bottom]) {
             case [Right(f), Right(f2)]:
                 Right(f / f2);
@@ -52,6 +69,8 @@ class Prelude {
                 throw 'cannot divide $top by $bottom';
         };
     }
+
+    public static var divide = variadic(_divide);
 
     public static function mod(bottom:Float, top:Float):Float {
         return top % bottom;
@@ -61,33 +80,47 @@ class Prelude {
         return Math.pow(base, exponent);
     }
 
-    public static function min(a:Operand, b:Operand):Operand {
+    static function _min(a:Operand, b:Operand):Operand {
         return Right(Math.min(a.toFloat(), b.toFloat()));
     }
 
-    public static function max(a:Operand, b:Operand):Operand {
+    public static var min = variadic(_min);
+
+    static function _max(a:Operand, b:Operand):Operand {
         return Right(Math.max(a.toFloat(), b.toFloat()));
     }
 
-    public static function greaterThan(b:Operand, a:Operand):Null<Operand> {
+    public static var max = variadic(_max);
+
+    static function _greaterThan(b:Operand, a:Operand):Null<Operand> {
         return if (a == null || b == null) null else if (a.toFloat() > b.toFloat()) b else null;
     }
 
-    public static function greaterEqual(b:Operand, a:Operand):Null<Operand> {
+    public static var greaterThan = variadic(_greaterThan, true);
+
+    static function _greaterEqual(b:Operand, a:Operand):Null<Operand> {
         return if (a == null || b == null) null else if (a.toFloat() >= b.toFloat()) b else null;
     }
 
-    public static function lessThan(b:Operand, a:Operand):Null<Operand> {
+    public static var greaterEqual = variadic(_greaterEqual, true);
+
+    static function _lessThan(b:Operand, a:Operand):Null<Operand> {
         return if (a == null || b == null) null else if (a.toFloat() < b.toFloat()) b else null;
     }
 
-    public static function lesserEqual(b:Operand, a:Operand):Null<Operand> {
+    public static var lessThan = variadic(_lessThan, true);
+
+    static function _lesserEqual(b:Operand, a:Operand):Null<Operand> {
         return if (a == null || b == null) null else if (a.toFloat() <= b.toFloat()) b else null;
     }
 
-    public static function areEqual(a:Operand, b:Operand):Operand {
+    public static var lesserEqual = variadic(_lesserEqual, true);
+
+    static function _areEqual(a:Operand, b:Operand):Operand {
         return if (Operand.toDynamic(a) == Operand.toDynamic(b)) a else null;
     }
+
+    public static var areEqual = variadic(_areEqual, true);
 
     public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
         var numFullGroups = Math.floor(a.length / size);

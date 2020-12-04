@@ -31,7 +31,8 @@
 
 (defun _testMultiplication [] 
     (Assert.equals 60 (* 2 5 6))
-    (Assert.equals 5522401584 (* 84 289 89 71 36)))
+    (Assert.equals 5522401584 (* 84 289 89 71 36))
+    (Assert.equals "heyheyhey" (* "hey" 3)))
 
 // All math operations return floats, none truncate by default
 (defvar myQuotient (/ 6 3 2 2))
