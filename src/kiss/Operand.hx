@@ -18,12 +18,20 @@ abstract Operand(Either<String, Float>) from Either<String, Float> to Either<Str
         return Right(0.0 + f);
     }
 
+    @:from inline static function fromBool(b:Bool):Operand {
+        return if (b == true) Right(Math.POSITIVE_INFINITY) else Right(Math.NEGATIVE_INFINITY);
+    }
+
     // Doing this one implicitly just wasn't working in conjunction with Lambda.fold
 
     /* @:from */
     public inline static function fromDynamic(d:Dynamic):Operand {
         return switch (Type.typeof(d)) {
             case TInt | TFloat: Right(0.0 + d);
+            // Treating true and false as operands can be useful for equality. In practice, no one should use them
+            // as operands for any other reason
+            case TBool:
+                fromBool(d);
             default:
                 if (Std.isOfType(d, String)) {
                     Left(d);
@@ -57,6 +65,14 @@ abstract Operand(Either<String, Float>) from Either<String, Float> to Either<Str
             case Right(f): Math.floor(f);
             default: null;
         };
+    }
+
+    @:to public inline function toBool():Null<Bool> {
+        return switch (this) {
+            case Right(f) if (f == Math.POSITIVE_INFINITY): true;
+            case Right(f) if (f == Math.NEGATIVE_INFINITY): false;
+            default: null;
+        }
     }
 
     // This wasn't working as an implicit conversion in conjunction with Lambda.fold()
