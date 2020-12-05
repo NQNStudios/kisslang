@@ -5,7 +5,7 @@
                 (for file (Fs.readdirSync sourceDir)
                     (PDFDocument.load (Fs.readFileSync (+ sourceDir "/" file)))))
             (lambda [inputPdfs]
-                // TODO make an awaitLet macro that .thens a promise or all() of promises into a binding
+                // TODO make an awaitLet macro that .thens a promise or chain of promises (so the bindings are sequential) into a binding
                 (.then (PDFDocument.create) (lambda [saladPdf]
                     (.then 
                         (Promise.all
@@ -17,5 +17,3 @@
                             (doFor page pages (saladPdf.addPage (first page)))
                             (.then (saladPdf.save) (lambda [bytesOut]
                                 (Fs.writeFileSync "out.pdf" bytesOut)))))))))))
-                            
-                    
