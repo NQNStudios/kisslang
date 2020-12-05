@@ -1,5 +1,21 @@
 (defun main []
-    (let [bytesIn (Fs.readFileSync "example-input/antique-phone-shop.pdf")]
-        (.then (PDFDocument.load bytesIn) (lambda [pdfToModify]
-            (.then (pdfToModify.save) (lambda [bytesOut]
-                (Fs.writeFileSync "out.pdf" bytesOut)))))))
+    (let [[sourceDir numPages] (Sys.args)]
+        (.then
+            (Promise.all
+                (for file (Fs.readdirSync sourceDir)
+                    (PDFDocument.load (Fs.readFileSync (+ sourceDir "/" file)))))
+            (lambda [inputPdfs]
+                // TODO make an awaitLet macro that .thens a promise or all() of promises into a binding
+                (.then (PDFDocument.create) (lambda [saladPdf]
+                    (.then 
+                        (Promise.all
+                            (for _ #|0... Std.parseInt(numPages)|# 
+                                (let [:PDFDocument pdf (nth inputPdfs (Std.random inputPdfs.length))
+                                        page (Std.random (pdf.getPageCount))]
+                                    (saladPdf.copyPages pdf [page]))))
+                        (lambda [pages]
+                            (doFor page pages (saladPdf.addPage (first page)))
+                            (.then (saladPdf.save) (lambda [bytesOut]
+                                (Fs.writeFileSync "out.pdf" bytesOut)))))))))))
+                            
+                    
