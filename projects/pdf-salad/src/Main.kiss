@@ -1,0 +1,5 @@
+(defun main []
+    (let [bytesIn (Fs.readFileSync "example-input/antique-phone-shop.pdf")]
+        (.then (PDFDocument.load bytesIn) (lambda [pdfToModify]
+            (.then (pdfToModify.save) (lambda [bytesOut]
+                (Fs.writeFileSync "out.pdf" bytesOut)))))))

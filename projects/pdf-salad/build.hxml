@@ -1,0 +1,6 @@
+-lib kiss
+-lib hxnodejs
+-cp src
+--main Main
+-js index.js
+--cmd node index.js example-input
