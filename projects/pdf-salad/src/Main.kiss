@@ -1,10 +1,19 @@
+(defun loadAll [paths :Function callback &opt :Array<PDFDocument> pdfs]
+    (unless pdfs (set pdfs []))
+    (deflocal nextPdf (paths.shift))
+    (print nextPdf)
+    (.then (PDFDocument.load (Fs.readFileSync nextPdf))
+        (lambda [pdf]
+            (pdfs.push pdf)
+            (if paths (loadAll paths callback pdfs)
+                (callback pdfs)))
+        (lambda [error]
+            (throw #|'error $error loading $nextPdf'|#))))
+
 (defun main []
     (let [[sourceDir numPages] (Sys.args)]
-        (.then
-            (Promise.all
-                (for file (Fs.readdirSync sourceDir)
-                    (PDFDocument.load (Fs.readFileSync (+ sourceDir "/" file)))))
-            (lambda [inputPdfs]
+        (loadAll (for file (Fs.readdirSync sourceDir) (+ sourceDir "/" file))
+            (lambda [:Array<PDFDocument> inputPdfs]
                 // TODO make an awaitLet macro that .thens a promise or chain of promises (so the bindings are sequential) into a binding
                 (.then (PDFDocument.create) (lambda [saladPdf]
                     (.then 
