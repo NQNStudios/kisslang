@@ -3,7 +3,7 @@
 PROJECT_DIRS=projects/**/
 
 if [ ! -z "${TRAVIS_OS_NAME}" ]; then
-    (cd src/build-scripts && haxelib install all --always)
+    (cd kiss/build-scripts && haxelib install all --always)
 fi
 
 for PROJECT_DIR in $PROJECT_DIRS
