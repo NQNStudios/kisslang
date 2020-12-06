@@ -309,3 +309,11 @@
 
 (defun applyWithMethod [obj]
     (apply .multiply obj [6]))
+
+(defun _testAnonymousObject []
+    (let [obj
+                (object
+                    a "string A"
+                    b 5)]
+        (Assert.equals "string A" obj.a)
+        (Assert.equals 5 obj.b)))

@@ -230,6 +230,10 @@ class BasicTestCase extends Test {
         Assert.equals(30, applyWithMethod(new BasicObject(5)));
         Assert.equals(18, applyWithMethod(new BasicObject(3)));
     }
+
+    function testAnonymousObject() {
+        _testAnonymousObject();
+    }
 }
 
 class BasicObject {

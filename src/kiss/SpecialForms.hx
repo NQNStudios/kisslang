@@ -57,7 +57,25 @@ class SpecialForms {
 
         // TODO rest
 
-        // TODO special form for object declaration
+        // Declare anonymous objects
+        map["object"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            if (args.length % 2 != 0) {
+                throw CompileError.fromExp(wholeExp, "(object [field bindings]...) must have an even number of arguments");
+            }
+            EObjectDecl([
+                for (pair in args.groups(2))
+                    {
+                        quotes: Unquoted,
+                        field: switch (pair[0].def) {
+                            case Symbol(name): name;
+                            case TypedExp(_,
+                                {pos: _, def: Symbol(_)}): throw CompileError.fromExp(pair[0], "type specification on anonymous objects will be ignored");
+                            default: throw CompileError.fromExp(pair[0], "first expression in anonymous object field binding should be a plain symbol");
+                        },
+                        expr: k.convert(pair[1])
+                    }
+            ]).withMacroPosOf(wholeExp);
+        };
 
         map["new"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, null, '(new [type] [constructorArgs...])');
