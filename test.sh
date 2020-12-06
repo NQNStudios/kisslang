@@ -10,9 +10,9 @@ else
     # For CI tests, force install the dependencies
     if [ ! -z "$TRAVIS_OS_NAME" ]
     then
-        (cd src/build-scripts && haxelib install all --always)
-        (cd src/build-scripts/$KISS_TARGET && haxelib install all --always)
+        (cd kiss/build-scripts && haxelib install all --always)
+        (cd kiss/build-scripts/$KISS_TARGET && haxelib install all --always)
     fi
 
-    haxe src/build-scripts/common-args.hxml src/build-scripts/common-test-args.hxml src/build-scripts/$KISS_TARGET/test.hxml
+    haxe kiss/build-scripts/common-args.hxml kiss/build-scripts/common-test-args.hxml kiss/build-scripts/$KISS_TARGET/test.hxml
 fi

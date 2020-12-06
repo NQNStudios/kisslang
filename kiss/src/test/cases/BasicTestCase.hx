@@ -7,7 +7,7 @@ import kiss.List;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("src/test/cases/BasicTestCase.kiss"))
+@:build(kiss.Kiss.build("kiss/src/test/cases/BasicTestCase.kiss"))
 class BasicTestCase extends Test {
     function testStaticVar() {
         Assert.equals("Howdy", BasicTestCase.message);

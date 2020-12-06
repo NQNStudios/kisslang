@@ -1,6 +1,6 @@
 #! /bin/bash
 
-haxelib dev kiss ../../
+haxelib dev kiss ../../kiss
 echo "" > test-output.txt
 expected=$'hey\nhey\nhey'
 if [[ $(uname) == *"MINGW"* ]] || [ $TRAVIS_OS_NAME = "windows" ]; then

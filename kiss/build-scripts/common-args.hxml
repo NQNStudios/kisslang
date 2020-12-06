@@ -1,5 +1,5 @@
 -lib hscript
 -lib uuid
 -lib tink_macro
--cp src
+-cp kiss/src
 -D analyzer-optimize

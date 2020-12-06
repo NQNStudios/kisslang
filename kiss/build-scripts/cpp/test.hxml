@@ -1,0 +1,3 @@
+-lib hxcpp
+-cpp bin/cpp/test
+-cmd bash kiss/build-scripts/cpp/test-cpp.sh

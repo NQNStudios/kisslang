@@ -1,2 +1,0 @@
---python bin/py/test.py
---cmd bash src/build-scripts/py/test-py.sh
