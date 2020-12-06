@@ -136,8 +136,11 @@ class BasicTestCase extends Test {
     }
 
     function testGroups() {
-        Assert.equals([[1, 2], [3, 4]].toString(), BasicTestCase.myGroups1().toString());
-        Assert.equals([[1, 2, 3], [4]].toString(), BasicTestCase.myGroups2().toString());
+        _testGroups();
+    }
+
+    function testZip() {
+        _testZip();
     }
 
     function testLet() {

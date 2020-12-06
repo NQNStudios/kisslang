@@ -50,7 +50,7 @@ class Kiss {
             // Helpful aliases
             k.defAlias("print", Symbol("Prelude.print"));
             k.defAlias("groups", Symbol("Prelude.groups"));
-
+            k.defAlias("zip", Symbol("Prelude.zip"));
             k.defAlias("map", Symbol("Lambda.map"));
             k.defAlias("filter", Symbol("Lambda.filter")); // TODO use truthy as the default filter function
             k.defAlias("has", Symbol("Lambda.has"));

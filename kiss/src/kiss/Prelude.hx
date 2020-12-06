@@ -158,6 +158,34 @@ class Prelude {
         return fullGroups;
     }
 
+    public static function zip<A, B>(a:Array<A>, b:Array<B>, extraHandling = Drop):Array<Array<Dynamic>> {
+        var max = Math.floor(if (a.length != b.length) {
+            switch (extraHandling) {
+                case Throw:
+                    throw 'zip was given lists of mis-matched size: $a, $b';
+                case Keep:
+                    Math.max(a.length, b.length);
+                case Drop:
+                    Math.min(a.length, b.length);
+            }
+        } else {
+            a.length;
+        });
+
+        return [
+            for (idx in 0...max) [
+                if (idx < a.length)
+                    a[idx]
+                else
+                    null,
+                if (idx < b.length)
+                    b[idx]
+                else
+                    null
+            ]
+        ];
+    }
+
     public static dynamic function truthy(v:Any) {
         return switch (Type.typeof(v)) {
             case TNull: false;
