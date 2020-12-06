@@ -1,0 +1,15 @@
+{
+  "name": "pdf-salad",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "pdf-lib": "^1.12.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nat Quayle Nelson",
+  "license": "LGPL-2.1-or-later"
+}
