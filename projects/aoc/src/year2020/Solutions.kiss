@@ -46,4 +46,13 @@
     // Day 4
     (assert (= 2 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-example.txt"))))
     (assert (= 250 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt"))))
-    (assert (= 158 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt") "strict"))))
+    (assert (= 158 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt") "strict")))
+    
+    // TODO Day 5
+
+    // Day 6
+    (assert (= 6 (Customs.countAnyYes ["abcx" "abcy" "abcz"])))
+    (assert (= 6683 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAnyYes))))
+    (assert (= 6 (apply + (print (map (Util.readParagraphLines "src/year2020/inputs/day6-example2.txt") Customs.countAllYes)))))
+    (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes)))))
+    

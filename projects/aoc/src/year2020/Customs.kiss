@@ -1,0 +1,14 @@
+(defun countAnyYes [:Array<String> group]
+    (countWhereYes group (lambda [c] (< 0 c))))
+
+(defun countAllYes [:Array<String> group]
+    (countWhereYes group (lambda [c] (= c group.length))))
+
+(defun countWhereYes [:Array<String> group predicate]
+    (let [yesDict (new Map<String,Int>)]
+        (doFor person group
+            (doFor question (person.split "")
+                (dict-set yesDict question
+                    (+ 1
+                        (if (yesDict.exists question) (dict-get yesDict question) 0)))))
+        (count yesDict predicate)))

@@ -70,8 +70,17 @@ class Kiss {
                         Sys.println(nextExp.def.toString());
                         #end
                         var field = readerExpToField(nextExp, k);
-                        if (field != null)
+                        if (field != null) {
+                            #if test
+                            switch (field.kind) {
+                                case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
+                                    Sys.println(expr.toString());
+                                default:
+                                    throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
+                            }
+                            #end
                             classFields.push(field);
+                        }
                     case None:
                         stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
                 }
@@ -141,7 +150,7 @@ class Kiss {
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };
         #if test
-        Sys.println(expr.toString());
+        // Sys.println(expr.toString()); // For very fine-grained codegen inspection--slows compilation a lot.
         #end
         return expr;
     }

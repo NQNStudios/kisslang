@@ -34,6 +34,7 @@ class Helpers {
     }
 
     public static function parseTypePath(path:String, from:ReaderExp):TypePath {
+        // TODO function types with generic argument types are broken
         var genericParts = path.split("<");
         var typeParams:Array<TypeParam> = null;
         if (genericParts.length > 1) {
