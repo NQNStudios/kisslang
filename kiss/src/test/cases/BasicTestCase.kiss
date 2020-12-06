@@ -115,10 +115,10 @@
     (the Int 5))
 
 (defun myGroups1 []
-    (Prelude.groups [1 2 3 4] 2))
+    (groups [1 2 3 4] 2))
 
 (defun myGroups2 []
-    (Prelude.groups [1 2 3 4] 3 true))
+    (groups [1 2 3 4] 3 Keep))
 
 (defun _testLet []
     (let [a 5

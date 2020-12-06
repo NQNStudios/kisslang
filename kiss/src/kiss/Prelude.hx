@@ -5,6 +5,13 @@ using Std;
 import kiss.Operand;
 import haxe.ds.Either;
 
+/** What functions that process Lists should do when there are more elements than expected **/
+enum ExtraElementHandling {
+    Keep; // Keep the extra elements
+    Drop; // Drop the extra elements
+    Throw; // Throw an error
+}
+
 class Prelude {
     static function variadic(op:(Operand, Operand) -> Null<Operand>, comparison = false):(Array<Operand>) -> Dynamic {
         return (l:kiss.List<Operand>) -> switch (Lambda.fold(l.slice(1), op, l[0])) {
@@ -129,7 +136,7 @@ class Prelude {
 
     public static var areEqual = variadic(_areEqual, true);
 
-    public static function groups<T>(a:Array<T>, size, keepRemainder = false) {
+    public static function groups<T>(a:Array<T>, size, extraHandling = Drop) {
         var numFullGroups = Math.floor(a.length / size);
         var fullGroups = [
             for (num in 0...numFullGroups) {
@@ -138,9 +145,16 @@ class Prelude {
                 a.slice(start, end);
             }
         ];
-        if (a.length % size != 0 && keepRemainder) {
-            fullGroups.push(a.slice(numFullGroups * size));
+        if (a.length % size != 0) {
+            switch (extraHandling) {
+                case Throw:
+                    throw 'groups was given a non-divisible number of elements: $a, $size';
+                case Keep:
+                    fullGroups.push(a.slice(numFullGroups * size));
+                case Drop:
+            }
         }
+
         return fullGroups;
     }
 
