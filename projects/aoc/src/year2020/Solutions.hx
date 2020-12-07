@@ -9,6 +9,7 @@ import year2020.SummingTuples;
 import year2020.Passwords;
 import year2020.Toboggan;
 import year2020.Passports;
+import year2020.Seating;
 import year2020.Customs;
 
 @:build(kiss.Kiss.build("src/year2020/Solutions.kiss"))
