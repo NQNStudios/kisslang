@@ -48,9 +48,19 @@
     (assert (= 250 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt"))))
     (assert (= 158 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt") "strict")))
     
-    // TODO Day 5
+    // Day 5
     (assert (= 567 (Seating.seatId "BFFFBBFRRR")))
-    (assert (= 947 (apply max (map (Util.readLines "src/year2020/inputs/day5-1.txt") Seating.seatId))))
+    (let [:kiss.List<Int> seatIds (map (Util.readLines "src/year2020/inputs/day5-1.txt") Seating.seatId)]
+        (seatIds.sort (lambda [a b] (- a b)))
+        (assert (= 947 (nth seatIds -1)))
+        (deflocal &mut lastId -1)
+        (deflocal &mut myId -1)
+        (doFor id seatIds
+            (when (and (<= 0 lastId) !(= lastId (- id 1)))
+                (set myId (- id 1))
+                (break))
+            (set lastId id))
+        (assert (= 636 myId)))
 
     // Day 6
     (assert (= 6 (Customs.countAnyYes ["abcx" "abcy" "abcz"])))
