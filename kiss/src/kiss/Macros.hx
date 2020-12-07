@@ -52,15 +52,9 @@ class Macros {
         // the (apply [func] [args]) macro keeps its own list of aliases for the math operators
         // that can't just be function aliases because they emulate &rest behavior
         var opAliases = [
-            "+" => "Prelude.add",
-            "-" => "Prelude.subtract",
-            "*" => "Prelude.multiply",
-            "/" => "Prelude.divide",
-            ">" => "Prelude.greaterThan",
-            ">=" => "Prelude.greaterEqual",
-            "<" => "Prelude.lessThan",
-            "<=" => "Prelude.lesserEqual",
-            "=" => "Prelude.areEqual"
+            "+" => "Prelude.add", "-" => "Prelude.subtract", "*" => "Prelude.multiply", "/" => "Prelude.divide", ">" => "Prelude.greaterThan",
+            ">=" => "Prelude.greaterEqual", "<" => "Prelude.lessThan", "<=" => "Prelude.lesserEqual", "=" => "Prelude.areEqual", "max" => "Prelude.max",
+            "min" => "Prelude.min"
         ];
 
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
