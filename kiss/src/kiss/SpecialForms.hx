@@ -4,13 +4,13 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
 import uuid.Uuid;
+import kiss.Kiss;
 
 using uuid.Uuid;
 using kiss.Reader;
 using kiss.Helpers;
 using kiss.Prelude;
-
-import kiss.Kiss;
+using kiss.Kiss;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
 typedef SpecialFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Expr;
@@ -231,14 +231,14 @@ class SpecialForms {
                 default:
                     null;
             };
-            ESwitch(k.convert(args[0]), [
+            ESwitch(k.forCaseParsing().convert(args[0]), [
                 for (caseExp in args.slice(1))
                     switch (caseExp.def) {
-                        // TODO support | to generate more than one case value
+                        // TODO support CallExp(Symbol("or")) to generate more than one case value
                         // TODO support guards
                         case CallExp(patternExp, caseBodyExps):
                             {
-                                values: [k.convert(patternExp)],
+                                values: [k.forCaseParsing().convert(patternExp)],
                                 expr: k.convert(CallExp(Symbol("begin").withPosOf(caseExp), caseBodyExps).withPosOf(caseExp))
                             };
                         default:

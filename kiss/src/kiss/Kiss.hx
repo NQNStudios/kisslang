@@ -23,7 +23,7 @@ typedef KissState = {
     fieldForms:Map<String, FieldFormFunction>,
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
-    convert:ExprConversion
+    wrapListExps:Bool
 };
 
 class Kiss {
@@ -43,9 +43,8 @@ class Kiss {
                 fieldForms: FieldForms.builtins(),
                 specialForms: SpecialForms.builtins(),
                 macros: Macros.builtins(),
-                convert: null
-            }
-            k.convert = readerExpToHaxeExpr.bind(_, k);
+                wrapListExps: true
+            };
 
             // Helpful aliases
             k.defAlias("print", Symbol("Prelude.print"));
@@ -136,12 +135,15 @@ class Kiss {
                     ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withMacroPosOf(wholeExp);
              */
             case ListExp(elements):
-                ENew({
-                    pack: ["kiss"],
-                    name: "List"
-                }, [
-                    EArrayDecl([for (elementExp in elements) convert(elementExp)]).withMacroPosOf(exp)
-                ]).withMacroPosOf(exp);
+                var arrayDecl = EArrayDecl([for (elementExp in elements) convert(elementExp)]).withMacroPosOf(exp);
+                if (k.wrapListExps) {
+                    ENew({
+                        pack: ["kiss"],
+                        name: "List"
+                    }, [arrayDecl]).withMacroPosOf(exp);
+                } else {
+                    arrayDecl;
+                };
             case RawHaxe(code):
                 Context.parse(code, exp.macroPos());
             case FieldExp(field, innerExp):
@@ -153,6 +155,16 @@ class Kiss {
         // Sys.println(expr.toString()); // For very fine-grained codegen inspection--slows compilation a lot.
         #end
         return expr;
+    }
+
+    public static function forCaseParsing(k:KissState):KissState {
+        var copy = Reflect.copy(k);
+        copy.wrapListExps = false;
+        return copy;
+    }
+
+    public static function convert(k:KissState, exp:ReaderExp) {
+        return readerExpToHaxeExpr(exp, k);
     }
 }
 #end

@@ -9,6 +9,7 @@ import kiss.Reader;
 import kiss.Kiss;
 import kiss.CompileError;
 
+using kiss.Kiss;
 using uuid.Uuid;
 using kiss.Reader;
 using kiss.Helpers;

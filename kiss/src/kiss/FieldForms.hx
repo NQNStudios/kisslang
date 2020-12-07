@@ -8,6 +8,7 @@ import kiss.Stream;
 import kiss.CompileError;
 import kiss.Kiss;
 
+using kiss.Kiss;
 using kiss.Helpers;
 using kiss.Reader;
 using StringTools;

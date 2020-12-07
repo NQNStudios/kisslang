@@ -10,6 +10,7 @@ import kiss.SpecialForms;
 
 using kiss.Reader;
 using kiss.Helpers;
+using kiss.Kiss;
 using StringTools;
 
 class Helpers {
