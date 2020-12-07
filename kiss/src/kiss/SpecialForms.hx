@@ -215,6 +215,39 @@ class SpecialForms {
         };
 
         // TODO (case... ) for switch
+        map["case"] = (wholeExp:ReaderExp, args:kiss.List<ReaderExp>, k:KissState) -> {
+            // Most Lisps don't enforce covering all possible patterns with (case...), but Kiss does,
+            // because pattern coverage is a useful feature of Haxe that Kiss can easily bring along.
+            // To be more similar to other Lisps, Kiss *could* generate a default case that returns null
+            // if no "otherwise" clause is given.
+
+            // Therefore only one case is required in a case statement, because one case could be enough
+            // to cover all patterns.
+            wholeExp.checkNumArgs(2, null, '(case [expression] [cases...] [optional: (otherwise [default])])');
+            var defaultExpr = switch (args[-1].def) {
+                case CallExp({pos: _, def: Symbol("otherwise")}, [otherwiseExp]):
+                    args.pop();
+                    k.convert(otherwiseExp);
+                default:
+                    null;
+            };
+            ESwitch(k.convert(args[0]), [
+                for (caseExp in args.slice(1))
+                    switch (caseExp.def) {
+                        // TODO support | to generate more than one case value
+                        // TODO support guards
+                        case CallExp(patternExp, caseBodyExps):
+                            {
+                                values: [k.convert(patternExp)],
+                                expr: k.convert(CallExp(Symbol("begin").withPosOf(caseExp), caseBodyExps).withPosOf(caseExp))
+                            };
+                        default:
+                            throw CompileError.fromExp(caseExp, "case expressions for (case...) must take the form ([pattern] [body...])");
+                    }
+            ], defaultExpr).withMacroPosOf(wholeExp);
+        };
+
+        // TODO macros for ifLet, expectLet, which extract from enums
 
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {

@@ -4,6 +4,7 @@ import utest.Test;
 import utest.Assert;
 import kiss.Prelude;
 import kiss.List;
+import haxe.ds.Option;
 
 using StringTools;
 
@@ -236,6 +237,10 @@ class BasicTestCase extends Test {
 
     function testAnonymousObject() {
         _testAnonymousObject();
+    }
+
+    function testCase() {
+        _testCase();
     }
 }
 

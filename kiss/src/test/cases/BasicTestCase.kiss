@@ -326,3 +326,17 @@
                     b 5)]
         (Assert.equals "string A" obj.a)
         (Assert.equals 5 obj.b)))
+
+(defun toOption [:Dynamic value]
+    (if value (Some value) None))
+
+(defun _testCase []
+    (case (toOption [])
+        (None (Assert.pass))
+        ((Some value) (Assert.fail)))
+    (case (toOption "hey")
+        (None (Assert.fail))
+        ((Some "hey") (Assert.pass))
+        (otherwise (Assert.fail)))
+    (Assert.equals 5 (case (toOption 0)
+        (otherwise 5))))
