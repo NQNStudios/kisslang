@@ -66,5 +66,15 @@
     (assert (= 6 (Customs.countAnyYes ["abcx" "abcy" "abcz"])))
     (assert (= 6683 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAnyYes))))
     (assert (= 6 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-example2.txt") Customs.countAllYes))))
-    (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes)))))
+    (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes))))
+    
+    // Day 7
+    (deflocal parentMap (new ParentMap))
+    (deflocal childMap (new ChildMap))
+    (doFor line (Util.readLines "src/year2020/inputs/day7.txt")
+        (Bags.parseRule line parentMap childMap))
+    (deflocal :Map<String,Bool> shinyGoldParents (new Map))
+    (Bags.findIndirectContainers "shiny gold" childMap shinyGoldParents)
+    (assert (= 172 (count shinyGoldParents)))
+    (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap))))
     
