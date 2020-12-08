@@ -250,6 +250,10 @@ class BasicTestCase extends Test {
     function testRange() {
         _testRange();
     }
+
+    function testRest() {
+        _testRest();
+    }
 }
 
 class BasicObject {

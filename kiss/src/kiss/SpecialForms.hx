@@ -55,7 +55,10 @@ class SpecialForms {
         makeQuickNth(9, "tenth");
         makeQuickNth(-1, "last");
 
-        // TODO rest
+        map["rest"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(rest [list])');
+            macro ${k.convert(args[0])}.slice(1);
+        };
 
         // Declare anonymous objects
         map["object"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {

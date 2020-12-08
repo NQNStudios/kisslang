@@ -368,3 +368,6 @@
     (Assert.equals 7 (first myList))
     (Assert.equals 9 (second myList))
     (Assert.equals 15 (last myList)))
+
+(defun _testRest []
+    (Assert.equals (.toString [2 3 4]) (.toString (rest [1 2 3 4]))))
