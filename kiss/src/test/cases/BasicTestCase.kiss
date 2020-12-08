@@ -348,4 +348,9 @@
     (Assert.equals "me" (dict-get myMap "found"))
     (doFor =>key value myMap
         (Assert.isTrue (<= 0 (.indexOf ["hey" "found"] key)))
-        (Assert.isTrue (<= 0 (.indexOf ["you" "me"] value)))))
+        (Assert.isTrue (<= 0 (.indexOf ["you" "me"] value))))
+        
+    // Map destructuring:
+    (let [[=>"hey" v1 =>"found" v2] myMap]
+        (Assert.equals "you" v1)
+        (Assert.equals "me" v2)))

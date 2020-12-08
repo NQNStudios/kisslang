@@ -91,6 +91,17 @@ class SpecialForms {
             EBinop(OpAssign, k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
 
+        function varName(nameExp:ReaderExp) {
+            return switch (nameExp.def) {
+                case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+                    name;
+                case KeyValueExp(_, valueNameExp):
+                    varName(valueNameExp);
+                default:
+                    throw CompileError.fromExp(nameExp, 'expected a symbol, typed symbol, or keyed symbol for variable name in a var binding');
+            };
+        }
+
         function toVar(nameExp:ReaderExp, valueExp:ReaderExp, k:KissState, ?isFinal:Bool):Var {
             // This check seems like unnecessary repetition but it's not. It allows is so that individual destructured bindings can specify mutability
             return if (isFinal == null) {
@@ -101,12 +112,7 @@ class SpecialForms {
                         toVar(nameExp, valueExp, k, true);
                 };
             } else {
-                name: switch (nameExp.def) {
-                    case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                        name;
-                    default:
-                        throw CompileError.fromExp(nameExp, 'expected a symbol or typed symbol for variable name in a var binding');
-                },
+                name: varName(nameExp),
                 type: switch (nameExp.def) {
                     case TypedExp(type, _):
                         Helpers.parseComplexType(type, nameExp);
@@ -136,10 +142,13 @@ class SpecialForms {
                         // Only evaluate the list expression being destructured once:
                         [toVar(uniqueVarSymbol, valueExp, k, true)].concat([
                             for (nameExp in nameExps)
-                                toVar(nameExp,
-                                    CallExp(Symbol("nth").withPosOf(valueExp),
-                                        [uniqueVarSymbol, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp),
-                                    k, if (isFinal == false) false else null)
+                                toVar(nameExp, switch (nameExp.def) {
+                                    case KeyValueExp(keyExp, nameExp):
+                                        CallExp(Symbol("dict-get").withPosOf(valueExp), [uniqueVarSymbol, keyExp]).withPosOf(valueExp);
+                                    default:
+                                        CallExp(Symbol("nth").withPosOf(valueExp),
+                                            [uniqueVarSymbol, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp);
+                                }, k, if (isFinal == false) false else null)
                         ]);
                     default:
                         throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");

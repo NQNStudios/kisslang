@@ -146,7 +146,10 @@ class Helpers {
             };
         }
 
-        // TODO use let instead of begin to make the args immutable by default
+        // To make function args immutable by default, we would use (let...) instead of (begin...)
+        // to make the body expression.
+        // But setting default arguments is so common, and arguments are not settable references,
+        // so function args are not immutable.
         return {
             ret: if (name != null) switch (name.def) {
                 case TypedExp(type, _): Helpers.parseComplexType(type, name);
