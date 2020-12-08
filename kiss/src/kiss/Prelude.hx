@@ -186,6 +186,23 @@ class Prelude {
         ];
     }
 
+    // Ranges with a min, exclusive max, and step size, just like Python.
+    public static function range(min, max, step):Iterator<Int> {
+        if (step <= 0)
+            throw "(range...) can only count up";
+        var count = min;
+        return {
+            next: () -> {
+                var oldCount = count;
+                count += step;
+                oldCount;
+            },
+            hasNext: () -> {
+                count < max;
+            }
+        };
+    }
+
     public static dynamic function truthy(v:Any) {
         return switch (Type.typeof(v)) {
             case TNull: false;

@@ -246,6 +246,10 @@ class BasicTestCase extends Test {
     function testMaps() {
         _testMaps();
     }
+
+    function testRange() {
+        _testRange();
+    }
 }
 
 class BasicObject {

@@ -83,6 +83,14 @@ class Macros {
             CallExp(Symbol("Reflect.callMethod").withPosOf(wholeExp), [callOn, func, args]).withPosOf(wholeExp);
         };
 
+        macros["range"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(1, 3, '(range [?min] [max] [?step])');
+            var min = if (exps.length > 1) exps[0] else Symbol("0").withPosOf(wholeExp);
+            var max = if (exps.length > 1) exps[1] else exps[0];
+            var step = if (exps.length > 2) exps[2] else Symbol("1").withPosOf(wholeExp);
+            CallExp(Symbol("Prelude.range").withPosOf(wholeExp), [min, max, step]).withPosOf(wholeExp);
+        };
+
         function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
             var condition = if (negated) {

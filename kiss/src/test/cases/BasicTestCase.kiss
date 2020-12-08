@@ -349,8 +349,22 @@
     (doFor =>key value myMap
         (Assert.isTrue (<= 0 (.indexOf ["hey" "found"] key)))
         (Assert.isTrue (<= 0 (.indexOf ["you" "me"] value))))
-        
+
     // Map destructuring:
     (let [[=>"hey" v1 =>"found" v2] myMap]
         (Assert.equals "you" v1)
         (Assert.equals "me" v2)))
+
+(defun _testRange []
+    // With just one arg, it's the max:
+    (deflocal &mut :kiss.List<Int> myList (for i (range 5) i))
+    (Assert.equals 4 (nth myList -1))
+    // with two args, they are min and max:
+    (set myList (for i (range 3 5) i))
+    (Assert.equals 3 (first myList))
+    (Assert.equals 4 (last myList))
+    // With three args, they are min, max, and step:
+    (set myList (for i (range 7 17 2) i))
+    (Assert.equals 7 (first myList))
+    (Assert.equals 9 (second myList))
+    (Assert.equals 15 (last myList)))
