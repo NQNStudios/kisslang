@@ -346,4 +346,6 @@
                         =>"found" "me"])
     (Assert.equals "you" (dict-get myMap "hey"))
     (Assert.equals "me" (dict-get myMap "found"))
-    )
+    (doFor =>key value myMap
+        (Assert.isTrue (<= 0 (.indexOf ["hey" "found"] key)))
+        (Assert.isTrue (<= 0 (.indexOf ["you" "me"] value)))))

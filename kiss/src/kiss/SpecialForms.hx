@@ -183,15 +183,23 @@ class SpecialForms {
         };
 
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(3, null, '($formName [varName] [list] [body...])');
+            wholeExp.checkNumArgs(3, null, '($formName [varName or [varNames...] or =>keyName valueName] [list] [body...])');
             var uniqueVarName = "_" + Uuid.v4().toShort();
             var namesExp = args[0];
             var listExp = args[1];
             var bodyExps = args.slice(2);
-            bodyExps.insert(0, CallExp(Symbol("deflocal").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
+
+            var loopVarExpr:Expr = switch (namesExp.def) {
+                case KeyValueExp(_, _): k.convert(namesExp);
+                default: {
+                        bodyExps.insert(0,
+                            CallExp(Symbol("deflocal").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
+                        macro $i{uniqueVarName};
+                    }
+            };
+
             var body = CallExp(Symbol("begin").withPosOf(args[2]), bodyExps).withPosOf(args[2]);
-            return EFor(EBinop(OpIn, EConst(CIdent(uniqueVarName)).withMacroPosOf(wholeExp), k.convert(listExp)).withMacroPosOf(wholeExp),
-                k.convert(body)).withMacroPosOf(wholeExp);
+            return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), k.convert(body)).withMacroPosOf(wholeExp);
         }
 
         map["doFor"] = forExpr.bind("doFor");
