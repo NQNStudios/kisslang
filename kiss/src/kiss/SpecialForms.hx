@@ -234,7 +234,7 @@ class SpecialForms {
             EContinue.withMacroPosOf(wholeExp);
         };
 
-        // TODO (case... ) for switch
+        // (case... ) for switch
         map["case"] = (wholeExp:ReaderExp, args:kiss.List<ReaderExp>, k:KissState) -> {
             // Most Lisps don't enforce covering all possible patterns with (case...), but Kiss does,
             // because pattern coverage is a useful feature of Haxe that Kiss can easily bring along.
