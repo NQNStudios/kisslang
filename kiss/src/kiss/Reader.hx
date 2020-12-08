@@ -19,6 +19,7 @@ enum ReaderExpDef {
     TypedExp(path:String, exp:ReaderExp); // :type [exp]
     MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
     FieldExp(field:String, exp:ReaderExp); // .field [exp]
+    KeyValueExp(key:ReaderExp, value:ReaderExp); // =>key value
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
@@ -56,6 +57,9 @@ class Reader {
 
         // Lets you dot-access a function result without binding it to a name
         readTable["."] = (stream:Stream) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, readTable));
+
+        // Lets you construct key-value pairs for map literals or for-loops
+        readTable["=>"] = (stream:Stream) -> KeyValueExp(assertRead(stream, readTable), assertRead(stream, readTable));
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
@@ -173,6 +177,8 @@ class Reader {
                 '&$meta ${exp.def.toString()}';
             case FieldExp(field, exp):
                 '.$field ${exp.def.toString()}';
+            case KeyValueExp(keyExp, valueExp):
+                '=>${keyExp.def.toString()} ${valueExp.def.toString()}';
         }
     }
 }

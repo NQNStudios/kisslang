@@ -135,8 +135,18 @@ class Kiss {
                     ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withMacroPosOf(wholeExp);
              */
             case ListExp(elements):
-                var arrayDecl = EArrayDecl([for (elementExp in elements) convert(elementExp)]).withMacroPosOf(exp);
-                if (k.wrapListExps) {
+                var isMap = false;
+                var arrayDecl = EArrayDecl([
+                    for (elementExp in elements) {
+                        switch (elementExp.def) {
+                            case KeyValueExp(_, _):
+                                isMap = true;
+                            default:
+                        }
+                        convert(elementExp);
+                    }
+                ]).withMacroPosOf(exp);
+                if (!isMap && k.wrapListExps) {
                     ENew({
                         pack: ["kiss"],
                         name: "List"
@@ -148,6 +158,8 @@ class Kiss {
                 Context.parse(code, exp.macroPos());
             case FieldExp(field, innerExp):
                 EField(convert(innerExp), field).withMacroPosOf(exp);
+            case KeyValueExp(keyExp, valueExp):
+                EBinop(OpArrow, convert(keyExp), convert(valueExp)).withMacroPosOf(exp);
             default:
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };

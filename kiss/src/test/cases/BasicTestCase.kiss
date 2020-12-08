@@ -340,3 +340,10 @@
         (otherwise (Assert.fail)))
     (Assert.equals 5 (case (toOption 0)
         (otherwise 5))))
+
+(defun _testMaps []
+    (deflocal :Map<String,String> myMap [=>"hey" "you"
+                        =>"found" "me"])
+    (Assert.equals "you" (dict-get myMap "hey"))
+    (Assert.equals "me" (dict-get myMap "found"))
+    )
