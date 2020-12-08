@@ -254,6 +254,10 @@ class BasicTestCase extends Test {
     function testRest() {
         _testRest();
     }
+
+    function testTypeParsing() {
+        _testTypeParsing();
+    }
 }
 
 class BasicObject {

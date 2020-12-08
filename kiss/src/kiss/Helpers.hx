@@ -35,47 +35,23 @@ class Helpers {
     }
 
     public static function parseTypePath(path:String, from:ReaderExp):TypePath {
-        // TODO function types with generic argument types are broken
-        var genericParts = path.split("<");
-        var typeParams:Array<TypeParam> = null;
-        if (genericParts.length > 1) {
-            typeParams = [
-                for (typeParam in genericParts[1].substr(0, genericParts[1].length - 1).split(",")) {
-                    TPType(parseComplexType(typeParam, from));
-                }
-            ];
-        }
-
-        var parts:List<String> = genericParts[0].trim().split(".");
-        var uppercaseParts:List<Bool> = parts.map(startsWithUpperCase);
-        for (isUpcase in uppercaseParts.slice(0, -2)) {
-            if (isUpcase) {
-                throw CompileError.fromExp(from, 'Type path $path should only have capitalized type and subtype');
-            }
-        }
-        var lastIsCap = uppercaseParts[-1];
-        var penultIsCap = uppercaseParts[-2];
-
-        return if (penultIsCap && lastIsCap) {
-            {
-                sub: parts[-1],
-                name: parts[-2],
-                pack: parts.slice(0, -2),
-                params: typeParams
-            };
-        } else if (lastIsCap) {
-            {
-                name: parts[-1],
-                pack: parts.slice(0, -1),
-                params: typeParams
-            };
-        } else {
-            throw CompileError.fromExp(from, 'Type path $path should end with a capitalized type');
+        return switch (parseComplexType(path, from)) {
+            case TPath(path):
+                path;
+            default:
+                throw CompileError.fromExp(from, 'Haxe could not parse a type path from $path');
         };
     }
 
     public static function parseComplexType(path:String, from:ReaderExp):ComplexType {
-        return TPath(parseTypePath(path, from));
+        // Trick Haxe into parsing it for us:
+        var typeCheckExpr = Context.parse('(thing : $path)', Context.currentPos());
+        return switch (typeCheckExpr.expr) {
+            case EParenthesis({pos: _, expr: ECheckType(_, complexType)}):
+                complexType;
+            default:
+                throw CompileError.fromExp(from, 'Haxe could not parse a complex type from $path, parsed ${typeCheckExpr.expr}');
+        };
     }
 
     // TODO generic type parameter declarations

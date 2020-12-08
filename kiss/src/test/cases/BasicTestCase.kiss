@@ -371,3 +371,15 @@
 
 (defun _testRest []
     (Assert.equals (.toString [2 3 4]) (.toString (rest [1 2 3 4]))))
+
+(defun doSomething [:Int->Int func]
+    (func 5))
+
+(defun itsAMonster [:Null<Map<String,Map<String,Array<String>>>> monsterArg] "but it still compiles")
+
+(defun _testTypeParsing []
+    // Do stuff with functions that take complex type parameters, mostly just to check if it compiles
+    (Assert.equals 5 (doSomething (lambda [i] i)))
+    (Assert.equals 7 (doSomething (lambda [i] (+ i 2))))
+    // Pass null to the really crazy one because I'm lazy:
+    (Assert.equals "but it still compiles" (itsAMonster null)))
