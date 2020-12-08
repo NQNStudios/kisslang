@@ -20,9 +20,16 @@ class Stream {
     var column:Int;
     var absoluteChar:Int;
 
+    var absolutePerNewline = 1;
+
     public function new(file:String) {
         // Banish ye Windows line-endings
-        content = File.getContent(file).replace('\r', '');
+        content = File.getContent(file);
+
+        if (content.indexOf('\r') >= 0) {
+            absolutePerNewline = 2;
+            content = content.replace('\r', '');
+        }
         // Life is easier with a trailing newline
         if (content.charAt(content.length - 1) != "\n")
             content += "\n";
@@ -68,13 +75,14 @@ class Stream {
     /** Every drop call should end up calling dropChars() or the position tracker will be wrong. **/
     private function dropChars(count:Int) {
         for (idx in 0...count) {
-            absoluteChar += 1;
             switch (content.charAt(idx)) {
                 case "\n":
+                    absoluteChar += absolutePerNewline;
                     line += 1;
                     lineLengths.push(column);
                     column = 1;
                 default:
+                    absoluteChar += 1;
                     column += 1;
             }
         }
