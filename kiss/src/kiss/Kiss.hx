@@ -27,33 +27,40 @@ typedef KissState = {
 };
 
 class Kiss {
+    public static function defaultKissState():KissState {
+        var className = Context.getLocalClass().get().name;
+
+        var k = {
+            className: className,
+            readTable: Reader.builtins(),
+            fieldForms: FieldForms.builtins(),
+            specialForms: SpecialForms.builtins(),
+            macros: Macros.builtins(),
+            wrapListExps: true
+        };
+
+        // Helpful aliases
+        k.defAlias("print", Symbol("Prelude.print"));
+        k.defAlias("groups", Symbol("Prelude.groups"));
+        k.defAlias("zip", Symbol("Prelude.zip"));
+        k.defAlias("map", Symbol("Lambda.map"));
+        k.defAlias("filter", Symbol("Lambda.filter")); // TODO use truthy as the default filter function
+        k.defAlias("has", Symbol("Lambda.has"));
+        k.defAlias("count", Symbol("Lambda.count"));
+
+        return k;
+    }
+
     /**
         Build a Haxe class from a corresponding .kiss file
     **/
-    macro static public function build(kissFile:String):Array<Field> {
+    macro static public function build(kissFile:String, ?k:KissState):Array<Field> {
         try {
             var classFields = Context.getBuildFields();
-            var className = Context.getLocalClass().get().name;
-
             var stream = new Stream(kissFile);
 
-            var k = {
-                className: className,
-                readTable: Reader.builtins(),
-                fieldForms: FieldForms.builtins(),
-                specialForms: SpecialForms.builtins(),
-                macros: Macros.builtins(),
-                wrapListExps: true
-            };
-
-            // Helpful aliases
-            k.defAlias("print", Symbol("Prelude.print"));
-            k.defAlias("groups", Symbol("Prelude.groups"));
-            k.defAlias("zip", Symbol("Prelude.zip"));
-            k.defAlias("map", Symbol("Lambda.map"));
-            k.defAlias("filter", Symbol("Lambda.filter")); // TODO use truthy as the default filter function
-            k.defAlias("has", Symbol("Lambda.has"));
-            k.defAlias("count", Symbol("Lambda.count"));
+            if (k == null)
+                k = defaultKissState();
 
             while (true) {
                 stream.dropWhitespace();
