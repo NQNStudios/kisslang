@@ -180,33 +180,6 @@ class Macros {
             ]).withPosOf(wholeExp);
         };
 
-        // Under the hood, (defmacrofun ...) defines a runtime function that accepts Quote arguments and a special form that quotes the arguments to macrofun calls
-        macros["defmacrofun"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, "(defmacrofun [name] [args] [body...])");
-            var macroName = switch (exps[0].def) {
-                case Symbol(name): name;
-                default: throw CompileError.fromExp(exps[0], 'first argument for defmacrofun should be a symbol for the macro name');
-            };
-            var macroNumArgs = switch (exps[1].def) {
-                case ListExp(argNames): argNames.length;
-                default: throw CompileError.fromExp(exps[1], 'second argument of defmacrofun should be a list of argument names');
-            };
-            k.specialForms[macroName] = (wholeExp:ReaderExp, callArgs:Array<ReaderExp>, convert) -> {
-                // Macro functions don't need to check their argument numbers
-                // because macro function calls expand to function calls that the Haxe compiler will check
-                ECall(Context.parse('${k.className}.${macroName}', wholeExp.macroPos()), [
-                    for (callArg in callArgs)
-                        EFunction(FArrow, {
-                            args: [],
-                            ret: null,
-                            expr: EReturn(k.convert(callArg)).withMacroPosOf(wholeExp)
-                        }).withMacroPosOf(wholeExp)
-                ]).withMacroPosOf(wholeExp);
-            };
-
-            CallExp(Symbol("defun").withPosOf(wholeExp), exps).withPosOf(wholeExp);
-        }
-
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, 3, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [RawHaxe])');
 

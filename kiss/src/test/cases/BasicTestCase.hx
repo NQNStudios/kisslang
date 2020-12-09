@@ -112,15 +112,6 @@ class BasicTestCase extends Test {
         _testIf();
     }
 
-    function testMacros() {
-        Assert.equals(7, BasicTestCase.incrementTwice(5));
-
-        var seasonsGreetings = "ho ";
-        Assert.equals("ho ho ho ", BasicTestCase.doTwiceString(() -> {
-            seasonsGreetings += "ho ";
-        }));
-    }
-
     // TODO to really test typed variable definitions, check for compilation failure on a bad example
     function testTypedDefvar() {
         Assert.equals(8, BasicTestCase.myInt);

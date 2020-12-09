@@ -53,8 +53,6 @@ class Reader {
         };
         readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
         // For defmacrofuns, unquoting with , is syntactic sugar for calling a Quote (Void->T)
-        readTable[","] = (stream) -> CallExp(assertRead(stream, readTable), []);
-        // If/when proper defmacro is added, reading every Unquote directly as a CallExp won't work anymore
 
         readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
 

@@ -92,18 +92,6 @@
 
 (defvar :Int myInt 8)
 
-(defmacrofun doTwiceInt [intOp]
-    ,intOp
-    ,intOp)
-
-// I think this causes doTwiceInt's runtime function to be typed as requiring Quote<Int> and returning Int
-(defun :Int incrementTwice [:Int val]
-    (doTwiceInt ++val))
-
-(defmacrofun doTwiceString [stringOp]
-    ,stringOp
-    ,stringOp)
-
 (defun myTryCatch [:Any e]
     (try
         (throw e)
