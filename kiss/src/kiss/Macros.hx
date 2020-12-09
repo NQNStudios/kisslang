@@ -241,6 +241,7 @@ class Macros {
                                     }
                                     var parser = new Parser();
                                     var interp = new Interp();
+                                    // TODO reader macros also need to access the readtable
                                     interp.variables.set("ReaderExp", ReaderExpDef);
                                     interp.variables.set(streamArgName, stream);
                                     interp.execute(parser.parseString(code));

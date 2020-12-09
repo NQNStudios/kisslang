@@ -54,7 +54,7 @@ class Kiss {
     /**
         Build a Haxe class from a corresponding .kiss file
     **/
-    macro static public function build(kissFile:String, ?k:KissState):Array<Field> {
+    static public function build(kissFile:String, ?k:KissState):Array<Field> {
         try {
             var classFields = Context.getBuildFields();
             var stream = new Stream(kissFile);
@@ -94,7 +94,7 @@ class Kiss {
         }
     }
 
-    static function readerExpToField(exp:ReaderExp, k:KissState):Null<Field> {
+    public static function readerExpToField(exp:ReaderExp, k:KissState, errorIfNot = true):Null<Field> {
         var fieldForms = k.fieldForms;
 
         // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
@@ -107,11 +107,11 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
                 fieldForms[formName](exp, args, k);
             default:
-                throw CompileError.fromExp(exp, 'invalid valid field form');
+                if (errorIfNot) throw CompileError.fromExp(exp, 'invalid valid field form'); else return null;
         };
     }
 
-    static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
+    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
         var macros = k.macros;
         var specialForms = k.specialForms;
         // Bind the table arguments of this function for easy recursive calling/passing
