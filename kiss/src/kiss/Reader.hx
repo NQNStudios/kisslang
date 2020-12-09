@@ -148,6 +148,26 @@ class Reader {
         return array;
     }
 
+    /**
+        Read all the expressions in the given stream, processing them one by one while reading.
+    **/
+    public static function readAndProcess(stream:Stream, readTable:Map<String, ReadFunction>, process:(ReaderExp) -> Void) {
+        while (true) {
+            stream.dropWhitespace();
+            if (stream.isEmpty())
+                break;
+            var position = stream.position();
+            var nextExp = Reader.read(stream, readTable);
+            // The last expression might be a comment, in which case None will be returned
+            switch (nextExp) {
+                case Some(nextExp):
+                    process(nextExp);
+                case None:
+                    stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
+            }
+        }
+    }
+
     public static function withPos(def:ReaderExpDef, pos:Position) {
         return {
             pos: pos,

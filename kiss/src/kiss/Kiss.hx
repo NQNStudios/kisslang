@@ -62,35 +62,23 @@ class Kiss {
             if (k == null)
                 k = defaultKissState();
 
-            while (true) {
-                stream.dropWhitespace();
-                if (stream.isEmpty())
-                    break;
-                var position = stream.position();
-                var nextExp = Reader.read(stream, k.readTable);
-
-                // The last expression might be a comment, in which case None will be returned
-                switch (nextExp) {
-                    case Some(nextExp):
-                        #if test
-                        Sys.println(nextExp.def.toString());
-                        #end
-                        var field = readerExpToField(nextExp, k);
-                        if (field != null) {
-                            #if test
-                            switch (field.kind) {
-                                case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
-                                    Sys.println(expr.toString());
-                                default:
-                                    throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
-                            }
-                            #end
-                            classFields.push(field);
-                        }
-                    case None:
-                        stream.dropWhitespace(); // If there was a comment, drop whitespace that comes after
+            Reader.readAndProcess(stream, k.readTable, (nextExp) -> {
+                #if test
+                Sys.println(nextExp.def.toString());
+                #end
+                var field = readerExpToField(nextExp, k);
+                if (field != null) {
+                    #if test
+                    switch (field.kind) {
+                        case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
+                            Sys.println(expr.toString());
+                        default:
+                            throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
+                    }
+                    #end
+                    classFields.push(field);
                 }
-            }
+            });
 
             return classFields;
         } catch (err:CompileError) {
