@@ -40,7 +40,6 @@ class FieldForms {
         return switch (nameExp.def) {
             case MetaExp("mut", nameExp):
                 access.remove(AFinal);
-                trace('ACCESS $access');
                 fieldAccess(formName, fieldName, nameExp, access);
             default:
                 if (formName == "defvar" || formName == "defun") {

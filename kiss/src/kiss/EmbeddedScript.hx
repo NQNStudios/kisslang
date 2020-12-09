@@ -20,6 +20,17 @@ class EmbeddedScript {
     var instructionPointer = 0;
     var running = false;
 
+    // TODO encapsulate these?
+    public var breakPoints:Map<Int, () -> Bool> = [];
+    public var onBreak:() -> Void = null;
+
+    public function addBreakPoint(instruction:Int, ?condition:() -> Bool) {
+        if (condition == null) {
+            condition = () -> true;
+        }
+        breakPoints[instruction] = condition;
+    }
+
     public function new() {}
 
     #if macro
@@ -58,7 +69,11 @@ class EmbeddedScript {
             }),
             name: "instructions",
             access: [APrivate],
-            kind: FVar(null, macro [$a{commandList}])
+            kind: FFun({
+                ret: Helpers.parseComplexType("Array<Command>", null),
+                args: [],
+                expr: macro return [$a{commandList}]
+            })
         });
 
         classFields.push({
@@ -73,10 +88,16 @@ class EmbeddedScript {
                 ret: null,
                 args: [],
                 expr: macro {
-                    instructions[instructionPointer]();
+                    instructions()[instructionPointer]();
                     ++instructionPointer;
-                    if (instructionPointer >= instructions.length)
+                    if (breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
                         running = false;
+                        if (onBreak != null) {
+                            onBreak();
+                        }
+                    } else if (instructionPointer >= instructions().length) {
+                        running = false;
+                    }
                 }
             })
         });

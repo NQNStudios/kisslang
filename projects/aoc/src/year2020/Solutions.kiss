@@ -76,5 +76,13 @@
     (deflocal :Map<String,Bool> shinyGoldParents (new Map))
     (Bags.findIndirectContainers "shiny gold" childMap shinyGoldParents)
     (assert (= 172 (count shinyGoldParents)))
-    (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap))))
+    (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap)))
+    
+    // Day 8
+    (let [example (new BootCodeExample)]
+        (set example.onBreak (lambda [] (assert (= 5 example.accumulator))))
+        (example.run))
+    (let [bootCode (new BootCodeReal)]
+        (set bootCode.onBreak (lambda [] (assert (= 2058 bootCode.accumulator) (assert true))))
+        (bootCode.run)))
     

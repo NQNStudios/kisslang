@@ -1,0 +1,34 @@
+(defprop &mut accumulator 0)
+
+(defmethod setBreakPoint [] (addBreakPoint instructionPointer))
+
+(defmethod nop [v] (setBreakPoint))
+(defmethod acc [v] (setBreakPoint) (set accumulator (+ accumulator v)))
+(defmethod jmp [v] (setBreakPoint) (set instructionPointer (+ instructionPointer (- v 1))))
+
+(defreadermacro "" [stream] #| ReaderExp.CallExp(
+        {
+            pos: {file: "bleh", line: 1, column: 1, absoluteChar: 1},
+            def: ReaderExp.Symbol(stream.expect("an instruction", function () { stream.takeUntilAndDrop(" "); }))
+        },
+        [
+            {
+                pos: {file: "fefea", line: 1, column: 1, absoluteChar: 1},
+                def: ReaderExp.CallExp(
+                    {
+                        pos: {file: "treh", line: 1, column: 1, absoluteChar: 1},
+                        def: ReaderExp.Symbol(stream.expect("+/-", function () { stream.takeChars(1); }))
+                    },
+                    [
+                        {
+                            pos: {file: "smeeh", line: 1, column: 1, absoluteChar: 1},
+                            def: ReaderExp.Symbol("0")
+                        },
+                        {
+                            pos: {file: "greeeh", line: 1, column: 1, absoluteChar: 1},
+                            def: ReaderExp.Symbol(stream.expect("an argument", function () { stream.takeUntilAndDrop("\n"); }))
+                        }
+                    ])
+            }
+        ])
+    |#)
