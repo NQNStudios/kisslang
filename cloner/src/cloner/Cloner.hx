@@ -59,7 +59,7 @@ class Cloner {
             case TObject:
                 return handleAnonymous(v);
             case TFunction:
-                return null;
+                return v;
             case TClass(c):
                 if(!cache.exists(v))
                     cache.set(v,handleClass(c, v));
@@ -96,8 +96,9 @@ class Cloner {
     }
 
     function cloneClass <T> (inValue:T):T {
-        var outValue:T = Type.createEmptyInstance(Type.getClass(inValue));
-        var fields:Array<String> = Reflect.fields(inValue);
+        var classValue = Type.getClass(inValue);
+        var outValue:T = Type.createEmptyInstance(classValue);
+        var fields:Array<String> = Type.getInstanceFields(classValue);
         for (i in 0...fields.length) {
             var field = fields[i];
             var property = Reflect.getProperty(inValue, field);

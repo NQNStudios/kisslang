@@ -2,4 +2,5 @@
 -lib uuid
 -lib tink_macro
 -cp kiss/src
+-cp cloner/src
 -D analyzer-optimize
