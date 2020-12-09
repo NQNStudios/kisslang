@@ -32,6 +32,7 @@ enum ReaderExpDef {
     KeyValueExp(key:ReaderExp, value:ReaderExp); // =>key value
     Quasiquote(exp:ReaderExp); // `[exp]
     Unquote(exp:ReaderExp); // ,[exp]
+    UnquoteList(exp:ReaderExp); // ,@[exp]
 }
 
 typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
@@ -82,6 +83,7 @@ class Reader {
 
         readTable["`"] = (stream) -> Quasiquote(assertRead(stream, readTable));
         readTable[","] = (stream) -> Unquote(assertRead(stream, readTable));
+        readTable[",@"] = (stream) -> UnquoteList(assertRead(stream, readTable));
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
@@ -232,6 +234,8 @@ class Reader {
                 '`${exp.def.toString()}';
             case Unquote(exp):
                 ',${exp.def.toString()}';
+            case UnquoteList(exp):
+                ',@${exp.def.toString()}';
         }
     }
 }

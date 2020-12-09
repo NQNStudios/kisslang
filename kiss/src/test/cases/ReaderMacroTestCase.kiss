@@ -12,9 +12,17 @@
 
 (defvar mySum (pluppers fluffers buffers))
 
-// Read a b c directly as strings
-(defreadermacro ["a" "b" "c"] [stream] #|ReaderExp.StrExp(stream.expect("a, b, or c", function () stream.takeChars(1)))|#)
+// Read b c directly as strings
+(defreadermacro ["b" "c"] [stream] #|ReaderExp.StrExp(stream.expect("b, or c", function () stream.takeChars(1)))|#)
 
-(defvar str1 a)
-(defvar str2 b)
-(defvar str3 c)
+(defvar str1 b)
+(defvar str2 c)
+
+// rassert asserts the next expression without parens
+(defreadermacro "rassert" [stream] `(assert ,(read stream)))
+
+(defun _testQuasiquoteMacro []
+    rassert [5]
+    rassert b
+    rassert fluffers
+    (Assert.pass))

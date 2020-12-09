@@ -90,6 +90,7 @@ class Kiss {
             Sys.exit(1);
             return null;
         } catch (err:Exception) {
+            trace(err.stack);
             throw err; // Re-throw haxe exceptions for precise stacks
         }
     }
@@ -159,6 +160,12 @@ class Kiss {
                 EField(convert(innerExp), field).withMacroPosOf(exp);
             case KeyValueExp(keyExp, valueExp):
                 EBinop(OpArrow, convert(keyExp), convert(valueExp)).withMacroPosOf(exp);
+            case Quasiquote(exp):
+                // TODO pass args here (including the recursive args value)
+                // This statement actually turns into an HScript expression before running
+                macro {
+                    Helpers.evalUnquotes($v{exp}, k, args).def;
+                };
             default:
                 throw CompileError.fromExp(exp, 'conversion not implemented');
         };

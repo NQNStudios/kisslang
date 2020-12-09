@@ -2,14 +2,11 @@ package kiss;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import hscript.Parser;
-import hscript.Interp;
 import uuid.Uuid;
 import kiss.Reader;
 import kiss.Kiss;
 import kiss.CompileError;
 
-using tink.MacroApi;
 using uuid.Uuid;
 using kiss.Kiss;
 using kiss.Reader;
@@ -211,13 +208,7 @@ class Macros {
                                 stream.putBackString(s);
                             }
                             var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
-                            var code = k.convert(body).toString(); // tink_macro to the rescue
-                            var parser = new Parser();
-                            var interp = new Interp();
-                            // TODO reader macros also need to access the readtable
-                            interp.variables.set("ReaderExp", ReaderExpDef);
-                            interp.variables.set(streamArgName, stream);
-                            interp.execute(Prelude.print(parser.parseString(code)));
+                            Helpers.runAtCompileTime(body, k, [streamArgName => stream]);
                         };
                     default:
                         throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');

@@ -15,8 +15,11 @@ class ReaderMacroTestCase extends Test {
     }
 
     function testMultipleInitiators() {
-        Assert.equals("a", ReaderMacroTestCase.str1);
-        Assert.equals("b", ReaderMacroTestCase.str2);
-        Assert.equals("c", ReaderMacroTestCase.str3);
+        Assert.equals("b", ReaderMacroTestCase.str1);
+        Assert.equals("c", ReaderMacroTestCase.str2);
+    }
+
+    function testQuasiquoteMacro() {
+        _testQuasiquoteMacro();
     }
 }

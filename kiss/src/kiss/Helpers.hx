@@ -3,11 +3,14 @@ package kiss;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import haxe.macro.PositionTools;
+import hscript.Parser;
+import hscript.Interp;
 import kiss.Reader;
 import kiss.CompileError;
 import kiss.Kiss;
 import kiss.SpecialForms;
 
+using tink.MacroApi;
 using kiss.Reader;
 using kiss.Helpers;
 using kiss.Kiss;
@@ -182,5 +185,73 @@ class Helpers {
         } else if (max != null && args.length > max) {
             throw CompileError.fromExp(wholeExp, 'Too many arguments. Expected $expectedForm');
         }
+    }
+
+    public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
+        var code = k.convert(exp).toString(); // tink_macro to the rescue
+        #if test
+        Prelude.print("Compile-time hscript: " + code);
+        #end
+        var parser = new Parser();
+        var interp = new Interp();
+        interp.variables.set("read", Reader.assertRead.bind(_, k.readTable));
+        interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k.readTable));
+        interp.variables.set("ReaderExp", ReaderExpDef);
+        interp.variables.set("kiss", {
+            Reader: {
+                ReaderExpDef: ReaderExpDef
+            }
+        });
+        interp.variables.set("k", k);
+        interp.variables.set("args", args); // trippy
+        interp.variables.set("Helpers", Helpers);
+        interp.variables.set("Prelude", Prelude);
+        if (args != null) {
+            for (arg => value in args) {
+                interp.variables.set(arg, value);
+            }
+        }
+        var value = interp.execute(parser.parseString(code));
+        #if test
+        Prelude.print("Compile-time value: " + Std.string(value));
+        #end
+        return value;
+    }
+
+    static function evalUnquoteLists(l:Array<ReaderExp>, k:KissState, ?args:Map<String, Dynamic>):Array<ReaderExp> {
+        var idx = 0;
+        while (idx < l.length) {
+            switch (l[idx].def) {
+                case UnquoteList(exp):
+                    l.splice(idx, 1);
+                    var newElements:Array<ReaderExp> = runAtCompileTime(exp, k, args);
+                    for (el in newElements) {
+                        l.insert(idx++, el);
+                    }
+                default:
+                    idx++;
+            }
+        }
+        return l;
+    }
+
+    public static function evalUnquotes(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
+        var def = switch (exp.def) {
+            case Symbol(_) | StrExp(_) | RawHaxe(_):
+                exp.def;
+            case CallExp(func, callArgs):
+                CallExp(evalUnquotes(func, k, args), evalUnquoteLists(callArgs, k, args).map(evalUnquotes.bind(_, k, args)));
+            case ListExp(elements):
+                ListExp(evalUnquoteLists(elements, k, args).map(evalUnquotes.bind(_, k, args)));
+            case FieldExp(field, innerExp):
+                FieldExp(field, evalUnquotes(innerExp, k, args));
+            case KeyValueExp(keyExp, valueExp):
+                KeyValueExp(evalUnquotes(keyExp, k, args), evalUnquotes(valueExp, k, args));
+            case Unquote(exp):
+                runAtCompileTime(exp, k, args).def;
+            default:
+                throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
+        };
+        return def.withPosOf(exp);
     }
 }
