@@ -10,6 +10,16 @@ typedef ReaderExp = {
     def:ReaderExpDef
 };
 
+class UnmatchedBracketSignal {
+    public var type:String;
+    public var position:Stream.Position;
+
+    public function new(type, position) {
+        this.type = type;
+        this.position = position;
+    }
+}
+
 enum ReaderExpDef {
     CallExp(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)
     ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
@@ -61,9 +71,17 @@ class Reader {
         // Lets you construct key-value pairs for map literals or for-loops
         readTable["=>"] = (stream:Stream) -> KeyValueExp(assertRead(stream, readTable), assertRead(stream, readTable));
 
+        readTable[")"] = (stream:Stream) -> {
+            stream.putBackString(")");
+            throw new UnmatchedBracketSignal(")", stream.position());
+        };
+        readTable["]"] = (stream:Stream) -> {
+            stream.putBackString("]");
+            throw new UnmatchedBracketSignal("]", stream.position());
+        };
+
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
-        // TODO make - A macro for numerical negation
 
         return readTable;
     }
@@ -115,8 +133,16 @@ class Reader {
         var array = [];
         while (!stream.startsWith(end)) {
             stream.dropWhitespace();
-            if (!stream.startsWith(end))
-                array.push(assertRead(stream, readTable));
+            if (!stream.startsWith(end)) {
+                try {
+                    array.push(assertRead(stream, readTable));
+                } catch (s:UnmatchedBracketSignal) {
+                    if (s.type == end)
+                        break;
+                    else
+                        throw s;
+                }
+            }
         }
         stream.dropString(end);
         return array;

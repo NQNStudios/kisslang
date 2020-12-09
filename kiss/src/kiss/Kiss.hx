@@ -97,6 +97,10 @@ class Kiss {
             Sys.println(err);
             Sys.exit(1);
             return null; // Necessary for build() to compile
+        } catch (err:UnmatchedBracketSignal) {
+            Sys.println(Stream.toPrint(err.position) + ': Unmatched ${err.type}');
+            Sys.exit(1);
+            return null;
         } catch (err:Exception) {
             throw err; // Re-throw haxe exceptions for precise stacks
         }

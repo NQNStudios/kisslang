@@ -1,4 +1,4 @@
 (defun myFun []
     (deflocal something 5)
-    // TODO This comment causes a hard-to-track-down error!
+    // This comment used to cause a hard-to-track-down error!
     )
