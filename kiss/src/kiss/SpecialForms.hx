@@ -191,7 +191,7 @@ class SpecialForms {
 
         map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(lambda [[argsNames...]] [body...])");
-            EFunction(FArrow, Helpers.makeFunction(null, args[0], args.slice(1), k)).withMacroPosOf(wholeExp);
+            EFunction(FAnonymous, Helpers.makeFunction(null, args[0], args.slice(1), k)).withMacroPosOf(wholeExp);
         };
 
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {

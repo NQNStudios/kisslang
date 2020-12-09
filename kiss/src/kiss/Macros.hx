@@ -9,8 +9,9 @@ import kiss.Reader;
 import kiss.Kiss;
 import kiss.CompileError;
 
-using kiss.Kiss;
+using tink.MacroApi;
 using uuid.Uuid;
+using kiss.Kiss;
 using kiss.Reader;
 using kiss.Helpers;
 
@@ -181,7 +182,7 @@ class Macros {
         };
 
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [RawHaxe])');
+            wholeExp.checkNumArgs(3, null, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
 
             // reader macros can define a list of strings that will trigger the macro. When there are multiple,
             // the macro will put back the initiating string into the stream so you can check which one it was
@@ -205,23 +206,19 @@ class Macros {
             for (s in stringsThatMatch) {
                 switch (exps[1].def) {
                     case ListExp([{pos: _, def: Symbol(streamArgName)}]):
-                        // For now, reader macros only support a one-expression body implemented in #|raw haxe|# (which can contain a block).
-                        switch (exps[2].def) {
-                            case RawHaxe(code):
-                                k.readTable[s] = (stream) -> {
-                                    if (stringsThatMatch.length > 1) {
-                                        stream.putBackString(s);
-                                    }
-                                    var parser = new Parser();
-                                    var interp = new Interp();
-                                    // TODO reader macros also need to access the readtable
-                                    interp.variables.set("ReaderExp", ReaderExpDef);
-                                    interp.variables.set(streamArgName, stream);
-                                    interp.execute(parser.parseString(code));
-                                };
-                            default:
-                                throw CompileError.fromExp(exps[2], 'third argument to defreadermacro should be #|raw haxe|#');
-                        }
+                        k.readTable[s] = (stream) -> {
+                            if (stringsThatMatch.length > 1) {
+                                stream.putBackString(s);
+                            }
+                            var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
+                            var code = k.convert(body).toString(); // tink_macro to the rescue
+                            var parser = new Parser();
+                            var interp = new Interp();
+                            // TODO reader macros also need to access the readtable
+                            interp.variables.set("ReaderExp", ReaderExpDef);
+                            interp.variables.set(streamArgName, stream);
+                            interp.execute(Prelude.print(parser.parseString(code)));
+                        };
                     default:
                         throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
                 }
