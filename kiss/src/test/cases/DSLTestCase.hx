@@ -8,6 +8,7 @@ import kiss.Prelude;
 class DSLTestCase extends Test {
     function testScript() {
         new DSLScript().run();
+        new DSLScript().fork([() -> Assert.equals(5, 5), () -> Assert.equals(7, 7)]);
     }
 }
 

@@ -7,6 +7,7 @@ import haxe.macro.PositionTools;
 import sys.io.File;
 #end
 import kiss.Kiss;
+import cloner.Cloner;
 
 typedef Command = () -> Void;
 
@@ -77,12 +78,12 @@ class EmbeddedScript {
                 max: File.getContent(scriptFile).length,
                 file: scriptFile
             }),
-            name: "instructions",
+            name: "resetInstructions",
             access: [APrivate],
             kind: FFun({
-                ret: Helpers.parseComplexType("Array<Command>", null),
+                ret: null,
                 args: [],
-                expr: macro return [$a{commandList}]
+                expr: macro this.instructions = [$a{commandList}]
             })
         });
 
@@ -98,14 +99,16 @@ class EmbeddedScript {
                 ret: null,
                 args: [],
                 expr: macro {
-                    instructions()[instructionPointer]();
+                    if (instructions == null)
+                        resetInstructions();
+                    instructions[instructionPointer]();
                     ++instructionPointer;
                     if (breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
                         running = false;
                         if (onBreak != null) {
                             onBreak();
                         }
-                    } else if (instructionPointer >= instructions().length) {
+                    } else if (instructionPointer >= instructions.length) {
                         running = false;
                     }
                 }
@@ -156,6 +159,39 @@ class EmbeddedScript {
             })
         });
 
+        // Fork the script down two or more different commands.
+        classFields.push({
+            pos: PositionTools.make({
+                min: 0,
+                max: File.getContent(scriptFile).length,
+                file: scriptFile
+            }),
+            name: "fork",
+            access: [APublic],
+            kind: FFun({
+                ret: Helpers.parseComplexType("Array<EmbeddedScript>", null),
+                args: [
+                    {
+                        type: Helpers.parseComplexType("Array<Command>", null),
+                        name: "commands"
+                    }
+                ],
+                expr: macro {
+                    if (instructions == null)
+                        resetInstructions();
+                    return [
+                        for (command in commands) {
+                            // a fork needs to be a thorough copy that includes all of the EmbeddedScript subclass's
+                            // fields, otherwise DSL state will be lost when forking, which is unacceptable
+                            var fork = new cloner.Cloner().clone(this);
+                            fork.instructions[instructionPointer] = command;
+                            fork.run();
+                            fork;
+                        }
+                    ];
+                }
+            })
+        });
         return classFields;
     }
     #end
