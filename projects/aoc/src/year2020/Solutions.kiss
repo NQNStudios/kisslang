@@ -80,9 +80,9 @@
     
     // Day 8
     (let [example (new BootCodeExample)]
-        (set example.onBreak (lambda [] (assert (= 5 example.accumulator))))
+        (example.setBreakHandler (lambda [] (assert (= 5 example.accumulator))))
         (example.run))
     (let [bootCode (new BootCodeReal)]
-        (set bootCode.onBreak (lambda [] (assert (= 2058 bootCode.accumulator) (assert true))))
+        (bootCode.setBreakHandler (lambda [] (assert (= 2058 bootCode.accumulator) (assert true))))
         (bootCode.run)))
     

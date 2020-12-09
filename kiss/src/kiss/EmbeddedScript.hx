@@ -20,15 +20,23 @@ class EmbeddedScript {
     var instructionPointer = 0;
     var running = false;
 
-    // TODO encapsulate these?
-    public var breakPoints:Map<Int, () -> Bool> = [];
-    public var onBreak:() -> Void = null;
+    private var instructions:Array<Command> = null;
+    private var breakPoints:Map<Int, () -> Bool> = [];
+    private var onBreak:() -> Void = null;
+
+    public function setBreakHandler(handler:() -> Void) {
+        onBreak = handler;
+    }
 
     public function addBreakPoint(instruction:Int, ?condition:() -> Bool) {
         if (condition == null) {
             condition = () -> true;
         }
         breakPoints[instruction] = condition;
+    }
+
+    public function removeBreakPoint(instruction:Int) {
+        breakPoints.remove(instruction);
     }
 
     public function new() {}
