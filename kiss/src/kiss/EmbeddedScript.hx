@@ -11,10 +11,10 @@ import kiss.Kiss;
 typedef Command = () -> Void;
 
 /**
-    Utility class for making embedded Kiss-based DSLs.
+    Utility class for making statically typed, debuggable, embedded Kiss-based DSLs.
     Basic examples:
         kiss/src/test/cases/DSLTestCase.hx
-        projects/aoc/year2020/BootCode.*
+        projects/aoc/year2020/BootCode.hx
 **/
 class EmbeddedScript {
     var instructionPointer = 0;
@@ -66,7 +66,9 @@ class EmbeddedScript {
                 });
             }
             // TODO also allow label setting and multiple commands coming from the same expr?
+            // Multiple things could come from the same expr by returning begin, or a call to a function that does more stuff
             // i.e. knot declarations need to end the previous knot, and BELOW that set a label for the new one, then increment the read count
+            // TODO test await
         });
 
         classFields.push({
