@@ -1,4 +1,4 @@
-package cloner;
+package kiss.cloner;
 import Array;
 import haxe.ds.ObjectMap;
 import Type.ValueType;
@@ -102,7 +102,12 @@ class Cloner {
         for (i in 0...fields.length) {
             var field = fields[i];
             var property = Reflect.getProperty(inValue, field);
-            Reflect.setField(outValue, field, _clone(property));
+            try {
+                Reflect.setField(outValue, field, _clone(property));
+            } catch (s) {
+                // There will be errors on C++ when trying to assign to a member function.
+                // They're not important, because the function will already be on the clone.
+            }
         }
         return outValue;
     }

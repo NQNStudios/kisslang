@@ -1,6 +1,6 @@
-package cloner;
+package kiss.cloner;
 import haxe.Constraints.IMap;
-import cloner.Cloner;
+import kiss.cloner.Cloner;
 import Type.ValueType;
 class MapCloner<K>{
 

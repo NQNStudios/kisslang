@@ -7,7 +7,7 @@ import haxe.macro.PositionTools;
 import sys.io.File;
 #end
 import kiss.Kiss;
-import cloner.Cloner;
+import kiss.cloner.Cloner;
 
 typedef Command = () -> Void;
 
@@ -183,7 +183,7 @@ class EmbeddedScript {
                         for (command in commands) {
                             // a fork needs to be a thorough copy that includes all of the EmbeddedScript subclass's
                             // fields, otherwise DSL state will be lost when forking, which is unacceptable
-                            var fork = new cloner.Cloner().clone(this);
+                            var fork = new kiss.cloner.Cloner().clone(this);
                             fork.instructions[instructionPointer] = command;
                             fork.run();
                             fork;
