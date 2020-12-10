@@ -4,4 +4,7 @@
 
 (defmethod nop [v] (setBreakPoint))
 (defmethod acc [v] (setBreakPoint) (set accumulator (+ accumulator v)))
-(defmethod jmp [v] (setBreakPoint) (set instructionPointer (+ instructionPointer (- v 1))))
+(defmethod jmp [v]
+    (setBreakPoint)
+    //(print (+ "jumping " (Std.string v) " from " (Std.string instructionPointer)))
+    (set instructionPointer (+ instructionPointer (- v 1))))

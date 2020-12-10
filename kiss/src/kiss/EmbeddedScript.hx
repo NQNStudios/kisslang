@@ -18,14 +18,18 @@ typedef Command = () -> Void;
         projects/aoc/year2020/BootCode.hx
 **/
 class EmbeddedScript {
-    var instructionPointer = 0;
+    public var instructionPointer(default, null) = 0;
+
     var running = false;
 
     private var instructions:Array<Command> = null;
     private var breakPoints:Map<Int, () -> Bool> = [];
-    private var onBreak:() -> Void = null;
+    // Break handlers accept a Dynamic argument because when fork() happens
+    // (1) the calling context can no longer assume the instance it constructed is the instance hitting the breakpoint.
+    // (2) I don't know how to put a generic parameter <T extends EmbeddedScript> on a BreakHandler function type.
+    private var onBreak:(Dynamic) -> Void = null;
 
-    public function setBreakHandler(handler:() -> Void) {
+    public function setBreakHandler(handler:(Dynamic) -> Void) {
         onBreak = handler;
     }
 
@@ -93,6 +97,25 @@ class EmbeddedScript {
                 max: File.getContent(scriptFile).length,
                 file: scriptFile
             }),
+            name: "instructionCount",
+            access: [APublic],
+            kind: FFun({
+                ret: null,
+                args: [],
+                expr: macro {
+                    if (instructions == null)
+                        resetInstructions();
+                    return instructions.length;
+                }
+            })
+        });
+
+        classFields.push({
+            pos: PositionTools.make({
+                min: 0,
+                max: File.getContent(scriptFile).length,
+                file: scriptFile
+            }),
             name: "step",
             access: [APublic],
             kind: FFun({
@@ -106,9 +129,9 @@ class EmbeddedScript {
                     if (breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
                         running = false;
                         if (onBreak != null) {
-                            onBreak();
+                            onBreak(this);
                         }
-                    } else if (instructionPointer >= instructions.length) {
+                    } else if (instructionPointer < 0 || instructionPointer >= instructions.length) {
                         running = false;
                     }
                 }

@@ -80,9 +80,14 @@
     
     // Day 8
     (let [example (new BootCodeExample)]
-        (example.setBreakHandler (lambda [] (assert (= 5 example.accumulator))))
+        (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
         (example.run))
     (let [bootCode (new BootCodeReal)]
-        (bootCode.setBreakHandler (lambda [] (assert (= 2058 bootCode.accumulator) (assert true))))
-        (bootCode.run)))
+        (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 bootCode.accumulator) (assert true))))
+        (bootCode.run))
+    (let [bootCode (new BootCodeFix)]
+        (bootCode.setBreakHandler (lambda [:BootCodeFix bootCodeFork] (when (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount)) (print .accumulator (the BootCodeFix bootCodeFork)))))
+        (bootCode.addBreakPoint (bootCode.instructionCount))
+        (bootCode.run))
+    )
     

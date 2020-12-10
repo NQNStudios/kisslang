@@ -187,32 +187,59 @@ class Helpers {
         }
     }
 
+    // This stack will contain multiple references to the same interp--to count how many layers deep it is.
+    // This stack is like top in Inception. When empty, it proves that we're not running at compiletime yet.
+    // When we ARE running at compiletime already, the pre-existing interp will be used
+    static var interps:kiss.List<Interp> = [];
+
     public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
         var code = k.convert(exp).toString(); // tink_macro to the rescue
         #if test
         Prelude.print("Compile-time hscript: " + code);
         #end
         var parser = new Parser();
-        var interp = new Interp();
-        interp.variables.set("read", Reader.assertRead.bind(_, k.readTable));
-        interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k.readTable));
-        interp.variables.set("ReaderExp", ReaderExpDef);
-        interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
-        interp.variables.set("kiss", {
-            Reader: {
-                ReaderExpDef: ReaderExpDef
-            }
-        });
-        interp.variables.set("k", k);
-        interp.variables.set("args", args); // trippy
-        interp.variables.set("Helpers", Helpers);
-        interp.variables.set("Prelude", Prelude);
+        if (interps.length == 0) {
+            var interp = new Interp();
+            interp.variables.set("read", Reader.assertRead.bind(_, k.readTable));
+            interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k.readTable));
+            interp.variables.set("ReaderExp", ReaderExpDef);
+            interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
+            interp.variables.set("kiss", {
+                Reader: {
+                    ReaderExpDef: ReaderExpDef
+                },
+                Operand: {
+                    fromDynamic: Operand.fromDynamic
+                }
+            });
+            interp.variables.set("k", k.forCaseParsing());
+            interp.variables.set("Helpers", Helpers);
+            interp.variables.set("Prelude", Prelude);
+            interp.variables.set("Std", Std);
+
+            interps.push(interp);
+        } else {
+            interps.push(interps[-1]);
+        }
+        var parsed = parser.parseString(code);
+
+        // TODO if an internal evaluation ever needs to end before its outer evaluation is done,
+        // this will cause problems because the old args will be overwritten and lost
+        interps[-1].variables.set("args", args); // trippy
         if (args != null) {
             for (arg => value in args) {
-                interp.variables.set(arg, value);
+                interps[-1].variables.set(arg, value);
             }
         }
-        var value = interp.execute(parser.parseString(code));
+        var value = if (interps.length == 1) {
+            interps[-1].execute(parsed);
+        } else {
+            interps[-1].expr(parsed);
+        };
+        interps.pop();
+        if (value == null) {
+            throw CompileError.fromExp(exp, "compile-time evaluation returned null");
+        }
         #if test
         Prelude.print("Compile-time value: " + Std.string(value));
         #end
@@ -254,8 +281,10 @@ class Helpers {
                     throw CompileError.fromExp(innerExp, "unquote evaluated to null");
                 } else if (Std.isOfType(unquoteValue, ReaderExpDef)) {
                     unquoteValue;
-                } else {
+                } else if (Reflect.getProperty(unquoteValue, "def") != null) {
                     unquoteValue.def;
+                } else {
+                    throw CompileError.fromExp(exp, "unquote didn't evaluate to a ReaderExp or ReaderExpDef");
                 };
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');

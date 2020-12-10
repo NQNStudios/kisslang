@@ -1,0 +1,26 @@
+(load "BootCodeCommon.kiss")
+
+(defvar &mut forked false)
+
+(defreadermacro ["jmp" "nop"] [stream]
+    (let [inst
+                (nextToken stream)
+            instSymbol
+                (ReaderExp.Symbol inst)
+            op
+                (begin (stream.dropWhitespace) (ReaderExp.Symbol 
+                    (begin (stream.dropWhitespace) (stream.expect "+/-" (lambda [] (stream.takeChars 1))))))
+            arg
+                (ReaderExp.Symbol (nextToken stream))]
+        (stream.dropWhitespace)
+        `(if forked
+            (,instSymbol (,op 0 ,arg))
+            (begin
+                
+                (fork [
+                    (lambda [] (when ,(ReaderExp.Symbol (Std.string (= inst "nop"))) (set forked true)) (jmp (,op 0 ,arg)))
+                    (lambda [] (when ,(ReaderExp.Symbol (Std.string (= inst "jmp"))) (set forked true)) (nop (,op 0 ,arg)))
+                    ])))))
+
+// Define the default reader LAST because default readers tend to break everything
+(load "BootCodeDSL.kiss")

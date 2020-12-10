@@ -14,7 +14,8 @@ typedef Position = {
 };
 
 class Stream {
-    var content:String;
+    public var content(default, null):String;
+
     var file:String;
     var line:Int;
     var column:Int;
