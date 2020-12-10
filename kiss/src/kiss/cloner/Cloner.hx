@@ -1,53 +1,54 @@
 package kiss.cloner;
+
 import Array;
 import haxe.ds.ObjectMap;
 import Type.ValueType;
 import haxe.ds.IntMap;
 import haxe.ds.StringMap;
-class Cloner {
 
-    var cache:ObjectMap<Dynamic,Dynamic>;
-    var classHandles:Map<String,Dynamic->Dynamic>;
+class Cloner {
+    var cache:ObjectMap<Dynamic, Dynamic>;
+    var classHandles:Map<String, Dynamic->Dynamic>;
     var stringMapCloner:MapCloner<String>;
     var intMapCloner:MapCloner<Int>;
 
     public function new():Void {
-        stringMapCloner = new MapCloner(this,StringMap);
-        intMapCloner = new MapCloner(this,IntMap);
-        classHandles = new Map<String,Dynamic->Dynamic>();
-        classHandles.set('String',returnString);
-        classHandles.set('Array',cloneArray);
-        classHandles.set('haxe.ds.StringMap',stringMapCloner.clone);
-        classHandles.set('haxe.ds.IntMap',intMapCloner.clone);
+        stringMapCloner = new MapCloner(this, StringMap);
+        intMapCloner = new MapCloner(this, IntMap);
+        classHandles = new Map<String, Dynamic->Dynamic>();
+        classHandles.set('String', returnString);
+        classHandles.set('Array', cloneArray);
+        classHandles.set('haxe.ds.StringMap', stringMapCloner.clone);
+        classHandles.set('haxe.ds.IntMap', intMapCloner.clone);
     }
 
     function returnString(v:String):String {
         return v;
     }
 
-    public function clone <T> (v:T):T {
-        cache = new ObjectMap<Dynamic,Dynamic>();
+    public function clone<T>(v:T):T {
+        cache = new ObjectMap<Dynamic, Dynamic>();
         var outcome:T = _clone(v);
         cache = null;
         return outcome;
     }
 
-    public function _clone <T> (v:T):T {
+    public function _clone<T>(v:T):T {
         #if js
-        if(Std.is(v, String))
+        if (Std.is(v, String))
             return v;
         #end
-        
+
         #if neko
         try {
-        if(Type.getClassName(cast v) != null)
-            return v;
-        }catch(e:Dynamic) {}
+            if (Type.getClassName(cast v) != null)
+                return v;
+        } catch (e:Dynamic) {}
         #else
-        if(Type.getClassName(cast v) != null)
+        if (Type.getClassName(cast v) != null)
             return v;
         #end
-        switch(Type.typeof(v)){
+        switch (Type.typeof(v)) {
             case TNull:
                 return null;
             case TInt:
@@ -61,8 +62,8 @@ class Cloner {
             case TFunction:
                 return v;
             case TClass(c):
-                if(!cache.exists(v))
-                    cache.set(v,handleClass(c, v));
+                if (!cache.exists(v))
+                    cache.set(v, handleClass(c, v));
                 return cache.get(v);
             case TEnum(e):
                 return v;
@@ -71,7 +72,7 @@ class Cloner {
         }
     }
 
-    function handleAnonymous (v:Dynamic):Dynamic {
+    function handleAnonymous(v:Dynamic):Dynamic {
         var properties:Array<String> = Reflect.fields(v);
         var anonymous:Dynamic = {};
         for (i in 0...properties.length) {
@@ -81,21 +82,21 @@ class Cloner {
         return anonymous;
     }
 
-    function handleClass <T> (c:Class<T>,inValue:T):T {
+    function handleClass<T>(c:Class<T>, inValue:T):T {
         var handle:T->T = classHandles.get(Type.getClassName(c));
-        if(handle == null)
+        if (handle == null)
             handle = cloneClass;
         return handle(inValue);
     }
 
-    function cloneArray <T> (inValue:Array<T>):Array<T> {
+    function cloneArray<T>(inValue:Array<T>):Array<T> {
         var array:Array<T> = inValue.copy();
         for (i in 0...array.length)
             array[i] = _clone(array[i]);
         return array;
     }
 
-    function cloneClass <T> (inValue:T):T {
+    function cloneClass<T>(inValue:T):T {
         var classValue = Type.getClass(inValue);
         var outValue:T = Type.createEmptyInstance(classValue);
         var fields:Array<String> = Type.getInstanceFields(classValue);
@@ -111,5 +112,4 @@ class Cloner {
         }
         return outValue;
     }
-
 }
