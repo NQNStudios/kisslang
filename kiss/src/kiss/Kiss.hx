@@ -24,7 +24,8 @@ typedef KissState = {
     fieldForms:Map<String, FieldFormFunction>,
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
-    wrapListExps:Bool
+    wrapListExps:Bool,
+    loadedFiles:Map<String, Bool>
 };
 
 class Kiss {
@@ -37,7 +38,8 @@ class Kiss {
             fieldForms: FieldForms.builtins(),
             specialForms: SpecialForms.builtins(),
             macros: Macros.builtins(),
-            wrapListExps: true
+            wrapListExps: true,
+            loadedFiles: new Map<String, Bool>()
         };
 
         // Helpful aliases
@@ -73,9 +75,12 @@ class Kiss {
                     // (load... ) is the specialest of forms because it calls build() again and those fields need to be merged
                     case CallExp({pos: _, def: Symbol("load")}, [{pos: _, def: StrExp(otherKissFile)}]):
                         var filePath = Path.join([loadingDirectory, otherKissFile]);
-                        var loadedFields = Kiss.build(filePath, k);
-                        for (field in loadedFields) {
-                            classFields.push(field);
+                        if (!k.loadedFiles.exists(filePath)) {
+                            var loadedFields = Kiss.build(filePath, k);
+                            for (field in loadedFields) {
+                                classFields.push(field);
+                            }
+                            k.loadedFiles[filePath] = true;
                         }
                     default:
                         var field = readerExpToField(nextExp, k);
