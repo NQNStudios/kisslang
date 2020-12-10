@@ -197,6 +197,7 @@ class Helpers {
         interp.variables.set("read", Reader.assertRead.bind(_, k.readTable));
         interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k.readTable));
         interp.variables.set("ReaderExp", ReaderExpDef);
+        interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
         interp.variables.set("kiss", {
             Reader: {
                 ReaderExpDef: ReaderExpDef
@@ -247,8 +248,15 @@ class Helpers {
                 FieldExp(field, evalUnquotes(innerExp, k, args));
             case KeyValueExp(keyExp, valueExp):
                 KeyValueExp(evalUnquotes(keyExp, k, args), evalUnquotes(valueExp, k, args));
-            case Unquote(exp):
-                runAtCompileTime(exp, k, args).def;
+            case Unquote(innerExp):
+                var unquoteValue:Dynamic = runAtCompileTime(innerExp, k, args);
+                if (unquoteValue == null) {
+                    throw CompileError.fromExp(innerExp, "unquote evaluated to null");
+                } else if (Std.isOfType(unquoteValue, ReaderExpDef)) {
+                    unquoteValue;
+                } else {
+                    unquoteValue.def;
+                };
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
         };

@@ -93,8 +93,12 @@ class Reader {
 
     public static final terminators = [")", "]", "/*", "\n", " "];
 
-    static function nextToken(stream:Stream, expect:String) {
-        return stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
+    public static function nextToken(stream:Stream, expect:String) {
+        var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
+        if (tok.length == 0) {
+            throw 'Expected token $expect at ${stream.position()}';
+        }
+        return tok;
     }
 
     public static function assertRead(stream:Stream, readTable:Map<String, ReadFunction>):ReaderExp {

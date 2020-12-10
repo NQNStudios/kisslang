@@ -158,7 +158,7 @@ class Stream {
         switch (f()) {
             case Some(s):
                 return s;
-            case None:
+            default:
                 throw 'Expected $whatToExpect at $position';
         }
     }
