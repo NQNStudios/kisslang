@@ -4,6 +4,7 @@ package kiss;
 import haxe.Exception;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.io.Path;
 import kiss.Stream;
 import kiss.Reader;
 import kiss.FieldForms;
@@ -58,6 +59,8 @@ class Kiss {
         try {
             var classFields = Context.getBuildFields();
             var stream = new Stream(kissFile);
+            // (load... ) relative to the original file
+            var loadingDirectory = Path.directory(kissFile);
 
             if (k == null)
                 k = defaultKissState();
@@ -66,17 +69,27 @@ class Kiss {
                 #if test
                 Sys.println(nextExp.def.toString());
                 #end
-                var field = readerExpToField(nextExp, k);
-                if (field != null) {
-                    #if test
-                    switch (field.kind) {
-                        case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
-                            Sys.println(expr.toString());
-                        default:
-                            throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
-                    }
-                    #end
-                    classFields.push(field);
+                switch (nextExp.def) {
+                    // (load... ) is the specialest of forms because it calls build() again and those fields need to be merged
+                    case CallExp({pos: _, def: Symbol("load")}, [{pos: _, def: StrExp(otherKissFile)}]):
+                        var filePath = Path.join([loadingDirectory, otherKissFile]);
+                        var loadedFields = Kiss.build(filePath, k);
+                        for (field in loadedFields) {
+                            classFields.push(field);
+                        }
+                    default:
+                        var field = readerExpToField(nextExp, k);
+                        if (field != null) {
+                            #if test
+                            switch (field.kind) {
+                                case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
+                                    Sys.println(expr.toString());
+                                default:
+                                    throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
+                            }
+                            #end
+                            classFields.push(field);
+                        }
                 }
             });
 
@@ -128,12 +141,6 @@ class Kiss {
                 specialForms[specialForm](exp, args, k);
             case CallExp(func, args):
                 ECall(convert(func), [for (argExp in args) convert(argExp)]).withMacroPosOf(exp);
-
-            /*
-                // Typed expressions in the wild become casts:
-                case TypedExp(type, innerExp):
-                    ECast(convert(innerExp), if (type.length > 0) Helpers.parseComplexType(type, exp) else null).withMacroPosOf(wholeExp);
-             */
             case ListExp(elements):
                 var isMap = false;
                 var arrayDecl = EArrayDecl([
