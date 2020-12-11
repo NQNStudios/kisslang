@@ -13,6 +13,7 @@ import year2020.Seating;
 import year2020.Customs;
 import year2020.Bags;
 import year2020.BootCode;
+import year2020.Adapters;
 
 @:build(kiss.Kiss.build("src/year2020/Solutions.kiss"))
 class Solutions {}

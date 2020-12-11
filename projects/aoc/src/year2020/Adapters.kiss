@@ -1,0 +1,12 @@
+(defun differences [:kiss.List<Int> ratings]
+    (for idx (range (- ratings.length 1))
+        (- (nth ratings (+ idx 1)) (nth ratings idx))))
+
+(defun distribution [:kiss.List<Int> numbers]
+    (let [:Map<Int,Int> dist (new Map)]
+        (doFor num numbers
+            (dictSet dist num
+                (if (dist.exists num)
+                        (+ 1 (dictGet dist num))
+                    1)))
+        dist))
