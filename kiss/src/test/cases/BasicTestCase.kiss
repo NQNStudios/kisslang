@@ -332,8 +332,8 @@
 (defun _testMaps []
     (deflocal :Map<String,String> myMap [=>"hey" "you"
                         =>"found" "me"])
-    (Assert.equals "you" (dict-get myMap "hey"))
-    (Assert.equals "me" (dict-get myMap "found"))
+    (Assert.equals "you" (dictGet myMap "hey"))
+    (Assert.equals "me" (dictGet myMap "found"))
     (doFor =>key value myMap
         (Assert.isTrue (<= 0 (.indexOf ["hey" "found"] key)))
         (Assert.isTrue (<= 0 (.indexOf ["you" "me"] value))))

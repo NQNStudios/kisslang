@@ -2,8 +2,8 @@
     // Put the numbers in a map for random access. This gives an O(n) solution
     (deflocal :Map<Int,Int> numbersMap (new Map))
     (doFor number numbers
-        (dict-set numbersMap number (- sum number))
-        (let [requiredForPair (dict-get numbersMap number)]
+        (dictSet numbersMap number (- sum number))
+        (let [requiredForPair (dictGet numbersMap number)]
             (when (numbersMap.exists requiredForPair)
                 (return [number requiredForPair]))))
     null)

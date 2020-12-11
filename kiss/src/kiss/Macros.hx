@@ -154,12 +154,12 @@ class Macros {
                 exps[2]
             ]).withPosOf(wholeExp);
         }
-        macros["set-nth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, "(set-nth [list] [index] [value])");
+        macros["setNth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, 3, "(setNth [list] [index] [value])");
             arraySet(wholeExp, exps, k);
         };
-        macros["dict-set"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, "(dict-set [dict] [key] [value])");
+        macros["dictSet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, 3, "(dictSet [dict] [key] [value])");
             arraySet(wholeExp, exps, k);
         };
 

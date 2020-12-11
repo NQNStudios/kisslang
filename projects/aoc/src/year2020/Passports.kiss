@@ -3,7 +3,7 @@
     (when (stream.isEmpty) (return pp))
     (let [key (stream.expect "passport key" (lambda [] (stream.takeUntilAndDrop ":")))
                 value (stream.expect "passport value" (lambda [] (stream.takeUntilOneOf [" " #|"\n"|#])))]
-        (dict-set pp key value))
+        (dictSet pp key value))
     (if (= #|"\n\n"|# (try (stream.expect "paragraph break" (lambda [] (stream.peekChars 2))) (catch [e] "")))
             (begin (stream.dropWhitespace) pp)
         (begin (stream.dropWhitespace) (readPassport stream pp))))
@@ -12,13 +12,13 @@
     (doFor key ["byr" "iyr" "eyr" "hgt" "hcl" "ecl" "pid"]
         (if !(pp.exists key) (return false)))
     (when strict
-        (unless (<= 1920 (Std.parseInt (dict-get pp "byr")) 2002) (return false))
-        (unless (<= 2010 (Std.parseInt (dict-get pp "iyr")) 2020) (return false))
-        (unless (<= 2020 (Std.parseInt (dict-get pp "eyr")) 2030) (return false))
-        (let [hgt (dict-get pp "hgt")
+        (unless (<= 1920 (Std.parseInt (dictGet pp "byr")) 2002) (return false))
+        (unless (<= 2010 (Std.parseInt (dictGet pp "iyr")) 2020) (return false))
+        (unless (<= 2020 (Std.parseInt (dictGet pp "eyr")) 2030) (return false))
+        (let [hgt (dictGet pp "hgt")
                     [min max] (cond ((hgt.endsWith "cm") [150 193]) ((hgt.endsWith "in") [59 76]) (true (return false)))]
             (unless (<= min (Std.parseInt hgt) max) (return false)))
-        (let [hcl (dict-get pp "hcl")]
+        (let [hcl (dictGet pp "hcl")]
             (unless (and 
                         (hcl.startsWith "#")
                         (= hcl.length 7)
@@ -26,9 +26,9 @@
                             (for c (.split (hcl.substr 1) "")
                                 (<= 0 (.indexOf (.split "0123456789abcdef" "") c))))))
                 (return false)))
-        (let [ecl (dict-get pp "ecl")]
+        (let [ecl (dictGet pp "ecl")]
             (unless (<= 0 (.indexOf (.split "amb blu brn gry grn hzl oth" " ") ecl)) (return false)))
-        (let [pid (dict-get pp "pid")]
+        (let [pid (dictGet pp "pid")]
             (unless (and (= 9 pid.length) (Std.parseInt pid)) (return false))))
     (return true))
 

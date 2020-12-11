@@ -32,8 +32,8 @@ class SpecialForms {
             wholeExp.checkNumArgs(2, 2, "(nth [list] [idx])");
             arrayAccess(wholeExp, args, k);
         };
-        map["dict-get"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(dict-get [dict] [key])");
+        map["dictGet"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(dictGet [dict] [key])");
             arrayAccess(wholeExp, args, k);
         };
 
@@ -147,7 +147,7 @@ class SpecialForms {
                             for (nameExp in nameExps)
                                 toVar(nameExp, switch (nameExp.def) {
                                     case KeyValueExp(keyExp, nameExp):
-                                        CallExp(Symbol("dict-get").withPosOf(valueExp), [uniqueVarSymbol, keyExp]).withPosOf(valueExp);
+                                        CallExp(Symbol("dictGet").withPosOf(valueExp), [uniqueVarSymbol, keyExp]).withPosOf(valueExp);
                                     default:
                                         CallExp(Symbol("nth").withPosOf(valueExp),
                                             [uniqueVarSymbol, Symbol(Std.string(idx++)).withPosOf(valueExp)]).withPosOf(valueExp);

@@ -8,7 +8,7 @@
     (let [yesDict (new Map<String,Int>)]
         (doFor person group
             (doFor question (person.split "")
-                (dict-set yesDict question
+                (dictSet yesDict question
                     (+ 1
-                        (if (yesDict.exists question) (dict-get yesDict question) 0)))))
+                        (if (yesDict.exists question) (dictGet yesDict question) 0)))))
         (count yesDict predicate)))
