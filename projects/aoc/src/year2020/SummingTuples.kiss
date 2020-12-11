@@ -15,3 +15,15 @@
             (when pairThatSatisfies
                 (return [number (nth pairThatSatisfies 0) (nth pairThatSatisfies 1)]))))
     null)
+
+(defun contiguousSumTuple [sum :kiss.List<Int> numbers]
+    (doFor i (range numbers.length)
+        (deflocal &mut testSum (nth numbers i))
+        (doFor j (range (+ i 1) numbers.length)
+            (set testSum (+ testSum (nth numbers j)))
+            (cond 
+                ((= testSum sum)
+                    (return (numbers.slice i (+ j 1))))
+                ((> testSum sum)
+                    (break)))))
+    null)

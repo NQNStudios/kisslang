@@ -89,5 +89,14 @@
         (bootCode.setBreakHandler (lambda [:BootCodeFix bootCodeFork] (when (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount)) (print .accumulator (the BootCodeFix bootCodeFork)))))
         (bootCode.addBreakPoint (bootCode.instructionCount))
         (bootCode.run))
+    
+    // Day 9
+    (assert (= 127 (XMAS.firstOffender 5
+        [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576])))
+    (assert (= 133015568 (XMAS.firstOffender 25 (Util.readInts "src/year2020/inputs/day9.txt"))))
+    (assert (= "[15,25,47,40]" (.toString (SummingTuples.contiguousSumTuple 127
+        [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576]))))
+    (let [tuple (SummingTuples.contiguousSumTuple 133015568 (Util.readInts "src/year2020/inputs/day9.txt"))]
+        (assert (= 16107959 (+ (apply min tuple) (apply max tuple)))))
     )
     
