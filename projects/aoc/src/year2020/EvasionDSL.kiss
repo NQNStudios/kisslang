@@ -1,0 +1,38 @@
+(defprop &mut x 0)
+(defprop &mut y 0)
+// 0 is east
+// 1 is south
+// 2 is west
+// 3 is north
+(defprop &mut facing 0)
+
+(defun fixFacing [f]
+    (Math.floor (% (if (> 0 f) (+ 4 f) f) 4)))
+
+(defmethod N [num]
+    (set y (+ y num)))
+(defmethod S [num]
+    (set y (- y num)))
+(defmethod E [num]
+    (set x (+ x num)))
+(defmethod W [num]
+    (set x (- x num)))
+(defmethod R [angle]
+    (set facing (fixFacing (+ facing (/ angle 90)))))
+(defmethod L [angle]
+    (set facing (fixFacing (- facing (/ angle 90)))))
+(defmethod F [num]
+    (case facing
+        (0 (E num))
+        (1 (S num))
+        (2 (W num))
+        (3 (N num))
+        (otherwise (throw (+ "Bad facing" facing)))))
+
+(defreadermacro "" [stream]
+    (stream.dropWhitespace)
+    (if (stream.isEmpty)
+            null
+        `(,(ReaderExp.Symbol
+                (stream.expect "a ship command" (lambda [] (stream.takeChars 1))))
+            ,(ReaderExp.Symbol (stream.expect "a number argument" (lambda [] (stream.takeUntilAndDrop #|"\n"|#)))))))
