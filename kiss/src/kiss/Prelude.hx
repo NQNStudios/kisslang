@@ -137,6 +137,14 @@ class Prelude {
 
     public static var areEqual = variadic(_areEqual, true);
 
+    public static function sort<T>(a:Array<T>, ?comp:(T, T) -> Int):kiss.List<T> {
+        if (comp == null)
+            comp = Reflect.compare;
+        var sorted = a.copy();
+        sorted.sort(comp);
+        return sorted;
+    }
+
     public static function groups<T>(a:Array<T>, size, extraHandling = Drop) {
         var numFullGroups = Math.floor(a.length / size);
         var fullGroups = [

@@ -44,6 +44,7 @@ class Kiss {
 
         // Helpful aliases
         k.defAlias("print", Symbol("Prelude.print"));
+        k.defAlias("sort", Symbol("Prelude.sort"));
         k.defAlias("groups", Symbol("Prelude.groups"));
         k.defAlias("zip", Symbol("Prelude.zip"));
         k.defAlias("pairs", Symbol("Prelude.pairs")); // TODO test pairs
