@@ -41,6 +41,9 @@ class FieldForms {
             case MetaExp("mut", nameExp):
                 access.remove(AFinal);
                 fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("dynamic", nameExp):
+                access.push(ADynamic);
+                fieldAccess(formName, fieldName, nameExp, access);
             default:
                 if (formName == "defvar" || formName == "defun") {
                     access.push(AStatic);

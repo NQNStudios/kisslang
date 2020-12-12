@@ -10,7 +10,7 @@
                     1)))
         dist))
 
-(defun arrangementCount [:kiss.List<Int> ratings startingIndex]
+(defun &dynamic arrangementCount [:kiss.List<Int> ratings startingIndex]
     (if (= startingIndex (- ratings.length 1)) 1
         (let [&mut :Int64 sum 0
                 startingRating (nth ratings startingIndex)

@@ -1,4 +1,5 @@
 (defun main []
+/*
     // Day 1
     (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
         (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))
@@ -114,6 +115,7 @@
         [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576]))))
     (let [tuple (SummingTuples.contiguousSumTuple 133015568 (Util.readInts "src/year2020/inputs/day9.txt"))]
         (assert (= 16107959 (+ (apply min tuple) (apply max tuple)))))
+        */
 
     // Day 10
     (assert (Int64.eq 8 (Adapters.arrangementCount (sort [0 22 16 10 15 5 1 11 7 19 6 12 4]) 0)))
@@ -123,6 +125,10 @@
         (adapters.push (+ 3 (last adapters)))
         (let [diffs (Adapters.differences adapters)
                 dist (Adapters.distribution diffs)]
-            (assert (= 1998 (* (dictGet dist 1) (dictGet dist 3))))))
-    )
-    
+            (assert (= 1998 (* (dictGet dist 1) (dictGet dist 3)))))
+        (let [memoized (memoize Adapters.arrangementCount)]
+            (set Adapters.arrangementCount #|cast memoized|#)
+            )
+        
+        (print (Int64.toStr (Adapters.arrangementCount adapters 0)))
+        )) 

@@ -59,6 +59,13 @@ class Helpers {
 
     // TODO generic type parameter declarations
     public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
+        if (name != null) {
+            switch (name.def) {
+                case MetaExp(_, name):
+                    return makeFunction(name, argList, body, k);
+                default:
+            }
+        }
         var funcName = if (name != null) {
             switch (name.def) {
                 case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
