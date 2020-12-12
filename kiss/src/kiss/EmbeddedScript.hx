@@ -9,7 +9,10 @@ import sys.io.File;
 import kiss.Kiss;
 import kiss.cloner.Cloner;
 
-typedef Command = () -> Void;
+// Commands handlers accept a Dynamic argument because when fork() happens
+// (1) the calling context can no longer assume the instance it constructed is the instance running the command.
+// (2) I don't know how to put a generic parameter <T extends EmbeddedScript> on the Command typedef.
+typedef Command = (Dynamic) -> Void;
 
 /**
     Utility class for making statically typed, debuggable, embedded Kiss-based DSLs.
@@ -24,12 +27,9 @@ class EmbeddedScript {
 
     private var instructions:Array<Command> = null;
     private var breakPoints:Map<Int, () -> Bool> = [];
-    // Break handlers accept a Dynamic argument because when fork() happens
-    // (1) the calling context can no longer assume the instance it constructed is the instance hitting the breakpoint.
-    // (2) I don't know how to put a generic parameter <T extends EmbeddedScript> on a BreakHandler function type.
-    private var onBreak:(Dynamic) -> Void = null;
+    private var onBreak:Command = null;
 
-    public function setBreakHandler(handler:(Dynamic) -> Void) {
+    public function setBreakHandler(handler:Command) {
         onBreak = handler;
     }
 
@@ -66,7 +66,7 @@ class EmbeddedScript {
                 classFields.push(field);
             } else {
                 // In a DSL script, anything that's not a field definition is a command line
-                commandList.push(macro function() {
+                commandList.push(macro function(self) {
                     ${Kiss.readerExpToHaxeExpr(nextExp, k)};
                 });
             }
@@ -124,7 +124,7 @@ class EmbeddedScript {
                 expr: macro {
                     if (instructions == null)
                         resetInstructions();
-                    instructions[instructionPointer]();
+                    instructions[instructionPointer](this);
                     ++instructionPointer;
                     if (breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
                         running = false;
@@ -208,7 +208,10 @@ class EmbeddedScript {
                             // fields, otherwise DSL state will be lost when forking, which is unacceptable
                             var fork = new kiss.cloner.Cloner().clone(this);
                             fork.instructions[instructionPointer] = command;
+                            trace(fork.breakPoints);
+                            trace('running a fork from ' + Std.string(instructionPointer + 1));
                             fork.run();
+                            trace("fork finished");
                             fork;
                         }
                     ];

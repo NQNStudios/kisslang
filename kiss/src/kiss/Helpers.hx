@@ -271,6 +271,8 @@ class Helpers {
                 CallExp(evalUnquotes(func, k, args), evalUnquoteLists(callArgs, k, args).map(evalUnquotes.bind(_, k, args)));
             case ListExp(elements):
                 ListExp(evalUnquoteLists(elements, k, args).map(evalUnquotes.bind(_, k, args)));
+            case TypedExp(type, innerExp):
+                TypedExp(type, evalUnquotes(innerExp, k, args));
             case FieldExp(field, innerExp):
                 FieldExp(field, evalUnquotes(innerExp, k, args));
             case KeyValueExp(keyExp, valueExp):

@@ -4,7 +4,8 @@
     `(,(ReaderExp.Symbol 
             (begin (stream.dropWhitespace) (nextToken stream)))
         (,(ReaderExp.Symbol 
-            (begin (stream.dropWhitespace) (stream.expect "+/-" (lambda [] (stream.takeChars 1)))))
-                0
-                ,(ReaderExp.Symbol
-                     (nextToken stream)))))
+                (begin (stream.dropWhitespace) (stream.expect "+/-" (lambda [] (stream.takeChars 1)))))
+            0
+            ,(ReaderExp.Symbol
+                    (nextToken stream)))
+        self))

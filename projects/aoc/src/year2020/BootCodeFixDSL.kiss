@@ -1,6 +1,8 @@
 (load "BootCodeCommon.kiss")
 
-(defvar &mut forked false)
+(defvar :Map<Int,Bool> instructionsTested (new Map<Int,Bool>))
+(defprop &mut forked false)
+(defprop &mut forkedAt -1)
 
 (defreadermacro ["jmp" "nop"] [stream]
     (let [inst
@@ -13,13 +15,26 @@
             arg
                 (ReaderExp.Symbol (nextToken stream))]
         (stream.dropWhitespace)
-        `(if forked
-            (,instSymbol (,op 0 ,arg))
-            (begin
-                
-                (fork [
-                    (lambda [] (when ,(ReaderExp.Symbol (Std.string (= inst "nop"))) (set forked true)) (jmp (,op 0 ,arg)))
-                    (lambda [] (when ,(ReaderExp.Symbol (Std.string (= inst "jmp"))) (set forked true)) (nop (,op 0 ,arg)))
+        `(cond
+            ((or self.forked (instructionsTested.exists self.instructionPointer))
+                (print "can't fork again")
+                (,instSymbol (,op 0 ,arg) self))
+            (true
+                (dictSet instructionsTested self.instructionPointer true)
+                (self.setBreakPoint)
+                (self.fork [
+                    (lambda [:Dynamic self]
+                        (print self.accumulator)
+                        (when ,(ReaderExp.Symbol (Std.string (= inst "nop")))
+                            (print (set self.forked true))
+                            (set self.forkedAt self.instructionPointer))
+                        (jmp (,op 0 ,arg) self))
+                    (lambda [:Dynamic self]
+                        (print self.accumulator)
+                        (when ,(ReaderExp.Symbol (Std.string (= inst "jmp")))
+                            (print (set self.forked true))
+                            (set self.forkedAt self.instructionPointer))
+                        (nop (,op 0 ,arg) self))
                     ])))))
 
 // Define the default reader LAST because default readers tend to break everything

@@ -122,7 +122,7 @@ class Kiss {
         return switch (exp.def) {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expandedExp = macros[mac](exp, args, k);
-                if (expandedExp != null) readerExpToField(macros[mac](expandedExp, args, k), k) else null;
+                if (expandedExp != null) readerExpToField(macros[mac](expandedExp, args, k), k, errorIfNot) else null;
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
                 fieldForms[formName](exp, args, k);
             default:

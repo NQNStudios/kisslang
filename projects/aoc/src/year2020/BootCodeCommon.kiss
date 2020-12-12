@@ -2,9 +2,9 @@
 
 (defmethod setBreakPoint [] (addBreakPoint instructionPointer))
 
-(defmethod nop [v] (setBreakPoint))
-(defmethod acc [v] (setBreakPoint) (set accumulator (+ accumulator v)))
-(defmethod jmp [v]
-    (setBreakPoint)
-    //(print (+ "jumping " (Std.string v) " from " (Std.string instructionPointer)))
-    (set instructionPointer (+ instructionPointer (- v 1))))
+(defmethod nop [v :Dynamic self] (self.setBreakPoint))
+(defmethod acc [v :Dynamic self] (self.setBreakPoint) (set self.accumulator (+ self.accumulator v)))
+(defmethod jmp [v :Dynamic self]
+    (self.setBreakPoint)
+    (print (+ "jumping " (Std.string v) " from " (Std.string (+ 1 self.instructionPointer))))
+    (set self.instructionPointer (+ self.instructionPointer (- v 1))))

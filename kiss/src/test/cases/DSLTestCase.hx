@@ -11,7 +11,7 @@ class DSLTestCase extends Test {
     }
 
     function testFork() {
-        new DSLScript().fork([() -> Assert.equals(5, 5), () -> Assert.equals(7, 7)]);
+        new DSLScript().fork([(self) -> Assert.equals(5, 5), (self) -> Assert.equals(7, 7)]);
     }
 }
 

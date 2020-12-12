@@ -79,14 +79,30 @@
     (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap)))
     
     // Day 8
+    (print "BootCodeExample")
     (let [example (new BootCodeExample)]
         (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
         (example.run))
+    (print "BootCodeReal")
     (let [bootCode (new BootCodeReal)]
-        (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 bootCode.accumulator) (assert true))))
+        (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 (print bootCode.accumulator)))))
         (bootCode.run))
+    (print "BootCodeFixExample")
+    (let [bootCode (new BootCodeFixExample)]
+        (bootCode.setBreakHandler
+            (lambda [bootCodeFork]
+                (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
+                        (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string bootCodeFork.forkedAt)))
+                    (print "hit an infinite loop"))))
+        (bootCode.addBreakPoint (bootCode.instructionCount))
+        (bootCode.run))
+    (print "BootCodeFixReal")
     (let [bootCode (new BootCodeFix)]
-        (bootCode.setBreakHandler (lambda [:BootCodeFix bootCodeFork] (when (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount)) (print .accumulator (the BootCodeFix bootCodeFork)))))
+        (bootCode.setBreakHandler
+            (lambda [bootCodeFork]
+                (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
+                        (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string (+ 1 bootCodeFork.forkedAt))))
+                    (print "hit an infinite loop"))))
         (bootCode.addBreakPoint (bootCode.instructionCount))
         (bootCode.run))
     
