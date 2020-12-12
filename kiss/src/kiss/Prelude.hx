@@ -4,6 +4,7 @@ using Std;
 
 import kiss.Operand;
 import haxe.ds.Either;
+import haxe.Constraints;
 
 /** What functions that process Lists should do when there are more elements than expected **/
 enum ExtraElementHandling {
@@ -158,7 +159,7 @@ class Prelude {
         return fullGroups;
     }
 
-    public static function zip<A, B>(a:Array<A>, b:Array<B>, extraHandling = Drop):Array<Array<Dynamic>> {
+    public static function zip(a:Array<Dynamic>, b:Array<Dynamic>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
         var max = Math.floor(if (a.length != b.length) {
             switch (extraHandling) {
                 case Throw:
@@ -184,6 +185,16 @@ class Prelude {
                     null
             ]
         ];
+    }
+
+    public static function pairs(l:kiss.List<Dynamic>, loopAround = false):kiss.List<kiss.List<Dynamic>> {
+        var l1 = l.slice(0, l.length - 1);
+        var l2 = l.slice(1, l.length);
+        if (loopAround) {
+            l1.push(l[-1]);
+            l2.unshift(l[0]);
+        }
+        return zip(l1, l2);
     }
 
     // Ranges with a min, exclusive max, and step size, just like Python.
@@ -222,6 +233,23 @@ class Prelude {
                     true;
                 };
         }
+    }
+
+    // Based on: http://old.haxe.org/doc/snip/memoize
+    public static function memoize(func:Function, ?caller:Dynamic):Function {
+        var argMap = new Map<String, Dynamic>();
+        var f = (args:Array<Dynamic>) -> {
+            var argString = args.join('|');
+            return if (argMap.exists(argString)) {
+                argMap[argString];
+            } else {
+                var ret = Reflect.callMethod(caller, func, args);
+                argMap[argString] = ret;
+                ret;
+            };
+        };
+        f = Reflect.makeVarArgs(f);
+        return f;
     }
 
     public static function print<T>(v:T) {
