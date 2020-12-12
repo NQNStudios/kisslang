@@ -1,6 +1,7 @@
 package year2020;
 
 import haxe.ds.Map;
+import haxe.Int64;
 import StringTools;
 import kiss.Prelude;
 import kiss.Stream;

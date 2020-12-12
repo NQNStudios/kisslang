@@ -116,8 +116,9 @@
         (assert (= 16107959 (+ (apply min tuple) (apply max tuple)))))
 
     // Day 10
-    (let [adapters (Util.readInts "src/year2020/inputs/day10.txt")]
-        (.sort adapters Reflect.compare)
+    (assert (Int64.eq 8 (Adapters.arrangementCount (sort [0 22 16 10 15 5 1 11 7 19 6 12 4]) 0)))
+    (assert (Int64.eq 19208 (Adapters.arrangementCount (sort [0 52 28 33 18 42 31 14 46 20 48 47 24 23 49 45 19 38 39 11 1 32 25 35 8 17 7 9 4 2 34 10 3]) 0)))
+    (let [adapters (sort (Util.readInts "src/year2020/inputs/day10.txt"))]
         (adapters.unshift 0)
         (adapters.push (+ 3 (last adapters)))
         (let [diffs (Adapters.differences adapters)

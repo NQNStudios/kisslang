@@ -9,3 +9,14 @@
                         (+ 1 (dictGet dist num))
                     1)))
         dist))
+
+(defun arrangementCount [:kiss.List<Int> ratings startingIndex]
+    (if (= startingIndex (- ratings.length 1)) 1
+        (let [&mut :Int64 sum 0
+                startingRating (nth ratings startingIndex)
+                potentialNextAdapters (filter
+                                            (for i (range (+ 1 startingIndex) (+ 4 startingIndex)) i)
+                                            (lambda [index] (and (< index ratings.length) (<= (nth ratings index) (+ 3 startingRating)))))]
+            (doFor subCount (map potentialNextAdapters (arrangementCount.bind ratings))
+                (set sum (Int64.add sum subCount)))
+            sum)))
