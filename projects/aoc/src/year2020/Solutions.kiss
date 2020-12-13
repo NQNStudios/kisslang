@@ -137,8 +137,17 @@
             (let [memoized (memoize Adapters.arrangementCount)]
                 (set Adapters.arrangementCount #|cast memoized|#))
             (assert (= "347250213298688" (Int64.toStr (Adapters.arrangementCount adapters 0))))))
+
     // Day 11
-    (when (<= 0 (days.indexOf 11)) (print "TODO day 11"))
+    (when (<= 0 (days.indexOf 11))
+        (let [example (new FerrySimExample)
+                real (new FerrySimReal)]
+            (example.run)
+            (example.simulate)
+            (assert (= 71 (example.countFullSeats)))
+            (real.run)
+            (real.fullSimulate)
+            (assert (= 2329 (real.countFullSeats)))))
 
     // Day 12
     (when (<= 0 (days.indexOf 12))

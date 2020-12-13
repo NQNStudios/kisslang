@@ -15,6 +15,7 @@ import year2020.Customs;
 import year2020.Bags;
 import year2020.BootCode;
 import year2020.Adapters;
+import year2020.FerrySim;
 import year2020.Evasion;
 
 @:build(kiss.Kiss.build("src/year2020/Solutions.kiss"))

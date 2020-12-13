@@ -1,0 +1,53 @@
+(defun :FerrySquare floor [:Array<FerrySquare> n :SeatsChanged changed] floor)
+
+(defun :FerrySquare emptySeat [:Array<FerrySquare> n :SeatsChanged changed]
+    // Empty seats with completely empty neighbors, fill up
+    (cond
+        ((= true (apply = (for neighbor n #|neighbor != fullSeat|#)))
+            (set changed.changed true)
+            fullSeat)
+        (true emptySeat)))
+
+(defun :FerrySquare fullSeat [:Array<FerrySquare> n :SeatsChanged changed]
+    // Full seats with 4 or more full neighbors become empty
+    (cond
+        ((<= 4 (count n (lambda [neighbor] #|neighbor == fullSeat|#)))
+            (set changed.changed true)
+            emptySeat)
+        (true fullSeat)))
+
+(defun neighbors [x y :Array<Array<FerrySquare>> grid]
+    (deflocal &mut n [])
+    (doFor xx (range (- x 1) (+ x 2))
+        (doFor yy (range (- y 1) (+ y 2))
+            (unless (and (= x xx) (= y yy))
+                (when (and (<= 0 xx) (<= 0 yy) (> grid.length yy) (> .length (nth grid yy) xx))
+                    (n.push (nth (nth grid yy) xx))))))
+    n)
+
+(defprop &mut :Array<Array<FerrySquare>> state [])
+
+(defmethod simulate []
+    (deflocal changed (object changed false))
+    (set state
+        (for rowIdx (range state.length)
+            (let [:Array<FerrySquare> row (nth state rowIdx)]
+                (for seatIdx (range row.length) ((nth row seatIdx) (neighbors seatIdx rowIdx state) changed)))))
+    changed.changed)
+
+(defmethod fullSimulate []
+    (when (simulate) (fullSimulate)))
+
+(defmethod countFullSeats []
+    (apply +
+        (for :Array<FerrySquare> row state
+            (apply +
+                (for :FerrySquare seat row
+                    (if #|seat == fullSeat|# 1 0))))))
+
+(defreadermacro "L" [stream] `emptySeat)
+(defreadermacro "#" [stream] `fullSeat)
+(defreadermacro "." [stream] `floor)
+
+(defreadermacro &start "" [stream]
+    `(state.push ,(ReaderExp.ListExp (readExpArray stream #|"\n"|#))))

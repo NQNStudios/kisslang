@@ -1,3 +1,5 @@
+// Airplane seating
+
 (defun search [:Array<String> letters min max rowOrColumn]
     (if (= min max)
             min
