@@ -140,7 +140,9 @@ class Reader {
         var readFunction = null;
         if (stream.startOfLine)
             readFunction = chooseReadFunction(stream, k.startOfLineReadTable);
-        if (readFunction == null)
+        if (readFunction != null)
+            stream.startOfLine = false;
+        else
             readFunction = chooseReadFunction(stream, k.readTable);
         if (readFunction == null)
             throw 'No macro to read next expression';

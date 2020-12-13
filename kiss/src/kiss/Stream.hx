@@ -23,7 +23,7 @@ class Stream {
 
     var absolutePerNewline = 1;
 
-    public var startOfLine(default, null) = true;
+    public var startOfLine = true;
 
     public function new(file:String) {
         // Banish ye Windows line-endings
