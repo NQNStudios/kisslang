@@ -2,6 +2,7 @@ package kiss;
 
 import haxe.ds.Option;
 import kiss.Stream;
+import kiss.Kiss;
 
 using kiss.Reader;
 
@@ -35,58 +36,58 @@ enum ReaderExpDef {
     UnquoteList(exp:ReaderExp); // ,@[exp]
 }
 
-typedef ReadFunction = (Stream) -> Null<ReaderExpDef>;
+typedef ReadFunction = (Stream, KissState) -> Null<ReaderExpDef>;
+typedef ReadTable = Map<String, ReadFunction>;
 
 class Reader {
     // The built-in readtable
     public static function builtins() {
-        var readTable:Map<String, ReadFunction> = [];
+        var readTable:ReadTable = [];
 
-        readTable["("] = (stream) -> CallExp(assertRead(stream, readTable), readExpArray(stream, ")", readTable));
-        readTable["["] = (stream) -> ListExp(readExpArray(stream, "]", readTable));
-        readTable["\""] = (stream) -> StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
-        readTable["/*"] = (stream) -> {
-            stream.dropUntil("*/");
-            stream.dropString("*/");
+        readTable["("] = (stream, k) -> CallExp(assertRead(stream, k), readExpArray(stream, ")", k));
+        readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
+        readTable["\""] = (stream, k) -> StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
+        readTable["/*"] = (stream, k) -> {
+            stream.takeUntilAndDrop("*/");
             null;
         };
-        readTable["//"] = (stream) -> {
-            stream.dropUntil("\n");
+        readTable["//"] = (stream, k) -> {
+            stream.takeUntilAndDrop("\n");
             null;
         };
-        readTable["#|"] = (stream) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
+        readTable["#|"] = (stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
         // For defmacrofuns, unquoting with , is syntactic sugar for calling a Quote (Void->T)
 
-        readTable[":"] = (stream) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, readTable));
+        readTable[":"] = (stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));
 
-        readTable["&"] = (stream) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, readTable));
+        readTable["&"] = (stream, k) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, k));
 
-        readTable["!"] = (stream:Stream) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, readTable)]);
+        readTable["!"] = (stream:Stream, k) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, k)]);
 
         // Helpful for defining predicates to pass to Haxe functions:
-        readTable["?"] = (stream:Stream) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, readTable)]);
+        readTable["?"] = (stream:Stream, k) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, k)]);
 
         // Lets you dot-access a function result without binding it to a name
-        readTable["."] = (stream:Stream) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, readTable));
+        readTable["."] = (stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k));
 
         // Lets you construct key-value pairs for map literals or for-loops
-        readTable["=>"] = (stream:Stream) -> KeyValueExp(assertRead(stream, readTable), assertRead(stream, readTable));
+        readTable["=>"] = (stream, k) -> KeyValueExp(assertRead(stream, k), assertRead(stream, k));
 
-        readTable[")"] = (stream:Stream) -> {
+        readTable[")"] = (stream, k) -> {
             stream.putBackString(")");
             throw new UnmatchedBracketSignal(")", stream.position());
         };
-        readTable["]"] = (stream:Stream) -> {
+        readTable["]"] = (stream, k) -> {
             stream.putBackString("]");
             throw new UnmatchedBracketSignal("]", stream.position());
         };
 
-        readTable["`"] = (stream) -> Quasiquote(assertRead(stream, readTable));
-        readTable[","] = (stream) -> Unquote(assertRead(stream, readTable));
-        readTable[",@"] = (stream) -> UnquoteList(assertRead(stream, readTable));
+        readTable["`"] = (stream, k) -> Quasiquote(assertRead(stream, k));
+        readTable[","] = (stream, k) -> Unquote(assertRead(stream, k));
+        readTable[",@"] = (stream, k) -> UnquoteList(assertRead(stream, k));
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
-        readTable[""] = (stream) -> Symbol(nextToken(stream, "a symbol name"));
+        readTable[""] = (stream, k) -> Symbol(nextToken(stream, "a symbol name"));
 
         return readTable;
     }
@@ -101,9 +102,9 @@ class Reader {
         return tok;
     }
 
-    public static function assertRead(stream:Stream, readTable:Map<String, ReadFunction>):ReaderExp {
+    public static function assertRead(stream:Stream, k:KissState):ReaderExp {
         var position = stream.position();
-        return switch (read(stream, readTable)) {
+        return switch (read(stream, k)) {
             case Some(exp):
                 exp;
             case None:
@@ -111,40 +112,54 @@ class Reader {
         };
     }
 
-    public static function read(stream:Stream, readTable:Map<String, ReadFunction>):Option<ReaderExp> {
+    static function chooseReadFunction(stream:Stream, readTable:ReadTable):Null<ReadFunction> {
+        var readTableKeys = [for (key in readTable.keys()) key];
+        readTableKeys.sort((a, b) -> b.length - a.length);
+
+        for (key in readTableKeys) {
+            switch (stream.peekChars(key.length)) {
+                case Some(ky) if (ky == key):
+                    stream.dropString(key);
+                    return readTable[key];
+                default:
+            }
+        }
+
+        return null;
+    }
+
+    public static function read(stream:Stream, k:KissState):Option<ReaderExp> {
+        var readTable = k.readTable;
         stream.dropWhitespace();
 
         if (stream.isEmpty())
             return None;
 
         var position = stream.position();
-        var readTableKeys = [for (key in readTable.keys()) key];
-        readTableKeys.sort((a, b) -> b.length - a.length);
 
-        for (key in readTableKeys) {
-            switch (stream.peekChars(key.length)) {
-                case Some(k) if (k == key):
-                    stream.dropString(key);
-                    var expOrNull = readTable[key](stream);
-                    return if (expOrNull != null) {
-                        Some(expOrNull.withPos(position));
-                    } else {
-                        read(stream, readTable);
-                    }
-                default:
-            }
+        var readFunction = null;
+        if (stream.startOfLine)
+            readFunction = chooseReadFunction(stream, k.startOfLineReadTable);
+        if (readFunction == null)
+            readFunction = chooseReadFunction(stream, k.readTable);
+        if (readFunction == null)
+            throw 'No macro to read next expression';
+
+        var expOrNull = readFunction(stream, k);
+        return if (expOrNull != null) {
+            Some(expOrNull.withPos(position));
+        } else {
+            read(stream, k);
         }
-
-        throw 'No macro to read next expression';
     }
 
-    public static function readExpArray(stream:Stream, end:String, readTable:Map<String, ReadFunction>):Array<ReaderExp> {
+    public static function readExpArray(stream:Stream, end:String, k:KissState):Array<ReaderExp> {
         var array = [];
         while (!stream.startsWith(end)) {
             stream.dropWhitespace();
             if (!stream.startsWith(end)) {
                 try {
-                    array.push(assertRead(stream, readTable));
+                    array.push(assertRead(stream, k));
                 } catch (s:UnmatchedBracketSignal) {
                     if (s.type == end)
                         break;
@@ -160,13 +175,13 @@ class Reader {
     /**
         Read all the expressions in the given stream, processing them one by one while reading.
     **/
-    public static function readAndProcess(stream:Stream, readTable:Map<String, ReadFunction>, process:(ReaderExp) -> Void) {
+    public static function readAndProcess(stream:Stream, k:KissState, process:(ReaderExp) -> Void) {
         while (true) {
             stream.dropWhitespace();
             if (stream.isEmpty())
                 break;
             var position = stream.position();
-            var nextExp = Reader.read(stream, readTable);
+            var nextExp = Reader.read(stream, k);
             // The last expression might be a comment, in which case None will be returned
             switch (nextExp) {
                 case Some(nextExp):

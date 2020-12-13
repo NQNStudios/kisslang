@@ -1,10 +1,13 @@
-(defreadermacro "!" [stream] 
+(defreadermacro &start "!" [stream] 
     (let [line (stream.expect "a string line" (lambda [] (stream.takeLine)))]
         (ReaderExp.StrExp line)))
 
 (defun myLine []
     !String that takes the rest of the line
     )
+
+(defun myBool []
+    (begin !false))
 
 (defalias pluppers +)
 (defalias fluffers 5)

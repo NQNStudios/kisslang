@@ -157,7 +157,7 @@ class Helpers {
     public static function defAlias(k:KissState, whenItsThis:String, makeItThisInstead:ReaderExpDef) {
         // The alias has to be followed by a terminator to count!
         for (terminator in Reader.terminators) {
-            k.readTable[whenItsThis + terminator] = (s:Stream) -> {
+            k.readTable[whenItsThis + terminator] = (s:Stream, k) -> {
                 s.putBackString(terminator);
                 makeItThisInstead;
             }
@@ -207,8 +207,8 @@ class Helpers {
         var parser = new Parser();
         if (interps.length == 0) {
             var interp = new Interp();
-            interp.variables.set("read", Reader.assertRead.bind(_, k.readTable));
-            interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k.readTable));
+            interp.variables.set("read", Reader.assertRead.bind(_, k));
+            interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
             interp.variables.set("ReaderExp", ReaderExpDef);
             interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
             interp.variables.set("kiss", {

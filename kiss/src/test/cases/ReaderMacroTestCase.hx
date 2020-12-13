@@ -10,6 +10,10 @@ class ReaderMacroTestCase extends Test {
         Assert.equals("String that takes the rest of the line", ReaderMacroTestCase.myLine());
     }
 
+    function testReadNot() {
+        Assert.isTrue(ReaderMacroTestCase.myBool());
+    }
+
     function testDefAlias() {
         Assert.equals(9, ReaderMacroTestCase.mySum);
     }

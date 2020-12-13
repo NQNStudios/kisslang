@@ -178,12 +178,8 @@ class Macros {
             ]).withPosOf(wholeExp);
         };
 
-        macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
-
-            // reader macros can define a list of strings that will trigger the macro. When there are multiple,
-            // the macro will put back the initiating string into the stream so you can check which one it was
-            var stringsThatMatch = switch (exps[0].def) {
+        function stringsThatMatch(exp:ReaderExp) {
+            return switch (exp.def) {
                 case StrExp(s):
                     [s];
                 case ListExp(strings):
@@ -197,14 +193,31 @@ class Macros {
                             }
                     ];
                 default:
-                    throw CompileError.fromExp(exps[0], 'first argument to defreadermacro should be a String or list of strings');
+                    throw CompileError.fromExp(exp, 'first argument to defreadermacro should be a String or list of strings');
             };
+        }
 
-            for (s in stringsThatMatch) {
+        macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, null, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
+
+            // reader macros declared in the form (defreadermacro &start ...) will only be applied
+            // at the beginning of lines
+            var table = k.readTable;
+
+            // reader macros can define a list of strings that will trigger the macro. When there are multiple,
+            // the macro will put back the initiating string into the stream so you can check which one it was
+            var strings = switch (exps[0].def) {
+                case MetaExp("start", stringsExp):
+                    table = k.startOfLineReadTable;
+                    stringsThatMatch(stringsExp);
+                default:
+                    stringsThatMatch(exps[0]);
+            };
+            for (s in strings) {
                 switch (exps[1].def) {
                     case ListExp([{pos: _, def: Symbol(streamArgName)}]):
-                        k.readTable[s] = (stream) -> {
-                            if (stringsThatMatch.length > 1) {
+                        table[s] = (stream, k) -> {
+                            if (strings.length > 1) {
                                 stream.putBackString(s);
                             }
                             var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());

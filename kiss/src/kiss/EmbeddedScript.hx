@@ -60,7 +60,7 @@ class EmbeddedScript {
             classFields.push(field);
         }
 
-        Reader.readAndProcess(new Stream(scriptFile), k.readTable, (nextExp) -> {
+        Reader.readAndProcess(new Stream(scriptFile), k, (nextExp) -> {
             var field = Kiss.readerExpToField(nextExp, k, false);
             if (field != null) {
                 classFields.push(field);

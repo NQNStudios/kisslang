@@ -20,7 +20,8 @@ typedef ExprConversion = (ReaderExp) -> Expr;
 
 typedef KissState = {
     className:String,
-    readTable:Map<String, ReadFunction>,
+    readTable:ReadTable,
+    startOfLineReadTable:ReadTable,
     fieldForms:Map<String, FieldFormFunction>,
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
@@ -35,6 +36,7 @@ class Kiss {
         var k = {
             className: className,
             readTable: Reader.builtins(),
+            startOfLineReadTable: new ReadTable(),
             fieldForms: FieldForms.builtins(),
             specialForms: SpecialForms.builtins(),
             macros: Macros.builtins(),
@@ -70,7 +72,7 @@ class Kiss {
             if (k == null)
                 k = defaultKissState();
 
-            Reader.readAndProcess(stream, k.readTable, (nextExp) -> {
+            Reader.readAndProcess(stream, k, (nextExp) -> {
                 #if test
                 Sys.println(nextExp.def.toString());
                 #end

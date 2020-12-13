@@ -23,6 +23,8 @@ class Stream {
 
     var absolutePerNewline = 1;
 
+    public var startOfLine(default, null) = true;
+
     public function new(file:String) {
         // Banish ye Windows line-endings
         content = File.getContent(file);
@@ -82,9 +84,14 @@ class Stream {
                     line += 1;
                     lineLengths.push(column);
                     column = 1;
+                    startOfLine = true;
+                case c if (c.trim() == ""):
+                    absoluteChar += 1;
+                    column += 1;
                 default:
                     absoluteChar += 1;
                     column += 1;
+                    startOfLine = false;
             }
         }
         content = content.substr(count);
