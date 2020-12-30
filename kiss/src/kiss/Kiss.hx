@@ -59,13 +59,31 @@ class Kiss {
         return k;
     }
 
+    static function _try<T>(operation:() -> T):Null<T> {
+        try {
+            return operation();
+        } catch (err:CompileError) {
+            Sys.println(err);
+            Sys.exit(1);
+            return null;
+        } catch (err:UnmatchedBracketSignal) {
+            Sys.println(Stream.toPrint(err.position) + ': Unmatched ${err.type}');
+            Sys.exit(1);
+            return null;
+        } catch (err:Exception) {
+            trace(err.stack);
+            throw err; // Re-throw haxe exceptions for precise stacks
+        }
+    }
+
     /**
         Build a Haxe class from a corresponding .kiss file
     **/
-    static public function build(kissFile:String, ?k:KissState):Array<Field> {
-        try {
+    public static function build(kissFile:String, ?k:KissState):Array<Field> {
+        return _try(() -> {
             var classFields = Context.getBuildFields();
             var stream = new Stream(kissFile);
+
             // (load... ) relative to the original file
             var loadingDirectory = Path.directory(kissFile);
 
@@ -103,19 +121,8 @@ class Kiss {
                 }
             });
 
-            return classFields;
-        } catch (err:CompileError) {
-            Sys.println(err);
-            Sys.exit(1);
-            return null; // Necessary for build() to compile
-        } catch (err:UnmatchedBracketSignal) {
-            Sys.println(Stream.toPrint(err.position) + ': Unmatched ${err.type}');
-            Sys.exit(1);
-            return null;
-        } catch (err:Exception) {
-            trace(err.stack);
-            throw err; // Re-throw haxe exceptions for precise stacks
-        }
+            classFields;
+        });
     }
 
     public static function readerExpToField(exp:ReaderExp, k:KissState, errorIfNot = true):Null<Field> {
