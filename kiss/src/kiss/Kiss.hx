@@ -71,8 +71,10 @@ class Kiss {
             Sys.exit(1);
             return null;
         } catch (err:Exception) {
-            trace(err.stack);
-            throw err; // Re-throw haxe exceptions for precise stacks
+            Prelude.print("Error: " + err.message);
+            Prelude.print(err.stack.toString());
+            Sys.exit(1);
+            return null;
         }
     }
 
