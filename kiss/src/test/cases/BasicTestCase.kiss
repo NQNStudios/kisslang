@@ -393,3 +393,8 @@
 (defun _testDefmacroWithLogic []
     (Assert.equals "Welcome Stevo (Guest #1)" (macroWithLogic "Stevo"))
     (Assert.equals "Welcome Bob (Guest #2)" (macroWithLogic "Bob")))
+
+// Make sure built-in call aliases don't override user-defined variables
+(defun _testCallAlias []
+    (let [map [=>"hey" "you"]]
+        (Assert.equals "you" (dictGet map "hey"))))

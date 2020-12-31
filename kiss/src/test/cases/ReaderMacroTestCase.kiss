@@ -9,9 +9,9 @@
 (defun myBool []
     (begin !false))
 
-(defalias pluppers +)
-(defalias fluffers 5)
-(defalias buffers 4)
+(defalias &call pluppers +)
+(defalias &ident fluffers 5)
+(defalias &ident buffers 4)
 
 (defvar mySum (pluppers fluffers buffers))
 

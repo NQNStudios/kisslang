@@ -26,7 +26,9 @@ typedef KissState = {
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
     wrapListExps:Bool,
-    loadedFiles:Map<String, Bool>
+    loadedFiles:Map<String, Bool>,
+    callAliases:Map<String, ReaderExpDef>,
+    identAliases:Map<String, ReaderExpDef>
 };
 
 class Kiss {
@@ -41,21 +43,18 @@ class Kiss {
             specialForms: SpecialForms.builtins(),
             macros: Macros.builtins(),
             wrapListExps: true,
-            loadedFiles: new Map<String, Bool>()
+            loadedFiles: new Map<String, Bool>(),
+            // Helpful built-in aliases
+            callAliases: [
+                "print" => Symbol("Prelude.print"), "sort" => Symbol("Prelude.sort"), "groups" => Symbol("Prelude.groups"), "zip" => Symbol("Prelude.zip"),
+                "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
+                "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
+                "map" => Symbol("Lambda.map"), "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
+                "has" => Symbol("Lambda.has"), "count" => Symbol("Lambda.count")],
+            identAliases: new Map()
         };
 
         // Helpful aliases
-        k.defAlias("print", Symbol("Prelude.print"));
-        k.defAlias("sort", Symbol("Prelude.sort"));
-        k.defAlias("groups", Symbol("Prelude.groups"));
-        k.defAlias("zip", Symbol("Prelude.zip"));
-        k.defAlias("pairs", Symbol("Prelude.pairs")); // TODO test pairs
-        k.defAlias("memoize", Symbol("Prelude.memoize")); // TODO test memoize
-        k.defAlias("map", Symbol("Lambda.map"));
-        k.defAlias("filter", Symbol("Lambda.filter")); // TODO use truthy as the default filter function
-        k.defAlias("has", Symbol("Lambda.has"));
-        k.defAlias("count", Symbol("Lambda.count"));
-
         return k;
     }
 
@@ -132,11 +131,19 @@ class Kiss {
 
         // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
         var macros = k.macros;
+        var callAliases = k.callAliases;
+        var identAliases = k.identAliases;
 
         return switch (exp.def) {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expandedExp = macros[mac](exp, args, k);
                 if (expandedExp != null) readerExpToField(expandedExp, k, errorIfNot) else null;
+            case CallExp({pos: _, def: Symbol(alias)}, args) if (callAliases.exists(alias)):
+                var aliasedExp = CallExp(callAliases[alias].withPosOf(exp), args).withPosOf(exp);
+                readerExpToField(aliasedExp, k, errorIfNot);
+            case CallExp({pos: _, def: Symbol(alias)}, args) if (identAliases.exists(alias)):
+                var aliasedExp = CallExp(identAliases[alias].withPosOf(exp), args).withPosOf(exp);
+                readerExpToField(aliasedExp, k, errorIfNot);
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
                 fieldForms[formName](exp, args, k);
             default:
@@ -150,6 +157,8 @@ class Kiss {
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
         var expr = switch (exp.def) {
+            case Symbol(alias) if (k.identAliases.exists(alias)):
+                readerExpToHaxeExpr(k.identAliases[alias].withPosOf(exp), k);
             case Symbol(name):
                 Context.parse(name, exp.macroPos());
             case StrExp(s):
@@ -158,6 +167,8 @@ class Kiss {
                 convert(macros[mac](exp, args, k));
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](exp, args, k);
+            case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
+                convert(CallExp(k.callAliases[alias].withPosOf(exp), args).withPosOf(exp));
             case CallExp(func, args):
                 ECall(convert(func), [for (argExp in args) convert(argExp)]).withMacroPosOf(exp);
             case ListExp(elements):

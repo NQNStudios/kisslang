@@ -322,13 +322,25 @@ class Macros {
         };
 
         macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(defalias [whenItsThis] [makeItThis])");
-            k.defAlias(switch (exps[0].def) {
+            wholeExp.checkNumArgs(2, 2, "(defalias [[&call or &ident] whenItsThis] [makeItThis])");
+            var aliasMap:Map<String, ReaderExpDef> = null;
+            var nameExp = switch (exps[0].def) {
+                case MetaExp("call", nameExp):
+                    aliasMap = k.callAliases;
+                    nameExp;
+                case MetaExp("ident", nameExp):
+                    aliasMap = k.identAliases;
+                    nameExp;
+                default:
+                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias annotated with either &call or &ident');
+            };
+            var name = switch (nameExp.def) {
                 case Symbol(whenItsThis):
                     whenItsThis;
                 default:
-                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias');
-            }, exps[1].def);
+                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias annotated with either &call or &ident');
+            };
+            aliasMap[name] = exps[1].def;
             return null;
         };
 
