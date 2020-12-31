@@ -222,6 +222,7 @@ class Helpers {
             interp.variables.set("k", k.forCaseParsing());
             interp.variables.set("Helpers", Helpers);
             interp.variables.set("Prelude", Prelude);
+            interp.variables.set("Lambda", Lambda);
             interp.variables.set("Std", Std);
 
             interps.push(interp);

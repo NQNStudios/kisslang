@@ -380,3 +380,16 @@
 (defun _testDefmacro []
     (Assert.equals 5 (func5))
     (Assert.equals "hello" (funcHello)))
+
+(defvar &mut welcomeCount 0)
+(defmacro macroWithLogic [name]
+    (deflocal message1 (ReaderExp.StrExp "Welcome "))
+    (deflocal message2 (ReaderExp.StrExp " (Guest #"))
+    (deflocal message3 (ReaderExp.StrExp ")"))
+    
+    `(begin (set welcomeCount (+ welcomeCount 1))
+        (+ ,message1 ,name ,message2 (Std.string welcomeCount) ,message3)))
+
+(defun _testDefmacroWithLogic []
+    (Assert.equals "Welcome Stevo (Guest #1)" (macroWithLogic "Stevo"))
+    (Assert.equals "Welcome Bob (Guest #2)" (macroWithLogic "Bob")))

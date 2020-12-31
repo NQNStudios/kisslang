@@ -253,6 +253,10 @@ class BasicTestCase extends Test {
     function testDefmacro() {
         _testDefmacro();
     }
+
+    function testDefmacroWithLogic() {
+        _testDefmacroWithLogic();
+    }
 }
 
 class BasicObject {
