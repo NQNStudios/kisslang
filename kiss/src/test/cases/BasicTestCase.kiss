@@ -371,3 +371,12 @@
     (Assert.equals 7 (doSomething (lambda [i] (+ i 2))))
     // Pass null to the really crazy one because I'm lazy:
     (Assert.equals "but it still compiles" (itsAMonster null)))
+
+(defmacro defconstfunc [name const] `(defun ,name [] ,const))
+
+(defconstfunc func5 5)
+(defconstfunc funcHello "hello")
+
+(defun _testDefmacro []
+    (Assert.equals 5 (func5))
+    (Assert.equals "hello" (funcHello)))

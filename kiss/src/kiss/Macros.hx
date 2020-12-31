@@ -197,6 +197,94 @@ class Macros {
             };
         }
 
+        macros["defmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, null, '(defmacro [name] [[args...]] [body...])');
+
+            var table = k.macros;
+
+            var name = switch (exps[0].def) {
+                case Symbol(name): name;
+                default: throw CompileError.fromExp(exps[0], "macro name should be a symbol");
+            };
+
+            var argList = switch (exps[1].def) {
+                case ListExp(macroArgs): macroArgs;
+                case CallExp(_, _):
+                    throw CompileError.fromExp(exps[1], 'expected a macro argument list. Change the parens () to brackets []');
+                default:
+                    throw CompileError.fromExp(exps[1], 'expected a macro argument list');
+            };
+
+            // This is similar to &opt and &rest processing done by Helpers.makeFunction()
+            // but combining them would probably make things less readable and harder
+            // to maintain, because defmacro makes an actual function, not a function definition
+            var minArgs = 0;
+            var maxArgs = 0;
+            // Once the &opt meta appears, all following arguments are optional until &rest
+            var optIndex = -1;
+            // Once the &rest meta appears, no other arguments can be declared
+            var restIndex = -1;
+            var argNames = [];
+
+            var macroCallForm = '($name';
+
+            for (arg in argList) {
+                if (restIndex != -1) {
+                    throw CompileError.fromExp(arg, "macros cannot declare arguments after a &rest argument");
+                }
+                switch (arg.def) {
+                    case Symbol(name):
+                        argNames.push(name);
+                        if (optIndex == -1) {
+                            ++minArgs;
+                            macroCallForm += ' [$name]';
+                        } else {
+                            macroCallForm += ' [?$name]';
+                        }
+                        ++maxArgs;
+                    case MetaExp("opt", {pos: _, def: Symbol(name)}):
+                        argNames.push(name);
+                        macroCallForm += ' [?$name]';
+                        optIndex = maxArgs;
+                        ++maxArgs;
+                    case MetaExp("rest", {pos: _, def: Symbol(name)}):
+                        argNames.push(name);
+                        macroCallForm += ' [$name...]';
+                        restIndex = maxArgs;
+                        maxArgs = null;
+                    default:
+                        throw CompileError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest");
+                }
+            }
+
+            macroCallForm += ')';
+            if (optIndex == -1)
+                optIndex = minArgs;
+            if (restIndex == -1)
+                restIndex = optIndex;
+
+            macros[name] = (wholeExp:ReaderExp, innerExps:Array<ReaderExp>, k:KissState) -> {
+                wholeExp.checkNumArgs(minArgs, maxArgs, macroCallForm);
+                var innerArgNames = argNames.copy();
+
+                var args:Map<String, Dynamic> = [];
+                for (idx in 0...optIndex) {
+                    args[innerArgNames.shift()] = innerExps[idx];
+                }
+                for (idx in optIndex...restIndex) {
+                    args[innerArgNames.shift()] = if (exps.length > idx) innerExps[idx] else null;
+                }
+                if (innerArgNames.length > 0)
+                    args[innerArgNames.shift()] = innerExps.slice(restIndex);
+
+                // Return the macro expansion:
+                var expDef:ReaderExpDef = Helpers.runAtCompileTime(CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(2)).withPosOf(wholeExp), k, args);
+                expDef.withPosOf(wholeExp);
+            };
+
+            null;
+        };
+
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, null, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
 
@@ -223,6 +311,8 @@ class Macros {
                             var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
                             Helpers.runAtCompileTime(body, k, [streamArgName => stream]);
                         };
+                    case CallExp(_, []):
+                        throw CompileError.fromExp(exps[1], 'expected an argument list. Change the parens () to brackets []');
                     default:
                         throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
                 }

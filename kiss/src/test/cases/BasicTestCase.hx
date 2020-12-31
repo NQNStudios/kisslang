@@ -249,6 +249,10 @@ class BasicTestCase extends Test {
     function testTypeParsing() {
         _testTypeParsing();
     }
+
+    function testDefmacro() {
+        _testDefmacro();
+    }
 }
 
 class BasicObject {
