@@ -238,7 +238,7 @@ class Helpers {
                 interps[-1].variables.set(arg, value);
             }
         }
-        var value = if (interps.length == 1) {
+        var value:Dynamic = if (interps.length == 1) {
             interps[-1].execute(parsed);
         } else {
             interps[-1].expr(parsed);
@@ -248,7 +248,17 @@ class Helpers {
             throw CompileError.fromExp(exp, "compile-time evaluation returned null");
         }
         #if test
-        Prelude.print("Compile-time value: " + Std.string(value));
+        var msg = "Compile-time value: ";
+        msg += try {
+            Reader.toString(value.def);
+        } catch (err:haxe.Exception) {
+            try {
+                Reader.toString(value);
+            } catch (err:haxe.Exception) {
+                Std.string(value);
+            }
+        }
+        Prelude.print(msg);
         #end
         return value;
     }
