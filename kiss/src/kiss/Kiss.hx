@@ -97,14 +97,20 @@ class Kiss {
                 #end
                 switch (nextExp.def) {
                     // (load... ) is the specialest of forms because it calls build() again and those fields need to be merged
-                    case CallExp({pos: _, def: Symbol("load")}, [{pos: _, def: StrExp(otherKissFile)}]):
-                        var filePath = Path.join([loadingDirectory, otherKissFile]);
-                        if (!k.loadedFiles.exists(filePath)) {
-                            var loadedFields = Kiss.build(filePath, k, false);
-                            for (field in loadedFields) {
-                                classFields.push(field);
-                            }
-                            k.loadedFiles[filePath] = true;
+                    case CallExp({pos: _, def: Symbol("load")}, loadArgs):
+                        nextExp.checkNumArgs(1, 1, "(load \"[file]\")");
+                        switch (loadArgs[0].def) {
+                            case StrExp(otherKissFile):
+                                var filePath = Path.join([loadingDirectory, otherKissFile]);
+                                if (!k.loadedFiles.exists(filePath)) {
+                                    var loadedFields = Kiss.build(filePath, k, false);
+                                    for (field in loadedFields) {
+                                        classFields.push(field);
+                                    }
+                                    k.loadedFiles[filePath] = true;
+                                }
+                            default:
+                                throw CompileError.fromExp(loadArgs[0], "only argument to load should be a string literal");
                         }
                     default:
                         var field = readerExpToField(nextExp, k);
