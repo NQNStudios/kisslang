@@ -78,11 +78,11 @@ class Kiss {
     }
 
     /**
-        Build a Haxe class from a corresponding .kiss file
+        Build macro: add fields to a class from a corresponding .kiss file
     **/
-    public static function build(kissFile:String, ?k:KissState):Array<Field> {
+    public static function build(kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
         return _try(() -> {
-            var classFields = Context.getBuildFields();
+            var classFields:Array<Field> = if (useClassFields) Context.getBuildFields() else [];
             var stream = new Stream(kissFile);
 
             // (load... ) relative to the original file
@@ -100,7 +100,7 @@ class Kiss {
                     case CallExp({pos: _, def: Symbol("load")}, [{pos: _, def: StrExp(otherKissFile)}]):
                         var filePath = Path.join([loadingDirectory, otherKissFile]);
                         if (!k.loadedFiles.exists(filePath)) {
-                            var loadedFields = Kiss.build(filePath, k);
+                            var loadedFields = Kiss.build(filePath, k, false);
                             for (field in loadedFields) {
                                 classFields.push(field);
                             }

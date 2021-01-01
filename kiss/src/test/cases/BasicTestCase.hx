@@ -261,6 +261,10 @@ class BasicTestCase extends Test {
     function testCallAlias() {
         _testCallAlias();
     }
+
+    function testLoadedFunction() {
+        Assert.equals("loaded", BasicTestCase.loadedFunction());
+    }
 }
 
 class BasicObject {

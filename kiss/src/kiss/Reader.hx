@@ -175,6 +175,7 @@ class Reader {
 
     /**
         Read all the expressions in the given stream, processing them one by one while reading.
+        They can't be read all at once because some expressions change the Readtable state
     **/
     public static function readAndProcess(stream:Stream, k:KissState, process:(ReaderExp) -> Void) {
         while (true) {

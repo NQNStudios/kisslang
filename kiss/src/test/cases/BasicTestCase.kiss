@@ -1,3 +1,6 @@
+// (load) brings in the fields and compile-time definitions of another Kiss file
+(load "BasicTestCaseExtra.kiss")
+
 // (defvar) declares static variables
 (defvar message "Howdy")
 
