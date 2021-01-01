@@ -1,20 +1,50 @@
 {
-	"name": "kiss",
-	"publisher": "",
+	"name": "kiss-vscode",
+	"displayName": "kiss-vscode",
+	"description": "Kiss language plugin",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.4.0"
 	},
+	"categories": [
+		"Programming Languages"
+	],
 	"activationEvents": [
-		"onCommand:kiss.sayHello"
+		"onCommand:kiss-vscode.sayHello"
 	],
 	"main": "bin/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "kiss.sayHello",
+				"command": "kiss-vscode.sayHello",
 				"title": "Say Hello"
 			}
-		]
-	}
+		],
+		"languages": [{
+			"id": "kiss",
+			"aliases": ["Kiss", "kiss"],
+			"extensions": [".kiss"],
+			"configuration": "./Kiss.configuration.json"
+		  }],
+		  "grammars": [{
+			"language": "kiss",
+			"scopeName": "source.kiss",
+			"path": "./syntaxes/kiss.tmLanguage"
+		  },{
+			"scopeName": "markdown.kiss.codeblock",
+			"path": "./syntaxes/codeblock.json",
+			"injectTo": [
+			  "text.html.markdown"
+			],
+			"embeddedLanguages": {
+			  "meta.embedded.block.superjs": "kiss"
+			}
+		  }]
+	},
+	"publisher": "NQNStudios",
+	"repository": {
+		"type:": "git",
+		"url": "https://github.com/hissvn/kisslang.git"
+	},
+	"homepage": "https://github.com/hissvn/kisslang/blob/master/projects/kiss-vscode/README.md"
 }
