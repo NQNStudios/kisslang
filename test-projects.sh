@@ -10,7 +10,7 @@ for PROJECT_DIR in $PROJECT_DIRS
 do
     if [ ! -z "${TRAVIS_OS_NAME}" ]; then
         haxelib dev kiss kiss
-        (cd $PROJECT_DIR && haxelib install all)
+        (cd $PROJECT_DIR && haxelib install all --always)
     fi
 
     AUTO_TEST_FILE=${PROJECT_DIR}test.sh
