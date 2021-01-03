@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.util.FlxColor;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
+import flixel.FlxObject;
 import kiss.Prelude;
 
 @:build(kiss.Kiss.build("source/Player.kiss"))

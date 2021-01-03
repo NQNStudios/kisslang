@@ -2,7 +2,12 @@
 
 (defmethod new [:Float x :Float y]
     (super x y)
-    (makeGraphic 16 16 FlxColor.BLUE)
+    (loadGraphic AssetPaths.player__png true 16 16)
+    (setFacingFlip FlxObject.LEFT false false)
+    (setFacingFlip FlxObject.RIGHT true false)
+    (animation.add "lr" [3 4 3 5] 6 false)
+    (animation.add "u" [6 7 6 8] 6 false)
+    (animation.add "d" [0 1 0 2] 6 false)
     (set drag.x (set drag.y 1600))
     (return))
 
@@ -22,20 +27,39 @@
                         (left
                             (set newAngle (- newAngle 45)))
                         (right
-                            (set newAngle (+ newAngle 45)))))
+                            (set newAngle (+ newAngle 45))))
+                    (set facing FlxObject.UP))
                 (down
                     (set newAngle 90)
                     (cond
                         (left
                             (set newAngle (+ newAngle 45)))
                         (right
-                            (set newAngle (- newAngle 45)))))
+                            (set newAngle (- newAngle 45))))
+                    (set facing FlxObject.DOWN))
                 (left
-                    (set newAngle 180))
+                    (set newAngle 180)
+                    (set facing FlxObject.LEFT))
                 (right
-                    (set newAngle 0)))
+                    (set newAngle 0)
+                    (set facing FlxObject.RIGHT)))
             (velocity.set SPEED 0)
-            (velocity.rotate (FlxPoint.weak 0 0) newAngle))))
+            (velocity.rotate (FlxPoint.weak 0 0) newAngle)))
+            // TODO != is not implemented. Not sure how it would work as a variadic, because other
+            // Lisps don't have that either
+            (when !(and (= 0 velocity.x) (= 0 velocity.y))
+                (case facing
+                    // TODO allow | in case?
+                    (FlxObject.LEFT
+                        (animation.play "lr"))
+                    (FlxObject.RIGHT
+                        (animation.play "lr"))
+                    (FlxObject.UP
+                        (animation.play "u"))
+                    (FlxObject.DOWN
+                        (animation.play "d"))
+                    (otherwise
+                        (return)))))
 
 (defmethod &override update [:Float elapsed]
     (updateMovement)
