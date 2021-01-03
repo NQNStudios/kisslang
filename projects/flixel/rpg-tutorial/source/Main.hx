@@ -3,11 +3,5 @@ package;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 
-class Main extends Sprite
-{
-	public function new()
-	{
-		super();
-		addChild(new FlxGame(0, 0, PlayState));
-	}
-}
+@:build(kiss.Kiss.build("source/Main.kiss"))
+class Main extends Sprite {}

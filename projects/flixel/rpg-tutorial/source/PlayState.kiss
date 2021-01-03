@@ -1,0 +1,7 @@
+(defmethod &override create []
+    (super.create)
+    (return))
+
+(defmethod &override update [:Float elapsed]
+    (super.update elapsed)
+    (return))
