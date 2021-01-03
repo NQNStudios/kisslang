@@ -76,7 +76,7 @@ class FieldForms {
     }
 
     static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
-        wholeExp.checkNumArgs(2, 3, '($formName [optional :type] [variable] [optional: &mut] [value])');
+        wholeExp.checkNumArgs(2, 3, '($formName [optional: &mut] [optional :type] [variable] [value])');
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
