@@ -37,12 +37,23 @@ class FieldForms {
                 [];
             };
         }
+        // AMacro access is not allowed because it wouldn't make sense to write Haxe macros in Kiss
+        // when you can write Kiss macros which are just as powerful
         return switch (nameExp.def) {
             case MetaExp("mut", nameExp):
                 access.remove(AFinal);
                 fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("override", nameExp):
+                access.push(AOverride);
+                fieldAccess(formName, fieldName, nameExp, access);
             case MetaExp("dynamic", nameExp):
                 access.push(ADynamic);
+                fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("inline", nameExp):
+                access.push(AInline);
+                fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("final", nameExp):
+                access.push(AFinal);
                 fieldAccess(formName, fieldName, nameExp, access);
             default:
                 if (formName == "defvar" || formName == "defun") {
