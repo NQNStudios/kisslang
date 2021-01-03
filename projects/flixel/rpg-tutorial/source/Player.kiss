@@ -1,0 +1,42 @@
+(defvar &inline :Float SPEED 200)
+
+(defmethod new [:Float x :Float y]
+    (super x y)
+    (makeGraphic 16 16 FlxColor.BLUE)
+    (set drag.x (set drag.y 1600))
+    (return))
+
+(defmethod updateMovement []
+    (let [[&mut up &mut down &mut left &mut right]
+                (map [[UP W] [DOWN S] [LEFT A] [RIGHT D]] FlxG.keys.anyPressed)]
+        (when (and up down)
+            (set up (set down false)))
+        (when (and left right)
+            (set left (set right false)))
+        (when (or up down left right)
+            (deflocal &mut :Float newAngle 0)
+            (cond
+                (up
+                    (set newAngle -90)
+                    (cond
+                        (left
+                            (set newAngle (- newAngle 45)))
+                        (right
+                            (set newAngle (+ newAngle 45)))))
+                (down
+                    (set newAngle 90)
+                    (cond
+                        (left
+                            (set newAngle (+ newAngle 45)))
+                        (right
+                            (set newAngle (- newAngle 45)))))
+                (left
+                    (set newAngle 180))
+                (right
+                    (set newAngle 0)))
+            (velocity.set SPEED 0)
+            (velocity.rotate (FlxPoint.weak 0 0) newAngle))))
+
+(defmethod &override update [:Float elapsed]
+    (updateMovement)
+    (super.update elapsed))

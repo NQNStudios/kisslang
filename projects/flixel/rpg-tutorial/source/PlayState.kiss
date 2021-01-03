@@ -1,4 +1,8 @@
+(defprop &mut :Player player null)
+
 (defmethod &override create []
+    (set player (new Player 20 20))
+    (add player)
     (super.create)
     (return))
 
