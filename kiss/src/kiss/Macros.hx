@@ -108,6 +108,7 @@ class Macros {
 
         // (or... ) uses (cond... ) under the hood
         macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
             var uniqueVarName = "_" + Uuid.v4().toShort();
             var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
 
@@ -126,6 +127,7 @@ class Macros {
 
         // (and... uses (cond... ) and (not ...) under the hood)
         macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
             var uniqueVarName = "_" + Uuid.v4().toShort();
             var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
 

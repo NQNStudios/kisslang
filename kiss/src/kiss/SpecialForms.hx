@@ -326,8 +326,7 @@ class SpecialForms {
         };
 
         map["not"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            if (args.length != 1)
-                throw CompileError.fromExp(wholeExp, '(not... ) only takes one argument, not $args');
+            wholeExp.checkNumArgs(1, 1, '(not [value])');
             var condition = k.convert(args[0]);
             var truthyExp = macro Prelude.truthy($condition);
             macro !$truthyExp;
