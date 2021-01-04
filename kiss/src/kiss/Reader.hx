@@ -5,6 +5,7 @@ import kiss.Stream;
 import kiss.Kiss;
 
 using kiss.Reader;
+using kiss.Stream;
 
 typedef ReaderExp = {
     pos:Position,
@@ -96,7 +97,9 @@ class Reader {
     public static function nextToken(stream:Stream, expect:String) {
         var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
         if (tok.length == 0) {
-            throw 'Expected token $expect at ${stream.position()}';
+            Sys.println('Kiss reader error!');
+            Sys.println(stream.position().toPrint() + ': Expected $expect');
+            Sys.exit(1);
         }
         return tok;
     }
