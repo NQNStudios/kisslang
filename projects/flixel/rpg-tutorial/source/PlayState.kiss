@@ -11,6 +11,7 @@
     (walls.setTileProperties 2 FlxObject.ANY)
     (add walls)
     (map.loadEntities placeEntities "entities")
+    (FlxG.camera.follow player TOPDOWN 1)
     (super.create)
     (return))
 
