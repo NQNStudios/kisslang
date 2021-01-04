@@ -20,46 +20,49 @@
             (set up (set down false)))
         (when (and left right)
             (set left (set right false)))
-        (when (or up down left right)
-            (deflocal &mut :Float newAngle 0)
-            (cond
-                (up
-                    (set newAngle -90)
+        (if (or up down left right)
+                (let [&mut :Float newAngle 0]
                     (cond
+                        (up
+                            (set newAngle -90)
+                            (cond
+                                (left
+                                    (set newAngle (- newAngle 45)))
+                                (right
+                                    (set newAngle (+ newAngle 45))))
+                            (set facing FlxObject.UP))
+                        (down
+                            (set newAngle 90)
+                            (cond
+                                (left
+                                    (set newAngle (+ newAngle 45)))
+                                (right
+                                    (set newAngle (- newAngle 45))))
+                            (set facing FlxObject.DOWN))
                         (left
-                            (set newAngle (- newAngle 45)))
+                            (set newAngle 180)
+                            (set facing FlxObject.LEFT))
                         (right
-                            (set newAngle (+ newAngle 45))))
-                    (set facing FlxObject.UP))
-                (down
-                    (set newAngle 90)
-                    (cond
-                        (left
-                            (set newAngle (+ newAngle 45)))
-                        (right
-                            (set newAngle (- newAngle 45))))
-                    (set facing FlxObject.DOWN))
-                (left
-                    (set newAngle 180)
-                    (set facing FlxObject.LEFT))
-                (right
-                    (set newAngle 0)
-                    (set facing FlxObject.RIGHT)))
-            (velocity.set SPEED 0)
-            (velocity.rotate (FlxPoint.weak 0 0) newAngle)))
+                            (set newAngle 0)
+                            (set facing FlxObject.RIGHT)))
+                    (velocity.set SPEED 0)
+                    (velocity.rotate (FlxPoint.weak 0 0) newAngle))
+            (when animation.curAnim
+                (set animation.curAnim.curFrame 0)
+                (animation.curAnim.pause)))
             // TODO != is not implemented. Not sure how it would work as a variadic, because other
             // Lisps don't have that either
-            (when !(and (= 0 velocity.x) (= 0 velocity.y))
-                (case facing
-                    ((or FlxObject.LEFT FlxObject.RIGHT)
-                        (animation.play "lr"))
-                    (FlxObject.UP
-                        (animation.play "u"))
-                    (FlxObject.DOWN
-                        (animation.play "d"))
-                    (otherwise
-                        (return))))
-            (return))
+        (when !(and (= 0 velocity.x) (= 0 velocity.y))
+            (case facing
+                ((or FlxObject.LEFT FlxObject.RIGHT)
+                    (animation.play "lr"))
+                (FlxObject.UP
+                    (animation.play "u"))
+                (FlxObject.DOWN
+                    (animation.play "d"))
+                (otherwise
+                    (return))))
+            (return)))
 
 (defmethod &override update [:Float elapsed]
     (updateMovement)
