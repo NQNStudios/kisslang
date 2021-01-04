@@ -330,7 +330,17 @@
         ((Some "hey") (Assert.pass))
         (otherwise (Assert.fail)))
     (Assert.equals 5 (case (toOption 0)
-        (otherwise 5))))
+        (otherwise 5)))
+    // Test case with guards and multiple values
+    (case 5
+        ((or 5 6) (Assert.pass))
+        (otherwise (Assert.fail)))
+    (case [2 3]
+        ((or [_ 3] [1 1]) (Assert.pass))
+        (otherwise (Assert.fail)))
+    (case 5
+        ((when false (or 5 6)) (Assert.fail))
+        (otherwise (Assert.pass))))
 
 (defun _testMaps []
     (deflocal :Map<String,String> myMap [=>"hey" "you"

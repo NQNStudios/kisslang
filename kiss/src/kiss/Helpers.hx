@@ -153,6 +153,37 @@ class Helpers {
         }
     }
 
+    public static function makeSwitchCase(caseExp:ReaderExp, k:KissState, ?guard:Expr):Case {
+        var guard:Expr = null;
+
+        function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
+            return switch (patternExp.def) {
+                case CallExp({pos: _, def: Symbol("when")}, whenExps):
+                    patternExp.checkNumArgs(2, 2, "(when [guard] [pattern])");
+                    if (guard != null)
+                        throw CompileError.fromExp(caseExp, "case expression can only have one `when` guard");
+                    guard = macro Prelude.truthy(${k.convert(whenExps[0])});
+                    makeSwitchPattern(whenExps[1]);
+                case CallExp({pos: _, def: Symbol("or")}, orExps):
+                    patternExp.checkNumArgs(2, null, "(or [pattern1] [pattern2] [patterns...])");
+                    orExps.map(k.forCaseParsing().convert);
+                default:
+                    [k.forCaseParsing().convert(patternExp)];
+            }
+        }
+
+        return switch (caseExp.def) {
+            case CallExp(patternExp, caseBodyExps):
+                {
+                    values: makeSwitchPattern(patternExp),
+                    expr: k.convert(CallExp(Symbol("begin").withPosOf(caseExp), caseBodyExps).withPosOf(caseExp)),
+                    guard: guard
+                };
+            default:
+                throw CompileError.fromExp(caseExp, "case expressions for (case...) must take the form ([pattern] [body...])");
+        }
+    }
+
     /**
         Throw a CompileError if the given expression has the wrong number of arguments
     **/

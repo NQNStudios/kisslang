@@ -252,20 +252,7 @@ class SpecialForms {
                 default:
                     null;
             };
-            ESwitch(k.forCaseParsing().convert(args[0]), [
-                for (caseExp in args.slice(1))
-                    switch (caseExp.def) {
-                        // TODO support CallExp(Symbol("or")) to generate more than one case value
-                        // TODO support guards
-                        case CallExp(patternExp, caseBodyExps):
-                            {
-                                values: [k.forCaseParsing().convert(patternExp)],
-                                expr: k.convert(CallExp(Symbol("begin").withPosOf(caseExp), caseBodyExps).withPosOf(caseExp))
-                            };
-                        default:
-                            throw CompileError.fromExp(caseExp, "case expressions for (case...) must take the form ([pattern] [body...])");
-                    }
-            ], defaultExpr).withMacroPosOf(wholeExp);
+            ESwitch(k.forCaseParsing().convert(args[0]), args.slice(1).map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
         };
 
         // TODO macros for ifLet, expectLet, which extract from enums
