@@ -166,7 +166,11 @@ class Kiss {
             case Symbol(alias) if (k.identAliases.exists(alias)):
                 readerExpToHaxeExpr(k.identAliases[alias].withPosOf(exp), k);
             case Symbol(name):
-                Context.parse(name, exp.macroPos());
+                try {
+                    Context.parse(name, exp.macroPos());
+                } catch (err:haxe.Exception) {
+                    throw CompileError.fromExp(exp, "invalid symbol");
+                };
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
