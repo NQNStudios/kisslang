@@ -422,3 +422,18 @@
 (defun _testCallAlias []
     (let [map [=>"hey" "you"]]
         (Assert.equals "you" (dictGet map "hey"))))
+
+(defun _testAssignArith []
+    (deflocal &mut num 5)
+    (+= num 5 6)
+    (Assert.equals 16 num)
+    (%= num 5)
+    (Assert.equals 1 num)
+    (^= num 3)
+    (Assert.equals 1 num)
+    (*= num 25 2)
+    (Assert.equals 50 num)
+    (/= num 25 2)
+    (Assert.equals 1 num)
+    (-= num 5 6)
+    (Assert.equals -10 num))

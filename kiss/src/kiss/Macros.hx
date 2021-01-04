@@ -19,6 +19,13 @@ class Macros {
     public static function builtins() {
         var macros:Map<String, MacroFunction> = [];
 
+        function destructiveVersion(op:String, assignOp:String) {
+            macros[assignOp] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+                wholeExp.checkNumArgs(2, null, '($assignOp [var] [v1] [values...])');
+                CallExp(Symbol("set").withPosOf(wholeExp), [exps[0], CallExp(Symbol(op).withPosOf(wholeExp), exps).withPosOf(wholeExp)]).withPosOf(wholeExp);
+            };
+        }
+
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
             CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
@@ -28,6 +35,7 @@ class Macros {
                 ]).withPosOf(wholeExp)
             ]).withPosOf(wholeExp);
         };
+        destructiveVersion("%", "%=");
 
         macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(^ [base] [exponent])');
@@ -38,14 +46,19 @@ class Macros {
                 ]).withPosOf(wholeExp)
             ]).withPosOf(wholeExp);
         };
+        destructiveVersion("^", "^=");
 
         macros["+"] = variadicMacro("Prelude.add");
+        destructiveVersion("+", "+=");
 
         macros["-"] = variadicMacro("Prelude.subtract");
+        destructiveVersion("-", "-=");
 
         macros["*"] = variadicMacro("Prelude.multiply");
+        destructiveVersion("*", "*=");
 
         macros["/"] = variadicMacro("Prelude.divide");
+        destructiveVersion("/", "/=");
 
         macros["min"] = variadicMacro("Prelude.min");
         macros["max"] = variadicMacro("Prelude.max");

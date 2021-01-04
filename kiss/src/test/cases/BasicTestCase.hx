@@ -265,6 +265,10 @@ class BasicTestCase extends Test {
     function testLoadedFunction() {
         Assert.equals("loaded", BasicTestCase.loadedFunction());
     }
+
+    function testAssignArith() {
+        _testAssignArith();
+    }
 }
 
 class BasicObject {
