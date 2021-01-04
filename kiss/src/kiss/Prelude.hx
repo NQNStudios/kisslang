@@ -80,12 +80,12 @@ class Prelude {
 
     public static var divide = variadic(_divide);
 
-    public static function mod(bottom:Float, top:Float):Float {
-        return top % bottom;
+    public static function mod(bottom:Operand, top:Operand):Operand {
+        return Right(top.toFloat() % bottom.toFloat());
     }
 
-    public static function pow(exponent:Float, base:Float):Float {
-        return Math.pow(base, exponent);
+    public static function pow(exponent:Operand, base:Operand):Operand {
+        return Right(Math.pow(base.toFloat(), exponent.toFloat()));
     }
 
     static function _min(a:Operand, b:Operand):Operand {

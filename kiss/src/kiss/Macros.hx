@@ -21,12 +21,22 @@ class Macros {
 
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
-            CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
+            CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
+                CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [
+                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[1]]).withPosOf(wholeExp),
+                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[0]]).withPosOf(wholeExp)
+                ]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
         };
 
         macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(^ [base] [exponent])');
-            CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [exps[1], exps[0]]).withPosOf(wholeExp);
+            CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
+                CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [
+                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[1]]).withPosOf(wholeExp),
+                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[0]]).withPosOf(wholeExp)
+                ]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
         };
 
         macros["+"] = variadicMacro("Prelude.add");
