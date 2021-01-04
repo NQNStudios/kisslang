@@ -49,17 +49,15 @@
             // Lisps don't have that either
             (when !(and (= 0 velocity.x) (= 0 velocity.y))
                 (case facing
-                    // TODO allow | in case?
-                    (FlxObject.LEFT
-                        (animation.play "lr"))
-                    (FlxObject.RIGHT
+                    ((or FlxObject.LEFT FlxObject.RIGHT)
                         (animation.play "lr"))
                     (FlxObject.UP
                         (animation.play "u"))
                     (FlxObject.DOWN
                         (animation.play "d"))
                     (otherwise
-                        (return)))))
+                        (return))))
+            (return))
 
 (defmethod &override update [:Float elapsed]
     (updateMovement)
