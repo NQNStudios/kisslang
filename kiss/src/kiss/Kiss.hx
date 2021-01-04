@@ -11,6 +11,7 @@ import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
 import kiss.CompileError;
+import kiss.cloner.Cloner;
 
 using kiss.Helpers;
 using kiss.Reader;
@@ -222,10 +223,10 @@ class Kiss {
     }
 
     public static function forCaseParsing(k:KissState):KissState {
-        var copy = Reflect.copy(k);
+        var copy = new Cloner().clone(k);
         copy.wrapListExps = false;
-        k.macros.remove("or");
-        k.specialForms["or"] = SpecialForms.caseOr;
+        copy.macros.remove("or");
+        copy.specialForms["or"] = SpecialForms.caseOr;
         return copy;
     }
 
