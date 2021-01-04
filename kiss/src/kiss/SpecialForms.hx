@@ -335,4 +335,13 @@ class SpecialForms {
 
         return map;
     }
+
+    public static function caseOr(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
+        wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
+        return if (args.length == 2) {
+            macro ${k.convert(args[0])} | ${k.convert(args[1])};
+        } else {
+            macro ${k.convert(args[0])} | ${caseOr(wholeExp, args.slice(1), k)};
+        };
+    };
 }

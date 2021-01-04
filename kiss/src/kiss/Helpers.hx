@@ -164,9 +164,6 @@ class Helpers {
                         throw CompileError.fromExp(caseExp, "case expression can only have one `when` guard");
                     guard = macro Prelude.truthy(${k.convert(whenExps[0])});
                     makeSwitchPattern(whenExps[1]);
-                case CallExp({pos: _, def: Symbol("or")}, orExps):
-                    patternExp.checkNumArgs(2, null, "(or [pattern1] [pattern2] [patterns...])");
-                    orExps.map(k.forCaseParsing().convert);
                 default:
                     [k.forCaseParsing().convert(patternExp)];
             }

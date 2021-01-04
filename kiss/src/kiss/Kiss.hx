@@ -220,6 +220,8 @@ class Kiss {
     public static function forCaseParsing(k:KissState):KissState {
         var copy = Reflect.copy(k);
         copy.wrapListExps = false;
+        k.macros.remove("or");
+        k.specialForms["or"] = SpecialForms.caseOr;
         return copy;
     }
 
