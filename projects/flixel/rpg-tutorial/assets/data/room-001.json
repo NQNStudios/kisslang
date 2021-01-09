@@ -15,7 +15,23 @@
       "gridCellsX": 40,
       "gridCellsY": 30,
       "entities": [
-        {"name": "player", "id": 0, "_eid": "65218053", "x": 432, "y": 288, "originX": 0, "originY": 0}
+        {"name": "player", "id": 0, "_eid": "65218053", "x": 432, "y": 288, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 1, "_eid": "72607845", "x": 384, "y": 288, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 2, "_eid": "72607845", "x": 336, "y": 288, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 3, "_eid": "72607845", "x": 352, "y": 256, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 4, "_eid": "72607845", "x": 400, "y": 240, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 5, "_eid": "72607845", "x": 368, "y": 208, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 6, "_eid": "72607845", "x": 304, "y": 208, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 7, "_eid": "72607845", "x": 256, "y": 176, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 8, "_eid": "72607845", "x": 272, "y": 224, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 9, "_eid": "72607845", "x": 368, "y": 160, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 10, "_eid": "72607845", "x": 336, "y": 112, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 11, "_eid": "72607845", "x": 400, "y": 48, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 12, "_eid": "72607845", "x": 320, "y": 48, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 13, "_eid": "72607845", "x": 272, "y": 112, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 14, "_eid": "72607845", "x": 208, "y": 96, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 15, "_eid": "72607845", "x": 176, "y": 128, "originX": 0, "originY": 0},
+        {"name": "coin", "id": 16, "_eid": "72607845", "x": 352, "y": 80, "originX": 0, "originY": 0}
       ]
     },
     {

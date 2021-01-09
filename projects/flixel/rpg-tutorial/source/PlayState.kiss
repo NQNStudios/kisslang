@@ -1,6 +1,7 @@
 (defprop &mut :Player player null)
 (defprop &mut :FlxOgmo3Loader map null)
 (defprop &mut :FlxTilemap walls null)
+(defprop &mut :FlxTypedGroup<Coin> coins null)
 
 // TODO make a &void meta
 (defmethod &override create []
@@ -10,17 +11,28 @@
     (walls.setTileProperties 1 FlxObject.NONE)
     (walls.setTileProperties 2 FlxObject.ANY)
     (add walls)
+    (set coins (new FlxTypedGroup<Coin>))
+    (add coins)
     (map.loadEntities placeEntities "entities")
     (FlxG.camera.follow player TOPDOWN 1)
     (super.create)
     (return))
 
 (defmethod placeEntities [:EntityData entity]
-    (when (= "player" entity.name)
-        (set player (new Player entity.x entity.y))
-        (add player)))
+    (case entity.name
+        ("player" 
+            (set player (new Player entity.x entity.y))
+            (add player))
+        ("coin"
+            (coins.add (new Coin (+ entity.x 4) (+ entity.y 4)))))
+    (return))
 
 (defmethod &override update [:Float elapsed]
     (super.update elapsed)
     (FlxG.collide player walls)
+    (FlxG.overlap player coins playerTouchCoin)
     (return))
+
+(defmethod playerTouchCoin [:Player player :Coin coin]
+    (when (and player.alive player.exists coin.alive coin.exists)
+        (coin.kill)))

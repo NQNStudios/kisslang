@@ -1,0 +1,20 @@
+(defmethod new [:Float x :Float y]
+    (super x y)
+    (loadGraphic AssetPaths.coin__png false 8 8)
+    (return))
+
+(defmethod &override kill []
+    (set alive false)
+    (FlxTween.tween
+        this
+        (object
+            alpha 0
+            y (- y 16))
+        0.33
+        (object
+            ease FlxEase.circOut
+            onComplete finishKill))
+    (return))
+
+(defmethod finishKill [_]
+    (set exists false))
