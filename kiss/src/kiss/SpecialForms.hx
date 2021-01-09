@@ -255,8 +255,6 @@ class SpecialForms {
             ESwitch(k.forCaseParsing().convert(args[0]), args.slice(1).map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
         };
 
-        // TODO macros for ifLet, expectLet, which extract from enums
-
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 2, '(the [type] [value])');

@@ -8,5 +8,7 @@ import kiss.Kiss;
 import kiss.Prelude;
 import Externs;
 
+using StringTools;
+
 @:build(kiss.Kiss.build("src/Main.kiss"))
 class Main {}

@@ -369,6 +369,41 @@ class Macros {
             return null;
         };
 
+        // TODO macros for ifLet, whenLet (for assign then truthy check), caseLet (for extracting from enums)
+
+        function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            wholeExp.checkNumArgs(2, null, "(awaitLet [[promise bindings...]] [body...])");
+            var bindingList = switch (exps[0].def) {
+                case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
+                    bindingExps;
+                default:
+                    throw CompileError.fromExp(exps[0], 'awaitLet bindings should be a list expression with an even number of sub expressions (at least 2)');
+            };
+            var firstName = bindingList.shift();
+            var firstValue = bindingList.shift();
+            return CallExp(FieldExp("then", firstValue).withPosOf(wholeExp), [
+                CallExp(Symbol("lambda").withPosOf(wholeExp), [
+                    ListExp([firstName]).withPosOf(wholeExp),
+                    if (bindingList.length == 0) {
+                        CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(1)).withPosOf(wholeExp);
+                    } else {
+                        awaitLet(wholeExp, [ListExp(bindingList).withPosOf(wholeExp)].concat(exps.slice(1)), k);
+                    }
+                ]).withPosOf(wholeExp),
+                // Handle rejections:
+                CallExp(Symbol("lambda").withPosOf(wholeExp), [
+                    ListExp([Symbol("reason").withPosOf(wholeExp)]).withPosOf(wholeExp),
+                    CallExp(Symbol("throw").withPosOf(wholeExp), [
+                        // TODO generalize CompileError to KissError which will also handle runtime errors
+                        // with the same source position format
+                        StrExp("rejected promise").withPosOf(wholeExp)
+                    ]).withPosOf(wholeExp)
+                ]).withPosOf(wholeExp)
+            ]).withPosOf(wholeExp);
+        }
+
+        macros["awaitLet"] = awaitLet;
+
         return macros;
     }
 

@@ -1,28 +1,25 @@
-(defun loadAll [paths :Function callback &opt :Array<PDFDocument> pdfs]
+(defun loadAll [:Array<String> paths :Function callback &opt :Array<PDFDocument> pdfs]
     (unless pdfs (set pdfs []))
     (deflocal nextPdf (paths.shift))
-    (print nextPdf)
-    (.then (PDFDocument.load (Fs.readFileSync nextPdf))
-        (lambda [pdf]
-            (pdfs.push pdf)
-            (if paths (loadAll paths callback pdfs)
-                (callback pdfs)))
-        (lambda [error]
-            (throw #|'error $error loading $nextPdf'|#))))
+    (if (nextPdf.endsWith ".pdf")
+            (awaitLet [pdf (PDFDocument.load (Fs.readFileSync (print nextPdf)))]
+                (pdfs.push pdf)
+                (if paths
+                        (loadAll paths callback pdfs)
+                    (callback pdfs)))
+        (when paths
+            (loadAll paths callback pdfs))))
 
 (defun main []
     (let [[sourceDir numPages] (Sys.args)]
         (loadAll (for file (Fs.readdirSync sourceDir) (+ sourceDir "/" file))
             (lambda [:Array<PDFDocument> inputPdfs]
-                // TODO make an awaitLet macro that .thens a promise or chain of promises (so the bindings are sequential) into a binding
-                (.then (PDFDocument.create) (lambda [saladPdf]
-                    (.then 
-                        (Promise.all
-                            (for _ #|0... Std.parseInt(numPages)|# 
-                                (let [:PDFDocument pdf (nth inputPdfs (Std.random inputPdfs.length))
-                                        page (Std.random (pdf.getPageCount))]
-                                    (saladPdf.copyPages pdf [page]))))
-                        (lambda [pages]
-                            (doFor page pages (saladPdf.addPage (first page)))
-                            (.then (saladPdf.save) (lambda [bytesOut]
-                                (Fs.writeFileSync "out.pdf" bytesOut)))))))))))
+                (awaitLet [saladPdf (PDFDocument.create)
+                            pages (Promise.all
+                                (for _ (range 0 (Std.parseInt numPages))
+                                    (let [:PDFDocument pdf (nth inputPdfs (Std.random inputPdfs.length))
+                                            page (Std.random (pdf.getPageCount))]
+                                        (saladPdf.copyPages pdf [page]))))]
+                    (doFor page pages (saladPdf.addPage (first page)))
+                    (awaitLet [bytesOut (saladPdf.save)]
+                        (Fs.writeFileSync "out.pdf" bytesOut)))))))
