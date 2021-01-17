@@ -342,6 +342,9 @@ class Helpers {
             meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
             field: (f:String, exp:ReaderExp) -> FieldExp(f, exp).withPosOf(posRef),
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
+            opToDynamic: (operandExp:ReaderExp) -> CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(posRef), [operandExp]).withPosOf(posRef),
+            opFromDynamic: (operandExp:ReaderExp) -> CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(posRef), [operandExp]).withPosOf(posRef),
+            begin: (exps:Array<ReaderExp>) -> CallExp(Symbol("begin").withPosOf(posRef), exps).withPosOf(posRef)
         };
     }
 }

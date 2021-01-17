@@ -35,23 +35,25 @@ class Macros {
 
         macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
-            CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
-                CallExp(Symbol("Prelude.mod").withPosOf(wholeExp), [
-                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[1]]).withPosOf(wholeExp),
-                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[0]]).withPosOf(wholeExp)
-                ]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+            var b = wholeExp.expBuilder();
+            b.opToDynamic(
+                b.call(
+                    b.symbol("Prelude.mod"), [
+                        b.opFromDynamic(exps[1]),
+                        b.opFromDynamic(exps[0])
+                    ]));
         };
+
         destructiveVersion("%", "%=");
 
         macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(^ [base] [exponent])');
-            CallExp(Symbol("kiss.Operand.toDynamic").withPosOf(wholeExp), [
-                CallExp(Symbol("Prelude.pow").withPosOf(wholeExp), [
-                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[1]]).withPosOf(wholeExp),
-                    CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exps[0]]).withPosOf(wholeExp)
-                ]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+            var b = wholeExp.expBuilder();
+            b.opToDynamic(
+                b.call(b.symbol("Prelude.pow"), [
+                    b.opFromDynamic(exps[1]),
+                    b.opFromDynamic(exps[0])
+                ]));
         };
         destructiveVersion("^", "^=");
 
@@ -80,56 +82,79 @@ class Macros {
         // the (apply [func] [args]) macro keeps its own list of aliases for the math operators
         // that can't just be function aliases because they emulate &rest behavior
         var opAliases = [
-            "+" => "Prelude.add", "-" => "Prelude.subtract", "*" => "Prelude.multiply", "/" => "Prelude.divide", ">" => "Prelude.greaterThan",
-            ">=" => "Prelude.greaterEqual", "<" => "Prelude.lessThan", "<=" => "Prelude.lesserEqual", "=" => "Prelude.areEqual", "max" => "Prelude.max",
+            "+" => "Prelude.add",
+            "-" => "Prelude.subtract",
+            "*" => "Prelude.multiply",
+            "/" => "Prelude.divide",
+            ">" => "Prelude.greaterThan",
+            ">=" => "Prelude.greaterEqual",
+            "<" => "Prelude.lessThan",
+            "<=" => "Prelude.lesserEqual",
+            "=" => "Prelude.areEqual",
+            "max" => "Prelude.max",
             "min" => "Prelude.min"
         ];
 
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 2, '(apply [func] [argList])');
+            var b = wholeExp.expBuilder();
 
             var callOn = switch (exps[0].def) {
                 case FieldExp(field, exp):
                     exp;
                 default:
-                    Symbol("null").withPosOf(wholeExp);
+                    b.symbol("null");
             };
             var func = switch (exps[0].def) {
                 case Symbol(sym) if (opAliases.exists(sym)):
-                    Symbol(opAliases[sym]).withPosOf(wholeExp);
+                    b.symbol(opAliases[sym]);
                 default:
                     exps[0];
             };
             var args = switch (exps[0].def) {
                 case Symbol(sym) if (opAliases.exists(sym)):
-                    ListExp([
-                        CallExp(FieldExp("map", exps[1]).withPosOf(wholeExp), [Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp)]).withPosOf(wholeExp)
-                    ]).withPosOf(wholeExp);
+                    b.list([
+                        b.call(
+                            b.field("map", exps[1]), [
+                                b.symbol("kiss.Operand.fromDynamic")
+                            ])
+                    ]);
                 default:
                     exps[1];
             };
-            CallExp(Symbol("Reflect.callMethod").withPosOf(wholeExp), [callOn, func, args]).withPosOf(wholeExp);
+            b.call(
+                b.symbol("Reflect.callMethod"), [
+                    callOn, func, args
+                ]);
         };
 
         macros["range"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(1, 3, '(range [?min] [max] [?step])');
-            var min = if (exps.length > 1) exps[0] else Symbol("0").withPosOf(wholeExp);
+            var b = wholeExp.expBuilder();
+            var min = if (exps.length > 1) exps[0] else b.symbol("0");
             var max = if (exps.length > 1) exps[1] else exps[0];
-            var step = if (exps.length > 2) exps[2] else Symbol("1").withPosOf(wholeExp);
-            CallExp(Symbol("Prelude.range").withPosOf(wholeExp), [min, max, step]).withPosOf(wholeExp);
+            var step = if (exps.length > 2) exps[2] else b.symbol("1");
+            b.call(
+                b.symbol("Prelude.range"), [
+                    min, max, step
+                ]);
         };
 
         function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
+            var b = wholeExp.expBuilder();
             var condition = if (negated) {
-                CallExp(Symbol("not").withPosOf(args[0]), [args[0]]).withPosOf(args[0]);
+                b.call(
+                    b.symbol("not"), [
+                        args[0]
+                    ]);
             } else {
                 args[0];
             }
-            return CallExp(Symbol("if").withPosOf(wholeExp), [
+            return b.call(b.symbol("if"), [
                 condition,
-                CallExp(Symbol("begin").withPosOf(wholeExp), args.slice(1)).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+                b.begin(args.slice(1))
+            ]);
         }
         macros["when"] = bodyIf.bind("when", false);
         macros["unless"] = bodyIf.bind("unless", true);
@@ -139,52 +164,69 @@ class Macros {
         // (or... ) uses (cond... ) under the hood
         macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
+            var b = wholeExp.expBuilder();
             var uniqueVarName = "_" + Uuid.v4().toShort();
-            var uniqueVarSymbol = Symbol(uniqueVarName).withPos(args[0].pos);
+            var uniqueVarSymbol = b.symbol(uniqueVarName);
 
-            CallExp(Symbol("begin").withPosOf(wholeExp), [
-                CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    MetaExp("mut", TypedExp("Dynamic", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
-                    Symbol("null").withPosOf(wholeExp)
-                ]).withPos(args[0].pos),
-                CallExp(Symbol("cond").withPosOf(wholeExp), [
+            b.begin([
+                b.call(b.symbol("deflocal"), [
+                    b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
+                    b.symbol("null")
+                ]),
+                b.call(b.symbol("cond"), [
                     for (arg in args) {
-                        CallExp(CallExp(Symbol("set").withPosOf(wholeExp), [uniqueVarSymbol, arg]).withPosOf(wholeExp), [uniqueVarSymbol]).withPosOf(wholeExp);
+                        b.call(
+                            b.call(b.symbol("set"), [
+                                uniqueVarSymbol,
+                                arg
+                            ]), [
+                                uniqueVarSymbol
+                            ]);
                     }
-                ]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+                ])
+            ]);
         };
 
         // (and... uses (cond... ) and (not ...) under the hood)
         macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
+            var b = wholeExp.expBuilder();
             var uniqueVarName = "_" + Uuid.v4().toShort();
-            var uniqueVarSymbol = Symbol(uniqueVarName).withPosOf(wholeExp);
+            var uniqueVarSymbol = b.symbol(uniqueVarName);
 
             var condCases = [
                 for (arg in args) {
-                    CallExp(CallExp(Symbol("not").withPosOf(wholeExp),
-                        [
-                            CallExp(Symbol("set").withPosOf(wholeExp), [uniqueVarSymbol, arg]).withPosOf(wholeExp)
-                        ]).withPosOf(wholeExp), [Symbol("null").withPosOf(wholeExp)]).withPosOf(wholeExp);
+                    b.call(
+                        b.call(
+                            b.symbol("not"), [
+                                b.call(
+                                    b.symbol("set"), [uniqueVarSymbol, arg])
+                            ]), [
+                                b.symbol("null")
+                            ]);
                 }
             ];
-            condCases.push(CallExp(Symbol("true").withPosOf(wholeExp), [uniqueVarSymbol]).withPosOf(wholeExp));
+            condCases.push(b.call(b.symbol("true"), [uniqueVarSymbol]));
 
-            CallExp(Symbol("begin").withPosOf(wholeExp), [
-                CallExp(Symbol("deflocal").withPosOf(wholeExp), [
-                    MetaExp("mut", TypedExp("Dynamic", uniqueVarSymbol).withPosOf(wholeExp)).withPosOf(wholeExp),
-                    Symbol("null").withPosOf(wholeExp)
-                ]).withPosOf(wholeExp),
-                CallExp(Symbol("cond").withPosOf(wholeExp), condCases).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+            b.begin([
+                b.call(
+                    b.symbol("deflocal"), [
+                        b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
+                        b.symbol("null")
+                    ]),
+                b.call(
+                    b.symbol("cond"),
+                    condCases)
+            ]);
         };
 
         function arraySet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            return CallExp(Symbol("set").withPosOf(wholeExp), [
-                CallExp(Symbol("nth").withPosOf(wholeExp), [exps[0], exps[1]]).withPosOf(wholeExp),
-                exps[2]
-            ]).withPosOf(wholeExp);
+            var b = wholeExp.expBuilder();
+            return b.call(
+                b.symbol("set"), [
+                    b.call(b.symbol("nth"), [exps[0], exps[1]]),
+                    exps[2]
+                ]);
         }
         macros["setNth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, 3, "(setNth [list] [index] [value])");
@@ -195,6 +237,7 @@ class Macros {
             arraySet(wholeExp, exps, k);
         };
 
+        // TODO use expBuilder()
         macros["assert"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 2, "(assert [expression] [message])");
             var expression = exps[0];
@@ -378,8 +421,10 @@ class Macros {
 
         // TODO macros for ifLet, whenLet (for assign then truthy check), caseLet (for extracting from enums)
 
+        // TODO use expBuilder()
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             wholeExp.checkNumArgs(2, null, "(awaitLet [[promise bindings...]] [body...])");
+            // TODO make a dry bindingList extractor function
             var bindingList = switch (exps[0].def) {
                 case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
                     bindingExps;
@@ -414,6 +459,7 @@ class Macros {
         return macros;
     }
 
+    // TODO use expBuilder()
     // cond expands telescopically into a nested if expression
     static function cond(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
         wholeExp.checkNumArgs(1, null, "(cond [cases...])");
@@ -433,6 +479,7 @@ class Macros {
         };
     }
 
+    // TODO use expBuilder()
     static function variadicMacro(func:String):MacroFunction {
         return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             CallExp(Symbol(func).withPosOf(wholeExp), [
