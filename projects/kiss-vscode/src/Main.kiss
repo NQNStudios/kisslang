@@ -1,0 +1,19 @@
+(defun userConfigDir []
+    (Path.join [
+        (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile"))
+        ".kiss"]))
+
+(defvar &mut activeConfigDir "")
+
+// (defun tryLoadConfig [&opt selectedText]
+  //  )
+
+(defun _activate [:ExtensionContext context]
+    (set activeConfigDir (Path.join [context.extensionPath "config"]))
+    (print "yyooooo")
+
+    (context.subscriptions.push
+        (Vscode.commands.registerCommand
+            "kiss-vscode.sayHello"
+            (lambda [] 
+                (Vscode.window.showInformationMessage "Hello from Haxe!")))))
