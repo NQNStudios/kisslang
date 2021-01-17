@@ -166,12 +166,7 @@ class SpecialForms {
 
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(let [[bindings...]] [body...])");
-            var bindingList = switch (args[0].def) {
-                case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
-                    bindingExps;
-                default:
-                    throw CompileError.fromExp(args[0], 'let bindings should be a list expression with an even number of sub expressions');
-            };
+            var bindingList = args[0].bindingList("let");
             var bindingPairs = bindingList.groups(2);
             var varDefs = [];
             for (bindingPair in bindingPairs) {

@@ -424,13 +424,7 @@ class Macros {
         // TODO use expBuilder()
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             wholeExp.checkNumArgs(2, null, "(awaitLet [[promise bindings...]] [body...])");
-            // TODO make a dry bindingList extractor function
-            var bindingList = switch (exps[0].def) {
-                case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
-                    bindingExps;
-                default:
-                    throw CompileError.fromExp(exps[0], 'awaitLet bindings should be a list expression with an even number of sub expressions (at least 2)');
-            };
+            var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
             return CallExp(FieldExp("then", firstValue).withPosOf(wholeExp), [

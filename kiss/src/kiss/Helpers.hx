@@ -347,4 +347,13 @@ class Helpers {
             begin: (exps:Array<ReaderExp>) -> CallExp(Symbol("begin").withPosOf(posRef), exps).withPosOf(posRef)
         };
     }
+
+    public static function bindingList(exp:ReaderExp, forThis:String):Array<ReaderExp> {
+        return switch (exp.def) {
+            case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):
+                bindingExps;
+            default:
+                throw CompileError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
+        };
+    }
 }
