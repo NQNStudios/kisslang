@@ -419,7 +419,53 @@ class Macros {
             return null;
         };
 
-        // TODO macros for ifLet, whenLet (for assign then truthy check), caseLet (for extracting from enums)
+        // Macros that null-check and extract patterns from enums (inspired by Rust)
+        function ifLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            wholeExp.checkNumArgs(2, null, "(ifLet [[enum bindings...]] [thenExp] [?elseExp])");
+            var b = wholeExp.expBuilder();
+
+            var thenExp = exps[1];
+            var elseExp = if (exps.length > 2) {
+                exps[2];
+            } else {
+                b.symbol("null");
+            };
+
+            var bindingList = exps[0].bindingList("ifLet");
+            var firstPattern = bindingList.shift();
+            var firstValue = bindingList.shift();
+
+            return b.call(
+                b.symbol("if"), [
+                    firstValue,
+                    b.call(
+                        b.symbol("case"), [
+                            firstValue,
+                            b.call(
+                                firstPattern, [
+                                    if (bindingList.length == 0) {
+                                        exps[1];
+                                    } else {
+                                        ifLet(wholeExp, [
+                                            b.list(bindingList)
+                                        ].concat(exps.slice(1)), k);
+                                    }
+                                ]),
+                            b.call(
+                                b.symbol("otherwise"), [
+                                    elseExp
+                                ])
+                        ]),
+                    elseExp
+                ]);
+        }
+
+        macros["ifLet"] = ifLet;
+
+        // TODO whenLet
+        // wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
+        // TODO unlessLet
+        // wholeExp.checkNumArgs(2, null, "(unlessLet [[enum bindings...]] [body...])");
 
         // TODO use expBuilder()
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {

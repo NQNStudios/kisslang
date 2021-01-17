@@ -269,6 +269,10 @@ class BasicTestCase extends Test {
     function testAssignArith() {
         _testAssignArith();
     }
+
+    function testPatternLets() {
+        _testPatternLets();
+    }
 }
 
 class BasicObject {
