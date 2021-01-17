@@ -328,4 +328,20 @@ class Helpers {
         };
         return def.withPosOf(exp);
     }
+
+    // Return convenient functions for succinctly making new ReaderExps that link back to an original exp's
+    // position in source code
+    public static function expBuilder(posRef:ReaderExp) {
+        return {
+            call: (func:ReaderExp, args:Array<ReaderExp>) -> CallExp(func, args).withPosOf(posRef),
+            list: (exps:Array<ReaderExp>) -> ListExp(exps).withPosOf(posRef),
+            str: (s:String) -> StrExp(s).withPosOf(posRef),
+            symbol: (name:String) -> Symbol(name).withPosOf(posRef),
+            raw: (code:String) -> RawHaxe(code).withPosOf(posRef),
+            typed: (path:String, exp:ReaderExp) -> TypedExp(path, exp).withPosOf(posRef),
+            meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
+            field: (f:String, exp:ReaderExp) -> FieldExp(f, exp).withPosOf(posRef),
+            keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
+        };
+    }
 }

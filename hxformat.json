@@ -1,5 +1,13 @@
 {
     "indentation": {
         "character": "    "
+    },
+    "wrapping": {
+        "callParameter": {
+            "defaultWrap": "keep"
+        },
+        "arrayWrap": {
+            "defaultWrap": "keep"
+        } 
     }
 }

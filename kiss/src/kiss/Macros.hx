@@ -22,7 +22,14 @@ class Macros {
         function destructiveVersion(op:String, assignOp:String) {
             macros[assignOp] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
                 wholeExp.checkNumArgs(2, null, '($assignOp [var] [v1] [values...])');
-                CallExp(Symbol("set").withPosOf(wholeExp), [exps[0], CallExp(Symbol(op).withPosOf(wholeExp), exps).withPosOf(wholeExp)]).withPosOf(wholeExp);
+                var b = wholeExp.expBuilder();
+                b.call(
+                    b.symbol("set"), [
+                        exps[0],
+                        b.call(
+                            b.symbol(op),
+                            exps)
+                    ]);
             };
         }
 
