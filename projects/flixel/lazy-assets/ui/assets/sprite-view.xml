@@ -1,3 +1,6 @@
 <vbox style="padding: 5px;">
-    <button text="Click Me for a sprite!" onclick="this.text='Thanks!'" style="font-size: 24px;" />
+    <button text="Select From Existing File" onclick="this.text='Thanks!'" style="font-size: 24px;" />
+    <button text="Draw New" onclick="this.text='TODO'" style="font-size: 24px;" />
+    <button text="Program with FlxSpriteUtil" onclick="this.text='TODO'" style="font-size: 24px;" />
+    <button text="Search Public Domain" onclick="this.text='TODO'" style="font-size: 24px;" />
 </vbox>
