@@ -421,7 +421,7 @@ class Macros {
 
         // Macros that null-check and extract patterns from enums (inspired by Rust)
         function ifLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(2, null, "(ifLet [[enum bindings...]] [thenExp] [?elseExp])");
+            wholeExp.checkNumArgs(2, 3, "(ifLet [[enum bindings...]] [thenExp] [?elseExp])");
             var b = wholeExp.expBuilder();
 
             var thenExp = exps[1];
@@ -462,10 +462,27 @@ class Macros {
 
         macros["ifLet"] = ifLet;
 
-        // TODO whenLet
-        // wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
-        // TODO unlessLet
-        // wholeExp.checkNumArgs(2, null, "(unlessLet [[enum bindings...]] [body...])");
+        macros["whenLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
+            var b = wholeExp.expBuilder();
+            b.call(
+                b.symbol("ifLet"), [
+                    exps[0],
+                    b.begin(exps.slice(1)),
+                    b.symbol("null")
+                ]);
+        };
+
+        macros["unlessLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, null, "(unlessLet [[enum bindings...]] [body...])");
+            var b = wholeExp.expBuilder();
+            b.call(
+                b.symbol("ifLet"), [
+                    exps[0],
+                    b.symbol("null"),
+                    b.begin(exps.slice(1))
+                ]);
+        };
 
         // TODO use expBuilder()
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
