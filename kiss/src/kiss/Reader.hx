@@ -112,7 +112,10 @@ class Reader {
             case Some(exp):
                 exp;
             case None:
-                throw 'There were no expressions left in the stream at $position';
+                Sys.stderr().writeString('Kiss reader error!\n');
+                Sys.stderr().writeString(stream.position().toPrint() + ': Ran out of Kiss expressions\n');
+                Sys.exit(1);
+                return null;
         };
     }
 
