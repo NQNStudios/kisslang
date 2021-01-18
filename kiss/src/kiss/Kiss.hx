@@ -63,16 +63,16 @@ class Kiss {
         try {
             return operation();
         } catch (err:CompileError) {
-            Sys.println(err);
+            Sys.stderr().writeString(err + "\n");
             Sys.exit(1);
             return null;
         } catch (err:UnmatchedBracketSignal) {
-            Sys.println(Stream.toPrint(err.position) + ': Unmatched ${err.type}');
+            Sys.stderr().writeString(Stream.toPrint(err.position) + ': Unmatched ${err.type}\n');
             Sys.exit(1);
             return null;
         } catch (err:Exception) {
-            Prelude.print("Error: " + err.message);
-            Prelude.print(err.stack.toString());
+            Sys.stderr().writeString("Error: " + err.message + "\n");
+            Sys.stderr().writeString(err.stack.toString() + "\n");
             Sys.exit(1);
             return null;
         }

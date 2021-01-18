@@ -99,8 +99,8 @@ class Reader {
     public static function nextToken(stream:Stream, expect:String) {
         var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
         if (tok.length == 0) {
-            Sys.println('Kiss reader error!');
-            Sys.println(stream.position().toPrint() + ': Expected $expect');
+            Sys.stderr().writeString('Kiss reader error!\n');
+            Sys.stderr().writeString(stream.position().toPrint() + ': Expected $expect\n');
             Sys.exit(1);
         }
         return tok;
