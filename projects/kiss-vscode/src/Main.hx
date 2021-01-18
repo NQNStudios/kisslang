@@ -1,9 +1,13 @@
 import vscode.*;
 import Sys;
-import sys.io.Process;
-import kiss.Kiss;
+import sys.io.File;
+import sys.FileSystem;
 import kiss.Prelude;
 import haxe.io.Path;
+import js.Node;
+import js.node.ChildProcess;
+
+using StringTools;
 
 @:build(kiss.Kiss.build("src/Main.kiss"))
 class Main {

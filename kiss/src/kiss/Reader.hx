@@ -151,6 +151,7 @@ class Reader {
             stream.startOfLine = false;
         else
             readFunction = chooseReadFunction(stream, k.readTable);
+        // This should never happen, because there is a readFunction for "":
         if (readFunction == null)
             throw 'No macro to read next expression';
 

@@ -1,0 +1,14 @@
+(defvar :Map<String,Command> commands (new Map))
+
+// TODO use quickpick to choose one
+(defun callCommand [] (return))
+
+(defun registerCommand [description command]
+    (dictSet commands description command))
+
+(defun registerBuiltins []
+    (return))
+
+// Utility functions for VSCode actions
+// TODO quickpick
+/// TODO infoMessage

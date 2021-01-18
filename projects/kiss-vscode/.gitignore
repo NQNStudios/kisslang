@@ -1,2 +1,6 @@
 bin
 *.vsix
+config/config*.js
+config/args.hxml
+config/Config.kiss
+config/import.hx

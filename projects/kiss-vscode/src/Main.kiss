@@ -3,17 +3,54 @@
         (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile"))
         ".kiss"]))
 
-(defvar &mut activeConfigDir "")
+(defun timeStamp []
+    (.replace (.replace (.toString (Date.now)) ":" "-") " " "-"))
 
-// (defun tryLoadConfig [&opt selectedText]
-  //  )
+(defvar &mut activeConfigDir "")
+(defvar &mut :Dynamic config null)
+
+(defun tryLoadConfig [&opt :String text]
+    (let [activeConfigPath (Path.join [activeConfigDir "config.js"])
+            backupConfigPath (Path.join [activeConfigDir (+ "config" (timeStamp) ".js")])]
+        // Backup existing config.js
+        (when (FileSystem.exists activeConfigPath)
+            (FileSystem.rename activeConfigPath backupConfigPath))
+        // Supply the default (empty) config if the user doesn't have one
+        (let [customConfigDir
+                    (if (FileSystem.exists (userConfigDir))
+                            (userConfigDir)
+                        (Path.join [activeConfigDir "default"]))
+                customConfigFiles
+                    (FileSystem.readDirectory customConfigDir)]
+            // Copy the custom config files to the active config directory
+            (doFor file customConfigFiles
+                (File.copy
+                    (Path.join [customConfigDir file])
+                    (Path.join [activeConfigDir file])))
+            (let [buildResult
+                        (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
+                (if (and !buildResult.error (= 0 buildResult.status))
+                        // Successful compilation! require the config.js package
+                        (begin
+                            (set config (Node.require (Path.join [activeConfigDir "config.js"])))
+                            (Vscode.window.showInformationMessage "Config loaded successfully!"))
+                    // If there's a build error, restore the config.js backup
+                    (begin
+                        (when (FileSystem.exists backupConfigPath)
+                            (FileSystem.rename backupConfigPath activeConfigPath))
+                        (Vscode.window.showErrorMessage
+                            (+ "Config failed to compile: "
+                                (if buildResult.error 
+                                        #| "" + buildResult.error|#
+                                    #| "" + buildResult.stderr |#)))))))))
 
 (defun _activate [:ExtensionContext context]
-    (set activeConfigDir (Path.join [context.extensionPath "config"]))
-    (print "yyooooo")
-
+    // TODO command to call KissConfig.callCommand if config != null
     (context.subscriptions.push
         (Vscode.commands.registerCommand
             "kiss-vscode.sayHello"
             (lambda [] 
-                (Vscode.window.showInformationMessage "Hello from Haxe!")))))
+                (Vscode.window.showInformationMessage "Hello from Haxe!"))))
+                
+    (set activeConfigDir (Path.join [context.extensionPath "config"]))
+    (tryLoadConfig))
