@@ -1,14 +1,52 @@
+/**
+ * Aliases
+ */
+
+// output 
+(defalias &call infoMessage Vscode.window.showInformationMessage)
+(defalias &call warningMessage Vscode.window.showWarningMessage)
+(defalias &call errorMessage Vscode.window.showErrorMessage)
+
+// input
+(defalias &call inputBox Vscode.window.showInputBox)
+(defalias &call quickPick Vscode.window.showQuickPick)
+
+// ui
+(defalias &ident activeTextEditor Vscode.window.activeTextEditor)
+
+/**
+ * Helper functions
+ */
+(defun selectedText []
+    (if (and activeTextEditor .selection activeTextEditor)
+            (let [document
+                        // TODO should be able to use activeTextEditor.document and have the alias still work
+                        .document activeTextEditor
+                    selection
+                        .selection activeTextEditor
+                    range (new Range selection.start selection.end)]
+                (document.getText range))
+        ""))
+
+/**
+ * Functionality
+ */
 (defvar :Map<String,Command> commands (new Map))
 
-// TODO use quickpick to choose one
-(defun callCommand [] (return))
+(defun runCommand []
+    (let [commandList
+                (for description (commands.keys)
+                    (object
+                        label description
+                        description null
+                        detail null
+                        picked null
+                        alwaysShow null))]
+        (awaitLet [chosenCommand (quickPick commandList)]
+            ((dictGet commands chosenCommand.label) (selectedText)))))
 
 (defun registerCommand [description command]
     (dictSet commands description command))
 
 (defun registerBuiltins []
     (return))
-
-// Utility functions for VSCode actions
-// TODO quickpick
-/// TODO infoMessage

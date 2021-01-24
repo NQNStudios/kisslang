@@ -9,9 +9,18 @@ import js.node.ChildProcess;
 
 using StringTools;
 
+typedef Command = (String) -> Void;
+
+typedef KissConfig = {
+    registerBuiltins:() -> Void,
+    registerCommand:(String, Command) -> Void,
+    runCommand:() -> Void,
+    init:() -> Void
+};
+
 @:build(kiss.Kiss.build("src/Main.kiss"))
 class Main {
-    // TODO support EMeta(s:MetadataEntry, e:Expr) via Kiss
+    // TODO support EMeta(s:MetadataEntry, e:Expr) via Kiss so this signature can be moved to Main.kiss
     @:expose("activate")
     static function activate(context:ExtensionContext) {
         _activate(context);

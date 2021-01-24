@@ -1,0 +1,8 @@
+(defun init []
+    (registerCommand "print a nice message"
+        (lambda [selectedText]
+            (infoMessage "Hello world!")
+            (when selectedText
+                (infoMessage (+ "Also, " selectedText)))
+            (return)))
+    (return))

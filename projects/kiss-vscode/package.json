@@ -10,14 +10,14 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
-		"onCommand:kiss-vscode.sayHello"
+		"onCommand:kiss.runCommand"
 	],
 	"main": "bin/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "kiss-vscode.sayHello",
-				"title": "Say Hello"
+				"command": "kiss.runCommand",
+				"title": "Kiss: Run a Kiss command"
 			}
 		],
 		"languages": [{

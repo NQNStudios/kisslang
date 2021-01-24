@@ -32,7 +32,10 @@
                 (if (and !buildResult.error (= 0 buildResult.status))
                         // Successful compilation! require the config.js package
                         (begin
-                            (set config (Node.require (Path.join [activeConfigDir "config.js"])))
+                            (set config .KissConfig (Node.require (Path.join [activeConfigDir "config.js"])))
+                            (.registerBuiltins (the KissConfig config))
+                            (.registerCommand (the KissConfig config) "Reload Kiss config" tryLoadConfig)
+                            (.init (the KissConfig config))
                             (Vscode.window.showInformationMessage "Config loaded successfully!"))
                     // If there's a build error, restore the config.js backup
                     (begin
@@ -42,15 +45,18 @@
                             (+ "Config failed to compile: "
                                 (if buildResult.error 
                                         #| "" + buildResult.error|#
-                                    #| "" + buildResult.stderr |#)))))))))
+                                    #| "" + buildResult.stderr |#))))))))
+    (return))
 
 (defun _activate [:ExtensionContext context]
-    // TODO command to call KissConfig.callCommand if config != null
     (context.subscriptions.push
         (Vscode.commands.registerCommand
-            "kiss-vscode.sayHello"
+            "kiss.runCommand"
             (lambda [] 
-                (Vscode.window.showInformationMessage "Hello from Haxe!"))))
+                (if config
+                        (.runCommand (the KissConfig config))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
+                    (return))))
                 
     (set activeConfigDir (Path.join [context.extensionPath "config"]))
     (tryLoadConfig))
