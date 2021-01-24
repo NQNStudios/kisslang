@@ -133,6 +133,22 @@ class Kiss {
         });
     }
 
+    /**
+     * Build macro: add fields to a Haxe class by compiling multiple Kiss files in order with the same KissState
+     */
+    public static function buildAll(kissFiles:Array<String>, ?k:KissState, useClassFields = true):Array<Field> {
+        if (k == null)
+            k = defaultKissState();
+
+        var fields = [];
+
+        for (file in kissFiles) {
+            fields = fields.concat(build(file, k, useClassFields));
+        }
+
+        return fields;
+    }
+
     public static function readerExpToField(exp:ReaderExp, k:KissState, errorIfNot = true):Null<Field> {
         var fieldForms = k.fieldForms;
 

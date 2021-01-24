@@ -6,6 +6,5 @@ import js.lib.Promise;
 
 typedef Command = (?String) -> Void;
 
-@:build(kiss.Kiss.build("Config.kiss"))
-@:build(kiss.Kiss.build("KissConfig.kiss"))
+@:build(kiss.Kiss.buildAll(["KissConfig.kiss", "Config.kiss"]))
 class KissConfig {}
