@@ -225,7 +225,6 @@ class Prelude {
     public static dynamic function truthy(v:Any) {
         return switch (Type.typeof(v)) {
             case TNull: false;
-            case TInt | TFloat: (v : Float) > 0;
             case TBool: (v : Bool);
             default:
                 // Empty strings are falsy
