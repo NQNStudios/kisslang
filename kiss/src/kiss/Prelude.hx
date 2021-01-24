@@ -260,7 +260,8 @@ class Prelude {
         return f;
     }
 
-    public static function print<T>(v:T) {
+    // TODO Kiss-Vscode should overload print with infoMessage()
+    public static dynamic function print<T>(v:T):T {
         #if (sys || hxnodejs)
         Sys.println(v);
         #else
