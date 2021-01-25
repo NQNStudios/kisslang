@@ -47,6 +47,10 @@ class Reader {
 
         readTable["("] = (stream, k) -> CallExp(assertRead(stream, k), readExpArray(stream, ")", k));
         readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
+        // Provides a nice syntactic sugar for (if... {[then block]} {[else block]}),
+        // and also handles string interpolation cases like "${}more"
+        readTable["{"] = (stream:Stream, k) -> CallExp(Symbol("begin").withPos(stream.position()), readExpArray(stream, "}", k));
+
         readTable['"'] = readString;
         readTable["#"] = readRawString;
 
@@ -96,7 +100,7 @@ class Reader {
         return readTable;
     }
 
-    public static final terminators = [")", "]", "/*", "\n", " "];
+    public static final terminators = [")", "]", "}", '"', "/*", "\n", " "];
 
     public static function nextToken(stream:Stream, expect:String) {
         var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
@@ -217,19 +221,73 @@ class Reader {
     }
 
     static function readString(stream:Stream, k:KissState) {
-        return StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
+        var pos = stream.position();
+        var stringParts:Array<ReaderExp> = [];
+        var currentStringPart = "";
+
+        function endCurrentStringPart() {
+            stringParts.push(StrExp(currentStringPart).withPos(pos));
+            currentStringPart = "";
+        }
+
+        do {
+            var next = stream.expect('closing "', () -> stream.takeChars(1));
+
+            switch (next) {
+                case '$':
+                    endCurrentStringPart();
+                    var wrapInIf = false;
+                    var firstAfterDollar = stream.expect('interpolation expression', () -> stream.peekChars(1));
+                    if (firstAfterDollar == "?") {
+                        wrapInIf = true;
+                        stream.dropChars(1);
+                    }
+                    var interpExpression = assertRead(stream, k);
+                    interpExpression = CallExp(Symbol("Std.string").withPos(pos), [interpExpression]).withPos(pos);
+                    if (wrapInIf) {
+                        interpExpression = CallExp(Symbol("if").withPos(pos), [interpExpression, interpExpression, StrExp("").withPos(pos)]).withPos(pos);
+                    }
+                    stringParts.push(interpExpression);
+                case '\\':
+                    var escapeSequence = stream.expect('valid escape sequence', () -> stream.takeChars(1));
+                    switch (escapeSequence) {
+                        case '\\':
+                            currentStringPart += "\\";
+                        case 't':
+                            currentStringPart += "\t";
+                        case 'n':
+                            currentStringPart += "\n";
+                        case 'r':
+                            currentStringPart += "\r";
+                        case '"':
+                            currentStringPart += '"';
+                        case '$':
+                            currentStringPart += '$';
+                        default:
+                            error(stream, 'unsupported escape sequence \\$escapeSequence');
+                            return null;
+                    }
+                case '"':
+                    endCurrentStringPart();
+                    return if (stringParts.length == 1) {
+                        stringParts[0].def;
+                    } else {
+                        CallExp(Symbol("+").withPos(pos), stringParts);
+                    };
+                default:
+                    currentStringPart += next;
+            }
+        } while (true);
     }
 
     static function readRawString(stream:Stream, k:KissState) {
         var terminator = '"#';
         do {
-            var next = stream.expect('# or "', () -> stream.peekChars(1));
+            var next = stream.expect('# or "', () -> stream.takeChars(1));
             switch (next) {
                 case "#":
                     terminator += "#";
-                    stream.dropChars(1);
                 case '"':
-                    stream.dropChars(1);
                     break;
                 default:
                     error(stream, 'Invalid syntax for raw string. Delete $next');
@@ -239,7 +297,7 @@ class Reader {
         return StrExp(stream.expect('closing $terminator', () -> stream.takeUntilAndDrop(terminator)));
     }
 
-    static function error(stream:Stream, message:String) {
+    public static function error(stream:Stream, message:String) {
         Sys.stderr().writeString('Kiss reader error!\n');
         Sys.stderr().writeString(stream.position().toPrint() + ': $message\n');
         Sys.exit(1);

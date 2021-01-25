@@ -459,3 +459,11 @@
 (defun _testRawString []
     (Assert.equals #| "\\" |# #"\"#)
     (Assert.equals #| "\"#" |# ##""#"##))
+
+(defun _testKissStrings []
+    (Assert.equals #| "\\\t\r\n\"$" |# "\\\t\r\n\"\$")
+    (let [str "it's"
+            num 3
+            l1 ["a" "b" "c"]
+            l2 [1 2 3]]
+        (Assert.equals "it's 3asy as [a,b,c] [1,2,3]" "$str ${num}asy as $l1 $l2")))

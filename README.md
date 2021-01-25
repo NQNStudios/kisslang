@@ -10,29 +10,29 @@ Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 
 **Kiss aims to be:**
 
-- [ ] A statically typed Lisp
+- [x] A statically typed Lisp
 - [ ] that runs correctly almost anywhere,
-- [ ] is usable at any stage of its development,
+- [x] is usable at any stage of its development,
 - [ ] doesn't break downstream code when it updates,
 - [ ] and doesn't require full-time maintenance
 
 **Main features:**
 
 - [ ] Traditional Lisp macros
-- [ ] [Reader macros](https://gist.github.com/chaitanyagupta/9324402)
-- [ ] Plug-and-play with every pure-Haxe library on Haxelib
-- [ ] Smooth FFI with any non-Haxe library you can find or write Haxe bindings for
-- [ ] helpful compiler errors
+- [x] [Reader macros](https://gist.github.com/chaitanyagupta/9324402)
+- [x] Plug-and-play with every pure-Haxe library on Haxelib
+- [x] Smooth FFI with any non-Haxe library you can find or write Haxe bindings for
+- [x] helpful compiler errors
 
 **Extra goodies:**
 
-- [ ] string interpolation
-- [ ] Rust-style raw string literals
+- [x] string interpolation
+- [x] Rust-style raw string literals
 - [ ] null-safe arrays
 - [x] negative indexing
-- [ ] list comprehensions
+- [x] list comprehensions
 - [x] immutability by default
-- [ ] destructuring assignment
+- [x] destructuring assignment
 
 ## How does it work?
 

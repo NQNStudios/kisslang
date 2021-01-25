@@ -277,6 +277,10 @@ class BasicTestCase extends Test {
     function testRawString() {
         _testRawString();
     }
+
+    function testKissStrings() {
+        _testKissStrings();
+    }
 }
 
 class BasicObject {

@@ -2,6 +2,7 @@ package kiss;
 
 import sys.io.File;
 import haxe.ds.Option;
+import kiss.Reader;
 
 using StringTools;
 using Lambda;
@@ -124,7 +125,7 @@ class Stream {
     public function dropString(s:String) {
         var toDrop = content.substr(0, s.length);
         if (toDrop != s) {
-            throw 'Expected $s at ${position()}';
+            Reader.error(this, 'Expected $s');
         }
         dropChars(s.length);
     }
@@ -167,7 +168,8 @@ class Stream {
             case Some(s):
                 return s;
             default:
-                throw 'Expected $whatToExpect at $position';
+                Reader.error(this, 'Expected $whatToExpect');
+                return null;
         }
     }
 }
