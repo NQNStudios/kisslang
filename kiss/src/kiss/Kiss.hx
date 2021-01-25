@@ -47,11 +47,17 @@ class Kiss {
             loadedFiles: new Map<String, Bool>(),
             // Helpful built-in aliases
             callAliases: [
-                "print" => Symbol("Prelude.print"), "sort" => Symbol("Prelude.sort"), "groups" => Symbol("Prelude.groups"), "zip" => Symbol("Prelude.zip"),
+                "print" => Symbol("Prelude.print"),
+                "sort" => Symbol("Prelude.sort"),
+                "groups" => Symbol("Prelude.groups"),
+                "zip" => Symbol("Prelude.zip"),
                 "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
-                "map" => Symbol("Lambda.map"), "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
-                "has" => Symbol("Lambda.has"), "count" => Symbol("Lambda.count")],
+                "map" => Symbol("Lambda.map"),
+                "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
+                "has" => Symbol("Lambda.has"),
+                "count" => Symbol("Lambda.count")
+            ],
             identAliases: new Map()
         };
 
