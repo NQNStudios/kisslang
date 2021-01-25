@@ -99,9 +99,8 @@ class Reader {
     public static function nextToken(stream:Stream, expect:String) {
         var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
         if (tok.length == 0) {
-            Sys.stderr().writeString('Kiss reader error!\n');
-            Sys.stderr().writeString(stream.position().toPrint() + ': Expected $expect\n');
-            Sys.exit(1);
+            error(stream, 'Expected $expect');
+            return null;
         }
         return tok;
     }
@@ -112,9 +111,7 @@ class Reader {
             case Some(exp):
                 exp;
             case None:
-                Sys.stderr().writeString('Kiss reader error!\n');
-                Sys.stderr().writeString(stream.position().toPrint() + ': Ran out of Kiss expressions\n');
-                Sys.exit(1);
+                error(stream, 'Ran out of Kiss expressions');
                 return null;
         };
     }
@@ -215,6 +212,35 @@ class Reader {
             pos: exp.pos,
             def: def
         };
+    }
+
+    static function readString(stream:Stream, k:KissState) {
+        return StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
+    }
+
+    static function readRawString(stream:Stream, k:KissState) {
+        var terminator = '"#';
+        do {
+            var next = stream.expect('# or "', () -> stream.peekChars(1));
+            switch (next) {
+                case "#":
+                    terminator += "#";
+                    stream.dropChars(1);
+                case '"':
+                    stream.dropChars(1);
+                    break;
+                default:
+                    error(stream, 'Invalid syntax for raw string. Delete $next');
+                    return null;
+            }
+        } while (true);
+        return StrExp(stream.expect('closing $terminator', () -> stream.takeUntilAndDrop(terminator)));
+    }
+
+    static function error(stream:Stream, message:String) {
+        Sys.stderr().writeString('Kiss reader error!\n');
+        Sys.stderr().writeString(stream.position().toPrint() + ': $message\n');
+        Sys.exit(1);
     }
 
     public static function toString(exp:ReaderExpDef) {
