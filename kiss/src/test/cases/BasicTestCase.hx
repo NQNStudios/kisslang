@@ -273,6 +273,10 @@ class BasicTestCase extends Test {
     function testPatternLets() {
         _testPatternLets();
     }
+
+    function testRawString() {
+        _testRawString();
+    }
 }
 
 class BasicObject {

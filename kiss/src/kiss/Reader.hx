@@ -47,7 +47,9 @@ class Reader {
 
         readTable["("] = (stream, k) -> CallExp(assertRead(stream, k), readExpArray(stream, ")", k));
         readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
-        readTable["\""] = (stream, k) -> StrExp(stream.expect("closing \"", () -> stream.takeUntilAndDrop("\"")));
+        readTable['"'] = readString;
+        readTable["#"] = readRawString;
+
         readTable["/*"] = (stream, k) -> {
             stream.takeUntilAndDrop("*/");
             null;

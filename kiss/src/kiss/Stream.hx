@@ -76,7 +76,7 @@ class Stream {
     var lineLengths = [];
 
     /** Every drop call should end up calling dropChars() or the position tracker will be wrong. **/
-    private function dropChars(count:Int) {
+    public function dropChars(count:Int) {
         for (idx in 0...count) {
             switch (content.charAt(idx)) {
                 case "\n":
