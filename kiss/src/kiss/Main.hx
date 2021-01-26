@@ -1,4 +1,4 @@
 package kiss;
 
-@:build(kiss.Kiss.build("kiss/src/kiss/Main.kiss"))
+@:build(kiss.Kiss.build("src/kiss/Main.kiss"))
 class Main {}

@@ -1,7 +1,6 @@
--cp kiss/src
+-cp src
 -lib hscript
 -lib uuid
 -lib tink_macro
---macro nullSafety("kiss", Strict)
 --main kiss.Main
 --interp
