@@ -32,6 +32,8 @@
                 (if (and !buildResult.error (= 0 buildResult.status))
                         // Successful compilation! require the config.js package
                         (begin
+                            // TODO Node.require() caches the module so re-opening vscode is still required:
+                            // https://stackoverflow.com/questions/9210542/node-js-require-cache-possible-to-invalidate
                             (set config .KissConfig (Node.require (Path.join [activeConfigDir "config.js"])))
                             (.registerBuiltins (the KissConfig config))
                             (.registerCommand (the KissConfig config) "Reload Kiss config" tryLoadConfig)
