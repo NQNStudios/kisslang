@@ -8,6 +8,9 @@
         },
         "arrayWrap": {
             "defaultWrap": "keep"
-        } 
+        },
+        "opAddSubChain": {
+            "defaultWrap": "keep"
+        }
     }
 }

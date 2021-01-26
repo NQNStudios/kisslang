@@ -68,6 +68,10 @@ class Kiss {
     static function _try<T>(operation:() -> T):Null<T> {
         try {
             return operation();
+        } catch (err:StreamError) {
+            Sys.stderr().writeString(err + "\n");
+            Sys.exit(1);
+            return null;
         } catch (err:CompileError) {
             Sys.stderr().writeString(err + "\n");
             Sys.exit(1);

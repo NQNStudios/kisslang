@@ -105,7 +105,7 @@ class Reader {
     public static function nextToken(stream:Stream, expect:String) {
         var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
         if (tok.length == 0) {
-            error(stream, 'Expected $expect');
+            stream.error('Expected $expect');
             return null;
         }
         return tok;
@@ -117,7 +117,7 @@ class Reader {
             case Some(exp):
                 exp;
             case None:
-                error(stream, 'Ran out of Kiss expressions');
+                stream.error('Ran out of Kiss expressions');
                 return null;
         };
     }
@@ -264,7 +264,7 @@ class Reader {
                         case '$':
                             currentStringPart += '$';
                         default:
-                            error(stream, 'unsupported escape sequence \\$escapeSequence');
+                            stream.error('unsupported escape sequence \\$escapeSequence');
                             return null;
                     }
                 case '"':
@@ -290,17 +290,11 @@ class Reader {
                 case '"':
                     break;
                 default:
-                    error(stream, 'Invalid syntax for raw string. Delete $next');
+                    stream.error('Invalid syntax for raw string. Delete $next');
                     return null;
             }
         } while (true);
         return StrExp(stream.expect('closing $terminator', () -> stream.takeUntilAndDrop(terminator)));
-    }
-
-    public static function error(stream:Stream, message:String) {
-        Sys.stderr().writeString('Kiss reader error!\n');
-        Sys.stderr().writeString(stream.position().toPrint() + ': $message\n');
-        Sys.exit(1);
     }
 
     public static function toString(exp:ReaderExpDef) {

@@ -2,10 +2,10 @@ package kiss;
 
 import sys.io.File;
 import haxe.ds.Option;
-import kiss.Reader;
 
 using StringTools;
 using Lambda;
+using kiss.Stream;
 
 typedef Position = {
     file:String,
@@ -13,6 +13,22 @@ typedef Position = {
     column:Int,
     absoluteChar:Int
 };
+
+class StreamError {
+    var position:Position;
+    var message:String;
+
+    public function new(position:Position, message:String) {
+        this.position = position;
+        this.message = message;
+    }
+
+    public function toString() {
+        return '\nKiss reader error!\n'
+            + position.toPrint()
+            + ': $message\n';
+    }
+}
 
 class Stream {
     public var content(default, null):String;
@@ -125,7 +141,7 @@ class Stream {
     public function dropString(s:String) {
         var toDrop = content.substr(0, s.length);
         if (toDrop != s) {
-            Reader.error(this, 'Expected $s');
+            error(this, 'Expected $s');
         }
         dropChars(s.length);
     }
@@ -168,8 +184,12 @@ class Stream {
             case Some(s):
                 return s;
             default:
-                Reader.error(this, 'Expected $whatToExpect');
+                error(this, 'Expected $whatToExpect');
                 return null;
         }
+    }
+
+    public static function error(stream:Stream, message:String) {
+        throw new StreamError(stream.position(), message);
     }
 }
