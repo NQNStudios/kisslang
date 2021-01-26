@@ -7,6 +7,15 @@ Experimental Hiss support for VSCode
 
 ## Requirements
 
+* Haxe 4 installed and available in your system PATH.
+* haxelibs:
+    * hxnodejs
+    * vscode
+    * kiss
+    * hscript
+    * uuid
+    * tink_macro
+
 ## Extension Settings
 
 ## Known Issues
