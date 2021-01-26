@@ -51,6 +51,11 @@
 (defun _activate [:ExtensionContext context]
     (context.subscriptions.push
         (Vscode.commands.registerCommand
+            "kiss.reloadConfig"
+            tryLoadConfig))
+
+    (context.subscriptions.push
+        (Vscode.commands.registerCommand
             "kiss.runCommand"
             (lambda [] 
                 (if config

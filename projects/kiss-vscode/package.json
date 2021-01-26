@@ -2,7 +2,7 @@
 	"name": "kiss-vscode",
 	"displayName": "kiss-vscode",
 	"description": "Kiss language plugin",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.4.0"
 	},
@@ -10,7 +10,8 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
-		"onCommand:kiss.runCommand"
+		"onCommand:kiss.runCommand",
+		"onCommand:kiss.reloadConfig"
 	],
 	"main": "bin/extension.js",
 	"contributes": {
@@ -18,6 +19,10 @@
 			{
 				"command": "kiss.runCommand",
 				"title": "Kiss: Run a Kiss command"
+			},
+			{
+				"command": "kiss.reloadConfig",
+				"title": "Kiss: Reload Kiss config"
 			}
 		],
 		"languages": [{
