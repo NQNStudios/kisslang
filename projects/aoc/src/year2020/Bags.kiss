@@ -2,7 +2,7 @@
     (bag.substr 0 (Math.floor (- (bag.indexOf "bag") 1))))
 
 (defun parseRule [:String line :ParentMap parentMap :ChildMap childMap]
-    (unless (line.indexOf "contain no other bags")
+    (unless (<= 0 (line.indexOf "contain no other bags"))
         (let [[containerStr contents] (line.split "contain ")
                 contentStrs (contents.split ", ")]
                 (deflocal :Map<String,Int> innerMap (new Map))
