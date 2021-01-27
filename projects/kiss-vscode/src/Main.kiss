@@ -30,11 +30,14 @@
             (let [buildResult
                         (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
                 (if (and !buildResult.error (= 0 buildResult.status))
-                        // Successful compilation! require the config.js package
-                        (begin
-                            // TODO Node.require() caches the module so re-opening vscode is still required:
-                            // https://stackoverflow.com/questions/9210542/node-js-require-cache-possible-to-invalidate
-                            (set config .KissConfig (Node.require (Path.join [activeConfigDir "config.js"])))
+                        // Successful compilation! require the config.js package.
+                        // But since Node.require() caches modules by filename,
+                        // copy it to a unique path first so hot-reloading works properly.
+                        (let [activeConfigFile (Path.join [activeConfigDir "config.js"])
+                                uniqueConfigFile (Path.join [activeConfigDir "$(.toShort (Uuid.v4)).js"])]
+                            (File.copy activeConfigFile uniqueConfigFile)
+                            (set config .KissConfig (Node.require uniqueConfigFile))
+                            (FileSystem.deleteFile uniqueConfigFile)
                             (.registerBuiltins (the KissConfig config))
                             (.registerCommand (the KissConfig config) "Reload Kiss config" tryLoadConfig)
                             (.init (the KissConfig config))
@@ -64,6 +67,8 @@
                         (.runCommand (the KissConfig config))
                     (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
                     (return))))
-                
+
+    // TODO overload Prelude.print to use showInformationMessage
+
     (set activeConfigDir (Path.join [context.extensionPath "config"]))
     (tryLoadConfig))

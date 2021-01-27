@@ -6,8 +6,10 @@ import kiss.Prelude;
 import haxe.io.Path;
 import js.Node;
 import js.node.ChildProcess;
+import uuid.Uuid;
 
 using StringTools;
+using uuid.Uuid;
 
 typedef Command = (String) -> Void;
 
