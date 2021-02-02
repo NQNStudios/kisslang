@@ -68,6 +68,24 @@
                     (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
                     (return))))
 
+    (context.subscriptions.push
+        (Vscode.commands.registerCommand
+            "kiss.runLastCommand"
+            (lambda [] 
+                (if config
+                        (.runLastCommand (the KissConfig config))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
+                    (return))))
+
+    (context.subscriptions.push
+        (Vscode.commands.registerCommand
+            "kiss.runKeyboardShortcut"
+            (lambda [] 
+                (if config
+                        (.runKeyboardShortcut (the KissConfig config))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
+                    (return))))
+
     // TODO overload Prelude.print to use showInformationMessage
 
     (set activeConfigDir (Path.join [context.extensionPath "config"]))

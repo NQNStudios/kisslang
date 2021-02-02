@@ -11,12 +11,14 @@ import uuid.Uuid;
 using StringTools;
 using uuid.Uuid;
 
-typedef Command = (String) -> Void;
+typedef Command = (?String) -> Void;
 
 typedef KissConfig = {
     registerBuiltins:() -> Void,
     registerCommand:(String, Command) -> Void,
-    runCommand:() -> Void,
+    runCommand:Command,
+    runLastCommand:Command,
+    runKeyboardShortcut:Command,
     init:() -> Void
 };
 

@@ -10,7 +10,10 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
+		"onStartupFinished",
 		"onCommand:kiss.runCommand",
+		"onCommand:kiss.runLastCommand",
+		"onCommand:kiss.runKeyboardShortcut",
 		"onCommand:kiss.reloadConfig"
 	],
 	"main": "bin/extension.js",
@@ -19,6 +22,14 @@
 			{
 				"command": "kiss.runCommand",
 				"title": "Kiss: Run a Kiss command"
+			},
+			{
+				"command": "kiss.runLastCommand",
+				"title": "Kiss: Rerun the last command"
+			},
+			{
+				"command": "kiss.runKeyboardShortcut",
+				"title": "Kiss: Run a Kiss keyboard shortcut command"
 			},
 			{
 				"command": "kiss.reloadConfig",

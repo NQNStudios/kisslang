@@ -29,24 +29,47 @@
         ""))
 
 /**
+ * State
+ */
+
+(defvar :Map<String,Command> commands (new Map))
+(defvar &mut :String lastCommand null)
+
+/**
  * Functionality
  */
-(defvar :Map<String,Command> commands (new Map))
 
-(defun runCommand []
-    (let [commandList
-                (for description (commands.keys)
-                    (object
-                        label description
-                        description null
-                        detail null
-                        picked null
-                        alwaysShow null))]
-        (awaitLet [chosenCommand (quickPick commandList)]
-            ((dictGet commands chosenCommand.label) (selectedText)))))
+(defun runCommand [&opt command]
+    (if command
+            {(set lastCommand command) ((dictGet commands command) (selectedText))}
+        (let [commandList
+                    (for description (commands.keys)
+                        (object
+                            label description
+                            description null
+                            detail null
+                            picked null
+                            alwaysShow null))]
+            (awaitLet [chosenCommand (quickPick commandList)]
+                (set lastCommand chosenCommand.label)
+                ((dictGet commands chosenCommand.label) (selectedText)))))
+    (return))
+
+(defun runLastCommand [&opt _]
+    (if lastCommand
+            (runCommand lastCommand)
+        (errorMessage "No Kiss command was run previously."))
+    (return))
+
+(defun runKeyboardShortcut [&opt _]
+    // TODO
+    (errorMessage "Keyboard shortcut commands are not yet implemented")
+    (return))
 
 (defun registerCommand [description command]
     (dictSet commands description command))
 
 (defun registerBuiltins []
+    (registerCommand "Rerun last command" runLastCommand)
+    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
     (return))
