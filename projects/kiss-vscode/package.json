@@ -2,7 +2,7 @@
 	"name": "kiss-vscode",
 	"displayName": "kiss-vscode",
 	"description": "Kiss language plugin",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"engines": {
 		"vscode": "^1.4.0"
 	},
@@ -34,6 +34,23 @@
 			{
 				"command": "kiss.reloadConfig",
 				"title": "Kiss: Reload Kiss config"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "kiss.runCommand",
+				"key": "ctrl+;",
+				"mac": "cmd+;"
+			},
+			{
+				"command": "kiss.runLastCommand",
+				"key": "ctrl+.",
+				"mac": "cmd+."
+			},
+			{
+				"command": "kiss.runKeyboardShortcut",
+				"key": "ctrl+k",
+				"mac": "cmd+k"
 			}
 		],
 		"languages": [{
