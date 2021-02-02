@@ -1,5 +1,5 @@
-# hiss-vscode README
-Experimental Hiss support for VSCode
+# kiss-vscode README
+Experimental Kiss support for VSCode
 
 ## Features
 
