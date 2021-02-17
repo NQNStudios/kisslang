@@ -6,6 +6,7 @@ import kiss.Kiss;
 
 using kiss.Reader;
 using kiss.Stream;
+using kiss.Helpers;
 
 typedef ReaderExp = {
     pos:Position,
@@ -92,7 +93,32 @@ class Reader {
         readTable[","] = (stream, k) -> Unquote(assertRead(stream, k));
         readTable[",@"] = (stream, k) -> UnquoteList(assertRead(stream, k));
 
-        // TODO make {...} a macro for (begin ...)
+        // Lambda arrow syntaxes:
+        //     ->[args] body
+        //     ->arg body
+        //     ->{body}
+        readTable["->"] = (stream, k) -> {
+            var firstExp = assertRead(stream, k);
+            var b = firstExp.expBuilder();
+
+            var argsExp:ReaderExp = null;
+            var bodyExp:ReaderExp = null;
+
+            switch (firstExp.def) {
+                case ListExp(_):
+                    argsExp = firstExp;
+                    bodyExp = assertRead(stream, k);
+                case Symbol(_):
+                    argsExp = b.list([firstExp]);
+                    bodyExp = assertRead(stream, k);
+                case CallExp({pos: _, def: Symbol("begin")}, _):
+                    argsExp = b.list([]);
+                    bodyExp = firstExp;
+                default:
+                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, or {body}");
+            }
+            CallExp(b.symbol("lambda"), [argsExp, bodyExp]);
+        };
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream, k) -> Symbol(nextToken(stream, "a symbol name"));

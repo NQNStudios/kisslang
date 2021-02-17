@@ -281,6 +281,10 @@ class BasicTestCase extends Test {
     function testKissStrings() {
         _testKissStrings();
     }
+
+    function testArrowLambdas() {
+        _testArrowLambdas();
+    }
 }
 
 class BasicObject {
