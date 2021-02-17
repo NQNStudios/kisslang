@@ -42,19 +42,29 @@ class Stream {
 
     public var startOfLine = true;
 
-    public function new(file:String) {
-        // Banish ye Windows line-endings
-        content = File.getContent(file);
+    public static function fromFile(file:String) {
+        return new Stream(file, File.getContent(file));
+    }
 
+    public static function fromString(content:String) {
+        return new Stream("string", content);
+    }
+
+    private function new(file:String, content:String) {
+        this.file = file;
+
+        // Banish ye Windows line-endings
         if (content.indexOf('\r') >= 0) {
             absolutePerNewline = 2;
             content = content.replace('\r', '');
         }
+
+        this.content = content;
+
         // Life is easier with a trailing newline
         if (content.charAt(content.length - 1) != "\n")
             content += "\n";
 
-        this.file = file;
         line = 1;
         column = 1;
         absoluteChar = 0;

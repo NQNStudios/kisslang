@@ -94,7 +94,7 @@ class Kiss {
     public static function build(kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
         return _try(() -> {
             var classFields:Array<Field> = if (useClassFields) Context.getBuildFields() else [];
-            var stream = new Stream(kissFile);
+            var stream = Stream.fromFile(kissFile);
 
             // (load... ) relative to the original file
             var loadingDirectory = Path.directory(kissFile);
