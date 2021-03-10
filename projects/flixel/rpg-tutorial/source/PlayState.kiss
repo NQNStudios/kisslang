@@ -39,6 +39,17 @@
     (super.update elapsed)
     (FlxG.collide player walls)
     (FlxG.overlap player coins playerTouchCoin)
+    (FlxG.collide enemies walls)
+    (enemies.forEachAlive checkEnemyVision)
+    (return))
+
+(defmethod checkEnemyVision [:Enemy enemy]
+    (if (walls.ray (enemy.getMidpoint) (player.getMidpoint))
+            {
+                (set enemy.seesPlayer true)
+                (set enemy.playerPosition (player.getMidpoint))
+            }
+        (set enemy.seesPlayer false))
     (return))
 
 (defmethod playerTouchCoin [:Player player :Coin coin]

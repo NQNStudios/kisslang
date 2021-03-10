@@ -7,6 +7,7 @@ import flixel.FlxSprite;
 import flixel.util.FlxColor;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
+import flixel.math.FlxVelocity;
 import flixel.FlxObject;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup;

@@ -1,6 +1,11 @@
 (defvar &inline :Float SPEED 140)
 
 (defprop &mut :EnemyType type null)
+(defprop &mut :FSM brain null)
+(defprop &mut :Float idleTimer null)
+(defprop &mut :Float moveDirection null)
+(defprop &mut :Bool seesPlayer false)
+(defprop &mut :FlxPoint playerPosition null)
 
 (defmethod new [:Float x :Float y :EnemyType type]
     (super x y)
@@ -24,6 +29,9 @@
     (set height 14)
     (set offset.x 4)
     (set offset.y 2)
+    (set brain (new FSM idle))
+    (set idleTimer 0)
+    (set playerPosition (FlxPoint.get))
     (return))
 
 (defmethod &override update [:Float elapsed]
@@ -46,7 +54,35 @@
                 (animation.play "u"))
 
             (FlxObject.DOWN
-                (animation.play "d")))
+                (animation.play "d"))))
 
-    (super.update elapsed))
+    (brain.update elapsed)
+    (super.update elapsed)
+    (return))
+
+(defmethod idle [:Float elapsed]
+    (cond
+        (seesPlayer
+            // TODO (the FSM) here should not be necessary!
+            (set .activeState (the FSM brain) chase))
+        ((<= idleTimer 0)
+            (if (FlxG.random.bool 1)
+                    {
+                        (set moveDirection -1)
+                        (set velocity.x (set velocity.y 0))
+                    }
+                {
+                    (set moveDirection (* 45 (FlxG.random.int 0 8)))
+                    (velocity.set (* SPEED 0.5) 0)
+                    (velocity.rotate (FlxPoint.weak) moveDirection)
+                })
+            (set idleTimer (FlxG.random.int 1 4)))
+        (true
+            (-= idleTimer elapsed)))
+    (return))
+
+(defmethod chase [:Float elapsed]
+    (if !seesPlayer
+            (set brain.activeState idle)
+        (FlxVelocity.moveTowardsPoint this playerPosition (Std.int SPEED)))
     (return))
