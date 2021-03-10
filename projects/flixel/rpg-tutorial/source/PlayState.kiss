@@ -2,6 +2,7 @@
 (defprop &mut :FlxOgmo3Loader map null)
 (defprop &mut :FlxTilemap walls null)
 (defprop &mut :FlxTypedGroup<Coin> coins null)
+(defprop &mut :FlxTypedGroup<Enemy> enemies null)
 
 // TODO make a &void meta
 (defmethod &override create []
@@ -13,6 +14,8 @@
     (add walls)
     (set coins (new FlxTypedGroup<Coin>))
     (add coins)
+    (set enemies (new FlxTypedGroup<Enemy>))
+    (add enemies)
     (map.loadEntities placeEntities "entities")
     (FlxG.camera.follow player TOPDOWN 1)
     (super.create)
@@ -24,7 +27,12 @@
             (set player (new Player entity.x entity.y))
             (add player))
         ("coin"
-            (coins.add (new Coin (+ entity.x 4) (+ entity.y 4)))))
+            (coins.add (new Coin (+ entity.x 4) (+ entity.y 4))))
+        ("enemy"
+            (enemies.add (new Enemy (+ entity.x 4) entity.y REGULAR)))
+        ("boss"
+            (enemies.add (new Enemy (+ entity.x 4) entity.y BOSS))))
+
     (return))
 
 (defmethod &override update [:Float elapsed]

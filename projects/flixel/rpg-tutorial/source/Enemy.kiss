@@ -1,0 +1,52 @@
+(defvar &inline :Float SPEED 140)
+
+(defprop &mut :EnemyType type null)
+
+(defmethod new [:Float x :Float y :EnemyType type]
+    (super x y)
+    (set this.type type)
+    (loadGraphic
+        (case type
+            (BOSS
+                AssetPaths.boss__png)
+            (otherwise AssetPaths.enemy__png))
+        true
+        16
+        16)
+
+    (setFacingFlip FlxObject.LEFT false false)
+    (setFacingFlip FlxObject.RIGHT true false)
+    (animation.add "d" [0 1 0 2] 6 false)
+    (animation.add "lr" [3 4 3 5] 6 false)
+    (animation.add "u" [6 7 6 8] 6 false)
+    (set drag.x (set drag.y 10))
+    (set width 8)
+    (set height 14)
+    (set offset.x 4)
+    (set offset.y 2)
+    (return))
+
+(defmethod &override update [:Float elapsed]
+    (when (and
+            (or !(= velocity.x 0) !(= velocity.y 0))
+            (= touching FlxObject.NONE))
+        (if (> (Math.abs velocity.x) (Math.abs velocity.y))
+                (if (< velocity.x 0)
+                        (set facing FlxObject.LEFT)
+                    (set facing FlxObject.RIGHT))
+            (if (< velocity.y 0)
+                    (set facing FlxObject.UP)
+                (set facing FlxObject.DOWN)))
+
+        (case facing
+            ((or FlxObject.LEFT FlxObject.RIGHT)
+                (animation.play "lr"))
+
+            (FlxObject.UP
+                (animation.play "u"))
+
+            (FlxObject.DOWN
+                (animation.play "d")))
+
+    (super.update elapsed))
+    (return))
