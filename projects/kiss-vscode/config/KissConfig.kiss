@@ -46,10 +46,20 @@
 
 (defvar :Map<String,Command> commands (new Map))
 (defvar &mut :String lastCommand null)
+(defvar parser (new Parser))
+(defvar interp (new Interp))
 
 /**
  * Functionality
  */
+
+(defun convertToHScript [kiss]
+    (.toString (the Buffer .stdout (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kiss)))))
+
+(defun evalString [kiss]
+    (interp.execute
+        (parser.parseString
+            (convertToHScript kiss))))
 
 (defun runCommand [&opt command]
     (if command

@@ -2,6 +2,7 @@
 -lib hxnodejs
 -lib kiss
 -lib uuid
+-lib hscript
 -cp src
 -js bin/extension.js
 -D analyzer-optimize
