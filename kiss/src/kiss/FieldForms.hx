@@ -66,13 +66,24 @@ class FieldForms {
 
     static function fieldName(formName:String, nameExp:ReaderExp) {
         return switch (nameExp.def) {
-            case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
+            case Symbol(name):
                 name;
-            case MetaExp(_, nameExp):
+            case MetaExp(_, nameExp) | TypedExp(_, nameExp):
                 fieldName(formName, nameExp);
             default:
-                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name or typed variable name.');
+                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name, :Typed variable name, and/or &meta variable name.');
         };
+    }
+
+    static function isVoid(nameExp:ReaderExp) {
+        return switch (nameExp.def) {
+            case MetaExp(_, nameExp):
+                isVoid(nameExp);
+            case TypedExp("Void", _) | Symbol("new"):
+                true;
+            default:
+                false;
+        }
     }
 
     static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
@@ -98,12 +109,7 @@ class FieldForms {
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
-        var returnsValue = switch (args[0].def) {
-            case TypedExp("Void", _):
-                false;
-            default:
-                true;
-        };
+        var returnsValue = !isVoid(args[0]);
 
         return {
             name: name,

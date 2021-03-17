@@ -10,8 +10,7 @@
     (animation.add "d" [0 1 0 2] 6 false)
     (set drag.x (set drag.y 1600))
     (setSize 8 8)
-    (offset.set 4 4)
-    (return))
+    (offset.set 4 4))
 
 (defmethod updateMovement []
     (let [[&mut up &mut down &mut left &mut right]

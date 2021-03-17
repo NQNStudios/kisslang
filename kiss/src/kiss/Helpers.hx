@@ -71,7 +71,7 @@ class Helpers {
                 case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                     name;
                 default:
-                    throw CompileError.fromExp(name, 'function name should be a symbol or typed symbol');
+                    throw CompileError.fromExp(name, 'function name should be a symbol or :Typed symbol');
             };
         } else {
             "";

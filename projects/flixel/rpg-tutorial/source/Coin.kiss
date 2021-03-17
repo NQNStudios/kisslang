@@ -1,9 +1,8 @@
 (defmethod new [:Float x :Float y]
     (super x y)
-    (loadGraphic AssetPaths.coin__png false 8 8)
-    (return))
+    (loadGraphic AssetPaths.coin__png false 8 8))
 
-(defmethod &override kill []
+(defmethod &override :Void kill []
     (set alive false)
     (FlxTween.tween
         this
@@ -13,8 +12,7 @@
         0.33
         (object
             ease FlxEase.circOut
-            onComplete finishKill))
-    (return))
+            onComplete finishKill)))
 
 (defmethod finishKill [_]
     (set exists false))
