@@ -9,7 +9,7 @@
 (defvar &mut activeConfigDir "")
 (defvar &mut :Dynamic config null)
 
-(defun tryLoadConfig [&opt :String text]
+(defun :Void tryLoadConfig [&opt :String text]
     (let [activeConfigPath (Path.join [activeConfigDir "config.js"])
             backupConfigPath (Path.join [activeConfigDir (+ "config" (timeStamp) ".js")])]
         // Backup existing config.js
@@ -50,8 +50,7 @@
                             (+ "Config failed to compile: "
                                 (if buildResult.error 
                                         #| "" + buildResult.error|#
-                                    #| "" + buildResult.stderr |#))))))))
-    (return))
+                                    #| "" + buildResult.stderr |#)))))))))
 
 (defun _activate [:ExtensionContext context]
     (context.subscriptions.push

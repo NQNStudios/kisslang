@@ -1,4 +1,3 @@
 (defmethod new []
 	(super)
-	(addChild (new FlxGame 320 240 MenuState))
-    (return))
+	(addChild (new FlxGame 320 240 MenuState)))

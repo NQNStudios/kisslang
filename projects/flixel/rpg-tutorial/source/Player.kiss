@@ -12,7 +12,7 @@
     (setSize 8 8)
     (offset.set 4 4))
 
-(defmethod updateMovement []
+(defmethod :Void updateMovement []
     (let [[&mut up &mut down &mut left &mut right]
                 (map [[UP W] [DOWN S] [LEFT A] [RIGHT D]] FlxG.keys.anyPressed)]
         (when (and up down)
@@ -60,8 +60,7 @@
                 (FlxObject.DOWN
                     (animation.play "d"))
                 (otherwise
-                    (return))))
-            (return)))
+                    (return))))))
 
 (defmethod &override update [:Float elapsed]
     (updateMovement)

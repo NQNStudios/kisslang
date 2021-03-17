@@ -4,8 +4,7 @@
 (defprop &mut :FlxTypedGroup<Coin> coins null)
 (defprop &mut :FlxTypedGroup<Enemy> enemies null)
 
-// TODO make a &void meta
-(defmethod &override create []
+(defmethod &override :Void create []
     (set map (new FlxOgmo3Loader AssetPaths.turnBasedRPG__ogmo AssetPaths.room_001__json))
     (set walls (map.loadTilemap AssetPaths.tiles__png "walls"))
     (walls.follow)
@@ -18,10 +17,9 @@
     (add enemies)
     (map.loadEntities placeEntities "entities")
     (FlxG.camera.follow player TOPDOWN 1)
-    (super.create)
-    (return))
+    (super.create))
 
-(defmethod placeEntities [:EntityData entity]
+(defmethod :Void placeEntities [:EntityData entity]
     (case entity.name
         ("player" 
             (set player (new Player entity.x entity.y))
@@ -31,26 +29,22 @@
         ("enemy"
             (enemies.add (new Enemy (+ entity.x 4) entity.y REGULAR)))
         ("boss"
-            (enemies.add (new Enemy (+ entity.x 4) entity.y BOSS))))
+            (enemies.add (new Enemy (+ entity.x 4) entity.y BOSS)))))
 
-    (return))
-
-(defmethod &override update [:Float elapsed]
+(defmethod &override :Void update [:Float elapsed]
     (super.update elapsed)
     (FlxG.collide player walls)
     (FlxG.overlap player coins playerTouchCoin)
     (FlxG.collide enemies walls)
-    (enemies.forEachAlive checkEnemyVision)
-    (return))
+    (enemies.forEachAlive checkEnemyVision))
 
-(defmethod checkEnemyVision [:Enemy enemy]
+(defmethod :Void checkEnemyVision [:Enemy enemy]
     (if (walls.ray (enemy.getMidpoint) (player.getMidpoint))
             {
                 (set enemy.seesPlayer true)
                 (set enemy.playerPosition (player.getMidpoint))
             }
-        (set enemy.seesPlayer false))
-    (return))
+        (set enemy.seesPlayer false)))
 
 (defmethod playerTouchCoin [:Player player :Coin coin]
     (when (and player.alive player.exists coin.alive coin.exists)

@@ -31,10 +31,9 @@
     (set offset.y 2)
     (set brain (new FSM idle))
     (set idleTimer 0)
-    (set playerPosition (FlxPoint.get))
-    (return))
+    (set playerPosition (FlxPoint.get)))
 
-(defmethod &override update [:Float elapsed]
+(defmethod &override :Void update [:Float elapsed]
     (when (and
             (or !(= velocity.x 0) !(= velocity.y 0))
             (= touching FlxObject.NONE))
@@ -57,10 +56,9 @@
                 (animation.play "d"))))
 
     (brain.update elapsed)
-    (super.update elapsed)
-    (return))
+    (super.update elapsed))
 
-(defmethod idle [:Float elapsed]
+(defmethod :Void idle [:Float elapsed]
     (cond
         (seesPlayer
             // TODO (the FSM) here should not be necessary!
@@ -78,11 +76,9 @@
                 })
             (set idleTimer (FlxG.random.int 1 4)))
         (true
-            (-= idleTimer elapsed)))
-    (return))
+            (-= idleTimer elapsed))))
 
-(defmethod chase [:Float elapsed]
+(defmethod :Void chase [:Float elapsed]
     (if !seesPlayer
             (set brain.activeState idle)
-        (FlxVelocity.moveTowardsPoint this playerPosition (Std.int SPEED)))
-    (return))
+        (FlxVelocity.moveTowardsPoint this playerPosition (Std.int SPEED))))
