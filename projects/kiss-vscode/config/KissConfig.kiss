@@ -61,7 +61,7 @@
         (parser.parseString
             (convertToHScript kiss))))
 
-(defun runCommand [&opt command]
+(defun :Void runCommand [&opt command]
     (if command
             {(set lastCommand command) ((dictGet commands command) (selectedText))}
         (let [commandList
@@ -74,24 +74,20 @@
                             alwaysShow null))]
             (awaitLet [chosenCommand (quickPick commandList)]
                 (set lastCommand chosenCommand.label)
-                ((dictGet commands chosenCommand.label) (selectedText)))))
-    (return))
+                ((dictGet commands chosenCommand.label) (selectedText))))))
 
-(defun runLastCommand [&opt _]
+(defun :Void runLastCommand [&opt _]
     (if lastCommand
             (runCommand lastCommand)
-        (errorMessage "No Kiss command was run previously."))
-    (return))
+        (errorMessage "No Kiss command was run previously.")))
 
-(defun runKeyboardShortcut [&opt _]
+(defun :Void runKeyboardShortcut [&opt _]
     // TODO
-    (errorMessage "Keyboard shortcut commands are not yet implemented")
-    (return))
+    (errorMessage "Keyboard shortcut commands are not yet implemented"))
 
 (defun registerCommand [description command]
     (dictSet commands description command))
 
-(defun registerBuiltins []
+(defun :Void registerBuiltins []
     (registerCommand "Rerun last command" runLastCommand)
-    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
-    (return))
+    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut))

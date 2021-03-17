@@ -62,29 +62,26 @@
     (context.subscriptions.push
         (Vscode.commands.registerCommand
             "kiss.runCommand"
-            (lambda [] 
+            (lambda :Void [] 
                 (if config
                         (.runCommand (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
-                    (return))))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
     (context.subscriptions.push
         (Vscode.commands.registerCommand
             "kiss.runLastCommand"
-            (lambda [] 
+            (lambda :Void [] 
                 (if config
                         (.runLastCommand (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
-                    (return))))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
     (context.subscriptions.push
         (Vscode.commands.registerCommand
             "kiss.runKeyboardShortcut"
-            (lambda [] 
+            (lambda :Void [] 
                 (if config
                         (.runKeyboardShortcut (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
-                    (return))))
+                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
     // TODO overload Prelude.print to use showInformationMessage
 
