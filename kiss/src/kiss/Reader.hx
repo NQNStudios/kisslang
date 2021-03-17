@@ -97,6 +97,7 @@ class Reader {
         //     ->[args] body
         //     ->arg body
         //     ->{body}
+        // or any of those with the first expression after -> prefixed by :Void
         readTable["->"] = (stream, k) -> {
             var firstExp = assertRead(stream, k);
             var b = firstExp.expBuilder();
@@ -104,6 +105,13 @@ class Reader {
             var argsExp:ReaderExp = null;
             var bodyExp:ReaderExp = null;
 
+            var returnsValue = true;
+            switch (firstExp.def) {
+                case TypedExp("Void", realFirstExp):
+                    firstExp = realFirstExp;
+                    returnsValue = false;
+                default:
+            }
             switch (firstExp.def) {
                 case ListExp(_):
                     argsExp = firstExp;
@@ -115,7 +123,10 @@ class Reader {
                     argsExp = b.list([]);
                     bodyExp = firstExp;
                 default:
-                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, or {body}");
+                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, or {body}, or one of those prefixed with :Void");
+            }
+            if (!returnsValue) {
+                argsExp = TypedExp("Void", argsExp).withPosOf(argsExp);
             }
             CallExp(b.symbol("lambda"), [argsExp, bodyExp]);
         };

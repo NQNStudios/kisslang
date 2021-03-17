@@ -476,7 +476,18 @@
             withoutArgs
                 ->{
                     (+ 5)
-                    6}]
+                    6}
+            &mut num 5
+            void
+                ->:Void [] (set num 6)]
         (Assert.equals 11 (withArgs 5 6))
         (Assert.equals 12 (withArg 6))
-        (Assert.equals 6 (withoutArgs))))
+        (Assert.equals 6 (withoutArgs))
+        (void)
+        (Assert.equals 6 num)))
+
+(defvar &mut voidRan false)
+(defun :Void myVoid [] (set voidRan true))
+(defun _testVoid []
+    (myVoid)
+    (Assert.isTrue voidRan))

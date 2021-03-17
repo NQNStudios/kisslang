@@ -285,6 +285,10 @@ class BasicTestCase extends Test {
     function testArrowLambdas() {
         _testArrowLambdas();
     }
+
+    function testVoid() {
+        _testVoid();
+    }
 }
 
 class BasicObject {

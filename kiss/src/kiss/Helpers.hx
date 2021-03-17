@@ -58,11 +58,11 @@ class Helpers {
     }
 
     // TODO generic type parameter declarations
-    public static function makeFunction(?name:ReaderExp, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
+    public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
         if (name != null) {
             switch (name.def) {
                 case MetaExp(_, name):
-                    return makeFunction(name, argList, body, k);
+                    return makeFunction(name, returnsValue, argList, body, k);
                 default:
             }
         }
@@ -132,6 +132,11 @@ class Helpers {
             };
         }
 
+        var expr = k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos));
+        if (returnsValue) {
+            expr = EReturn(expr).withMacroPosOf(body[-1]);
+        }
+
         // To make function args immutable by default, we would use (let...) instead of (begin...)
         // to make the body expression.
         // But setting default arguments is so common, and arguments are not settable references,
@@ -149,7 +154,7 @@ class Helpers {
                 default:
                     throw CompileError.fromExp(argList, 'expected an argument list');
             },
-            expr: EReturn(k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos))).withMacroPosOf(body[-1])
+            expr: expr
         }
     }
 

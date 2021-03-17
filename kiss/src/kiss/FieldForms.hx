@@ -98,11 +98,17 @@ class FieldForms {
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
+        var returnsValue = switch (args[0].def) {
+            case TypedExp("Void", _):
+                false;
+            default:
+                true;
+        };
 
         return {
             name: name,
             access: access,
-            kind: FFun(Helpers.makeFunction(args[0], args[1], args.slice(2), k)),
+            kind: FFun(Helpers.makeFunction(args[0], returnsValue, args[1], args.slice(2), k)),
             pos: wholeExp.macroPos()
         };
     }
