@@ -37,9 +37,11 @@
                                 uniqueConfigFile (Path.join [activeConfigDir "$(.toShort (Uuid.v4)).js"])]
                             (File.copy activeConfigFile uniqueConfigFile)
                             (set config .KissConfig (Node.require uniqueConfigFile))
-                            (FileSystem.deleteFile uniqueConfigFile)
+                            // (FileSystem.deleteFile uniqueConfigFile)
                             (.registerBuiltins (the KissConfig config))
                             (.registerCommand (the KissConfig config) "Reload Kiss config" tryLoadConfig)
+                            (.prepareInterp (the KissConfig config))
+                            // User-defined init:
                             (.init (the KissConfig config))
                             (Vscode.window.showInformationMessage "Config loaded successfully!"))
                     // If there's a build error, restore the config.js backup

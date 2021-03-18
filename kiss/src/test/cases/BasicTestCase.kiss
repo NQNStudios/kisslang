@@ -466,6 +466,7 @@
             num 3
             l1 ["a" "b" "c"]
             l2 [1 2 3]]
+        // string interpolation:
         (Assert.equals "it's 3asy as [a,b,c] [1,2,3]" "$str ${num}asy as $l1 $l2")))
 
 (defun _testArrowLambdas []

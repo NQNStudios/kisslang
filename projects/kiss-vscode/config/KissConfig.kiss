@@ -53,13 +53,25 @@
  * Functionality
  */
 
-(defun convertToHScript [kiss]
-    (.toString (the Buffer .stdout (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kiss)))))
+(defun :String convertToHScript [kissStr]
+    (.toString (the Buffer .stdout (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kissStr)))))
 
-(defun evalString [kiss]
-    (interp.execute
-        (parser.parseString
-            (convertToHScript kiss))))
+(defun :Dynamic evalString [:String kissStr]
+    (try
+            (interp.execute
+                (parser.parseString
+                    (convertToHScript kissStr)))
+        (catch [e]
+            (trace "fuckkkkk")
+            (errorMessage "Error `${e}` from $kissStr")
+            null)))
+
+(defun :Void evalAndPrint [&opt :String selectedText]
+    (if selectedText
+            (infoMessage (Std.string (evalString selectedText))))
+        
+        (awaitLet [kissStr (inputBox)]
+            (infoMessage (Std.string (evalString kissStr)))))
 
 (defun :Void runCommand [&opt command]
     (if command
@@ -73,8 +85,9 @@
                             picked null
                             alwaysShow null))]
             (awaitLet [chosenCommand (quickPick commandList)]
-                (set lastCommand chosenCommand.label)
-                ((dictGet commands chosenCommand.label) (selectedText))))))
+                (when chosenCommand
+                    (set lastCommand chosenCommand.label)
+                    ((dictGet commands chosenCommand.label) (selectedText)))))))
 
 (defun :Void runLastCommand [&opt _]
     (if lastCommand
@@ -90,4 +103,25 @@
 
 (defun :Void registerBuiltins []
     (registerCommand "Rerun last command" runLastCommand)
-    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut))
+    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
+    (registerCommand "Evaluate and print a Kiss expression" evalAndPrint))
+
+(defun :Void prepareInterp []
+    (interp.variables.set "kiss" 
+        (object
+            Operand
+                (object
+                    fromDynamic Operand.fromDynamic)
+            Prelude
+                Prelude))
+            //interp.variables.set("Helpers", Helpers);
+    (interp.variables.set "Prelude" Prelude)
+    (interp.variables.set "Lambda" Lambda)
+    // TODO for some reason, (interp.variables.set "Std" Std) doesn't capture
+    // some static functions, like parseInt. So this kludgy bit is necessary:
+    (interp.variables.set "Std"
+        (object
+            parseInt Std.parseInt
+            string Std.string
+            random Std.random
+            int Std.int)))

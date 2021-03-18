@@ -22,6 +22,7 @@ class Main {
     // TODO use this to implement runAtRuntime() for sys targets by running a haxe subprocess
     static macro function macroMain():Expr {
         var k = Kiss.defaultKissState();
+        k.wrapListExps = false;
         if (Sys.args().indexOf("--all") != -1) {
             var kissInputStream = Stream.fromString(Sys.stdin().readAll().toString());
             Reader.readAndProcess(kissInputStream, k, (readerExp) -> {

@@ -16,6 +16,7 @@ typedef Command = (?String) -> Void;
 typedef KissConfig = {
     registerBuiltins:() -> Void,
     registerCommand:(String, Command) -> Void,
+    prepareInterp:() -> Void,
     runCommand:Command,
     runLastCommand:Command,
     runKeyboardShortcut:Command,
