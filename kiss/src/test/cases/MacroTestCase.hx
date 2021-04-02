@@ -14,4 +14,9 @@ class MacroTestCase extends Test {
         Assert.equals(5, myVar);
         Assert.equals(6, myFunc());
     }
+
+    function testExpandList() {
+        Assert.equals(6, sum1());
+        Assert.equals(6, sum2());
+    }
 }

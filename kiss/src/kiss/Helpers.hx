@@ -292,7 +292,18 @@ class Helpers {
             switch (l[idx].def) {
                 case UnquoteList(exp):
                     l.splice(idx, 1);
-                    var newElements:Array<ReaderExp> = runAtCompileTime(exp, k, args);
+                    var listToInsert:Dynamic = runAtCompileTime(exp, k, args);
+                    // listToInsert could be either an array (from &rest) or a ListExp (from [list syntax])
+                    var newElements:Array<ReaderExp> = if (Std.isOfType(listToInsert, Array)) {
+                        listToInsert;
+                    } else {
+                        switch (listToInsert.def) {
+                            case ListExp(elements):
+                                elements;
+                            default:
+                                throw CompileError.fromExp(l[idx], ",@ can only be used with lists");
+                        };
+                    };
                     for (el in newElements) {
                         l.insert(idx++, el);
                     }

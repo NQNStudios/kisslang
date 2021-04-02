@@ -4,3 +4,12 @@
         (defun ,funcName [] 6)})
 
 (defMultiple myVar myFunc)
+
+(defmacro variadicPlus [&rest l]
+    `(+ ,@l))
+(defmacro listPlus [l]
+    `(+ ,@l))
+
+// Both forms of passing expression lists to macros should work:
+(defun sum1 [] (variadicPlus 1 2 3))
+(defun sum2 [] (listPlus [1 2 3]))
