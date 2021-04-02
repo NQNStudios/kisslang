@@ -3,6 +3,7 @@ package;
 import kiss.Kiss;
 import kiss.Prelude;
 import kiss.Operand;
+import kiss.Stream;
 import vscode.*;
 import js.lib.Promise;
 import js.node.ChildProcess;

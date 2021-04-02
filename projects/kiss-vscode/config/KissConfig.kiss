@@ -30,7 +30,7 @@
 
 // TODO make an async annotation that throws an error if the promise is not wrapped in awaitLet or awaitBegin or returned by an async function?
 // but in some cases it doesn't matter and there are so many edge cases.
-(defun insertAt [:Position pos text]
+(defun insertAt [:vscode.Position pos text]
     (.edit activeTextEditor
         (lambda [e]
             (e.insert pos text))))
@@ -99,6 +99,21 @@
 (defun :Void runKeyboardShortcut [&opt _]
     // TODO
     (errorMessage "Keyboard shortcut commands are not yet implemented"))
+
+// Extract [k]eyboard [s]hortcuts from a string:
+(defun extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
+    (unless stream (set stream (Stream.fromString str)))
+    (unless shortcuts (set shortcuts ""))
+    (case (stream.takeUntilAndDrop "[")
+        ((Some _)
+            (case (stream.takeUntilAndDrop "]")
+                ((Some newShortcuts)
+                    (extractKeyboardShortcuts str stream (+ shortcuts (newShortcuts.toLowerCase))))
+                (None
+                    (warningMessage "unclosed [ in $str")
+                    "")))
+        (None
+            shortcuts)))
 
 (defun registerCommand [description command]
     (dictSet commands description command))
