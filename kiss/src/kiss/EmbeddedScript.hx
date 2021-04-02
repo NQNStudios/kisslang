@@ -56,20 +56,20 @@ class EmbeddedScript {
 
         // This brings in the DSL's functions and global variables.
         // As a side-effect, it also fills the KissState with the macros and reader macros that make the DSL syntax
-        for (field in Kiss.build(dslFile, k)) {
-            classFields.push(field);
-        }
+        classFields = classFields.concat(Kiss.build(dslFile, k));
 
         Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
-            var field = Kiss.readerExpToField(nextExp, k, false);
-            if (field != null) {
-                classFields.push(field);
+            var fields = Kiss.readerExpToFields(nextExp, k, false);
+            if (fields.length > 0) {
+                classFields = classFields.concat(fields);
             } else {
                 // In a DSL script, anything that's not a field definition is a command line
                 commandList.push(macro function(self) {
                     ${Kiss.readerExpToHaxeExpr(nextExp, k)};
                 });
             }
+            // This return is essential for type unification of concat() and push() above... ugh.
+            return;
             // TODO also allow label setting and multiple commands coming from the same expr?
             // Multiple things could come from the same expr by returning begin, or a call to a function that does more stuff
             // i.e. knot declarations need to end the previous knot, and BELOW that set a label for the new one, then increment the read count

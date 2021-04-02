@@ -124,18 +124,18 @@ class Kiss {
                                 throw CompileError.fromExp(loadArgs[0], "only argument to load should be a string literal");
                         }
                     default:
-                        var field = readerExpToField(nextExp, k);
-                        if (field != null) {
-                            #if test
+                        var fields = readerExpToFields(nextExp, k);
+                        #if test
+                        for (field in fields) {
                             switch (field.kind) {
                                 case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
                                     Sys.println(expr.toString());
                                 default:
                                     throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
                             }
-                            #end
-                            classFields.push(field);
                         }
+                        #end
+                        classFields = classFields.concat(fields);
                 }
             });
 
@@ -159,7 +159,7 @@ class Kiss {
         return fields;
     }
 
-    public static function readerExpToField(exp:ReaderExp, k:KissState, errorIfNot = true):Null<Field> {
+    public static function readerExpToFields(exp:ReaderExp, k:KissState, errorIfNot = true):Array<Field> {
         var fieldForms = k.fieldForms;
 
         // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
@@ -168,19 +168,27 @@ class Kiss {
         var identAliases = k.identAliases;
 
         return switch (exp.def) {
+            // Multiple field/macro definitions wrapped in `begin` are acceptable
+            case CallExp({pos: _, def: Symbol(mac)}, args) if (mac == "begin"):
+                var fields = [];
+                for (arg in args) {
+                    fields = fields.concat(readerExpToFields(arg, k, errorIfNot));
+                }
+                fields;
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
+                trace(mac);
                 var expandedExp = macros[mac](exp, args, k);
-                if (expandedExp != null) readerExpToField(expandedExp, k, errorIfNot) else null;
+                if (expandedExp != null) readerExpToFields(expandedExp, k, errorIfNot) else [];
             case CallExp({pos: _, def: Symbol(alias)}, args) if (callAliases.exists(alias)):
                 var aliasedExp = CallExp(callAliases[alias].withPosOf(exp), args).withPosOf(exp);
-                readerExpToField(aliasedExp, k, errorIfNot);
+                readerExpToFields(aliasedExp, k, errorIfNot);
             case CallExp({pos: _, def: Symbol(alias)}, args) if (identAliases.exists(alias)):
                 var aliasedExp = CallExp(identAliases[alias].withPosOf(exp), args).withPosOf(exp);
-                readerExpToField(aliasedExp, k, errorIfNot);
+                readerExpToFields(aliasedExp, k, errorIfNot);
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
-                fieldForms[formName](exp, args, k);
+                [fieldForms[formName](exp, args, k)];
             default:
-                if (errorIfNot) throw CompileError.fromExp(exp, 'top-level expressions must be (or expand into) field definitions'); else return null;
+                if (errorIfNot) throw CompileError.fromExp(exp, 'top-level expressions must be (or expand into) field or macro definitions'); else [];
         };
     }
 

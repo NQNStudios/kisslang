@@ -1,0 +1,6 @@
+(defmacro defMultiple [varName funcName]
+    `{
+        (defvar ,varName 5)
+        (defun ,funcName [] 6)})
+
+(defMultiple myVar myFunc)
