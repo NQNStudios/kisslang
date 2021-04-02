@@ -180,7 +180,7 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
                 fieldForms[formName](exp, args, k);
             default:
-                if (errorIfNot) throw CompileError.fromExp(exp, 'invalid valid field form'); else return null;
+                if (errorIfNot) throw CompileError.fromExp(exp, 'top-level expressions must be (or expand into) field definitions'); else return null;
         };
     }
 
