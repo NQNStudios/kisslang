@@ -54,7 +54,10 @@
  */
 
 (defun :String convertToHScript [kissStr]
-    (.toString (the Buffer .stdout (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kissStr)))))
+    (let [kissProcess (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kissStr))]
+        (if !(= kissProcess.status 0)
+                {(errorMessage "failed to compile ${kissStr}: $(.toString (the Buffer .stderr kissProcess))") ""}
+            (.toString (the Buffer .stdout kissProcess)))))
 
 (defun :Dynamic evalString [:String kissStr]
     (try
@@ -62,7 +65,6 @@
                 (parser.parseString
                     (convertToHScript kissStr)))
         (catch [e]
-            (trace "fuckkkkk")
             (errorMessage "Error `${e}` from $kissStr")
             null)))
 
@@ -102,6 +104,10 @@
     (dictSet commands description command))
 
 (defun :Void registerBuiltins []
+    (set Prelude.print
+        ->[v] {
+            (infoMessage (Std.string v))
+            v})
     (registerCommand "Rerun last command" runLastCommand)
     (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
     (registerCommand "Evaluate and print a Kiss expression" evalAndPrint))
