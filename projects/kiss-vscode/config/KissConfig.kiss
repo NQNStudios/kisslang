@@ -54,7 +54,7 @@
  */
 
 (defun :String convertToHScript [kissStr]
-    (let [kissProcess (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input kissStr))]
+    (let [kissProcess (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input "${kissStr}\n"))]
         (if !(= kissProcess.status 0)
                 {(errorMessage "failed to compile ${kissStr}: $(.toString (the Buffer .stderr kissProcess))") ""}
             (.toString (the Buffer .stdout kissProcess)))))
