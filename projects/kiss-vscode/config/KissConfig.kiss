@@ -73,18 +73,17 @@
         (awaitLet [kissStr (inputBox)]
             (infoMessage (Std.string (evalString kissStr)))))
 
-(defun quickPickItem [label]
-    (object
-        label label
-        description null
-        detail null
-        picked null
-        alwaysShow null))
-
 (defun :Void runCommand [&opt command]
     (if command
             {(set lastCommand command) ((dictGet commands command) (selectedText))}
-        (let [commandList (map (commands.keys) quickPickItem)]
+        (let [commandList
+                    (for description (commands.keys)
+                        (object
+                            label description
+                            description null
+                            detail null
+                            picked null
+                            alwaysShow null))]
             (awaitLet [chosenCommand (quickPick commandList)]
                 (when chosenCommand
                     (set lastCommand chosenCommand.label)
