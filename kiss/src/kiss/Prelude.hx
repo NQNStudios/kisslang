@@ -222,10 +222,10 @@ class Prelude {
         };
     }
 
-    public static dynamic function truthy(v:Any) {
+    public static dynamic function truthy<T>(v:T) {
         return switch (Type.typeof(v)) {
             case TNull: false;
-            case TBool: (v : Bool);
+            case TBool: cast(v, Bool);
             default:
                 // Empty strings are falsy
                 if (v.isOfType(String)) {
