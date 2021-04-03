@@ -119,7 +119,6 @@
 
 (defun :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
     (unless prefixMap (set prefixMap commandShortcuts))
-    (print keys)
     (let [firstKey (keys.shift)]
         (cond 
             ((prefixMap.exists firstKey)

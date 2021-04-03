@@ -7,7 +7,7 @@
     (.replace (.replace (.toString (Date.now)) ":" "-") " " "-"))
 
 (defvar &mut activeConfigDir "")
-(defvar &mut :Dynamic config null)
+(defvar &mut :KissConfig config null)
 
 (defun :Void tryLoadConfig [&opt :String text]
     (let [activeConfigPath (Path.join [activeConfigDir "config.js"])
@@ -36,13 +36,13 @@
                         (let [activeConfigFile (Path.join [activeConfigDir "config.js"])
                                 uniqueConfigFile (Path.join [activeConfigDir "$(.toShort (Uuid.v4)).js"])]
                             (File.copy activeConfigFile uniqueConfigFile)
-                            (set config .KissConfig (Node.require uniqueConfigFile))
+                            (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
                             // (FileSystem.deleteFile uniqueConfigFile)
-                            (.registerBuiltins (the KissConfig config))
-                            (.registerCommand (the KissConfig config) "Reload Kiss config" tryLoadConfig)
-                            (.prepareInterp (the KissConfig config))
+                            (config.registerBuiltins)
+                            (config.registerCommand "Reload Kiss config" tryLoadConfig)
+                            (config.prepareInterp)
                             // User-defined init:
-                            (.init (the KissConfig config))
+                            (config.init)
                             (Vscode.window.showInformationMessage "Config loaded successfully!"))
                     // If there's a build error, restore the config.js backup
                     (begin
