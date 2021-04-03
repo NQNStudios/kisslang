@@ -45,6 +45,8 @@
  */
 
 (defvar :Map<String,Command> commands (new Map))
+(defvar :Map<String,ShortcutKey> commandShortcuts (new Map))
+
 (defvar &mut :String lastCommand null)
 (defvar parser (new Parser))
 (defvar interp (new Interp))
@@ -115,8 +117,35 @@
         (None
             shortcuts)))
 
+(defun :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
+    (unless prefixMap (set prefixMap commandShortcuts))
+    (print keys)
+    (let [firstKey (keys.shift)]
+        (cond 
+            ((prefixMap.exists firstKey)
+                (let [existingKey (dictGet prefixMap firstKey)
+                        conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
+                    (if keys
+                            // TODO if the existing node is Final, not a branch, throw conflicting message
+                            (case existingKey
+                                ((Final _)
+                                    (warningMessage conflictMessage))
+                                ((Prefix innerPrefixMap)
+                                    (registerShortcut keys description innerPrefixMap)))
+                        (warningMessage conflictMessage))))
+            (true
+                (if keys
+                        (let [innerPrefixMap (new Map)]
+                            (dictSet prefixMap firstKey (Prefix innerPrefixMap))
+                            (registerShortcut keys description innerPrefixMap))
+                    (dictSet prefixMap firstKey (Final description)))))))
+
 (defun registerCommand [description command]
-    (dictSet commands description command))
+    (dictSet commands description command)
+    (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
+        (registerShortcut (keyboardShortcut.split "") description))
+    //(print commandShortcuts)
+    )
 
 (defun :Void registerBuiltins []
     (set Prelude.print

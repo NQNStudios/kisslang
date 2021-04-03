@@ -14,6 +14,11 @@ import hscript.Expr;
 
 typedef Command = (String) -> Void;
 
+enum ShortcutKey {
+    Final(command:String);
+    Prefix(keys: Map<String, ShortcutKey>);
+}
+
 @:expose
 @:build(kiss.Kiss.buildAll(["KissConfig.kiss", "Config.kiss"]))
 class KissConfig {}
