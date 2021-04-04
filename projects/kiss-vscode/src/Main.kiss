@@ -10,6 +10,7 @@
 (defvar &mut :KissConfig config null)
 
 (defun :Void tryLoadConfig [&opt :String text]
+    // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
     (let [activeConfigPath (Path.join [activeConfigDir "config.js"])
             backupConfigPath (Path.join [activeConfigDir (+ "config" (timeStamp) ".js")])]
         // Backup existing config.js

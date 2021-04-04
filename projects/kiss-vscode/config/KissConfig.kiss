@@ -98,9 +98,64 @@
             (runCommand lastCommand)
         (errorMessage "No Kiss command was run previously.")))
 
+(defvar &mut :vscode.WebviewPanel shortcutPanel null)
+(defun :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
+    // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
+    (unless prefixMap 
+        (when shortcutPanel
+            // TODO for some reason, method calling an object in (when [object] ...) context, resets the object's type to Any unless (the [Type]) is used
+            (.dispose (the WebviewPanel shortcutPanel))
+            (set shortcutPanel null))
+        (set prefixMap commandShortcuts))
+    (unless shortcutPanel
+        (set shortcutPanel (Vscode.window.createWebviewPanel 
+                                                "kissShortcut"
+                                                "Kiss Shortcuts"
+                                                vscode.ViewColumn.Two
+                                                (object
+                                                    enableScripts true))))
+    (let [&mut keyListener null]
+        (set keyListener (shortcutPanel.webview.onDidReceiveMessage
+                                ->key (if (prefixMap.exists key)
+                                            {(keyListener.dispose)
+                                                (case (dictGet prefixMap key)
+                                                    ((Prefix innerMap)
+                                                        (showShortcutPanel innerMap))
+                                                    ((Final command)
+                                                        (shortcutPanel.dispose)
+                                                        // TODO restore focus to previous frame first
+                                                        (runCommand command)))}
+                                        {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
+    (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap)))
+
+(defun shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
+    (let [shortcutParagraphs
+                (for =>key shortcutKey prefixMap
+                    "<p><strong>${key}</strong> - $(case shortcutKey
+                                    ((Prefix innerMap)
+                                        "$(Lambda.count innerMap) shortcuts")
+                                    ((Final command)
+                                        command))</p>")]
+        "<!DOCTYPE html>
+        <html lang=\"en\">
+            <head>
+                <meta charset=\"UTF-8\">
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+                <title>Kiss Shortcuts</title>
+            </head>
+            <body>
+                $(shortcutParagraphs.join "")
+                <script>
+                    const vscode = acquireVsCodeApi();
+                    window.addEventListener('keydown', function (e) {
+                        vscode.postMessage(e.key);
+                    });
+                </script>
+            </body>
+        </html>"))
+
 (defun :Void runKeyboardShortcut [&opt _]
-    // TODO
-    (errorMessage "Keyboard shortcut commands are not yet implemented"))
+    (showShortcutPanel))
 
 // Extract [k]eyboard [s]hortcuts from a string:
 (defun extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
@@ -142,15 +197,14 @@
 (defun registerCommand [description command]
     (dictSet commands description command)
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
-        (registerShortcut (keyboardShortcut.split "") description))
-    //(print commandShortcuts)
-    )
+        (registerShortcut (keyboardShortcut.split "") description)))
 
 (defun :Void registerBuiltins []
     (set Prelude.print
         ->[v] {
             (infoMessage (Std.string v))
             v})
+    (registerCommand "Run a [k]iss command" runCommand)
     (registerCommand "Rerun last command" runLastCommand)
     (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
     (registerCommand "Evaluate and print a Kiss expression" evalAndPrint))

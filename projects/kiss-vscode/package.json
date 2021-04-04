@@ -38,19 +38,14 @@
 		],
 		"keybindings": [
 			{
-				"command": "kiss.runCommand",
-				"key": "ctrl+;",
-				"mac": "cmd+;"
-			},
-			{
 				"command": "kiss.runLastCommand",
 				"key": "ctrl+.",
 				"mac": "cmd+."
 			},
 			{
 				"command": "kiss.runKeyboardShortcut",
-				"key": "ctrl+k",
-				"mac": "cmd+k"
+				"key": "ctrl+;",
+				"mac": "cmd+;"
 			}
 		],
 		"languages": [{
