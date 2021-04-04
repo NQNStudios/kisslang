@@ -11,6 +11,9 @@
 (defalias &call inputBox Vscode.window.showInputBox)
 (defalias &call quickPick Vscode.window.showQuickPick)
 
+// commands
+(defalias &call executeCommand Vscode.commands.executeCommand)
+
 // ui
 (defalias &ident activeTextEditor Vscode.window.activeTextEditor)
 
@@ -198,6 +201,10 @@
     (dictSet commands description command)
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
         (registerShortcut (keyboardShortcut.split "") description)))
+
+// Register a VSCode command (built-in, or from an extension)
+(defun registerExistingCommand [description command]
+    (registerCommand description (lambda :Void [&opt _] (executeCommand command))))
 
 (defun :Void registerBuiltins []
     (set Prelude.print
