@@ -2,7 +2,7 @@
     (set pp (or pp (new Map<String,String>)))
     (when (stream.isEmpty) (return pp))
     (let [key (stream.expect "passport key" (lambda [] (stream.takeUntilAndDrop ":")))
-                value (stream.expect "passport value" (lambda [] (stream.takeUntilOneOf [" " #|"\n"|#])))]
+                value (stream.expect "passport value" (lambda [] (stream.takeUntilOneOf [" " "\n"] true)))]
         (dictSet pp key value))
     (if (= #|"\n\n"|# (try (stream.expect "paragraph break" (lambda [] (stream.peekChars 2))) (catch [e] "")))
             (begin (stream.dropWhitespace) pp)

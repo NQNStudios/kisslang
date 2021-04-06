@@ -140,12 +140,8 @@ class Reader {
     public static final terminators = [")", "]", "}", '"', "/*", "\n", " "];
 
     public static function nextToken(stream:Stream, expect:String) {
-        switch (stream.takeUntilOneOf(terminators)) {
+        switch (stream.takeUntilOneOf(terminators, true)) {
             case Some(tok) if (tok.length > 0):
-                return tok;
-            case None if (stream.content.length > 0):
-                var tok = stream.content;
-                stream.dropChars(stream.content.length);
                 return tok;
             default:
                 stream.error('Expected $expect');

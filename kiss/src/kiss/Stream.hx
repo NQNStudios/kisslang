@@ -165,10 +165,15 @@ class Stream {
         dropChars(content.length - trimmed.length);
     }
 
-    public function takeUntilOneOf(terminators:Array<String>):Option<String> {
+    public function takeUntilOneOf(terminators:Array<String>, allowEOF:Bool = false):Option<String> {
         var indices = [for (term in terminators) content.indexOf(term)].filter((idx) -> idx >= 0);
-        if (indices.length == 0)
-            return None;
+        if (indices.length == 0) {
+            return if (allowEOF) {
+                Some(takeRest());
+            } else {
+                None;
+            }
+        }
         var firstIndex = Math.floor(indices.fold(Math.min, indices[0]));
         return takeChars(firstIndex);
     }
@@ -184,8 +189,18 @@ class Stream {
         return Some(toReturn);
     }
 
+    public function takeRest():String {
+        var toReturn = content;
+        dropChars(content.length);
+        return toReturn;
+    }
+
     public function takeLine():Option<String> {
-        return takeUntilAndDrop("\n");
+        return switch (takeUntilAndDrop("\n")) {
+            case Some(line): Some(line);
+            case None if (content.length > 0): Some(takeRest());
+            default: None;
+        };
     }
 
     public function expect(whatToExpect:String, f:Void->Option<String>):String {
