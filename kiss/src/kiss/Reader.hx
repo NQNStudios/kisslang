@@ -140,12 +140,17 @@ class Reader {
     public static final terminators = [")", "]", "}", '"', "/*", "\n", " "];
 
     public static function nextToken(stream:Stream, expect:String) {
-        var tok = stream.expect(expect, () -> stream.takeUntilOneOf(terminators));
-        if (tok.length == 0) {
-            stream.error('Expected $expect');
-            return null;
+        switch (stream.takeUntilOneOf(terminators)) {
+            case Some(tok) if (tok.length > 0):
+                return tok;
+            case None if (stream.content.length > 0):
+                var tok = stream.content;
+                stream.dropChars(stream.content.length);
+                return tok;
+            default:
+                stream.error('Expected $expect');
+                return null;
         }
-        return tok;
     }
 
     public static function assertRead(stream:Stream, k:KissState):ReaderExp {
