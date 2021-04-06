@@ -176,7 +176,6 @@ class Kiss {
                 }
                 fields;
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                trace(mac);
                 var expandedExp = macros[mac](exp, args, k);
                 if (expandedExp != null) readerExpToFields(expandedExp, k, errorIfNot) else [];
             case CallExp({pos: _, def: Symbol(alias)}, args) if (callAliases.exists(alias)):

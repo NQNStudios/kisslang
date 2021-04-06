@@ -6,7 +6,7 @@ os:
   - windows
 haxe:
   - stable
-# - development
+  - development
 env:
   - KISS_TARGET=cpp
   - KISS_TARGET=interp

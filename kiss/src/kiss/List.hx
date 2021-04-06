@@ -20,7 +20,7 @@ abstract List<T>(Array<T>) from Array<T> to Array<T> {
     }
 
     @:to
-    public function toArray<T>() {
+    public function toArray() {
         return this;
     }
 
@@ -29,7 +29,7 @@ abstract List<T>(Array<T>) from Array<T> to Array<T> {
     }
 
     @:arrayAccess
-    public inline function get<T>(idx:Int):Null<T> {
+    public inline function get(idx:Int):Null<T> {
         return this[realIndex(idx)];
     }
 
