@@ -11,7 +11,7 @@
         (Sys.sleep delay)
         (check file delay command erase))
 
-(defun main []
+(defun :Void main []
     (check 
         (nth (Sys.args) 0)
         (Std.parseFloat (nth (Sys.args) 1))

@@ -1,4 +1,4 @@
-(defun main []
+(defun :Void main []
     (let [args (Sys.args)
             [&mut days years] (for arg args 
                                 (case arg

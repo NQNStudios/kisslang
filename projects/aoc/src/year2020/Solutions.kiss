@@ -48,9 +48,9 @@
     
     // Day 4
     (when (<= 0 (days.indexOf 4))
-        (assert (= 2 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-example.txt"))))
-        (assert (= 250 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt"))))
-        (assert (= 158 (Passports.countValidPassports (new Stream "src/year2020/inputs/day4-1.txt") "strict"))))
+        (assert (= 2 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-example.txt"))))
+        (assert (= 250 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt"))))
+        (assert (= 158 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt") "strict"))))
         
     // Day 5
     (when (<= 0 (days.indexOf 5))

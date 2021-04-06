@@ -13,7 +13,7 @@
 // TODO add sequentialPerPDF argument (which, when used, .shift()s pages from the beginning of PDFs)
 // TODO add chunkSize argument (default 1, which specifies how many pages in order to pull from a random PDF. value of -1 means take the whole PDF, and remove it from the list)
 // TODO make output page limit optional
-(defun main []
+(defun :Void main []
     (let [[sourceDir numPages] (Sys.args)]
         (loadAll (for file (Fs.readdirSync sourceDir) (+ sourceDir "/" file))
             (lambda [:Array<PDFDocument> inputPdfs]
