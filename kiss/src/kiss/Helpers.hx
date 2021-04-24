@@ -57,6 +57,17 @@ class Helpers {
         };
     }
 
+    public static function varName(formName:String, nameExp:ReaderExp) {
+        return switch (nameExp.def) {
+            case Symbol(name):
+                name;
+            case MetaExp(_, nameExp) | TypedExp(_, nameExp):
+                varName(formName, nameExp);
+            default:
+                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name, :Typed variable name, and/or &meta variable name.');
+        };
+    }
+
     // TODO generic type parameter declarations
     public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
         if (name != null) {

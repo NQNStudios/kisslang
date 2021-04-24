@@ -515,6 +515,24 @@ class Macros {
 
         macros["awaitLet"] = awaitLet;
 
+        // TODO test defnew
+        macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, null, "(defnew [[args...]] [[property bindings...]] [body...]");
+            var bindingList = exps[1].bindingList("defnew");
+            var bindingPairs = Prelude.groups(bindingList, 2);
+
+            var b = wholeExp.expBuilder();
+            var propertyDefs = [for (bindingPair in bindingPairs) b.call(b.symbol("defprop"), [bindingPair[0]])];
+            var propertySetExps = [for (bindingPair in bindingPairs)
+                b.call(b.symbol("set"), [b.symbol(Helpers.varName("a defprop property binding", bindingPair[0])), bindingPair[1]])];
+            return b.begin(propertyDefs.concat([
+                b.call(b.symbol("defmethod"), [
+                    b.symbol("new"),
+                    exps[0]
+                ].concat(propertySetExps).concat(exps.slice(2)))
+            ]));
+        };
+
         return macros;
     }
 
