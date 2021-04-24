@@ -6,8 +6,7 @@
         :Bytes green (Bytes.alloc area)
         :Bytes blue (Bytes.alloc area)]
 
-    (unless fillColor (set fillColor Black))
-    (fill fillColor))
+    (fill (or fillColor Black)))
 
 (defmethod fill [:Color color]
     (red.fill 0 area color.r)
@@ -15,3 +14,4 @@
     (blue.fill 0 area color.b))
 
 (defvar Black (object r 0 g 0 b 0))
+(defvar White (object r 255 g 255 b 255))

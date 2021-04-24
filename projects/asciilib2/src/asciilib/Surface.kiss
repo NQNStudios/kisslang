@@ -1,0 +1,8 @@
+(defnew [_width _height &opt :Color backgroundColor :String letter :Color letterColor]
+    [:Int width _width
+        :Int height _height
+        :Colors backgroundColors (new Colors width height (or backgroundColor Colors.Black))
+        :Letters letters (new Letters width height (or letter " "))
+        :Colors letterColors (new Colors width height (or letterColor Colors.White))
+        :Grid<Bool> opacity (new Grid width height true)
+        :Grid<String> specialInfo (new Grid width height "")])

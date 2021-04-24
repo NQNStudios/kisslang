@@ -1,7 +1,6 @@
 package asciilib;
 
 import haxe.io.Bytes;
-import kiss.Prelude;
 
 typedef Color = {
     r:Int,
