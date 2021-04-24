@@ -87,7 +87,7 @@ class FieldForms {
     }
 
     static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
-        wholeExp.checkNumArgs(2, 3, '($formName [optional: &mut] [optional :type] [variable] [value])');
+        wholeExp.checkNumArgs(1, 3, '($formName [optional: &mut] [optional :type] [variable] [optional value])');
 
         var name = fieldName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
@@ -99,7 +99,7 @@ class FieldForms {
                 case TypedExp(type, _):
                     Helpers.parseComplexType(type, args[0]);
                 default: null;
-            }, k.convert(args[1])),
+            }, if (args.length > 1) k.convert(args[1]) else null),
             pos: wholeExp.macroPos()
         };
     }
