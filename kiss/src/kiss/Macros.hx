@@ -484,31 +484,33 @@ class Macros {
                 ]);
         };
 
-        // TODO use expBuilder()
+        // TODO test this
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             wholeExp.checkNumArgs(2, null, "(awaitLet [[promise bindings...]] [body...])");
             var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
-            return CallExp(FieldExp("then", firstValue).withPosOf(wholeExp), [
-                CallExp(Symbol("lambda").withPosOf(wholeExp), [
-                    ListExp([firstName]).withPosOf(wholeExp),
+            var b = wholeExp.expBuilder();
+
+            return b.call(b.field("then", firstValue), [
+                b.call(b.symbol("lambda"), [
+                    b.list([firstName]),
                     if (bindingList.length == 0) {
-                        CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(1)).withPosOf(wholeExp);
+                        b.call(b.symbol("begin"), exps.slice(1));
                     } else {
-                        awaitLet(wholeExp, [ListExp(bindingList).withPosOf(wholeExp)].concat(exps.slice(1)), k);
+                        awaitLet(wholeExp, [b.list(bindingList)].concat(exps.slice(1)), k);
                     }
-                ]).withPosOf(wholeExp),
+                ]),
                 // Handle rejections:
-                CallExp(Symbol("lambda").withPosOf(wholeExp), [
-                    ListExp([Symbol("reason").withPosOf(wholeExp)]).withPosOf(wholeExp),
-                    CallExp(Symbol("throw").withPosOf(wholeExp), [
+                b.call(b.symbol("lambda"), [
+                    b.list([b.symbol("reason")]),
+                    b.call(b.symbol("throw"), [
                         // TODO generalize CompileError to KissError which will also handle runtime errors
                         // with the same source position format
-                        StrExp("rejected promise").withPosOf(wholeExp)
-                    ]).withPosOf(wholeExp)
-                ]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+                        b.str("rejected promise")
+                    ])
+                ])
+            ]);
         }
 
         macros["awaitLet"] = awaitLet;
