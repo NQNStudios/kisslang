@@ -1,0 +1,17 @@
+(defnew [_width _height &opt :Color fillColor]
+    [:Int width _width
+        :Int height _height
+        :Int area (* width height)
+        :Bytes red (Bytes.alloc area)
+        :Bytes green (Bytes.alloc area)
+        :Bytes blue (Bytes.alloc area)]
+
+    (unless fillColor (set fillColor Black))
+    (fill fillColor))
+
+(defmethod fill [:Color color]
+    (red.fill 0 area color.r)
+    (green.fill 0 area color.g)
+    (blue.fill 0 area color.b))
+
+(defvar Black (object r 0 g 0 b 0))
