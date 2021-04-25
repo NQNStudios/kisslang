@@ -521,6 +521,8 @@ class Macros {
             var bindingList = exps[1].bindingList("defnew");
             var bindingPairs = Prelude.groups(bindingList, 2);
 
+            // TODO allow &prop in the arg list to bind it directly to a same-named variable
+
             var b = wholeExp.expBuilder();
             var propertyDefs = [for (bindingPair in bindingPairs) b.call(b.symbol("defprop"), [bindingPair[0]])];
             var propertySetExps = [for (bindingPair in bindingPairs)

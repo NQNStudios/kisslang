@@ -1,13 +1,15 @@
-(defnew [:String title 
-            :Int width
-            :Int height
-            :Int letterWidth
-            :Int letterHeight
-            :GameLogic gameLogic
-            :GraphicsBackend _graphicsBackend]
-    [graphics (new Graphics width height)
-        logic gameLogic
-        graphicsBackend _graphicsBackend]
+(defnew [title
+            width
+            height
+            letterWidth
+            letterHeight
+            _gameLogic
+            _graphicsBackend]
+    
+    // TODO the type annotation on this line feels like a bit much, but is necessary:
+    [:Graphics graphics (new Graphics width height)
+        :GameLogic gameLogic _gameLogic
+        :GraphicsBackend graphicsBackend _graphicsBackend]
     
     (graphicsBackend.initialize title width height letterWidth letterHeight))
 
