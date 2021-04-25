@@ -221,6 +221,11 @@ class SpecialForms {
             EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
         };
 
+        map["loop"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, null, '(loop [body...])');
+            EWhile(macro true, k.convert(wholeExp.expBuilder().begin(args)), true).withMacroPosOf(wholeExp);
+        };
+
         map["return"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(0, 1, '(return [?value])');
             var returnExpr = if (args.length == 1) k.convert(args[0]) else null;
