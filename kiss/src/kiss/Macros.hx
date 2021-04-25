@@ -535,6 +535,12 @@ class Macros {
             ]));
         };
 
+        macros["collect"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, "(collect [iterator or iterable])");
+            var b = wholeExp.expBuilder();
+            b.call(b.symbol("for"), [b.symbol("elem"), exps[0], b.symbol("elem")]);
+        }
+
         return macros;
     }
 

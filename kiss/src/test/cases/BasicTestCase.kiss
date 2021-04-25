@@ -27,6 +27,10 @@
 // Array access is via nth
 (defvar myArrayLast (nth myArray -1))
 
+// (collect) turns iterators to arrays
+(defun _testCollect []
+    (Assert.equals "[0,1,2]" (Std.string (collect (range 3)))))
+
 // Variadic math uses haxe's Lambda.fold under the hood
 (defvar mySum (+ 1 2 3))
 
