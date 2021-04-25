@@ -17,4 +17,6 @@
     (gameLogic.update deltaSeconds))
 
 (defmethod draw []
-    (graphicsBackend.draw graphics))
+    (let [&mut changedGraphics false]
+        (gameLogic.draw (lambda [] (set changedGraphics true) graphics))
+        (when changedGraphics (graphicsBackend.draw graphics))))

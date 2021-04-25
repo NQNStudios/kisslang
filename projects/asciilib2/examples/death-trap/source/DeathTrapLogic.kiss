@@ -1,4 +1,4 @@
 (defnew [] [:Int a 5])
 
 (defmethod :Void update [:Float deltaSeconds] 0)
-(defmethod :Void draw [:Graphics graphics] 0)
+(defmethod :Void draw [:Void->Graphics graphics] 0)
