@@ -2,9 +2,10 @@
 
 (defmethod new [] 0)
 
-(defmethod :Void update [:Float deltaSeconds] 0)
-(defmethod :Void draw [:Void->Graphics graphics]
+(defmethod :Void initialize [:Assets assets]
+    (assets.loadSurface "laptop" AssetPaths.laptop__srf))
+(defmethod :Void update [:Game game :Float deltaSeconds] 0)
+(defmethod :Void draw [:Void->Graphics graphics :Assets assets]
     (when firstDraw
         (set firstDraw false)
-        (.setBackgroundColor (graphics) 5 5 Colors.White)
-        (.setLetter (graphics) 10 5 (object char "@" color Colors.Red))))
+        (.blitSurface (graphics) (assets.getSurface "laptop") 0 0)))

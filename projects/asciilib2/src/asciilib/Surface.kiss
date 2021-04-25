@@ -20,6 +20,32 @@
     (letters.setChar x y letter.char)
     (letterColors.setPixel x y letter.color))
 
+(defmethod isCellOpaque [x y]
+    (opacity.getCell x y))
+
+(defmethod setCellOpacity [x y value]
+    (opacity.setCell x y value))
+
+(defmethod getSpecialInfo [x y]
+    (specialInfo.getCell x y))
+
+(defmethod setSpecialInfo [x y value]
+    (specialInfo.setCell x y value))
+
+// TODO rectangle type
+// TODO optional source rectangle argument
+(defmethod blitSurface [:Surface surface x y]
+    (doFor [srcX destX] (zip (collect (range 0 surface.width)) (collect (range x (+ x surface.width))))
+        (when (< -1 destX width)
+            (doFor [srcY destY] (zip (collect (range 0 surface.height)) (collect (range y (+ y surface.height))))
+                (when (< -1 destY height)
+                    (when (surface.isCellOpaque srcX srcY)
+                        (setBackgroundColor destX destY (surface.getBackgroundColor srcX srcY))
+                        (setLetter destX destY (surface.getLetter srcX srcY))
+                        (setSpecialInfo destX destY (surface.getSpecialInfo srcX srcY))
+                        // Cover transparent cells in the lower surface with opaque ones
+                        (setCellOpacity destX destY true)))))))
+
 (defun fromString [text]
     (let [stream (Stream.fromString text)
             :Map<String,Color> colors (new Map)
@@ -67,4 +93,5 @@
                     (stream.dropString "SPECIAL INFO\n")
                     (doFor y (range height)
                         (doFor x (range width)
-                            (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)}))))))))))
+                            (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)})))))
+                    surface)))))

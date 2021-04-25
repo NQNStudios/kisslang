@@ -1,0 +1,3 @@
+(defmethod new [] 0)
+
+(defmethod loadText [filePath] (Assets.getText filePath))

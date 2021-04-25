@@ -4,19 +4,22 @@
             letterWidth
             letterHeight
             _gameLogic
+            assetsBackend
             _graphicsBackend]
     
     // TODO the type annotation on this line feels like a bit much, but is necessary:
     [:Graphics graphics (new Graphics width height)
         :GameLogic gameLogic _gameLogic
+        :Assets assets (new Assets assetsBackend)
         :GraphicsBackend graphicsBackend _graphicsBackend]
     
-    (graphicsBackend.initialize title width height letterWidth letterHeight))
+    (graphicsBackend.initialize title width height letterWidth letterHeight)
+    (gameLogic.initialize assets))
 
 (defmethod update [:Float deltaSeconds]
-    (gameLogic.update deltaSeconds))
+    (gameLogic.update this deltaSeconds))
 
 (defmethod draw []
     (let [&mut changedGraphics false]
-        (gameLogic.draw (lambda [] (set changedGraphics true) graphics))
+        (gameLogic.draw (lambda [] (set changedGraphics true) graphics) assets)
         (when changedGraphics (graphicsBackend.draw graphics))))

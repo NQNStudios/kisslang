@@ -63,7 +63,6 @@ class Stream {
             content = content.replace('\r', '');
         }
 
-
         // Life is easier with a trailing newline
         if (content.charAt(content.length - 1) != "\n")
             content += "\n";
