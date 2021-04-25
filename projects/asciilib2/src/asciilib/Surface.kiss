@@ -15,3 +15,7 @@
 
 (defmethod getLetter [x y]
     (object char (letters.getChar x y) color (letterColors.getPixel x y)))
+
+(defmethod setLetter [x y letter]
+    (letters.setChar x y letter.char)
+    (letterColors.setPixel x y letter.color))

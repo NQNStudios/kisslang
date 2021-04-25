@@ -34,4 +34,7 @@
     (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b)))
 
 (defvar Black (object r 0 g 0 b 0))
+(defvar Red (object r 255 g 0 b 0))
+(defvar Green (object r 0 g 255 b 0))
+(defvar Blue (object r 0 g 0 b 255))
 (defvar White (object r 255 g 255 b 255))

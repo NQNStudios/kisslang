@@ -6,4 +6,5 @@
 (defmethod :Void draw [:Void->Graphics graphics]
     (when firstDraw
         (set firstDraw false)
-        (.setBackgroundColor (graphics) 5 5 Colors.White)))
+        (.setBackgroundColor (graphics) 5 5 Colors.White)
+        (.setLetter (graphics) 10 5 (object char "@" color Colors.Red))))

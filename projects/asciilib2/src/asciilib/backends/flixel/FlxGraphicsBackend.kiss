@@ -1,20 +1,43 @@
 (defprop &mut :FlxGroup backgroundColors null)
+(defprop &mut :FlxGroup letters null)
 (defprop &mut :Int letterWidth 0)
 (defprop &mut :Int letterHeight 0)
-(defnew [_state]
-    [:FlxState state _state])
+(defprop &mut :FlxBitmapFont font null)
+
+(defnew [_state
+            _fontAsset
+            &opt _letters _region _spacing]
+    [:FlxState state _state
+        :FlxBitmapFontGraphicAsset fontAsset _fontAsset
+        :String fontLetters _letters
+        :FlxRect region _region
+        :FlxPoint spacing _spacing])
 
 (defmethod :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
     (set letterWidth _letterWidth)
-    (set letterHeight _letterHeight))
+    (set letterHeight _letterHeight)
+    (set font (FlxBitmapFont.fromMonospace fontAsset fontLetters (new FlxPoint letterWidth letterHeight) region spacing)))
 
 (defmethod :Void draw [:Graphics graphics]
     (when backgroundColors (backgroundColors.kill))
     (set backgroundColors (new FlxGroup))
+    (when letters (letters.kill))
+    (set letters (new FlxGroup))
     (for x (range graphics.width)
         (for y (range graphics.height)
             (let [bgc (graphics.getBackgroundColor x y)]
                 (unless (Colors.equal bgc Colors.Black)
                     (let [sprite (new FlxSprite (* letterWidth x) (* letterHeight y))]
-                        (backgroundColors.add (sprite.makeGraphic letterWidth letterHeight (FlxColor.fromRGB bgc.r bgc.g bgc.b))))))))
-    (state.add backgroundColors))
+                        (backgroundColors.add (sprite.makeGraphic letterWidth letterHeight (FlxColor.fromRGB bgc.r bgc.g bgc.b))))))
+            (let [letter (graphics.getLetter x y)]
+                (unless (= letter.char " ")
+                    (let [color letter.color
+                            text (new FlxBitmapText font)]
+                        (set text.text letter.char)
+                        (set text.x (* letterWidth x))
+                        (set text.y (* letterHeight y))
+                        (set text.useTextColor true)
+                        (set text.textColor (FlxColor.fromRGB color.r color.g color.b))
+                        (letters.add text))))))
+    (state.add backgroundColors)
+    (state.add letters))
