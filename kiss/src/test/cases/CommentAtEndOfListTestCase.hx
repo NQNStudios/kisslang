@@ -5,5 +5,5 @@ import utest.Test;
 import kiss.Prelude;
 import kiss.List;
 
-@:build(kiss.Kiss.build("kiss/src/test/cases/CommentAtEndOfListTestCase.kiss"))
+@:build(kiss.Kiss.build())
 class CommentAtEndOfListTestCase extends Test {}

@@ -5,5 +5,5 @@ import kiss.Stream;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("src/year2020/Passports.kiss"))
+@:build(kiss.Kiss.build())
 class Passports {}

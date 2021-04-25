@@ -15,5 +15,5 @@ class DSLTestCase extends Test {
     }
 }
 
-@:build(kiss.EmbeddedScript.build("kiss/src/test/cases/DSL.kiss", "kiss/src/test/cases/DSLScript.dsl"))
+@:build(kiss.EmbeddedScript.build("DSL.kiss", "DSLScript.dsl"))
 class DSLScript extends EmbeddedScript {}

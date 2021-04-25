@@ -11,5 +11,5 @@ typedef Color = {
 /**
  * The Colors class represents a 2D grid of colors. Under the hood, it's byte channels
  */
-@:build(kiss.Kiss.build("src/asciilib/Colors.kiss"))
+@:build(kiss.Kiss.build())
 class Colors {}

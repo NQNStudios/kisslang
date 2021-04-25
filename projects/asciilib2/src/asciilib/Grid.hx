@@ -1,4 +1,4 @@
 package asciilib;
 
-@:build(kiss.Kiss.build("src/asciilib/Grid.kiss"))
+@:build(kiss.Kiss.build())
 class Grid<T> {}

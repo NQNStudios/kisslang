@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/Coin.kiss"))
+@:build(kiss.Kiss.build())
 class Coin extends FlxSprite {}

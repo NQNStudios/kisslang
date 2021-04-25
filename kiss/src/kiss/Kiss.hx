@@ -16,6 +16,7 @@ import kiss.cloner.Cloner;
 using kiss.Helpers;
 using kiss.Reader;
 using tink.MacroApi;
+using haxe.io.Path;
 
 typedef ExprConversion = (ReaderExp) -> Expr;
 
@@ -91,13 +92,17 @@ class Kiss {
     /**
         Build macro: add fields to a class from a corresponding .kiss file
     **/
-    public static function build(kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
+    public static function build(?kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
+        var classPath = Context.getPosInfos(Context.currentPos()).file;
+        // (load... ) relative to the original file
+        var loadingDirectory = Path.directory(classPath);
+        if (kissFile == null) {
+            kissFile = classPath.withoutDirectory().withoutExtension().withExtension("kiss");
+        }
+
         return _try(() -> {
             var classFields:Array<Field> = if (useClassFields) Context.getBuildFields() else [];
-            var stream = Stream.fromFile(kissFile);
-
-            // (load... ) relative to the original file
-            var loadingDirectory = Path.directory(kissFile);
+            var stream = Stream.fromFile(Path.join([loadingDirectory, kissFile]));
 
             if (k == null)
                 k = defaultKissState();
@@ -112,13 +117,12 @@ class Kiss {
                         nextExp.checkNumArgs(1, 1, "(load \"[file]\")");
                         switch (loadArgs[0].def) {
                             case StrExp(otherKissFile):
-                                var filePath = Path.join([loadingDirectory, otherKissFile]);
-                                if (!k.loadedFiles.exists(filePath)) {
-                                    var loadedFields = Kiss.build(filePath, k, false);
+                                if (!k.loadedFiles.exists(otherKissFile)) {
+                                    var loadedFields = Kiss.build(otherKissFile, k, false);
                                     for (field in loadedFields) {
                                         classFields.push(field);
                                     }
-                                    k.loadedFiles[filePath] = true;
+                                    k.loadedFiles[otherKissFile] = true;
                                 }
                             default:
                                 throw CompileError.fromExp(loadArgs[0], "only argument to load should be a string literal");

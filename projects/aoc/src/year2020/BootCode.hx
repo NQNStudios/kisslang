@@ -3,14 +3,14 @@ package year2020;
 import kiss.EmbeddedScript;
 import kiss.Prelude;
 
-@:build(kiss.EmbeddedScript.build("src/year2020/BootCodeDSL.kiss", "src/year2020/inputs/day8-example.txt"))
+@:build(kiss.EmbeddedScript.build("BootCodeDSL.kiss", "inputs/day8-example.txt"))
 class BootCodeExample extends EmbeddedScript {}
 
-@:build(kiss.EmbeddedScript.build("src/year2020/BootCodeDSL.kiss", "src/year2020/inputs/day8.txt"))
+@:build(kiss.EmbeddedScript.build("BootCodeDSL.kiss", "inputs/day8.txt"))
 class BootCodeReal extends EmbeddedScript {}
 
-@:build(kiss.EmbeddedScript.build("src/year2020/BootCodeFixDSL.kiss", "src/year2020/inputs/day8-example.txt"))
+@:build(kiss.EmbeddedScript.build("BootCodeFixDSL.kiss", "inputs/day8-example.txt"))
 class BootCodeFixExample extends EmbeddedScript {}
 
-@:build(kiss.EmbeddedScript.build("src/year2020/BootCodeFixDSL.kiss", "src/year2020/inputs/day8.txt"))
+@:build(kiss.EmbeddedScript.build("BootCodeFixDSL.kiss", "inputs/day8.txt"))
 class BootCodeFix extends EmbeddedScript {}

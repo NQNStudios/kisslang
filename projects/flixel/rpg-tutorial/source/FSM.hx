@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/FSM.kiss"))
+@:build(kiss.Kiss.build())
 class FSM {}

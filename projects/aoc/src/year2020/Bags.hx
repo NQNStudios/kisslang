@@ -11,5 +11,5 @@ typedef ParentMap = Map<String, Map<String, Int>>;
 // Color IS CONTAINED IN these colors
 typedef ChildMap = Map<String, Array<String>>;
 
-@:build(kiss.Kiss.build("src/year2020/Bags.kiss"))
+@:build(kiss.Kiss.build())
 class Bags {}

@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/Player.kiss"))
+@:build(kiss.Kiss.build())
 class Player extends FlxSprite {}

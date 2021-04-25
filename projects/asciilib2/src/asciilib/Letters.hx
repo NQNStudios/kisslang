@@ -1,4 +1,4 @@
 package asciilib;
 
-@:build(kiss.Kiss.build("src/asciilib/Letters.kiss"))
+@:build(kiss.Kiss.build())
 class Letters {}

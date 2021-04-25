@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/MenuState.kiss"))
+@:build(kiss.Kiss.build())
 class MenuState extends FlxState {}

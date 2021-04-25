@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/PlayState.kiss"))
+@:build(kiss.Kiss.build())
 class PlayState extends FlxState {}

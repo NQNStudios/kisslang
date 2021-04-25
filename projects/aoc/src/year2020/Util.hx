@@ -5,5 +5,5 @@ import kiss.Prelude;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("src/year2020/Util.kiss"))
+@:build(kiss.Kiss.build())
 class Util {}

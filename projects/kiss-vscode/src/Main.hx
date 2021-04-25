@@ -23,7 +23,7 @@ typedef KissConfig = {
     init:() -> Void
 };
 
-@:build(kiss.Kiss.build("src/Main.kiss"))
+@:build(kiss.Kiss.build())
 class Main {
     // TODO support EMeta(s:MetadataEntry, e:Expr) via Kiss so this signature can be moved to Main.kiss
     @:expose("activate")

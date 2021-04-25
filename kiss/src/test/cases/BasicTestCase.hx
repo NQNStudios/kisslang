@@ -8,7 +8,7 @@ import haxe.ds.Option;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("kiss/src/test/cases/BasicTestCase.kiss"))
+@:build(kiss.Kiss.build())
 class BasicTestCase extends Test {
     function testStaticVar() {
         Assert.equals("Howdy", BasicTestCase.message);

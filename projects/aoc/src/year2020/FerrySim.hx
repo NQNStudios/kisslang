@@ -10,8 +10,8 @@ typedef SeatsChanged = {
     changed:Bool
 };
 
-@:build(kiss.EmbeddedScript.build("src/year2020/FerrySimDSL.kiss", "src/year2020/inputs/day11-example.txt"))
+@:build(kiss.EmbeddedScript.build("FerrySimDSL.kiss", "inputs/day11-example.txt"))
 class FerrySimExample extends EmbeddedScript {}
 
-@:build(kiss.EmbeddedScript.build("src/year2020/FerrySimDSL.kiss", "src/year2020/inputs/day11.txt"))
+@:build(kiss.EmbeddedScript.build("FerrySimDSL.kiss", "inputs/day11.txt"))
 class FerrySimReal extends EmbeddedScript {}

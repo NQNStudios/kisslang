@@ -9,5 +9,5 @@ enum EnemyType
 	BOSS;
 }
 
-@:build(kiss.Kiss.build("source/Enemy.kiss"))
+@:build(kiss.Kiss.build())
 class Enemy extends FlxSprite {}

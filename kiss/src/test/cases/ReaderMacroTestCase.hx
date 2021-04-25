@@ -4,7 +4,7 @@ import utest.Test;
 import utest.Assert;
 import kiss.Prelude;
 
-@:build(kiss.Kiss.build("kiss/src/test/cases/ReaderMacroTestCase.kiss"))
+@:build(kiss.Kiss.build())
 class ReaderMacroTestCase extends Test {
     function testReadBang() {
         Assert.equals("String that takes the rest of the line", ReaderMacroTestCase.myLine());

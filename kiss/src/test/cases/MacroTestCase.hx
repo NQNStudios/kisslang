@@ -8,7 +8,7 @@ import haxe.ds.Option;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("kiss/src/test/cases/MacroTestCase.kiss"))
+@:build(kiss.Kiss.build())
 class MacroTestCase extends Test {
     function testMultipleFieldForms() {
         Assert.equals(5, myVar);

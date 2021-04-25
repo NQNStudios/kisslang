@@ -6,5 +6,5 @@ import year2020.Util;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("src/year2020/Adapters.kiss"))
+@:build(kiss.Kiss.build())
 class Adapters {}

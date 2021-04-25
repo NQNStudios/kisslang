@@ -4,5 +4,5 @@ import kiss.Kiss;
 import kiss.Prelude;
 import asciilib.Surface;
 
-@:build(kiss.Kiss.build("src/Main.kiss"))
+@:build(kiss.Kiss.build())
 class Main {}

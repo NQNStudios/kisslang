@@ -2,5 +2,5 @@ package asciilib;
 
 import asciilib.Colors;
 
-@:build(kiss.Kiss.build("src/asciilib/Surface.kiss"))
+@:build(kiss.Kiss.build())
 class Surface {}

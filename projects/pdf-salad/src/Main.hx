@@ -10,5 +10,5 @@ import Externs;
 
 using StringTools;
 
-@:build(kiss.Kiss.build("src/Main.kiss"))
+@:build(kiss.Kiss.build())
 class Main {}

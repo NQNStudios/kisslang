@@ -1,4 +1,4 @@
 package;
 
-@:build(kiss.Kiss.build("source/Main.kiss"))
+@:build(kiss.Kiss.build())
 class Main extends Sprite {}
