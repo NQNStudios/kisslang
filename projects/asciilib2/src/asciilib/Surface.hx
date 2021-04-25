@@ -1,6 +1,8 @@
 package asciilib;
 
 import asciilib.Colors;
+import kiss.Stream;
+import haxe.ds.Option;
 
 typedef Letter = {
     char:String,

@@ -19,3 +19,52 @@
 (defmethod setLetter [x y letter]
     (letters.setChar x y letter.char)
     (letterColors.setPixel x y letter.color))
+
+(defun fromString [text]
+    (let [stream (Stream.fromString text)
+            :Map<String,Color> colors (new Map)
+            :Map<String,String> infoCodes (new Map)
+            :Map<String,Bool> opacityCodes [=>"0" false =>"1" true]]
+        
+        (stream.dropString "COLORS\n")
+        (loop
+            (case (stream.takeLine)
+                ((Some "INFO CODES") (break))
+                ((Some colorLine)
+                    (let [[symbol _r _g _b] (colorLine.split " ")]
+                        (dictSet colors symbol (object r (Std.parseInt _r) g (Std.parseInt _g) b (Std.parseInt _b)))))
+                (None (throw "Expected INFO CODES in Surface"))))
+        (loop
+            (case (stream.takeLine)
+                ((Some "SIZE") (break))
+                ((Some infoLine)
+                    (let [infoTokens (infoLine.split " ")]
+                        (dictSet infoCodes (infoTokens.shift) (infoTokens.join " "))))
+                (None (throw "Expected SIZE in Surface"))))
+        (case (stream.takeLine)
+            (None (throw "expected [width] [height] in Surface"))
+            ((Some sizeLine)
+                (let [[width height] (.map (sizeLine.split " ") Std.parseInt)
+                        surface (new Surface width height)]
+                    (stream.dropString "CHARACTERS\n")
+                    (doFor row (range height)
+                        (setNth surface.letters.rows row (stream.expect "line of characters" ->{(stream.takeLine)})))
+                    (stream.dropString "BACKGROUND COLORS\n")
+                    (doFor y (range height)
+                        (doFor x (range width)
+                            (surface.setBackgroundColor x y (dictGet colors (stream.expect "a color code" ->{(stream.takeChars 1)}))))
+                        (stream.dropString "\n"))
+                    (stream.dropString "CHARACTER COLORS\n")
+                    (doFor y (range height)
+                        (doFor x (range width)
+                            (surface.letterColors.setPixel x y (dictGet colors (stream.expect "a color code" ->{(stream.takeChars 1)}))))
+                        (stream.dropString "\n"))
+                    (stream.dropString "OPACITY\n")
+                    (doFor y (range height)
+                        (doFor x (range width)
+                            (surface.opacity.setCell x y (dictGet opacityCodes (stream.expect "0 or 1" ->{(stream.takeChars 1)}))))
+                        (stream.dropString "\n"))
+                    (stream.dropString "SPECIAL INFO\n")
+                    (doFor y (range height)
+                        (doFor x (range width)
+                            (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)}))))))))))

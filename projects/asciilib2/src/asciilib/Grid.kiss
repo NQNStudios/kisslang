@@ -2,3 +2,6 @@
     [:Int width _width
         :Int height _height
         :Array<Array<T>> rows (for _ (range height) (for _ (range width) defaultValue))])
+
+(defmethod getCell [x y] (nth (nth rows y) x))
+(defmethod setCell [x y value] (setNth (nth rows y) x value))
