@@ -1,3 +1,20 @@
-(defnew [] [:Int a 5])
-(defmethod :Void initialize [:String title :Int width :Int height :Int letterWidth :Int letterHeight] 0)
-(defmethod :Void draw [:Graphics graphics] 0)
+(defprop &mut :FlxGroup backgroundColors null)
+(defprop &mut :Int letterWidth 0)
+(defprop &mut :Int letterHeight 0)
+(defnew [_state]
+    [:FlxState state _state])
+
+(defmethod :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
+    (set letterWidth _letterWidth)
+    (set letterHeight _letterHeight))
+
+(defmethod :Void draw [:Graphics graphics]
+    (when backgroundColors (backgroundColors.kill))
+    (set backgroundColors (new FlxGroup))
+    (for x (range graphics.width)
+        (for y (range graphics.height)
+            (let [bgc (graphics.getBackgroundColor x y)]
+                (unless (Colors.equal bgc Colors.Black)
+                    (let [sprite (new FlxSprite (* letterWidth x) (* letterHeight y))]
+                        (backgroundColors.add (sprite.makeGraphic letterWidth letterHeight (FlxColor.fromRGB bgc.r bgc.g bgc.b))))))))
+    (state.add backgroundColors))

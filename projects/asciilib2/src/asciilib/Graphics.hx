@@ -1,4 +1,4 @@
 package asciilib;
 
 @:build(kiss.Kiss.build())
-class Graphics {}
+class Graphics extends Surface {}

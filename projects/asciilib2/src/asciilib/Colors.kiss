@@ -13,5 +13,25 @@
     (green.fill 0 area color.g)
     (blue.fill 0 area color.b))
 
+(defmethod _index [x y]
+    (+ x (* y width)))
+
+(defmacro withIndex [idxName xName yName &rest body]
+    `(let [,idxName (_index ,xName ,yName)]
+        ,@body))
+
+(defmethod getPixel [x y]
+    (withIndex idx x y
+        (object r (red.get idx) g (green.get idx) b (blue.get idx))))
+
+(defmethod setPixel [x y color]
+    (withIndex idx x y
+        (red.set idx color.r)
+        (green.set idx color.g)
+        (blue.set idx color.b)))
+
+(defun equal [c1 c2]
+    (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b)))
+
 (defvar Black (object r 0 g 0 b 0))
 (defvar White (object r 255 g 255 b 255))

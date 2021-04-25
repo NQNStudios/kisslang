@@ -2,3 +2,6 @@
     [:Int width _width
         :Int height _height
         :Array<String> rows (for _ (range height) (* (or letter " ") width))])
+
+(defmethod getChar [x y]
+    (.charAt (nth rows y) x))

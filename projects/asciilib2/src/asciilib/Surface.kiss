@@ -6,3 +6,12 @@
         :Colors letterColors (new Colors width height (or letterColor Colors.White))
         :Grid<Bool> opacity (new Grid width height true)
         :Grid<String> specialInfo (new Grid width height "")])
+
+(defmethod getBackgroundColor [x y]
+    (backgroundColors.getPixel x y))
+
+(defmethod setBackgroundColor [x y color]
+    (backgroundColors.setPixel x y color))
+
+(defmethod getLetter [x y]
+    (object char (letters.getChar x y) color (letterColors.getPixel x y)))
