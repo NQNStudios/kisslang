@@ -1,6 +1,8 @@
 package kiss;
 
+#if (sys || hxnodejs)
 import sys.io.File;
+#end
 import haxe.ds.Option;
 
 using StringTools;
@@ -42,9 +44,11 @@ class Stream {
 
     public var startOfLine = true;
 
+    #if (sys || hxnodejs)
     public static function fromFile(file:String) {
         return new Stream(file, File.getContent(file));
     }
+    #end
 
     public static function fromString(content:String) {
         return new Stream("string", content);
