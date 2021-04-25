@@ -1,0 +1,2 @@
+(defnew [width height]
+    [surface (new Surface width height)])

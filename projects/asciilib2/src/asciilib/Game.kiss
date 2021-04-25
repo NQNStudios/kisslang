@@ -1,0 +1,18 @@
+(defnew [:String title 
+            :Int width
+            :Int height
+            :Int letterWidth
+            :Int letterHeight
+            :GameLogic gameLogic
+            :GraphicsBackend _graphicsBackend]
+    [graphics (new Graphics width height)
+        logic gameLogic
+        graphicsBackend _graphicsBackend]
+    
+    (graphicsBackend.initialize title width height letterWidth letterHeight))
+
+(defmethod update [:Float deltaSeconds]
+    (gameLogic.update deltaSeconds))
+
+(defmethod draw []
+    (graphicsBackend.draw graphics))
