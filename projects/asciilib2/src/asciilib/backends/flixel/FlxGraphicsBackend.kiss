@@ -1,0 +1,3 @@
+(defnew [] [:Int a 5])
+(defmethod :Void initialize [:String title :Int width :Int height :Int letterWidth :Int letterHeight] 0)
+(defmethod :Void draw [:Graphics graphics] 0)
