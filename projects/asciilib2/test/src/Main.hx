@@ -8,7 +8,7 @@ import asciilib.backends.test.*;
 
 class Main {
     public static function newGame(logic:GameLogic) {
-        return new Game("Test game", 100, 40, 8, 12, logic, new TestGraphicsBackend());
+        return new Game("Test game", 100, 40, 8, 12, logic, new TestAssetsBackend(), new TestGraphicsBackend());
     }
 
     static function main() {
