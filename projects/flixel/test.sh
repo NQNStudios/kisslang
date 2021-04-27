@@ -1,13 +1,7 @@
 #! /bin/bash
 
-haxelib dev asciilib .
-
-# Run the headless unit tests:
-echo "Running headless ASCIILib tests"
-(cd test && haxe build.hxml)
-
 # Make sure the examples with backends compile, at least:
-EXAMPLE_DIRS=examples/**/
+EXAMPLE_DIRS=./**/
 
 for EXAMPLE_DIR in $EXAMPLE_DIRS
 do
