@@ -1,3 +1,4 @@
 #! /bin/bash
 
-haxe build.hxml
+haxelib dev asciilib .
+(cd test && haxe build.hxml)

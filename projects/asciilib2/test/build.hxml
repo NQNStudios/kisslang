@@ -1,4 +1,6 @@
 -lib kiss
+-lib asciilib
+-lib utest
 -cp src
 --main Main
 --interp
