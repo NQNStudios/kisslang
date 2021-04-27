@@ -93,5 +93,6 @@
                     (stream.dropString "SPECIAL INFO\n")
                     (doFor y (range height)
                         (doFor x (range width)
-                            (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)})))))
+                            (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)}))))
+                        (stream.dropString "\n"))
                     surface)))))
