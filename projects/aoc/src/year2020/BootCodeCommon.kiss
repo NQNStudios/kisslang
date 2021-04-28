@@ -6,5 +6,4 @@
 (defmethod acc [v :Dynamic self] (self.setBreakPoint) (set self.accumulator (+ self.accumulator v)))
 (defmethod jmp [v :Dynamic self]
     (self.setBreakPoint)
-    (print (+ "jumping " (Std.string v) " from " (Std.string (+ 1 self.instructionPointer))))
     (set self.instructionPointer (+ self.instructionPointer (- v 1))))
