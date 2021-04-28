@@ -63,15 +63,14 @@ class EmbeddedScript {
         scriptFile = Path.join([loadingDirectory, scriptFile]);
 
         Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
-            var fields = Kiss.readerExpToFields(nextExp, k, false);
-            if (fields.length > 0) {
-                classFields = classFields.concat(fields);
-            } else {
-                // In a DSL script, anything that's not a field definition is a command line
+            var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
+
+            if (expr != null) {
                 commandList.push(macro function(self) {
-                    ${Kiss.readerExpToHaxeExpr(nextExp, k)};
+                    $expr;
                 });
             }
+
             // This return is essential for type unification of concat() and push() above... ugh.
             return;
             // TODO also allow label setting and multiple commands coming from the same expr?

@@ -19,6 +19,19 @@ class Macros {
     public static function builtins() {
         var macros:Map<String, MacroFunction> = [];
 
+        macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, "(load \"[file]\")");
+            switch (args[0].def) {
+                case StrExp(otherKissFile):
+                    if (!k.loadedFiles.exists(otherKissFile)) {
+                        Kiss.load(otherKissFile, k);
+                    }
+                default:
+                    throw CompileError.fromExp(args[0], "only argument to load should be a string literal");
+            }
+            null;
+        };
+
         function destructiveVersion(op:String, assignOp:String) {
             macros[assignOp] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
                 wholeExp.checkNumArgs(2, null, '($assignOp [var] [v1] [values...])');

@@ -30,7 +30,9 @@ typedef KissState = {
     wrapListExps:Bool,
     loadedFiles:Map<String, Bool>,
     callAliases:Map<String, ReaderExpDef>,
-    identAliases:Map<String, ReaderExpDef>
+    identAliases:Map<String, ReaderExpDef>,
+    fields:Array<Field>,
+    loadingDirectory:String
 };
 
 class Kiss {
@@ -59,7 +61,9 @@ class Kiss {
                 "has" => Symbol("Lambda.has"),
                 "count" => Symbol("Lambda.count")
             ],
-            identAliases: new Map()
+            identAliases: new Map(),
+            fields: [],
+            loadingDirectory: ""
         };
 
         // Helpful aliases
@@ -101,49 +105,30 @@ class Kiss {
         }
 
         return _try(() -> {
-            var classFields:Array<Field> = if (useClassFields) Context.getBuildFields() else [];
-            var stream = Stream.fromFile(Path.join([loadingDirectory, kissFile]));
-
             if (k == null)
                 k = defaultKissState();
 
-            Reader.readAndProcess(stream, k, (nextExp) -> {
-                #if test
-                Sys.println(nextExp.def.toString());
-                #end
-                switch (nextExp.def) {
-                    // (load... ) is the specialest of forms because it calls build() again and those fields need to be merged
-                    case CallExp({pos: _, def: Symbol("load")}, loadArgs):
-                        nextExp.checkNumArgs(1, 1, "(load \"[file]\")");
-                        switch (loadArgs[0].def) {
-                            case StrExp(otherKissFile):
-                                if (!k.loadedFiles.exists(otherKissFile)) {
-                                    var loadedFields = Kiss.build(otherKissFile, k, false);
-                                    for (field in loadedFields) {
-                                        classFields.push(field);
-                                    }
-                                    k.loadedFiles[otherKissFile] = true;
-                                }
-                            default:
-                                throw CompileError.fromExp(loadArgs[0], "only argument to load should be a string literal");
-                        }
-                    default:
-                        var fields = readerExpToFields(nextExp, k);
-                        #if test
-                        for (field in fields) {
-                            switch (field.kind) {
-                                case FVar(_, expr) | FFun({ret: _, args: _, expr: expr}):
-                                    Sys.println(expr.toString());
-                                default:
-                                    throw CompileError.fromExp(nextExp, 'cannot print the expression of generated field $field');
-                            }
-                        }
-                        #end
-                        classFields = classFields.concat(fields);
-                }
-            });
+            if (useClassFields)
+                k.fields = Context.getBuildFields();
+            k.loadingDirectory = loadingDirectory;
 
-            classFields;
+            load(kissFile, k);
+
+            k.fields;
+        });
+    }
+
+    public static function load(kissFile:String, k:KissState) {
+        k.loadedFiles[kissFile] = true;
+        var stream = Stream.fromFile(Path.join([k.loadingDirectory, kissFile]));
+        Reader.readAndProcess(stream, k, (nextExp) -> {
+            #if test
+            Sys.println(nextExp.def.toString());
+            #end
+
+            var expr = readerExpToHaxeExpr(nextExp, k);
+
+            // if non-null, stuff it in main()
         });
     }
 
@@ -154,52 +139,23 @@ class Kiss {
         if (k == null)
             k = defaultKissState();
 
-        var fields = [];
+        if (useClassFields)
+            k.fields = Context.getBuildFields();
 
         for (file in kissFiles) {
-            fields = fields.concat(build(file, k, useClassFields));
+            build(file, k, false);
         }
 
-        return fields;
+        return k.fields;
     }
 
-    public static function readerExpToFields(exp:ReaderExp, k:KissState, errorIfNot = true):Array<Field> {
+    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Null<Expr> {
+        var macros = k.macros;
         var fieldForms = k.fieldForms;
-
-        // Macros at top-level are allowed if they expand into a fieldform, or null like defreadermacro
-        var macros = k.macros;
-        var callAliases = k.callAliases;
-        var identAliases = k.identAliases;
-
-        return switch (exp.def) {
-            // Multiple field/macro definitions wrapped in `begin` are acceptable
-            case CallExp({pos: _, def: Symbol(mac)}, args) if (mac == "begin"):
-                var fields = [];
-                for (arg in args) {
-                    fields = fields.concat(readerExpToFields(arg, k, errorIfNot));
-                }
-                fields;
-            case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                var expandedExp = macros[mac](exp, args, k);
-                if (expandedExp != null) readerExpToFields(expandedExp, k, errorIfNot) else [];
-            case CallExp({pos: _, def: Symbol(alias)}, args) if (callAliases.exists(alias)):
-                var aliasedExp = CallExp(callAliases[alias].withPosOf(exp), args).withPosOf(exp);
-                readerExpToFields(aliasedExp, k, errorIfNot);
-            case CallExp({pos: _, def: Symbol(alias)}, args) if (identAliases.exists(alias)):
-                var aliasedExp = CallExp(identAliases[alias].withPosOf(exp), args).withPosOf(exp);
-                readerExpToFields(aliasedExp, k, errorIfNot);
-            case CallExp({pos: _, def: Symbol(formName)}, args) if (fieldForms.exists(formName)):
-                [fieldForms[formName](exp, args, k)];
-            default:
-                if (errorIfNot) throw CompileError.fromExp(exp, 'top-level expressions must be (or expand into) field or macro definitions'); else [];
-        };
-    }
-
-    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
-        var macros = k.macros;
         var specialForms = k.specialForms;
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
+
         var expr = switch (exp.def) {
             case Symbol(alias) if (k.identAliases.exists(alias)):
                 readerExpToHaxeExpr(k.identAliases[alias].withPosOf(exp), k);
@@ -211,8 +167,16 @@ class Kiss {
                 };
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
+            case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff)):
+                k.fields.push(fieldForms[ff](exp, args, k));
+                null; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                convert(macros[mac](exp, args, k));
+                var expanded = macros[mac](exp, args, k);
+                if (expanded != null) {
+                    convert(expanded);
+                } else {
+                    null;
+                };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](exp, args, k);
             case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
@@ -256,6 +220,7 @@ class Kiss {
         #if test
         // Sys.println(expr.toString()); // For very fine-grained codegen inspection--slows compilation a lot.
         #end
+
         return expr;
     }
 
