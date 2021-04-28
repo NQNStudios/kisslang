@@ -2,12 +2,10 @@ package kiss;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import uuid.Uuid;
 import kiss.Reader;
 import kiss.Kiss;
 import kiss.CompileError;
 
-using uuid.Uuid;
 using kiss.Kiss;
 using kiss.Reader;
 using kiss.Helpers;
@@ -178,8 +176,8 @@ class Macros {
         macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
             var b = wholeExp.expBuilder();
-            var uniqueVarName = "_" + Uuid.v4().toShort();
-            var uniqueVarSymbol = b.symbol(uniqueVarName);
+
+            var uniqueVarSymbol = b.gensym();
 
             b.begin([
                 b.call(b.symbol("deflocal"), [
@@ -204,8 +202,8 @@ class Macros {
         macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
             var b = wholeExp.expBuilder();
-            var uniqueVarName = "_" + Uuid.v4().toShort();
-            var uniqueVarSymbol = b.symbol(uniqueVarName);
+            
+            var uniqueVarSymbol = b.gensym();
 
             var condCases = [
                 for (arg in args) {
@@ -552,7 +550,19 @@ class Macros {
             wholeExp.checkNumArgs(1, 1, "(collect [iterator or iterable])");
             var b = wholeExp.expBuilder();
             b.call(b.symbol("for"), [b.symbol("elem"), exps[0], b.symbol("elem")]);
+        };
+
+        function once(macroName:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            wholeExp.checkNumArgs(1, null, '($macroName [body...])');
+            var b = wholeExp.expBuilder();
+            var flag = b.gensym();
+            // define the field:
+            k.convert(b.call(b.symbol(macroName), [b.meta("mut", flag), b.symbol("true")]));
+            return b.call(b.symbol("when"), [flag, b.call(b.symbol("set"), [flag, b.symbol("false")])].concat(exps));
         }
+
+        macros["once"] = once.bind("defvar");
+        macros["oncePerInstance"] = once.bind("defprop");
 
         return macros;
     }

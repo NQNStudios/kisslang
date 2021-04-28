@@ -9,7 +9,9 @@ import kiss.Reader;
 import kiss.CompileError;
 import kiss.Kiss;
 import kiss.SpecialForms;
+import uuid.Uuid;
 
+using uuid.Uuid;
 using tink.MacroApi;
 using kiss.Reader;
 using kiss.Helpers;
@@ -364,6 +366,7 @@ class Helpers {
             list: (exps:Array<ReaderExp>) -> ListExp(exps).withPosOf(posRef),
             str: (s:String) -> StrExp(s).withPosOf(posRef),
             symbol: (name:String) -> Symbol(name).withPosOf(posRef),
+            gensym: () -> Symbol('_${Uuid.v4().toShort()}').withPosOf(posRef),
             raw: (code:String) -> RawHaxe(code).withPosOf(posRef),
             typed: (path:String, exp:ReaderExp) -> TypedExp(path, exp).withPosOf(posRef),
             meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
