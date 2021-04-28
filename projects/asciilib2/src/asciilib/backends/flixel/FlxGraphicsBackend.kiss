@@ -16,12 +16,14 @@
 (defmethod :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
     (set letterWidth _letterWidth)
     (set letterHeight _letterHeight)
-    (set font (FlxBitmapFont.fromMonospace fontAsset fontLetters (new FlxPoint letterWidth letterHeight) region spacing)))
+    (set font (FlxBitmapFont.fromMonospace fontAsset fontLetters (new FlxPoint letterWidth letterHeight) region spacing))
+    (set backgroundColors (new FlxGroup))
+    (set letters (new FlxGroup)))
 
 (defmethod :Void draw [:Graphics graphics]
-    (when backgroundColors (backgroundColors.kill))
+    (backgroundColors.kill)
     (set backgroundColors (new FlxGroup))
-    (when letters (letters.kill))
+    (letters.kill)
     (set letters (new FlxGroup))
     (for x (range graphics.width)
         (for y (range graphics.height)
