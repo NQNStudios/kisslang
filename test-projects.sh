@@ -6,10 +6,11 @@ if [ ! -z "${TRAVIS_OS_NAME}" ]; then
     # Install basic dependencies for Kiss testing
     (cd kiss/build-scripts && haxelib install all --always)
     
-    # Install HaxeFlixel because many Kiss projects use it
+    # Install HaxeFlixel with c++ tooling because many Kiss projects use it
     haxelib install lime
     haxelib install openfl
     haxelib install flixel
+    haxelib install hxcpp
 fi
 
 for PROJECT_DIR in $PROJECT_DIRS
