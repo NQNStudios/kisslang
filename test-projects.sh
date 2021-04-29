@@ -10,6 +10,7 @@ if [ ! -z "${TRAVIS_OS_NAME}" ]; then
     haxelib install lime
     haxelib install openfl
     haxelib install flixel
+    haxelib install flixel-addons
     haxelib install hxcpp
 fi
 
