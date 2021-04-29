@@ -17,22 +17,19 @@
         (stream.dropWhitespace)
         `(cond
             ((or self.forked (instructionsTested.exists self.instructionPointer))
-                (print "can't fork again")
                 (,instSymbol (,op 0 ,arg) self))
             (true
                 (dictSet instructionsTested self.instructionPointer true)
                 (self.setBreakPoint)
                 (self.fork [
                     (lambda [:Dynamic self]
-                        (print self.accumulator)
                         (when ,(ReaderExp.Symbol (Std.string (= inst "nop")))
-                            (print (set self.forked true))
+                            (set self.forked true)
                             (set self.forkedAt self.instructionPointer))
                         (jmp (,op 0 ,arg) self))
                     (lambda [:Dynamic self]
-                        (print self.accumulator)
                         (when ,(ReaderExp.Symbol (Std.string (= inst "jmp")))
-                            (print (set self.forked true))
+                            (set self.forked true)
                             (set self.forkedAt self.instructionPointer))
                         (nop (,op 0 ,arg) self))
                     ])))))

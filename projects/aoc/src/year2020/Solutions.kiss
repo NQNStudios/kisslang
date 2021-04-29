@@ -96,7 +96,7 @@
             (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 (print bootCode.accumulator)))))
             (bootCode.run))
         (print "BootCodeFixExample")
-        (let [bootCode (new BootCodeFixExample)]
+        /* (let [bootCode (new BootCodeFixExample)]
             (bootCode.setBreakHandler
                 (lambda [bootCodeFork]
                     (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
@@ -112,7 +112,8 @@
                             (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string (+ 1 bootCodeFork.forkedAt))))
                         (print "hit an infinite loop"))))
             (bootCode.addBreakPoint (bootCode.instructionCount))
-            (bootCode.run)))
+            (bootCode.run)) */
+        )
     
     // Day 9
     (when (<= 0 (days.indexOf 9))
