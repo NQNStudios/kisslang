@@ -202,7 +202,7 @@ class Macros {
         macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
             var b = wholeExp.expBuilder();
-            
+
             var uniqueVarSymbol = b.gensym();
 
             var condCases = [
