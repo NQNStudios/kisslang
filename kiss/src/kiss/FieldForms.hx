@@ -84,11 +84,7 @@ class FieldForms {
         return {
             name: name,
             access: access,
-            kind: FVar(switch (args[0].def) {
-                case TypedExp(type, _):
-                    Helpers.parseComplexType(type, args[0]);
-                default: null;
-            }, if (args.length > 1) k.convert(args[1]) else null),
+            kind: FVar(Helpers.explicitType(args[0]), if (args.length > 1) k.convert(args[1]) else null),
             pos: wholeExp.macroPos()
         };
     }
@@ -103,7 +99,7 @@ class FieldForms {
         return {
             name: name,
             access: access,
-            kind: FFun(Helpers.makeFunction(args[0], returnsValue, args[1], args.slice(2), k)),
+            kind: FFun(Helpers.makeFunction(args[0], returnsValue, args[1], args.slice(2), k, formName)),
             pos: wholeExp.macroPos()
         };
     }

@@ -1,15 +1,14 @@
 (defvar &inline :Float SPEED 140)
 
-(defprop &mut :EnemyType type null)
-(defprop &mut :FSM brain null)
-(defprop &mut :Float idleTimer null)
-(defprop &mut :Float moveDirection null)
-(defprop &mut :Bool seesPlayer false)
-(defprop &mut :FlxPoint playerPosition null)
-
-(defmethod new [:Float x :Float y :EnemyType type]
+(defnew [:Float x :Float y :EnemyType _type]
+    [:EnemyType type _type
+        :FSM brain (new FSM idle)
+        &mut :Float idleTimer 0
+        &mut :Float moveDirection -1
+        &mut :Bool seesPlayer false
+        &mut :FlxPoint playerPosition (FlxPoint.get)]
     (super x y)
-    (set this.type type)
+
     (loadGraphic
         (case type
             (BOSS
@@ -28,10 +27,7 @@
     (set width 8)
     (set height 14)
     (set offset.x 4)
-    (set offset.y 2)
-    (set brain (new FSM idle))
-    (set idleTimer 0)
-    (set playerPosition (FlxPoint.get)))
+    (set offset.y 2))
 
 (defmethod &override :Void update [:Float elapsed]
     (when (and

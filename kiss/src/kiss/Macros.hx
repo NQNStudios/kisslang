@@ -534,10 +534,16 @@ class Macros {
 
             // TODO allow &prop in the arg list to bind it directly to a same-named variable
 
+            var propertyDefs = [for (bindingPair in bindingPairs) {
+                var b = bindingPair[0].expBuilder();
+                b.call(b.symbol("defprop"), [bindingPair[0]]);
+            }];
+            var propertySetExps = [for (bindingPair in bindingPairs) {
+                var b = bindingPair[1].expBuilder();
+                b.call(b.symbol("set"), [b.symbol(Helpers.varName("a defprop property binding", bindingPair[0])), bindingPair[1]]);
+            }];
+
             var b = wholeExp.expBuilder();
-            var propertyDefs = [for (bindingPair in bindingPairs) b.call(b.symbol("defprop"), [bindingPair[0]])];
-            var propertySetExps = [for (bindingPair in bindingPairs)
-                b.call(b.symbol("set"), [b.symbol(Helpers.varName("a defprop property binding", bindingPair[0])), bindingPair[1]])];
             return b.begin(propertyDefs.concat([
                 b.call(b.symbol("defmethod"), [
                     b.symbol("new"),

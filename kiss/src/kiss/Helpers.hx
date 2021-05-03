@@ -59,33 +59,31 @@ class Helpers {
         };
     }
 
-    public static function varName(formName:String, nameExp:ReaderExp) {
+    public static function explicitType(nameExp:ReaderExp):ComplexType {
+        return switch (nameExp.def) {
+            case MetaExp(_, innerExp):
+                explicitType(innerExp);
+            case TypedExp(type, _):
+                Helpers.parseComplexType(type, nameExp);
+            default: null;
+        };
+    }
+
+    public static function varName(formName:String, nameExp:ReaderExp, nameType="variable") {
         return switch (nameExp.def) {
             case Symbol(name):
                 name;
             case MetaExp(_, nameExp) | TypedExp(_, nameExp):
                 varName(formName, nameExp);
             default:
-                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a variable name, :Typed variable name, and/or &meta variable name.');
+                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a $nameType name, :Typed $nameType name, and/or &meta $nameType name.');
         };
     }
 
     // TODO generic type parameter declarations
-    public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState):Function {
-        if (name != null) {
-            switch (name.def) {
-                case MetaExp(_, name):
-                    return makeFunction(name, returnsValue, argList, body, k);
-                default:
-            }
-        }
+    public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState, formName:String):Function {
         var funcName = if (name != null) {
-            switch (name.def) {
-                case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
-                    name;
-                default:
-                    throw CompileError.fromExp(name, 'function name should be a symbol or :Typed symbol');
-            };
+            varName(formName, name, "function");
         } else {
             "";
         };
@@ -129,6 +127,7 @@ class Helpers {
                         ++numArgs;
                     }
                     {
+                        // These could use varName() and explicitType() but so far there are no &meta annotations for function arguments
                         name: switch (funcArg.def) {
                             case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                                 name;
@@ -152,13 +151,10 @@ class Helpers {
 
         // To make function args immutable by default, we would use (let...) instead of (begin...)
         // to make the body expression.
-        // But setting default arguments is so common, and arguments are not settable references,
+        // But setting null arguments to default values is so common, and arguments are not settable references,
         // so function args are not immutable.
         return {
-            ret: if (name != null) switch (name.def) {
-                case TypedExp(type, _): Helpers.parseComplexType(type, name);
-                default: null;
-            } else null,
+            ret: if (name != null) Helpers.explicitType(name) else null,
             args: switch (argList.def) {
                 case ListExp(funcArgs):
                     funcArgs.map(makeFuncArg);
