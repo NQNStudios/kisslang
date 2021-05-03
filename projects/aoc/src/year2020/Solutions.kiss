@@ -95,8 +95,8 @@
         (let [bootCode (new BootCodeReal)]
             (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 (print bootCode.accumulator)))))
             (bootCode.run))
-        (print "BootCodeFixExample")
-        /* (let [bootCode (new BootCodeFixExample)]
+        /* (print "BootCodeFixExample")
+        (let [bootCode (new BootCodeFixExample)]
             (bootCode.setBreakHandler
                 (lambda [bootCodeFork]
                     (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
