@@ -69,7 +69,7 @@ class Helpers {
         };
     }
 
-    public static function varName(formName:String, nameExp:ReaderExp, nameType="variable") {
+    public static function varName(formName:String, nameExp:ReaderExp, nameType = "variable") {
         return switch (nameExp.def) {
             case Symbol(name):
                 name;
