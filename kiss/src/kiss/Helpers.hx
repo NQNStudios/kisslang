@@ -374,6 +374,15 @@ class Helpers {
         };
     }
 
+    public static function argList(exp:ReaderExp, forThis:String):Array<ReaderExp> {
+        return switch (exp.def) {
+            case ListExp(argExps):
+                argExps;
+            default:
+                throw CompileError.fromExp(exp, '$forThis arg list should be a list expression');
+        };
+    }
+
     public static function bindingList(exp:ReaderExp, forThis:String):Array<ReaderExp> {
         return switch (exp.def) {
             case ListExp(bindingExps) if (bindingExps.length > 0 && bindingExps.length % 2 == 0):

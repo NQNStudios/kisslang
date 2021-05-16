@@ -529,10 +529,10 @@ class Macros {
         // TODO test defnew
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(defnew [[args...]] [[property bindings...]] [body...]");
+
+            var args = exps[0];
             var bindingList = exps[1].bindingList("defnew");
             var bindingPairs = Prelude.groups(bindingList, 2);
-
-            // TODO allow &prop in the arg list to bind it directly to a same-named variable
 
             var propertyDefs = [for (bindingPair in bindingPairs) {
                 var b = bindingPair[0].expBuilder();
@@ -543,11 +543,33 @@ class Macros {
                 b.call(b.symbol("set"), [b.symbol(Helpers.varName("a defprop property binding", bindingPair[0])), bindingPair[1]]);
             }];
 
+            var argList = [];
+            // &prop in the argument list defines a property supplied directly as an argument
+            for (arg in Helpers.argList(args, "defnew")) {
+                var b = arg.expBuilder();
+                switch (arg.def) {
+                    case MetaExp("prop", propExp):
+                        argList.push(propExp);
+                        propertyDefs.push(
+                            b.call(b.symbol("defprop"), [propExp]));
+                        switch (propExp.def) {
+                            case TypedExp(_, {pos: _, def: Symbol(name)}):
+                                propertySetExps.push(
+                                    b.call(b.symbol("set"), [b.field(name, b.symbol("this")), b.symbol(name)]));
+                            default:
+                                throw CompileError.fromExp(arg, "invalid use of &prop in defnew");
+                        }
+                    default:
+                        argList.push(arg);
+                }
+            }
+
             var b = wholeExp.expBuilder();
+
             return b.begin(propertyDefs.concat([
                 b.call(b.symbol("defmethod"), [
                     b.symbol("new"),
-                    exps[0]
+                    b.list(argList)
                 ].concat(propertySetExps).concat(exps.slice(2)))
             ]));
         };

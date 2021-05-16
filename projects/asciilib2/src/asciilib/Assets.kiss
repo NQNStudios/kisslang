@@ -1,7 +1,5 @@
-(defnew [assetsBackend]
-    // TODO use &prop for this
-    [:AssetsBackend backend assetsBackend
-        :Map<String,Surface> _surfaces (new Map)])
+(defnew [&prop :AssetsBackend backend]
+    [:Map<String,Surface> _surfaces (new Map)])
 
 // TODO don't allow overriding a key -- use a macro so all load___() calls check their maps first
 (defmethod loadSurface [key path]
