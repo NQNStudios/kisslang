@@ -1,0 +1,8 @@
+(defun :Void main []
+    (let [e (new Entry "name")]
+        (dictSet e.components "f" [5])
+        (dictSet e.components "b" [(object c "d")])
+        (let [s (haxe.Json.stringify e)
+                :Entry e2 (haxe.Json.parse s)]
+            // can't call Entry methods on e2
+            (print s))))

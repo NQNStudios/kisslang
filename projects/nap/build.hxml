@@ -1,0 +1,5 @@
+-lib uuid
+-lib kiss
+-cp src
+--main Main
+--interp

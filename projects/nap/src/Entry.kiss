@@ -1,0 +1,3 @@
+(defnew [&prop :String name]
+    [:String id (Uuid.v4)
+        :Map<String,kiss.List<Dynamic>> components (new Map)])
