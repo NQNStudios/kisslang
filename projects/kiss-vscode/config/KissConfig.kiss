@@ -210,6 +210,7 @@
     (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
     (registerCommand "Evaluate and print a Kiss expression" evalAndPrint))
 
+// TODO standardize this with KissInterp
 (defun :Void prepareInterp []
     (interp.variables.set "kiss" 
         (object

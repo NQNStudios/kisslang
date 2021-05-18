@@ -301,6 +301,7 @@ class Prelude {
             kissProcess = new Process("haxelib", ["run", "kiss", "--hscript"]);
 
         kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
+
         try {
             var output = kissProcess.stdout.readLine();
             if (output.startsWith(">>> ")) {

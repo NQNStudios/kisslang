@@ -18,6 +18,9 @@ using kiss.Helpers;
 using kiss.Kiss;
 using StringTools;
 
+/**
+ * Compile-time helper functions for Kiss. Don't import or reference these at runtime.
+ */
 class Helpers {
     public static function macroPos(exp:ReaderExp) {
         var kissPos = exp.pos;
