@@ -354,6 +354,26 @@ class Helpers {
         return def.withPosOf(exp);
     }
 
+    public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
+        var def = switch (exp.def) {
+            case Symbol(_) | StrExp(_) | RawHaxe(_):
+                exp.def;
+            case CallExp(func, callArgs):
+                CallExp(removeTypeAnnotations(func), callArgs.map(removeTypeAnnotations));
+            case ListExp(elements):
+                ListExp(elements.map(removeTypeAnnotations));
+            case TypedExp(type, innerExp):
+                innerExp.def;
+            case FieldExp(field, innerExp):
+                FieldExp(field, removeTypeAnnotations(innerExp));
+            case KeyValueExp(keyExp, valueExp):
+                KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
+            default:
+                throw CompileError.fromExp(exp, 'cannot remove type annotations');
+        };
+        return def.withPosOf(exp);
+    }
+
     // Return convenient functions for succinctly making new ReaderExps that link back to an original exp's
     // position in source code
     public static function expBuilder(posRef:ReaderExp) {

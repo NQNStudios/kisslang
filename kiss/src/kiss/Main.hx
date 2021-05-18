@@ -23,10 +23,21 @@ class Main {
     static macro function macroMain():Expr {
         var k = Kiss.defaultKissState();
         k.wrapListExps = false;
-        if (Sys.args().indexOf("--all") != -1) {
+        var args = Sys.args();
+        var pretty = args.indexOf("--pretty") != -1;
+        k.hscript = args.indexOf("--hscript") != -1;
+
+        function print(s:String) {
+            if (!pretty)
+                s = s.replace("\n", " ");
+
+            Sys.println(s);
+        }
+
+        if (args.indexOf("--all") != -1) {
             var kissInputStream = Stream.fromString(Sys.stdin().readAll().toString());
             Reader.readAndProcess(kissInputStream, k, (readerExp) -> {
-                Sys.println(Kiss.readerExpToHaxeExpr(readerExp, k).toString());
+                print(Kiss.readerExpToHaxeExpr(readerExp, k).toString());
             });
         } else {
             var line = "";
@@ -47,7 +58,7 @@ class Main {
 
                     var kissInputStream = Stream.fromString(line);
                     Reader.readAndProcess(kissInputStream, k, (readerExp) -> {
-                        Sys.println(Kiss.readerExpToHaxeExpr(readerExp, k).toString());
+                        print(Kiss.readerExpToHaxeExpr(readerExp, k).toString());
                     });
 
                     line = "";

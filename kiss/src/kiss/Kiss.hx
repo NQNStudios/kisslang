@@ -32,7 +32,8 @@ typedef KissState = {
     callAliases:Map<String, ReaderExpDef>,
     identAliases:Map<String, ReaderExpDef>,
     fields:Array<Field>,
-    loadingDirectory:String
+    loadingDirectory:String,
+    hscript:Bool
 };
 
 class Kiss {
@@ -63,7 +64,8 @@ class Kiss {
             ],
             identAliases: new Map(),
             fields: [],
-            loadingDirectory: ""
+            loadingDirectory: "",
+            hscript: false
         };
 
         // Helpful aliases
@@ -155,6 +157,9 @@ class Kiss {
         var specialForms = k.specialForms;
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
+
+        if (k.hscript)
+            exp = Helpers.removeTypeAnnotations(exp);
 
         var expr = switch (exp.def) {
             case Symbol(alias) if (k.identAliases.exists(alias)):

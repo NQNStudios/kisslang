@@ -276,14 +276,20 @@ class Prelude {
         return v;
     }
 
+    #if sys
+    private static var kissProcess:Process = null;
+    #end
+
     /**
      * On Sys targets and nodejs, Kiss can be converted to hscript at runtime
+     * NOTE on non-nodejs targets, after the first time calling this function,
+     * it will be much faster
      * NOTE on non-nodejs sys targets, newlines in raw strings will be stripped away.
      * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
      */
     public static function convertToHScript(kissStr:String):String {
         #if (!macro && hxnodejs)
-        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "--all"], {input: '${kissStr}\n'});
+        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "--all", "--hscript"], {input: '${kissStr}\n'});
         if (kissProcess.status != 0) {
             var error:String = kissProcess.stderr;
             throw 'failed to convert ${kissStr} to hscript: ${error}';
@@ -291,13 +297,20 @@ class Prelude {
         var output:String = kissProcess.stdout;
         return output;
         #elseif sys
-        var kissProcess = new Process("haxelib", ["run", "kiss"]);
+        if (kissProcess == null)
+            kissProcess = new Process("haxelib", ["run", "kiss", "--hscript"]);
+
         kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
-        var output = kissProcess.stdout.readLine();
-        if (output.startsWith(">>> ")) {
-            output = output.substr(4);
+        try {
+            var output = kissProcess.stdout.readLine();
+            if (output.startsWith(">>> ")) {
+                output = output.substr(4);
+            }
+            return output;
+        } catch (e) {
+            var error = kissProcess.stderr.readAll().toString();
+            throw 'failed to convert ${kissStr} to hscript: ${error}';
         }
-        return output;
         #else
         throw "Can't convert Kiss to HScript on this target.";
         #end
