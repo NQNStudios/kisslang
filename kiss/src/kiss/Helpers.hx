@@ -364,6 +364,8 @@ class Helpers {
                 ListExp(elements.map(removeTypeAnnotations));
             case TypedExp(type, innerExp):
                 innerExp.def;
+            case MetaExp(meta, innerExp):
+                MetaExp(meta, removeTypeAnnotations(innerExp));
             case FieldExp(field, innerExp):
                 FieldExp(field, removeTypeAnnotations(innerExp));
             case KeyValueExp(keyExp, valueExp):
