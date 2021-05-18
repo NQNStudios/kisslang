@@ -1,0 +1,4 @@
+(defnew [&prop :String tagFilterString])
+
+(defmethod &override :Bool canProcessEntry [:Entry e]
+    )

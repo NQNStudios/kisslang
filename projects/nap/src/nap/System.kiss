@@ -1,1 +1,10 @@
-(defprop :List<Entry> entries [])
+(defprop :List<Entry> entries (new List))
+
+(defmethod :Void process []
+    (entries.map processEntry))
+
+(defmethod :Void processEntry [:Entry e]
+    (throw "can't process $e"))
+
+(defmethod :Bool canProcessEntry [:Entry e]
+    (throw "can't decide whether to process $e"))

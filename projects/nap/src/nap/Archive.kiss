@@ -1,11 +1,13 @@
 (defnew [archiveDir]
     [:Map<String,Entry> entries
             (let [entryFiles (FileSystem.readDirectory archiveDir)]
-        (doFor ))
+                (for file entryFiles =>(file.withoutExtension) ~(Json.parse (File.getContent (Path.join [archiveDir file])))))
         :Array<System> systems []] // TODO also create systems
+    // TODO register entities to systems that want them
     )
 
-(defun loadFromDir [archiveDir]
-    )
+(defmethod :Void handleEvent [:Event e]
+    (throw "can't handle $e"))
 
-(defmethod :Void handleEvent [:Event e])
+(defmethod :Void process []
+    (doFor system systems (system.process)))
