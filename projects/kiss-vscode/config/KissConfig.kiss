@@ -58,17 +58,11 @@
  * Functionality
  */
 
-(defun :String convertToHScript [kissStr]
-    (let [kissProcess (ChildProcess.spawnSync "haxelib" ["run" "kiss" "--all"] (object input "${kissStr}\n"))]
-        (if !(= kissProcess.status 0)
-                {(errorMessage "failed to compile ${kissStr}: $(.toString (the Buffer .stderr kissProcess))") ""}
-            (.toString (the Buffer .stdout kissProcess)))))
-
 (defun :Dynamic evalString [:String kissStr]
     (try
             (interp.execute
                 (parser.parseString
-                    (convertToHScript kissStr)))
+                    (Prelude.convertToHScript kissStr)))
         (catch [e]
             (errorMessage "Error `${e}` from $kissStr")
             null)))

@@ -5,6 +5,14 @@ using Std;
 import kiss.Operand;
 import haxe.ds.Either;
 import haxe.Constraints;
+#if (!macro && hxnodejs)
+import js.node.ChildProcess;
+import js.node.buffer.Buffer;
+#elseif sys
+import sys.io.Process;
+#end
+
+using StringTools;
 
 /** What functions that process Lists should do when there are more elements than expected **/
 enum ExtraElementHandling {
@@ -266,5 +274,32 @@ class Prelude {
         trace(v);
         #end
         return v;
+    }
+
+    /**
+     * On Sys targets and nodejs, Kiss can be converted to hscript at runtime
+     * NOTE on non-nodejs sys targets, newlines in raw strings will be stripped away.
+     * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
+     */
+    public static function convertToHScript(kissStr:String):String {
+        #if (!macro && hxnodejs)
+        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "--all"], {input: '${kissStr}\n'});
+        if (kissProcess.status != 0) {
+            var error:String = kissProcess.stderr;
+            throw 'failed to convert ${kissStr} to hscript: ${error}';
+        }
+        var output:String = kissProcess.stdout;
+        return output;
+        #elseif sys
+        var kissProcess = new Process("haxelib", ["run", "kiss"]);
+        kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
+        var output = kissProcess.stdout.readLine();
+        if (output.startsWith(">>> ")) {
+            output = output.substr(4);
+        }
+        return output;
+        #else
+        throw "Can't convert Kiss to HScript on this target.";
+        #end
     }
 }

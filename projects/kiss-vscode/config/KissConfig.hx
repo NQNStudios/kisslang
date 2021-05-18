@@ -6,8 +6,6 @@ import kiss.Operand;
 import kiss.Stream;
 import vscode.*;
 import js.lib.Promise;
-import js.node.ChildProcess;
-import js.node.buffer.Buffer;
 import hscript.Parser;
 import hscript.Interp;
 import hscript.Expr;
