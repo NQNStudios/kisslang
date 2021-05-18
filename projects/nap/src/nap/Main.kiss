@@ -1,4 +1,16 @@
 (defun :Void main []
+    (let [archiveDir
+                // TODO pattern matching program arguments will be more complicated once --cache and other arguments are introduced
+                (ifLet [[dir] (Sys.args)]
+                        dir
+                    (Sys.getCwd))
+            archive
+                (new Archive archiveDir)]
+        (archive.process)))
+    
+    
+    
+    /*
     (let [e (new Entry "name")]
         (dictSet e.components "f" [5])
         (dictSet e.components "b" [(object c "d")])
@@ -6,3 +18,4 @@
                 :Entry e2 (haxe.Json.parse s)]
             // can't call Entry methods on e2
             (print s))))
+            */

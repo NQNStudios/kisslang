@@ -1,0 +1,11 @@
+(defnew [archiveDir]
+    [:Map<String,Entry> entries
+            (let [entryFiles (FileSystem.readDirectory archiveDir)]
+        (doFor ))
+        :Array<System> systems []] // TODO also create systems
+    )
+
+(defun loadFromDir [archiveDir]
+    )
+
+(defmethod :Void handleEvent [:Event e])

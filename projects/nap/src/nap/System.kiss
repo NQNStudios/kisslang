@@ -1,0 +1,1 @@
+(defprop :List<Entry> entries [])
