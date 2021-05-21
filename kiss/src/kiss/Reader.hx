@@ -3,15 +3,11 @@ package kiss;
 import haxe.ds.Option;
 import kiss.Stream;
 import kiss.Kiss;
+import kiss.ReaderExp;
 
 using kiss.Reader;
 using kiss.Stream;
 using kiss.Helpers;
-
-typedef ReaderExp = {
-    pos:Position,
-    def:ReaderExpDef
-};
 
 class UnmatchedBracketSignal {
     public var type:String;
@@ -21,21 +17,6 @@ class UnmatchedBracketSignal {
         this.type = type;
         this.position = position;
     }
-}
-
-enum ReaderExpDef {
-    CallExp(func:ReaderExp, args:Array<ReaderExp>); // (f a1 a2...)
-    ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
-    StrExp(s:String); // "literal"
-    Symbol(name:String); // s
-    RawHaxe(code:String); // #| haxeCode() |#
-    TypedExp(path:String, exp:ReaderExp); // :type [exp]
-    MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
-    FieldExp(field:String, exp:ReaderExp); // .field [exp]
-    KeyValueExp(key:ReaderExp, value:ReaderExp); // =>key value
-    Quasiquote(exp:ReaderExp); // `[exp]
-    Unquote(exp:ReaderExp); // ,[exp]
-    UnquoteList(exp:ReaderExp); // ,@[exp]
 }
 
 typedef ReadFunction = (Stream, KissState) -> Null<ReaderExpDef>;

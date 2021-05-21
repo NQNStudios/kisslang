@@ -1,0 +1,11 @@
+{
+    "id": "song2",
+    "components": [
+        ["Name", "name2"],
+        ["Author", "author2"],
+        ["Tags", "tags2"]
+    ],
+    "files": [
+        "Ancient Rite.mp3"
+    ]
+}

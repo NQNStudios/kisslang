@@ -1,0 +1,25 @@
+(defun :Void main []
+    (assert (BoolExpInterp.eval "true" []))
+    (assert !(BoolExpInterp.eval "false" []))
+    (assert !(BoolExpInterp.eval "flag" []))
+    (assert (BoolExpInterp.eval "flag" ["flag"]))
+    (assert !(BoolExpInterp.eval "(and flag false)" ["flag"]))
+    (assert (BoolExpInterp.eval "(or flag otherFlag)" ["otherFlag"]))
+    //trace(error);
+    (let [systems
+                []
+            archive
+                (new Archive "src/test/example-archive" systems)]
+        (print "TODO")))
+    
+    
+    
+    /*
+    (let [e (new Entry "name")]
+        (dictSet e.components "f" [5])
+        (dictSet e.components "b" [(object c "d")])
+        (let [s (haxe.Json.stringify e)
+                :Entry e2 (haxe.Json.parse s)]
+            // can't call Entry methods on e2
+            (print s))))
+            */

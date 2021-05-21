@@ -1,0 +1,11 @@
+{
+    "id": "song1",
+    "components": [
+        ["Name", "name1"],
+        ["Author", "author1"],
+        ["Tags", "tags1"]
+    ],
+    "files": [
+        "Adventure.mp3"
+    ]
+}

@@ -7,6 +7,7 @@ import haxe.macro.Expr;
 import haxe.io.Path;
 import kiss.Stream;
 import kiss.Reader;
+import kiss.ReaderExp;
 import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;

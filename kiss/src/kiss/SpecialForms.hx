@@ -3,6 +3,7 @@ package kiss;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
+import kiss.ReaderExp;
 import uuid.Uuid;
 import kiss.Kiss;
 

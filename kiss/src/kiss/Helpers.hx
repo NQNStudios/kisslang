@@ -6,6 +6,7 @@ import haxe.macro.PositionTools;
 import hscript.Parser;
 import hscript.Interp;
 import kiss.Reader;
+import kiss.ReaderExp;
 import kiss.CompileError;
 import kiss.Kiss;
 import kiss.SpecialForms;
@@ -246,7 +247,7 @@ class Helpers {
             interp.variables.set("ReaderExp", ReaderExpDef);
             interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
             interp.variables.set("kiss", {
-                Reader: {
+                ReaderExp: {
                     ReaderExpDef: ReaderExpDef
                 },
                 Operand: {

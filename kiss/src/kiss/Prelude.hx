@@ -3,6 +3,7 @@ package kiss;
 using Std;
 
 import kiss.Operand;
+import kiss.ReaderExp;
 import haxe.ds.Either;
 import haxe.Constraints;
 #if (!macro && hxnodejs)
