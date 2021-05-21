@@ -58,6 +58,7 @@ class Kiss {
                 "zip" => Symbol("Prelude.zip"),
                 "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
+                "symbolName" => Symbol("Prelude.symbolName"),
                 "map" => Symbol("Lambda.map"),
                 "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
                 "has" => Symbol("Lambda.has"),

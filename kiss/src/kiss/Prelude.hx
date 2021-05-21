@@ -277,6 +277,14 @@ class Prelude {
         return v;
     }
 
+    // ReaderExp helpers for macros:
+    public static function symbolName(s:ReaderExp):ReaderExpDef {
+        return switch (s.def) {
+            case Symbol(name): StrExp(name);
+            default: throw 'expected $s to be a plain symbol';
+        };
+    }
+
     #if sys
     private static var kissProcess:Process = null;
     #end
