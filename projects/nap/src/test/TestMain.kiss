@@ -1,3 +1,7 @@
+// TODO external programs need to be able to find and (load) this path to get the macros:
+(load "../nap/Lib.kiss")
+
+
 (defun :Void main []
     (assert (BoolExpInterp.eval "true" []))
     (assert !(BoolExpInterp.eval "false" []))
@@ -9,17 +13,16 @@
     (let [systems
                 []
             archive
-                (new Archive "src/test/example-archive" systems)]
-        (print "TODO")))
-    
-    
-    
-    /*
-    (let [e (new Entry "name")]
-        (dictSet e.components "f" [5])
-        (dictSet e.components "b" [(object c "d")])
-        (let [s (haxe.Json.stringify e)
-                :Entry e2 (haxe.Json.parse s)]
-            // can't call Entry methods on e2
-            (print s))))
-            */
+                (new Archive "src/test/example-archive" systems)
+            song1
+                (dictGet archive.entries "song1")
+            song2
+                (dictGet archive.entries "song2")]
+
+        (assert (hasComponent song1 Tags))
+        (assert (hasComponent song2 Tags))
+        (assert (tagsMatch archive song1 "(and song western)"))
+        (assert !(tagsMatch archive song1 "(and song religious)"))
+        (assert (tagsMatch archive song2 "(and song religious)"))
+        (assert !(tagsMatch archive song2 "(and song western)"))
+        ))

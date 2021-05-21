@@ -1,6 +1,4 @@
-(load "../components/Tag.kiss")
-
 (defnew [&prop :String tagFilterString] [])
 
-(defmethod &override :Bool canProcessEntry [:Entry e]
-    (Lib.evalBoolExp tagFilterString (getTags e)))
+(defmethod &override :Bool canProcessEntry [:Entry e] (print false))
+    // (Lib.evalBoolExp tagFilterString (getTags e)))

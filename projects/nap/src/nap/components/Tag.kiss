@@ -1,2 +1,0 @@
-(defun :Array<String> getTags [:Entry e]
-    (or (dictGet e.components "Tag") []))

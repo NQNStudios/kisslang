@@ -1,10 +1,11 @@
 package nap;
 
-import uuid.Uuid;
 import kiss.Prelude;
-import kiss.Stream;
-import hscript.Parser;
-import hscript.Interp;
+import sys.io.File;
+import tink.Json;
+import uuid.Uuid;
+
+using haxe.io.Path;
 
 @:build(kiss.Kiss.build())
 class Lib {}

@@ -8,7 +8,6 @@
     "releasenote": "It isn't safe to use this library yet.",
     "contributors": ["NQNStudios"],
     "classPath": "src/",
-    "main": "nap.Main",
     "dependencies": {
         "kiss": "",
         "tink_json": ""

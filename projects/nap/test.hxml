@@ -1,0 +1,6 @@
+-D test
+-lib kiss
+-lib nap
+-cp test
+--main test.TestMain
+--interp

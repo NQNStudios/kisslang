@@ -1,4 +1,4 @@
 #! /bin/bash
 
 haxelib dev nap .
-haxelib run nap example-archive
+haxe test.hxml

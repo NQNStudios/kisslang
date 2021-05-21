@@ -553,6 +553,7 @@ class Macros {
                         argList.push(propExp);
                         propertyDefs.push(
                             b.call(b.symbol("defprop"), [propExp]));
+                        // TODO allow &prop &mut or &mut &prop
                         switch (propExp.def) {
                             case TypedExp(_, {pos: _, def: Symbol(name)}):
                                 propertySetExps.push(

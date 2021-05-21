@@ -1,16 +1,18 @@
-(defnew [archiveDir]
+(defnew [&prop :String archiveDir
+            &prop :Array<System> systems]
+
     [:Map<String,Entry> entries
-            (let [entryFiles (FileSystem.readDirectory archiveDir)]
-                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir file]))))))
-        :Array<System> systems [
-            (the System (new TagSystem "song"))]]
+            (let [entryFiles (FileSystem.readDirectory (Path.join [archiveDir "entries"]))]
+                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file]))))))]
+
+    // Assign entries to the Systems that care about them
     (doFor system systems
         (doFor =>id entry entries
             (when (system.canProcessEntry entry)
                 (system.entries.push entry)))))
 
-(defmethod :Void handleEvent [:Event e]
-    (throw "can't handle $e"))
-
-(defmethod :Void process []
-    (doFor system systems (system.process)))
+(defun :Entry _newEntry []
+    (object
+        id (Uuid.v4)
+        components (new Map)
+        files []))
