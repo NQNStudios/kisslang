@@ -265,11 +265,22 @@ class SpecialForms {
 
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, '(the [type] [value])');
-            ECheckType(k.convert(args[1]), switch (args[0].def) {
-                case Symbol(type): Helpers.parseComplexType(type, args[0]);
-                default: throw CompileError.fromExp(args[0], 'first argument to (the... ) should be a valid type');
-            }).withMacroPosOf(wholeExp);
+            wholeExp.checkNumArgs(2, 3, '(the [optional: package] [type] [value])');
+            var pkg = "";
+            var whichArg = "first";
+            if (args.length == 3) {
+                pkg = switch (args.shift().def) {
+                    case Symbol(pkg): pkg;
+                    default: throw CompileError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid haxe package');
+                };
+                whichArg = "second";
+            }
+            var type = switch (args[0].def) {
+                case Symbol(type): type;
+                default: throw CompileError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid type');
+            };
+            if (pkg.length > 0) type = pkg + "." + type;
+            ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, args[0])).withMacroPosOf(wholeExp);
         };
 
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
