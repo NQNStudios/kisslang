@@ -531,7 +531,7 @@ class Macros {
             wholeExp.checkNumArgs(2, null, "(defnew [[args...]] [[property bindings...]] [body...]");
 
             var args = exps[0];
-            var bindingList = exps[1].bindingList("defnew");
+            var bindingList = exps[1].bindingList("defnew", true);
             var bindingPairs = Prelude.groups(bindingList, 2);
 
             var propertyDefs = [for (bindingPair in bindingPairs) {
