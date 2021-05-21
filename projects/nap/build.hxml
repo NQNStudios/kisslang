@@ -1,6 +1,7 @@
 -lib uuid
 -lib kiss
 -lib hscript
+-lib tink_json
 -cp src
 --main nap.Main
 --interp

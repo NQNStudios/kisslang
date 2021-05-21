@@ -1,8 +1,7 @@
 package nap;
 
-import kiss.Kiss;
-import kiss.Prelude;
-import uuid.Uuid;
-
-@:build(kiss.Kiss.build())
-class Entry {}
+typedef Entry = {
+    id:String,
+    name:String,
+    components:Map<String, Array<Dynamic>>
+};

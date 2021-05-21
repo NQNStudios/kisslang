@@ -1,5 +1,6 @@
 package nap;
 
+import uuid.Uuid;
 import kiss.Prelude;
 import kiss.Stream;
 import hscript.Parser;

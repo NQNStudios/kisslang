@@ -7,3 +7,9 @@
         (doFor condition activeConditions
             (interp.variables.set condition true))
         ?(interp.execute hscriptExp)))
+
+(defun :Entry newEntry [:String name]
+    (object
+        id (Uuid.v4)
+        name name
+        components (new Map)))

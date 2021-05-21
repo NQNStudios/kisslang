@@ -1,10 +1,13 @@
 (defnew [archiveDir]
     [:Map<String,Entry> entries
             (let [entryFiles (FileSystem.readDirectory archiveDir)]
-                (for file entryFiles =>(file.withoutExtension) ~(Json.parse (File.getContent (Path.join [archiveDir file])))))
-        :Array<System> systems []] // TODO also create systems
-    // TODO register entities to systems that want them
-    )
+                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir file]))))))
+        :Array<System> systems [
+            (the System (new TagSystem "song"))]]
+    (doFor system systems
+        (doFor =>id entry entries
+            (when (system.canProcessEntry entry)
+                (system.entries.push entry)))))
 
 (defmethod :Void handleEvent [:Event e]
     (throw "can't handle $e"))

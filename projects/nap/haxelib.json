@@ -10,6 +10,7 @@
     "classPath": "src/",
     "main": "nap.Main",
     "dependencies": {
-        "kiss": ""
+        "kiss": "",
+        "tink_json": ""
     }
 }

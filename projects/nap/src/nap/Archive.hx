@@ -3,7 +3,8 @@ package nap;
 import kiss.Prelude;
 import sys.FileSystem;
 import sys.io.File;
-import haxe.Json;
+import tink.Json;
+import nap.systems.TagSystem;
 
 using haxe.io.Path;
 
