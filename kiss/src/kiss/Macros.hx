@@ -594,6 +594,14 @@ class Macros {
         macros["once"] = once.bind("defvar");
         macros["oncePerInstance"] = once.bind("defprop");
 
+        // Replace "try" with this in a try-catch statement to let all exceptions throw
+        // their original call stacks. This is more convenient for debugging than trying to
+        // comment out the "try" and its catches, and re-balance parens
+        macros["letThrow"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, null, "(letThrow [thing] [catches...])");
+            exps[0];
+        };
+
         return macros;
     }
 

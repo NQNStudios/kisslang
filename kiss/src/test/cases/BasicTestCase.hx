@@ -293,6 +293,10 @@ class BasicTestCase extends Test {
     function testVoid() {
         _testVoid();
     }
+
+    function testLetThrow() {
+        _testLetThrow();
+    }
 }
 
 class BasicObject {
