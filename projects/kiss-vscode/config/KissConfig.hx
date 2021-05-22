@@ -9,6 +9,10 @@ import js.lib.Promise;
 import hscript.Parser;
 import hscript.Interp;
 import hscript.Expr;
+import haxe.io.Path;
+import sys.io.File;
+
+using haxe.io.Path;
 
 typedef Command = (String) -> Void;
 

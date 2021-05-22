@@ -2,6 +2,8 @@
  * Aliases
  */
 
+// TODO pass these aliases to the KissState of "eval kiss expression"
+
 // output 
 (defalias &call infoMessage Vscode.window.showInformationMessage)
 (defalias &call warningMessage Vscode.window.showWarningMessage)
@@ -213,7 +215,8 @@
     (registerCommand "Run a [k]iss command" runCommand)
     (registerCommand "Rerun last command" runLastCommand)
     (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
-    (registerCommand "Evaluate and print a Kiss expression" evalAndPrint))
+    (registerCommand "[e]valuate and print a Kiss expression" evalAndPrint)
+    (registerCommand "[n]ew kiss class" newKissClass))
 
 // TODO standardize this with KissInterp
 (defun :Void prepareInterp []
@@ -227,6 +230,7 @@
             //interp.variables.set("Helpers", Helpers);
     (interp.variables.set "Prelude" Prelude)
     (interp.variables.set "Lambda" Lambda)
+    (interp.variables.set "Vscode" Vscode)
     // TODO for some reason, (interp.variables.set "Std" Std) doesn't capture
     // some static functions, like parseInt. So this kludgy bit is necessary:
     (interp.variables.set "Std"
@@ -241,3 +245,37 @@
             {,@body}
         (awaitLet [,v (inputBox)]
             ,@body)))
+
+(defun :Void newKissClass [&opt _]
+    (awaitLet [className (inputBox)]
+        (let [currentFile
+                    .fileName .document activeTextEditor
+                currentFileDirectory
+                    (Path.directory currentFile)
+                haxeFile
+                    (Path.join [currentFileDirectory "${className}.hx"])
+                kissFile
+                    (Path.join [currentFileDirectory "${className}.kiss"])
+                // Try to use the same package statement from the first line of the
+                // currently open Kiss class's .hx file
+                pkg
+                    (or
+                        (try
+                                (let [currentHaxeFile
+                                            (currentFile.withExtension "hx")]
+                                    (first (.split (File.getContent currentHaxeFile) "\n")))
+                            (catch [e] ""))
+                        // Default to no specific package declaration
+                        "package;")]
+            (File.saveContent haxeFile
+"${pkg}
+
+import kiss.Prelude;
+import kiss.List;
+import kiss.Operand;
+
+@:build(kiss.Kiss.build())
+class ${className} {}
+")
+            (File.saveContent kissFile "")
+            (Vscode.window.showTextDocument (Uri.file kissFile)))))
