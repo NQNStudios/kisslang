@@ -74,9 +74,12 @@
         (awaitLet [kissStr (inputBox)]
             (infoMessage (Std.string (evalString kissStr)))))
 
-(defun :Void runCommand [&opt command]
+(defun :Void runCommand [&opt command] (_runCommand command))
+
+(defun :Void _runCommand [&opt command inputText]
+    (unless inputText (set inputText (selectedText)))
     (if command
-            {(set lastCommand command) ((dictGet commands command) (selectedText))}
+            {(set lastCommand command) ((dictGet commands command) inputText)}
         (let [commandList
                     (for description (commands.keys)
                         (object
@@ -88,7 +91,7 @@
             (awaitLet [chosenCommand (quickPick commandList)]
                 (when chosenCommand
                     (set lastCommand chosenCommand.label)
-                    ((dictGet commands chosenCommand.label) (selectedText)))))))
+                    ((dictGet commands chosenCommand.label) inputText))))))
 
 (defun :Void runLastCommand [&opt _]
     (if lastCommand
@@ -97,33 +100,36 @@
 
 (defvar &mut :vscode.WebviewPanel shortcutPanel null)
 (defun :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
-    // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
-    (unless prefixMap 
-        (when shortcutPanel
-            // TODO for some reason, method calling an object in (when [object] ...) context, resets the object's type to Any unless (the [Type]) is used
-            (.dispose (the WebviewPanel shortcutPanel))
-            (set shortcutPanel null))
-        (set prefixMap commandShortcuts))
-    (unless shortcutPanel
-        (set shortcutPanel (Vscode.window.createWebviewPanel 
-                                                "kissShortcut"
-                                                "Kiss Shortcuts"
-                                                vscode.ViewColumn.Two
-                                                (object
-                                                    enableScripts true))))
-    (let [&mut keyListener null]
-        (set keyListener (shortcutPanel.webview.onDidReceiveMessage
-                                ->key (if (prefixMap.exists key)
-                                            {(keyListener.dispose)
-                                                (case (dictGet prefixMap key)
-                                                    ((Prefix innerMap)
-                                                        (showShortcutPanel innerMap))
-                                                    ((Final command)
-                                                        (shortcutPanel.dispose)
-                                                        // TODO restore focus to previous frame first
-                                                        (runCommand command)))}
-                                        {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
-    (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap)))
+    // Preserve the selected text and focused document before opening the webview:
+    (let [inputText (selectedText)
+            document .document activeTextEditor]
+        // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
+        (unless prefixMap 
+            (when shortcutPanel
+                // TODO for some reason, method calling an object in (when [object] ...) context, resets the object's type to Any unless (the [Type]) is used
+                (.dispose (the WebviewPanel shortcutPanel))
+                (set shortcutPanel null))
+            (set prefixMap commandShortcuts))
+        (unless shortcutPanel
+            (set shortcutPanel (Vscode.window.createWebviewPanel 
+                                                    "kissShortcut"
+                                                    "Kiss Shortcuts"
+                                                    vscode.ViewColumn.Two
+                                                    (object
+                                                        enableScripts true))))
+        (let [&mut keyListener null]
+            (set keyListener (shortcutPanel.webview.onDidReceiveMessage
+                                    ->key (if (prefixMap.exists key)
+                                                {(keyListener.dispose)
+                                                    (case (dictGet prefixMap key)
+                                                        ((Prefix innerMap)
+                                                            (showShortcutPanel innerMap))
+                                                        ((Final command)
+                                                            (shortcutPanel.dispose)
+                                                            // TODO restore focus to previous frame first
+                                                            (_runCommand command inputText)))}
+                                            {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
+        (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))))
 
 (defun shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
     (let [shortcutParagraphs
