@@ -279,7 +279,8 @@ class SpecialForms {
                 case Symbol(type): type;
                 default: throw CompileError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid type');
             };
-            if (pkg.length > 0) type = pkg + "." + type;
+            if (pkg.length > 0)
+                type = pkg + "." + type;
             ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, args[0])).withMacroPosOf(wholeExp);
         };
 

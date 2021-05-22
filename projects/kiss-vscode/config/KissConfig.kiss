@@ -230,3 +230,9 @@
             string Std.string
             random Std.random
             int Std.int)))
+
+(defmacro withValueOrInputBox [v &rest body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (inputBox)]
+            ,@body)))
