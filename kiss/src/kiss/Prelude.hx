@@ -8,7 +8,7 @@ import haxe.ds.Either;
 import haxe.Constraints;
 #if (!macro && hxnodejs)
 import js.node.ChildProcess;
-import js.node.buffer.Buffer;
+import js.node.Buffer;
 #elseif sys
 import sys.io.Process;
 #end
@@ -303,8 +303,8 @@ class Prelude {
             var error:String = kissProcess.stderr;
             throw 'failed to convert ${kissStr} to hscript: ${error}';
         }
-        var output:String = kissProcess.stdout;
-        return output;
+        var output:Buffer = kissProcess.stdout;
+        return output.toString();
         #elseif sys
         if (kissProcess == null)
             kissProcess = new Process("haxelib", ["run", "kiss", "--hscript"]);
