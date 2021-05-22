@@ -101,8 +101,7 @@
 (defvar &mut :vscode.WebviewPanel shortcutPanel null)
 (defun :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
     // Preserve the selected text and focused document before opening the webview:
-    (let [inputText (selectedText)
-            document .document activeTextEditor]
+    (let [inputText (selectedText)]
         // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
         (unless prefixMap 
             (when shortcutPanel
