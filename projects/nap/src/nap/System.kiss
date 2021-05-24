@@ -1,10 +1,13 @@
-(defprop :List<Entry> entries (new List))
+(defprop :Map<String,Entry> entries (new Map))
 
-(defmethod :Void process []
-    (entries.map processEntry))
+(defmethod :Void process [:Archive archive]
+    (doFor e (entries.iterator) (processEntry archive e)))
 
-(defmethod :Void processEntry [:Entry e]
-    (throw "can't process $e"))
+(defnew [&prop :EntryChecker canProcessEntry
+            &prop :EntryProcessor processEntry]
+    [])
 
-(defmethod :Bool canProcessEntry [:Entry e]
-    (throw "can't decide whether to process $e"))
+(defmethod :Void checkEntryInOrOut [:Archive archive :Entry e]
+    (if (canProcessEntry archive e)
+            (dictSet entries e.id e)
+        (entries.remove e.id)))

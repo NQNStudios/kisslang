@@ -1,15 +1,28 @@
-(defnew [&prop :String archiveDir
-            &prop :Array<System> systems]
+(defnew [&prop :String archiveDir]
 
-    [:Map<String,Entry> entries
+    [:Array<System> systems
+            []
+        :Map<String,Template> templates
+            (new Map)
+        :Map<String,Entry> entries
             (let [entryFiles (FileSystem.readDirectory (Path.join [archiveDir "entries"]))]
-                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file]))))))]
+                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file]))))))])
 
+(defmethod addSystem [:System system]
     // Assign entries to the Systems that care about them
-    (doFor system systems
-        (doFor =>id entry entries
-            (when (system.canProcessEntry entry)
-                (system.entries.push entry)))))
+    (doFor =>id entry entries
+        (system.checkEntryInOrOut this entry))
+    (systems.push system))
+
+(defmethod addTemplate [name template]
+    (dictSet templates name template))
+
+(defmethod :Entry createEntry [template]
+    (let [e (_newEntry)]
+        (.prepareEntry (dictGet templates template) e)
+        (doFor system systems
+            (system.checkEntryInOrOut this e))
+        e))
 
 (defun :Entry _newEntry []
     (object

@@ -1,4 +1,9 @@
-(defnew [&prop :String tagFilterString] [])
+(load "../Lib.kiss")
 
-(defmethod &override :Bool canProcessEntry [:Entry e] (print false))
-    // (Lib.evalBoolExp tagFilterString (getTags e)))
+// TODO make a &super annotation that passes an argument to the super constructor
+(defnew [&prop :String tagFilterString
+            &prop :EntryProcessor processor] 
+    []
+    (super
+        (lambda [:Archive archive :Entry e] (tagsMatch archive e tagFilterString))
+        processor))

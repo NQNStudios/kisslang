@@ -1,4 +1,6 @@
 // TODO external programs need to be able to find and (load) this path to get the macros:
+// ^ That should be solved by allowing an optional first argument to load that is a symbol
+// of a library name that can be used to resolve the source dir in the user's Haxelib maybe?
 (load "../nap/Lib.kiss")
 
 
@@ -10,10 +12,8 @@
     (assert !(BoolExpInterp.eval "(and flag false)" ["flag"]))
     (assert (BoolExpInterp.eval "(or flag otherFlag)" ["otherFlag"]))
     //trace(error);
-    (let [systems
-                []
-            archive
-                (new Archive "src/test/example-archive" systems)
+    (let [archive
+                (new Archive "src/test/example-archive")
             song1
                 (dictGet archive.entries "song1")
             song2
