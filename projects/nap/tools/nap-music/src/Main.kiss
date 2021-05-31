@@ -1,0 +1,2 @@
+(defun :Void main []
+    (print "Hello world!"))

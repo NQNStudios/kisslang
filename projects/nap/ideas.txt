@@ -1,0 +1,2 @@
+program that helps you cobble together journal entries retroactively using your texts and message history from that day. and calendar etc
+music player that youtubeDLs the songs you like, and will play songs by artists you like
