@@ -8,4 +8,4 @@ import asciilib.Game;
 import kiss.Prelude;
 
 @:build(kiss.Kiss.build())
-class DeathTrapLogic implements GameLogic {}
+class AsciiGameLogic implements GameLogic {}

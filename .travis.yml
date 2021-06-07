@@ -20,6 +20,8 @@ env:
   - KISS_PROJECT=aoc
   - KISS_PROJECT=asciilib2
   - KISS_PROJECT=file-watch
+  - KISS_PROJECT=flixel-ascii-game
+  - KISS_PROJECT=flixel-rpg-tutorial
   - KISS_PROJECT=kiss-vscode
   - KISS_PROJECT=nat-archive-tool
   - KISS_PROJECT=pdf-salad

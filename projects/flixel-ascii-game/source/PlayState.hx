@@ -12,7 +12,7 @@ class PlayState extends FlxState
 	override public function create()
 	{
 		super.create();
-		game = new Game("Beware Yon Death Trap", 40, 24, 8, 12, new DeathTrapLogic(), new FlxAssetsBackend(),
+		game = new Game("Ascii Game", 40, 24, 8, 12, new AsciiGameLogic(), new FlxAssetsBackend(),
 			new FlxGraphicsBackend(this, FlxGraphic.fromAssetKey("assets/images/size12.png"),
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz,.;:/?!@#$%^&*()-_=+[]{}~ÁÉÍÑÓÚÜáéíñóúü¡¿0123456789\"'<>|"));
 	}
