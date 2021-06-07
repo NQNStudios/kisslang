@@ -1,6 +1,7 @@
 -D test
 -lib kiss
 -lib nat-archive-tool
+-lib tink_json
 -cp test
 --main test.TestMain
 --interp
