@@ -6,10 +6,10 @@
 
 // TODO add to the documentation a hint that macros should use fully qualified paths so macro caller classes don't need to import everything
 (defmacro getComponent [archive e componentType]
-    `(the nap.components ,componentType 
+    `(the nat.components ,componentType 
         (tink.Json.parse
             (sys.io.File.getContent
-                (haxe.io.Path.join [.archiveDir (the nap.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")])))))
+                (haxe.io.Path.join [.archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")])))))
 
 (defun tagList [archive e]
     (let [t

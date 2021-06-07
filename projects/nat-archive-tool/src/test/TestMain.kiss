@@ -1,7 +1,7 @@
 // TODO external programs need to be able to find and (load) this path to get the macros:
 // ^ That should be solved by allowing an optional first argument to load that is a symbol
 // of a library name that can be used to resolve the source dir in the user's Haxelib maybe?
-(load "../nap/Lib.kiss")
+(load "../nat/Lib.kiss")
 
 
 (defun :Void main []

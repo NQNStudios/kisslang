@@ -1,5 +1,5 @@
 -lib kiss
--lib nap
+-lib nat-archive-tool
 -cp src
 --main Main
 --interp

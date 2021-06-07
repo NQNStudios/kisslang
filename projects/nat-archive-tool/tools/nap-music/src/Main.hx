@@ -2,7 +2,7 @@ package;
 
 import kiss.Kiss;
 import kiss.Prelude;
-import nap.Archive;
+import nat.Archive;
 
 @:build(kiss.Kiss.build())
 class Main {}

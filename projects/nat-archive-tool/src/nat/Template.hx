@@ -1,4 +1,4 @@
-package nap;
+package nat;
 
 interface Template {
     function prepareEntry(e:Entry):Void;
