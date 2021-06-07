@@ -2,7 +2,7 @@
 
 *A type-safe, compiled Lisp for Haxe programs*
 
-[![Build Status](https://travis-ci.org/hissvn/kisslang.svg?branch=main)](https://travis-ci.org/hissvn/kisslang)
+[![Build Status](https://travis-ci.com/hissvn/kisslang.svg?branch=main)](https://travis-ci.com/hissvn/kisslang)
 
 ## What is Kiss?
 
