@@ -260,7 +260,7 @@ class SpecialForms {
                 default:
                     null;
             };
-            ESwitch(k.forCaseParsing().convert(args[0]), args.slice(1).map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
+            ESwitch(k.withoutListWrapping().convert(args[0]), args.slice(1).map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
         };
 
         // Type check syntax:
