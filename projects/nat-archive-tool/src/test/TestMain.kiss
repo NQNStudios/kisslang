@@ -25,4 +25,9 @@
         (assert !(tagsMatch archive song1 "(and song religious)"))
         (assert (tagsMatch archive song2 "(and song religious)"))
         (assert !(tagsMatch archive song2 "(and song western)"))
-        ))
+
+        (withComponents archive song1
+            [author Author
+                name Name]
+            (assert (= author "Rafael Krux"))
+            (assert (= name "Adventure")))))

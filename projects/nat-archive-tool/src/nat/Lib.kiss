@@ -4,12 +4,42 @@
 (defmacro hasComponent [e componentType]
     `(.exists .components ,e ,(symbolName componentType)))
 
-// TODO add to the documentation a hint that macros should use fully qualified paths so macro caller classes don't need to import everything
+(defmacro _componentPath [archive e componentType]
+    `(haxe.io.Path.join [.archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")]))
+
 (defmacro getComponent [archive e componentType]
+    // TODO add to the documentation a hint that macros should use fully qualified type paths so macro caller classes don't need to import everything
     `(the nat.components ,componentType 
         (tink.Json.parse
-            (sys.io.File.getContent
-                (haxe.io.Path.join [.archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")])))))
+            (sys.io.File.getContent (_componentPath ,archive ,e ,componentType)))))
+
+// Components have to be saved individually after writing because the Entity only knows their ids,
+// not the data they contain. This is more ergonomically done by using (withComponents...)
+(defmacro saveComponent [archive e componentType c]
+    `(sys.io.File.saveContent
+        (_componentPath ,archive ,e ,componentType)
+        (tink.Json.stringify
+            (the nat.components ,componentType ,c))))
+
+// Retrieve multiple components from an Entity with mutable access.
+// All components will be serialized after the block is done.
+(defmacro withComponents [archive e bindings &rest body]
+    (let [bindingPairs
+                (groups (expList bindings) 2 Throw)
+            bindingList
+                []
+            saveList
+                []
+            retValSymbol
+                (symbol)]
+        (doFor [name type] bindingPairs
+            (bindingList.push `&mut ,name)
+            (bindingList.push `(getComponent ,archive ,e ,type))
+            (saveList.push `(saveComponent ,archive ,e ,type ,name)))
+        `(let [,@bindingList
+                ,retValSymbol {,@body}]
+            ,@saveList
+            ,retValSymbol)))
 
 (defun tagList [archive e]
     (let [t
