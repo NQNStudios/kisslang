@@ -20,6 +20,7 @@
 (defmethod :Entry createEntry [template]
     (let [e (_newEntry)]
         (.prepareEntry (dictGet templates template) e)
+        (saveEntry e)
         (doFor system systems
             (system.checkEntryInOrOut this e))
         e))
@@ -27,13 +28,7 @@
 (defmethod saveEntry [:Entry e]
     (File.saveContent
         (Path.join [archiveDir "entries" (e.id.withExtension "json")])
-        (Json.stringify e))
-        
-    // TODO save its components? but it's not obvious how, because it only knows the string keys of them.
-    // Better yet, retrieving components with mutable access should be done through a
-    // (withComponent...) macro that serializes the component after the block is done.
-    // 
-    )
+        (Json.stringify e)))
 
 (defun :Entry _newEntry []
     (object
