@@ -365,8 +365,7 @@ class Macros {
                     args[innerArgNames.shift()] = innerExps.slice(restIndex);
 
                 // Return the macro expansion:
-                var expDef:ReaderExpDef = Helpers.runAtCompileTime(CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(2)).withPosOf(wholeExp), k, args);
-                expDef.withPosOf(wholeExp);
+                return Helpers.runAtCompileTime(CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(2)).withPosOf(wholeExp), k, args);
             };
 
             null;
@@ -396,7 +395,7 @@ class Macros {
                                 stream.putBackString(s);
                             }
                             var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
-                            Helpers.runAtCompileTime(body, k, [streamArgName => stream]);
+                            Helpers.runAtCompileTime(body, k, [streamArgName => stream]).def;
                         };
                     case CallExp(_, []):
                         throw CompileError.fromExp(exps[1], 'expected an argument list. Change the parens () to brackets []');

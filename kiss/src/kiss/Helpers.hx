@@ -10,6 +10,7 @@ import kiss.ReaderExp;
 import kiss.CompileError;
 import kiss.Kiss;
 import kiss.SpecialForms;
+import kiss.Prelude;
 import uuid.Uuid;
 
 using uuid.Uuid;
@@ -234,14 +235,14 @@ class Helpers {
     // When we ARE running at compiletime already, the pre-existing interp will be used
     static var interps:kiss.List<Interp> = [];
 
-    public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
-        var code = k.convert(exp).toString(); // tink_macro to the rescue
+    public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
+        var code = k.forHScript().convert(exp).toString(); // tink_macro to the rescue
         #if test
         Prelude.print("Compile-time hscript: " + code);
         #end
         var parser = new Parser();
         if (interps.length == 0) {
-            var interp = new Interp();
+            var interp = new KissInterp();
             interp.variables.set("read", Reader.assertRead.bind(_, k));
             interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
             interp.variables.set("ReaderExp", ReaderExpDef);
@@ -254,12 +255,8 @@ class Helpers {
                     fromDynamic: Operand.fromDynamic
                 }
             });
-            interp.variables.set("k", k.forCaseParsing());
+            interp.variables.set("k", k.forHScript());
             interp.variables.set("Helpers", Helpers);
-            interp.variables.set("Prelude", Prelude);
-            interp.variables.set("Lambda", Lambda);
-            interp.variables.set("Std", Std);
-
             interps.push(interp);
         } else {
             interps.push(interps[-1]);
@@ -283,20 +280,25 @@ class Helpers {
         if (value == null) {
             throw CompileError.fromExp(exp, "compile-time evaluation returned null");
         }
+        var expResult = compileTimeValueToReaderExp(value, exp);
         #if test
-        var msg = "Compile-time value: ";
-        msg += try {
-            Reader.toString(value.def);
-        } catch (err:haxe.Exception) {
-            try {
-                Reader.toString(value);
-            } catch (err:haxe.Exception) {
-                Std.string(value);
-            }
-        }
-        Prelude.print(msg);
+        Prelude.print('Compile-time value: ${Reader.toString(expResult.def)}');
         #end
-        return value;
+        return expResult;
+    }
+
+    // The value could be either a ReaderExp, ReaderExpDef, Array of ReaderExp/ReaderExpDefs, or something else entirely,
+    // but it needs to be a ReaderExp for evalUnquotes()
+    static function compileTimeValueToReaderExp(e:Dynamic, source:ReaderExp):ReaderExp {
+        return if (Std.isOfType(e, Array)) {
+            var arr:Array<Dynamic> = e;
+            var listExps = arr.map(compileTimeValueToReaderExp.bind(_, source));
+            ListExp(listExps).withPosOf(source);
+        } else if (e.def == null) {
+            (e : ReaderExpDef).withPosOf(source);
+        } else {
+            (e : ReaderExp);
+        }
     }
 
     static function evalUnquoteLists(l:Array<ReaderExp>, k:KissState, ?args:Map<String, Dynamic>):Array<ReaderExp> {
@@ -360,7 +362,7 @@ class Helpers {
 
     public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
         var def = switch (exp.def) {
-            case Symbol(_) | StrExp(_) | RawHaxe(_):
+            case Symbol(_) | StrExp(_) | RawHaxe(_) | Quasiquote(_):
                 exp.def;
             case CallExp(func, callArgs):
                 CallExp(removeTypeAnnotations(func), callArgs.map(removeTypeAnnotations));

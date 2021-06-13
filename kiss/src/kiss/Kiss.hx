@@ -202,7 +202,7 @@ class Kiss {
                         convert(elementExp);
                     }
                 ]).withMacroPosOf(exp);
-                if (!isMap && k.wrapListExps) {
+                if (!isMap && k.wrapListExps && !k.hscript) {
                     ENew({
                         pack: ["kiss"],
                         name: "List"
@@ -231,9 +231,23 @@ class Kiss {
         return expr;
     }
 
-    public static function forCaseParsing(k:KissState):KissState {
+    // Return an identical Kiss State, but without type annotations or wrapping list expressions as kiss.List constructor calls.
+    public static function forHScript(k:KissState):KissState {
+        var copy = new Cloner().clone(k);
+        copy.hscript = true;
+        return copy;
+    }
+
+    // Return an identical Kiss State, but without wrapping list expressions as kiss.List constructor calls.
+    public static function withoutListWrapping(k:KissState) {
         var copy = new Cloner().clone(k);
         copy.wrapListExps = false;
+        return copy;
+    }
+
+    // Return an identical Kiss State, but prepared for parsing a branch pattern of a (case...) expression
+    public static function forCaseParsing(k:KissState):KissState {
+        var copy = withoutListWrapping(k);
         copy.macros.remove("or");
         copy.specialForms["or"] = SpecialForms.caseOr;
         return copy;
