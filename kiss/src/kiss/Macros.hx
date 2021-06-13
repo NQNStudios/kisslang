@@ -178,7 +178,7 @@ class Macros {
             wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
             var b = wholeExp.expBuilder();
 
-            var uniqueVarSymbol = b.gensym();
+            var uniqueVarSymbol = b.symbol();
 
             b.begin([
                 b.call(b.symbol("deflocal"), [
@@ -204,7 +204,7 @@ class Macros {
             wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
             var b = wholeExp.expBuilder();
 
-            var uniqueVarSymbol = b.gensym();
+            var uniqueVarSymbol = b.symbol();
 
             var condCases = [
                 for (arg in args) {
@@ -584,7 +584,7 @@ class Macros {
         function once(macroName:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             wholeExp.checkNumArgs(1, null, '($macroName [body...])');
             var b = wholeExp.expBuilder();
-            var flag = b.gensym();
+            var flag = b.symbol();
             // define the field:
             k.convert(b.call(b.symbol(macroName), [b.meta("mut", flag), b.symbol("true")]));
             return b.call(b.symbol("when"), [flag, b.call(b.symbol("set"), [flag, b.symbol("false")])].concat(exps));

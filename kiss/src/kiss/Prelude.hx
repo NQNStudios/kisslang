@@ -12,8 +12,10 @@ import js.node.Buffer;
 #elseif sys
 import sys.io.Process;
 #end
+import uuid.Uuid;
 
 using StringTools;
+using uuid.Uuid;
 
 /** What functions that process Lists should do when there are more elements than expected **/
 enum ExtraElementHandling {
@@ -278,11 +280,25 @@ class Prelude {
     }
 
     // ReaderExp helpers for macros:
+    public static function symbol(?name:String):ReaderExpDef {
+        if (name == null)
+            name = '_${Uuid.v4().toShort()}';
+        return Symbol(name);
+    }
+
     public static function symbolName(s:ReaderExp):ReaderExpDef {
         return switch (s.def) {
             case Symbol(name): StrExp(name);
             default: throw 'expected $s to be a plain symbol';
         };
+    }
+
+    public static function expList(s:ReaderExp):Array<ReaderExp> {
+        return switch (s.def) {
+            case ListExp(exps):
+                exps;
+            default: throw 'expected $s to be a list expression';
+        }
     }
 
     #if sys
