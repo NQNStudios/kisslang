@@ -354,6 +354,8 @@ class Helpers {
                 } else {
                     throw CompileError.fromExp(exp, "unquote didn't evaluate to a ReaderExp or ReaderExpDef");
                 };
+            case MetaExp(meta, innerExp):
+                MetaExp(meta, evalUnquotes(innerExp, k, args));
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
         };
