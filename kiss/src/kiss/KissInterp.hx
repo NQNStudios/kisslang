@@ -16,8 +16,12 @@ class KissInterp extends Interp {
         variables.set("Throw", ExtraElementHandling.Throw);
     }
 
-    // the default exprReturn() contains a try-catch which hides very important callstacks sometimes
     override function exprReturn(e):Dynamic {
+        // the default exprReturn() contains a try-catch which, though it is important, hides very important macroexpansion callstacks sometimes
+        #if macrotest
         return expr(e);
+        #else
+        return super.exprReturn(e);
+        #end
     }
 }
