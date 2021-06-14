@@ -15,15 +15,33 @@ class Main {
         macroMain();
     }
 
-    // When called from the command-line, `kiss` converts its stdin input to Haxe expressions.
-    // with --all, it reads everything from stdin at once (for piping). Without --all, it acts as a repl,
-    // where \ at the end of a line signals that the expression is not complete
-    // TODO write tests for this
-    // TODO use this to implement runAtRuntime() for sys targets by running a haxe subprocess
+    // When called from the command-line, Kiss has various subcommands, some of which can only run in macro context
     static macro function macroMain():Expr {
+        var args = Sys.args();
+
+        // TODO `kiss run` subcommand with optional target option. With no target specified, keep trying targets until one exits with status 0 (side-effect danger)
+
+        switch (args.shift()) {
+            case "convert":
+                convert(args);
+            case other:
+                // TODO show a helpful list of subcommands
+                Sys.println('$other is not a kiss subcommand');
+                Sys.exit(1);
+        }
+
+        return macro null;
+    }
+
+    static function convert(args:Array<String>) {
+        // `kiss convert` converts its stdin input to Haxe expressions.
+        // with --all, it reads everything from stdin at once (for piping). Without --all, it acts as a repl,
+        // where \ at the end of a line signals that the expression is not complete
+        // TODO write tests for this
+        // TODO use this to implement runAtRuntime() for sys targets by running a haxe subprocess
+
         var k = Kiss.defaultKissState();
         k.wrapListExps = false;
-        var args = Sys.args();
         var pretty = args.indexOf("--pretty") != -1;
         k.hscript = args.indexOf("--hscript") != -1;
 
@@ -67,6 +85,5 @@ class Main {
         }
 
         var line = "";
-        return macro null;
     }
 }

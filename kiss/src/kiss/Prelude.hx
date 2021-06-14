@@ -314,7 +314,7 @@ class Prelude {
      */
     public static function convertToHScript(kissStr:String):String {
         #if (!macro && hxnodejs)
-        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "--all", "--hscript"], {input: '${kissStr}\n'});
+        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], {input: '${kissStr}\n'});
         if (kissProcess.status != 0) {
             var error:String = kissProcess.stderr;
             throw 'failed to convert ${kissStr} to hscript: ${error}';
@@ -323,7 +323,7 @@ class Prelude {
         return output.toString();
         #elseif sys
         if (kissProcess == null)
-            kissProcess = new Process("haxelib", ["run", "kiss", "--hscript"]);
+            kissProcess = new Process("haxelib", ["run", "kiss", "convert", "--hscript"]);
 
         kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
 
