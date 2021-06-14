@@ -128,6 +128,9 @@ class Kiss {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
         var fullPath = Path.join([loadingDirectory, kissFile]);
+        if (k.loadedFiles.exists(fullPath)) {
+            return;
+        }
         k.loadedFiles[fullPath] = true;
         var stream = Stream.fromFile(fullPath);
         Reader.readAndProcess(stream, k, (nextExp) -> {

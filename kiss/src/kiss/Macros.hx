@@ -24,9 +24,7 @@ class Macros {
             wholeExp.checkNumArgs(1, 1, '(load "[file]")');
             switch (args[0].def) {
                 case StrExp(otherKissFile):
-                    if (!k.loadedFiles.exists(otherKissFile)) {
-                        Kiss.load(otherKissFile, k);
-                    }
+                    Kiss.load(otherKissFile, k);
                 default:
                     throw CompileError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
             }
@@ -44,9 +42,7 @@ class Macros {
             };
             switch (args[1].def) {
                 case StrExp(otherKissFile):
-                    if (!k.loadedFiles.exists(otherKissFile)) {
-                        Kiss.load(otherKissFile, k, libPath);
-                    }
+                    Kiss.load(otherKissFile, k, libPath);
                 default:
                     throw CompileError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
             }

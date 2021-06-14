@@ -87,13 +87,11 @@
     
     // Day 8
     (when (<= 0 (days.indexOf 8))
-        (print "BootCodeExample")
         (let [example (new BootCodeExample)]
             (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
             (example.run))
-        (print "BootCodeReal")
         (let [bootCode (new BootCodeReal)]
-            (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 (print bootCode.accumulator)))))
+            (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 bootCode.accumulator))))
             (bootCode.run))
         /* (print "BootCodeFixExample")
         (let [bootCode (new BootCodeFixExample)]
