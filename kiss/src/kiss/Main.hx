@@ -82,7 +82,11 @@ class Main {
             "name": name,
             "url": promptFor("url"),
             "license": promptFor("license", "LGPL"),
-            "tags": promptFor("tags (comma-separated)", "").split(","),
+            "tags": {
+                var t = promptFor("tags (comma-separated)", "").split(",");
+                t.remove("");
+                t;
+            },
             "description": promptFor("description", ""),
             "version": "0.0.0",
             "releasenote": "",
@@ -98,7 +102,7 @@ class Main {
         makeFileForNewProject(["src", "template", "Main.kiss"], name, pkg);
         makeFileForNewProject(["build.hxml"], name, pkg);
         makeFileForNewProject(["test.sh"], name, pkg);
-        File.saveContent('$name/haxelib.json', Json.stringify(haxelibJson));
+        File.saveContent('$name/haxelib.json', Json.stringify(haxelibJson, null, "\t"));
     }
 
     static function convert(args:Array<String>) {
