@@ -1,0 +1,4 @@
+-lib kiss
+-cp src
+--main nat_cli.Main
+--interp
