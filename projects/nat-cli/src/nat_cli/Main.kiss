@@ -1,2 +1,4 @@
+(loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+
 (defun :Void main []
     (print "Hello world!"))

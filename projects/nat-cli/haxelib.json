@@ -4,7 +4,8 @@
 	"description": "",
 	"classPath": "src/",
 	"dependencies": {
-		"kiss": ""
+		"kiss": "",
+		"nat-archive-tool": ""
 	},
 	"url": "https://github.com/hissvn/kisslang",
 	"contributors": [

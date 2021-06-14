@@ -24,6 +24,7 @@ env:
   - KISS_PROJECT=flixel-rpg-tutorial
   - KISS_PROJECT=kiss-vscode
   - KISS_PROJECT=nat-archive-tool
+  - KISS_PROJECT=nat-cli
   - KISS_PROJECT=pdf-salad
 
 jobs:
