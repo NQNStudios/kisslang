@@ -1,9 +1,9 @@
 language: haxe
 dist: xenial
 os:
-  - mac
   - linux
   - windows
+#  - mac
 
 haxe:
   - stable
