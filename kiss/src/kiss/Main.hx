@@ -77,6 +77,7 @@ class Main {
 
     static function newProject(args:Array<String>) {
         var name = promptFor("name");
+        // TODO put the prompted description in a README.md
         var pkg = name.replace("-", "_");
         var haxelibJson = {
             "name": name,

@@ -6,10 +6,12 @@ import kiss.Reader;
 import kiss.ReaderExp;
 import kiss.Kiss;
 import kiss.CompileError;
+import sys.io.Process;
 
 using kiss.Kiss;
 using kiss.Reader;
 using kiss.Helpers;
+using StringTools;
 
 // Macros generate new Kiss reader expressions from the arguments of their call expression.
 typedef MacroFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Null<ReaderExp>;
@@ -19,14 +21,34 @@ class Macros {
         var macros:Map<String, MacroFunction> = [];
 
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, "(load \"[file]\")");
+            wholeExp.checkNumArgs(1, 1, '(load "[file]")');
             switch (args[0].def) {
                 case StrExp(otherKissFile):
                     if (!k.loadedFiles.exists(otherKissFile)) {
                         Kiss.load(otherKissFile, k);
                     }
                 default:
-                    throw CompileError.fromExp(args[0], "only argument to load should be a string literal");
+                    throw CompileError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
+            }
+            null;
+        };
+
+        macros["loadFrom"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, '(loadFrom "[haxelib name]" "[file]")');
+
+            var libPath = switch (args[0].def) {
+                case StrExp(libName):
+                    new Process("haxelib", ["libpath", libName]).stdout.readAll().toString().trim();
+                default:
+                    throw CompileError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
+            };
+            switch (args[1].def) {
+                case StrExp(otherKissFile):
+                    if (!k.loadedFiles.exists(otherKissFile)) {
+                        Kiss.load(otherKissFile, k, libPath);
+                    }
+                default:
+                    throw CompileError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
             }
             null;
         };

@@ -124,9 +124,12 @@ class Kiss {
         });
     }
 
-    public static function load(kissFile:String, k:KissState) {
-        k.loadedFiles[kissFile] = true;
-        var stream = Stream.fromFile(Path.join([k.loadingDirectory, kissFile]));
+    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String) {
+        if (loadingDirectory == null)
+            loadingDirectory = k.loadingDirectory;
+        var fullPath = Path.join([loadingDirectory, kissFile]);
+        k.loadedFiles[fullPath] = true;
+        var stream = Stream.fromFile(fullPath);
         Reader.readAndProcess(stream, k, (nextExp) -> {
             #if test
             Sys.println(nextExp.def.toString());
@@ -134,7 +137,9 @@ class Kiss {
 
             var expr = readerExpToHaxeExpr(nextExp, k);
 
-            // if non-null, stuff it in main()
+            // TODO There are two ideas for how to handle expressions at the top level of a Kiss file:
+            //      1. Throw an error, because the top level should only contain field definitions
+            //      2. Append the expression to the body of an automatically generated main() function
         });
     }
 
