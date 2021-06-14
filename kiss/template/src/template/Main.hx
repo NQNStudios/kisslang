@@ -1,4 +1,4 @@
-package;
+package template;
 
 import kiss.Kiss;
 import kiss.Prelude;

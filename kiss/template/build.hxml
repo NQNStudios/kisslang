@@ -1,4 +1,4 @@
 -lib kiss
 -cp src
---main Main
+--main template.Main
 --interp
