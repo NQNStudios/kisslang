@@ -1,6 +1,13 @@
+(defmacro day [num &rest body]
+    `(when (<= 0 (days.indexOf ,num))
+        (print (+ "day " ,num))
+        ,@body))
+
+(defmacro dayTodo [num]
+    `(day ,num (print "TODO")))
+
 (defun run [:kiss.List<Int> days]
-    // Day 1
-    (when (<= 0 (days.indexOf 1))
+    (day 1
         (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
             (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))
         (let [[a b] (SummingTuples.pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
@@ -12,8 +19,7 @@
             (assert (= 257778836 (* a b c))
                 "trioWithSum is broken")))
                 
-    // Day 2
-    (when (<= 0 (days.indexOf 2))
+    (day 2
         (assert (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck1))
         (assert !(Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck1))
         (assert (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck1))
@@ -23,8 +29,7 @@
         (assert !(Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2))
         (assert (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))))
             
-    // Day 3
-    (when (<= 0 (days.indexOf 3))
+    (day 3
         (deflocal exampleHillTile [
                                     "..##......."                                    
                                     "#...#...#.."
@@ -46,14 +51,12 @@
         (assert (= 5522401584 (let [hillTile (Util.readLines "src/year2020/inputs/day3-1.txt")]
                 (apply * (for args [[0 0 1 1] [0 0 3 1] [0 0 5 1] [0 0 7 1] [0 0 1 2]] (apply (Toboggan.pathTrees.bind hillTile) args)))))))
     
-    // Day 4
-    (when (<= 0 (days.indexOf 4))
+    (day 4
         (assert (= 2 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-example.txt"))))
         (assert (= 250 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt"))))
         (assert (= 158 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt") "strict"))))
         
-    // Day 5
-    (when (<= 0 (days.indexOf 5))
+    (day 5
         (assert (= 567 (Seating.seatId "BFFFBBFRRR")))
         (let [:kiss.List<Int> seatIds (map (Util.readLines "src/year2020/inputs/day5-1.txt") Seating.seatId)]
             (seatIds.sort (lambda [a b] (- a b)))
@@ -67,15 +70,13 @@
                 (set lastId id))
             (assert (= 636 myId))))
 
-    // Day 6
-    (when (<= 0 (days.indexOf 6))
+    (day 6
         (assert (= 6 (Customs.countAnyYes ["abcx" "abcy" "abcz"])))
         (assert (= 6683 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAnyYes))))
         (assert (= 6 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-example2.txt") Customs.countAllYes))))
         (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes)))))
         
-    // Day 7
-    (when (<= 0 (days.indexOf 7))
+    (day 7
         (deflocal parentMap (new ParentMap))
         (deflocal childMap (new ChildMap))
         (doFor line (Util.readLines "src/year2020/inputs/day7.txt")
@@ -85,8 +86,7 @@
         (assert (= 172 (count shinyGoldParents)))
         (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap))))
     
-    // Day 8
-    (when (<= 0 (days.indexOf 8))
+    (day 8
         (let [example (new BootCodeExample)]
             (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
             (example.run))
@@ -113,8 +113,7 @@
             (bootCode.run)) */
         )
     
-    // Day 9
-    (when (<= 0 (days.indexOf 9))
+    (day 9
         (assert (= 127 (XMAS.firstOffender 5
             [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576])))
         (assert (= 133015568 (XMAS.firstOffender 25 (Util.readInts "src/year2020/inputs/day9.txt"))))
@@ -123,8 +122,7 @@
         (let [tuple (SummingTuples.contiguousSumTuple 133015568 (Util.readInts "src/year2020/inputs/day9.txt"))]
             (assert (= 16107959 (+ (apply min tuple) (apply max tuple))))))
 
-    // Day 10
-    (when (<= 0 (days.indexOf 10))
+    (day 10
         (assert (Int64.eq 8 (Adapters.arrangementCount (sort [0 22 16 10 15 5 1 11 7 19 6 12 4]) 0)))
         (assert (Int64.eq 19208 (Adapters.arrangementCount (sort [0 52 28 33 18 42 31 14 46 20 48 47 24 23 49 45 19 38 39 11 1 32 25 35 8 17 7 9 4 2 34 10 3]) 0)))
         (let [adapters (sort (Util.readInts "src/year2020/inputs/day10.txt"))]
@@ -137,8 +135,7 @@
                 (set Adapters.arrangementCount #|cast memoized|#))
             (assert (= "347250213298688" (Int64.toStr (Adapters.arrangementCount adapters 0))))))
 
-    // Day 11
-    (when (<= 0 (days.indexOf 11))
+    (day 11
         (let [example (new FerrySimExample)
                 real (new FerrySimReal)]
             (example.run)
@@ -148,35 +145,21 @@
             (real.fullSimulate)
             (assert (= 2329 (real.countFullSeats)))))
 
-    // Day 12
-    (when (<= 0 (days.indexOf 12))
+    (day 12
         (let [script (new EvasionScript)]
             (script.run)
             (assert (= 441 (+ (Math.abs script.x) (Math.abs script.y))))))
 
-    // Day 13
-    (when (<= 0 (days.indexOf 13)) (print "TODO day 13"))
-    // Day 14
-    (when (<= 0 (days.indexOf 14)) (print "TODO day 14"))
-    // Day 15
-    (when (<= 0 (days.indexOf 15)) (print "TODO day 15"))
-    // Day 16
-    (when (<= 0 (days.indexOf 16)) (print "TODO day 16"))
-    // Day 17
-    (when (<= 0 (days.indexOf 17)) (print "TODO day 17"))
-    // Day 18
-    (when (<= 0 (days.indexOf 18)) (print "TODO day 18"))
-    // Day 19
-    (when (<= 0 (days.indexOf 19)) (print "TODO day 19"))
-    // Day 20
-    (when (<= 0 (days.indexOf 20)) (print "TODO day 20"))
-    // Day 21
-    (when (<= 0 (days.indexOf 21)) (print "TODO day 21"))
-    // Day 22
-    (when (<= 0 (days.indexOf 22)) (print "TODO day 22"))
-    // Day 23
-    (when (<= 0 (days.indexOf 23)) (print "TODO day 23"))
-    // Day 24
-    (when (<= 0 (days.indexOf 24)) (print "TODO day 24"))
-    // Day 25
-    (when (<= 0 (days.indexOf 25)) (print "TODO day 25")))
+    (dayTodo 13)
+    (dayTodo 14)
+    (dayTodo 15)
+    (dayTodo 16)
+    (dayTodo 17)
+    (dayTodo 18)
+    (dayTodo 19)
+    (dayTodo 20)
+    (dayTodo 21)
+    (dayTodo 22)
+    (dayTodo 23)
+    (dayTodo 24)
+    (dayTodo 25))
