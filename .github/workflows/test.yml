@@ -1,0 +1,47 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test-core:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        haxe-version: [4.2.2]
+        node-version: ['14']
+        python-version: ['3.x']
+        test-target: 
+          - KISS_TARGET=cpp
+          - KISS_TARGET=interp
+          - KISS_TARGET=js
+          - KISS_TARGET=nodejs
+          - KISS_TARGET=py
+          - KISS_PROJECT=aoc
+          - KISS_PROJECT=asciilib2
+          - KISS_PROJECT=file-watch
+          - KISS_PROJECT=flixel-ascii-game
+          - KISS_PROJECT=flixel-rpg-tutorial
+          - KISS_PROJECT=kiss-vscode
+          - KISS_PROJECT=nat-archive-tool
+          - KISS_PROJECT=nat-cli
+          - KISS_PROJECT=pdf-salad
+      fail-fast: true
+    runs-on: ${{ matrix.os }}
+    env:
+      CI_OS_NAME: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v2
+      # Set up Kiss runtimes:
+      - uses: krdlab/setup-haxe@v1.1.5
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: haxe -version
+      - run: echo "${{ matrix.test-target }}" >> $GITHUB_ENV
+      - run: ./test.sh
+      

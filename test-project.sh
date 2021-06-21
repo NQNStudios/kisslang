@@ -21,7 +21,7 @@ fi
 if [[ $KISS_PROJECT == *flixel-* ]]
 then
     # If running through Travis, install HaxeFlixel with c++ tooling and 
-    if [ ! -z "$TRAVIS_OS_NAME" ]
+    if [ ! -z "CI_OS_NAME" ]
     then
         haxelib install lime
         haxelib install openfl

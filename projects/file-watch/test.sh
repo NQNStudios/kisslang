@@ -2,7 +2,7 @@
 
 echo "" > test-output.txt
 expected=$'hey\nhey\nhey'
-if [[ $(uname) == *"MINGW"* ]] || [ $TRAVIS_OS_NAME = "windows" ]; then
+if [[ $(uname) == *"MINGW"* ]] || [ $CI_OS_NAME = "windows-latest" ]; then
     expected=$'"hey" \r\n"hey" \r\n"hey"' 
 fi
 

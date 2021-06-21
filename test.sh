@@ -4,7 +4,7 @@ KISS_TARGET=${KISS_TARGET:-$1}
 KISS_TARGET=${KISS_TARGET:-interp}
 
 # If Travis is running tests, basic dependencies need to be installed
-if [ ! -z "$TRAVIS_OS_NAME" ]
+if [ ! -z "$CI_OS_NAME" ]
 then
     (cd kiss/build-scripts && haxelib install all --always)
     (cd kiss/build-scripts/$KISS_TARGET && haxelib install all --always)
