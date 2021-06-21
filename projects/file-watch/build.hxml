@@ -1,4 +1,0 @@
--lib kiss
--cp src
---main Main
---python bin/main.py

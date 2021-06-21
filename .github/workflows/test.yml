@@ -18,7 +18,6 @@ jobs:
           - KISS_TARGET=py
           - KISS_PROJECT=aoc
           - KISS_PROJECT=asciilib2
-          - KISS_PROJECT=file-watch
           - KISS_PROJECT=flixel-ascii-game
           - KISS_PROJECT=flixel-rpg-tutorial
           - KISS_PROJECT=kiss-vscode
