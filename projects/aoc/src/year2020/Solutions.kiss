@@ -1,6 +1,6 @@
 (defmacro day [num &rest body]
     `(when (<= 0 (days.indexOf ,num))
-        (print (+ "day " ,num))
+        (print (+ "day " (Std.string ,num)))
         ,@body))
 
 (defmacro dayTodo [num]
