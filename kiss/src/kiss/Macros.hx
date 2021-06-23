@@ -546,10 +546,14 @@ class Macros {
 
         // TODO test defnew
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(defnew [[args...]] [[property bindings...]] [body...]");
+            wholeExp.checkNumArgs(1, null, "(defnew [[args...]] [[optional property bindings...]] [optional body...]");
 
             var args = exps[0];
-            var bindingList = exps[1].bindingList("defnew", true);
+            var bindingList = if (exps.length > 1) {
+                exps[1].bindingList("defnew", true);
+            } else {
+                [];
+            };
             var bindingPairs = Prelude.groups(bindingList, 2);
 
             var propertyDefs = [for (bindingPair in bindingPairs) {
