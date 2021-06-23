@@ -90,7 +90,7 @@ class FieldForms {
     }
 
     static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
-        wholeExp.checkNumArgs(3, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
+        wholeExp.checkNumArgs(2, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
 
         var name = Helpers.varName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
