@@ -152,11 +152,13 @@ class Helpers {
         var expr = if (body.length == 0) {
             EReturn(null).withMacroPosOf(if (name != null) name else argList);
         } else {
-            k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos));
-        }
+            var block = k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos));
 
-        if (returnsValue) {
-            expr = EReturn(expr).withMacroPosOf(body[-1]);
+            if (returnsValue) {
+                EReturn(block).withMacroPosOf(body[-1]);
+            } else {
+                block;
+            };
         }
 
         // To make function args immutable by default, we would use (let...) instead of (begin...)
