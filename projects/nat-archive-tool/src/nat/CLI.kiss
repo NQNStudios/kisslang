@@ -4,18 +4,38 @@
                 (new ArchiveController
                     (new Archive archiveDir)
                     (new CLI))]
-        ))
+        (controller.collectAndValidateArg (object name "numerical" type (Number -5 5 1)) ->:Void val ~val)
+        (controller.collectAndValidateArg (object name "string" type (Text 5 null)) ->:Void val ~val)))
 
-(defmethod enterText [&opt minLength maxLength]
-    "")
+(defnew [])
 
-(defmethod enterNumber [&opt min max inStepsOf]
-    0)
+(defmethod :Void enterText [prompt resolve &opt minLength maxLength]
+    (Sys.print "$prompt ")
+    (loop
+        (let [entered (.toString (.readLine (Sys.stdin)))]
+            (if !(<= minLength entered.length maxLength)
+                    (Sys.print "Try again? ")
+                {(resolve entered)
+                    (break)}))))
 
-(defmethod chooseEntry [archive]
-    null)
+(defmethod :Void enterNumber [prompt resolve &opt min max inStepsOf]
+    (Sys.print "$prompt ")
+    (loop
+        (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
+            (if
+                (or
+                        !(<= min entered max)
+                        (and inStepsOf !(= 0 (% (- entered min) inStepsOf))))
+                    (Sys.print "Try again? ")
+                {(resolve entered)
+                    (break)}))))
 
-(defmethod chooseEntries [archive &opt min max]
-    [])
+(defmethod :Void chooseEntry [prompt archive resolve]
+    (resolve null))
 
-(defmethod :Void handleChanges [changeSet] 0)
+(defmethod :Void chooseEntries [prompt archive resolve &opt min max]
+    (resolve []))
+
+(defmethod handleChanges [changeSet])
+
+(defmethod :Void reportError [error] ~error)

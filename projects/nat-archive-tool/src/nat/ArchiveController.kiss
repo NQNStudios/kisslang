@@ -4,9 +4,115 @@
 (defmethod selectEntries [:Array<Entry> e]
     (set selectedEntries e))
 
+(defmethod selectLastChangeSet []
+    (set selectedEntries lastChangeSet))
+
+(defmethod :Void collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
+    (case arg.type
+        (SelectedEntry
+            (if (= 1 selectedEntries.length)
+                    (continuation (first selectedEntries))
+                (ui.reportError "The requested command expects 1 entry to be selected. You have selected: $selectedEntries.length")))
+        ((SelectedEntries min max)
+            (unless min (set min 0))
+            // TODO might want to optimize this O(n) count operation by pre-calculating it 
+            (unless max (set max (count archive.entries)))
+            (if !(<= min selectedEntries.length max)
+                    (ui.reportError "The requested command expects between $min and $max entries to be selected. You have selected: $selectedEntries.length")
+                (continuation selectedEntries)))
+        ((Text minLength maxLength)
+            (unless minLength (set minLength 0))
+            (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
+            (ui.enterText
+                "${arg.name} (${minLength}-${maxLength} characters):"
+                (lambda :Void [text]
+                    (if !(<= minLength text.length maxLength)
+                            (ui.reportError "The requested command expected a string between $minLength and $maxLength characters long. You entered: $text.length characters")
+                        (continuation text)))
+                minLength
+                maxLength))
+        ((Number min max inStepsOf)
+            (unless min (set min Math.NEGATIVE_INFINITY))
+            (unless max (set max Math.POSITIVE_INFINITY))
+            (let [&mut prompt "${arg.name} (${min}-${max}"]
+                (when inStepsOf
+                    (+= prompt " in steps of ${inStepsOf}"))
+                (+= prompt "):")
+
+                (ui.enterNumber
+                    prompt
+                    (lambda :Void [number]
+                        (let [minMaxError
+                                    "The requested command expected a number between $min and $max"
+                                stepError
+                                    "$minMaxError in steps of $inStepsOf"
+                                youEntered
+                                    ". You entered: $number"]
+                            (if (or
+                                        !(<= min number max)
+                                        (and inStepsOf !(= 0 (% (- number min) inStepsOf))))
+                                    (if inStepsOf
+                                            (ui.reportError "${stepError}$youEntered")
+                                        (ui.reportError "${minMaxError}$youEntered"))
+                                (continuation number))))
+                    min
+                    max
+                    inStepsOf)))
+        (OneEntry
+            (ui.chooseEntry
+                "${arg.name}:"
+                archive
+                continuation))
+        ((Entries min max)
+            (unless min (set min 0))
+            // TODO might want to optimize this O(n) count operation by pre-calculating it 
+            (unless max (set max (count archive.entries)))
+            (ui.chooseEntries
+                "${arg.name}:"
+                archive
+                (lambda :Void [:Array<Entry> entries]
+                    (if (or
+                                (> min entries.length)
+                                (< max entries.length))
+
+                            (ui.reportError "The requested command expects between $min and $max entries. You chose: $entries.length")
+                    (continuation selectedEntries)))))))
+
+/*(defmethod :Void runCommand [command]
+    (let [collectedArgs
+                []
+            callHandler
+                (lambda []
+                    (set lastChangeSet (the ChangeSet (Reflect.callMethod command.handler collectedArgs)))
+                    (ui.handleChanges lastChangeSet))])
+        // If the command has no arguments, it can run synchronously with no hassle
+        (if !command.args
+                (callHandler)
+            // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
+            (let [argsToCollect
+                        (reversed command.args)
+                    composeArgCollector
+                        (lambda :Void->Void [:CommandArg arg :Void->Void lastResolver]
+                            (lambda :Void []
+                                (case arg.type
+                                    ((SelectedEntry
+
+                                        (ui.chooseEntry arg.prompt )))
+                                    (collectedArgs.push arg)
+                                    (lastResolver)
+                                ))
+                    resolve (lambda [:Dynamic arg]
+                        ())
+                ])
+            (doFor arg (reversed command.args)
+                )
+            )
+    )*/
+
 (defnew [&prop :Archive archive
             &prop :ArchiveUI ui]
     [&mut :Array<Entry> selectedEntries []
+        &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)]
     
     )
