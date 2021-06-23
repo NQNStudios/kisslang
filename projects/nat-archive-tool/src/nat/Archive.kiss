@@ -5,8 +5,12 @@
         :Map<String,Template> templates
             (new Map)
         :Map<String,Entry> entries
-            (let [entryFiles (FileSystem.readDirectory (Path.join [archiveDir "entries"]))]
-                (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file]))))))])
+            (let [entryDir (Path.join [archiveDir "entries"])
+                    componentDir (Path.join [archiveDir "components"])]
+                (FileSystem.createDirectory entryDir)
+                (FileSystem.createDirectory componentDir)
+                (let [entryFiles (FileSystem.readDirectory entryDir)]
+                    (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file])))))))])
 
 (defmethod addSystem [:System system]
     // Assign entries to the Systems that care about them
