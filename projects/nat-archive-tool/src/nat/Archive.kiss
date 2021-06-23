@@ -30,6 +30,8 @@
         (Path.join [archiveDir "entries" (e.id.withExtension "json")])
         (Json.stringify e)))
 
+// TODO adding or removing components or files should save the Entry and re-check it in or out of systems
+
 (defun :Entry _newEntry []
     (object
         id (Uuid.v4)

@@ -1,0 +1,21 @@
+(defun :Void main []
+    (let [[archiveDir] (Sys.args)
+            controller
+                (new ArchiveController
+                    (new Archive archiveDir)
+                    (new CLI))]
+        ))
+
+(defmethod enterText [&opt minLength maxLength]
+    "")
+
+(defmethod enterNumber [&opt min max inStepsOf]
+    0)
+
+(defmethod chooseEntry [archive]
+    null)
+
+(defmethod chooseEntries [archive &opt min max]
+    [])
+
+(defmethod :Void handleChanges [changeSet] 0)

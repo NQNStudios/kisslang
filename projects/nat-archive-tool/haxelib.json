@@ -8,6 +8,7 @@
     "releasenote": "It isn't safe to use this library yet.",
     "contributors": ["NQNStudios"],
     "classPath": "src/",
+    "main": "nat.CLI",
     "dependencies": {
         "kiss": "",
         "tink_json": ""

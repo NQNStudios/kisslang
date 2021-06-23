@@ -1,0 +1,12 @@
+(defmethod selectEntry [:Entry e]
+    (set selectedEntries [e]))
+
+(defmethod selectEntries [:Array<Entry> e]
+    (set selectedEntries e))
+
+(defnew [&prop :Archive archive
+            &prop :ArchiveUI ui]
+    [&mut :Array<Entry> selectedEntries []
+        :Map<String,Command> commands (new Map)]
+    
+    )
