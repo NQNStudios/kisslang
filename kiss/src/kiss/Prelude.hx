@@ -216,6 +216,12 @@ class Prelude {
         return zip(l1, l2);
     }
 
+    public static function reversed<T>(l:kiss.List<T>):kiss.List<T> {
+        var c = l.copy();
+        c.reverse();
+        return c;
+    }
+
     // Ranges with a min, exclusive max, and step size, just like Python.
     public static function range(min, max, step):Iterator<Int> {
         if (step <= 0)
