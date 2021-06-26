@@ -272,7 +272,7 @@ class Helpers {
 
         // TODO if an internal evaluation ever needs to end before its outer evaluation is done,
         // this will cause problems because the old args will be overwritten and lost
-        interps[-1].variables.set("args", args); // trippy
+        interps[-1].variables.set("__args__", args); // trippy
         if (args != null) {
             for (arg => value in args) {
                 interps[-1].variables.set(arg, value);
