@@ -111,13 +111,13 @@
                 (.dispose (the WebviewPanel shortcutPanel))
                 (set shortcutPanel null))
             (set prefixMap commandShortcuts))
-        (unless shortcutPanel
-            (set shortcutPanel (Vscode.window.createWebviewPanel 
-                                                    "kissShortcut"
-                                                    "Kiss Shortcuts"
-                                                    vscode.ViewColumn.Two
-                                                    (object
-                                                        enableScripts true))))
+        (when shortcutPanel (shortcutPanel.dispose))
+        (set shortcutPanel (Vscode.window.createWebviewPanel 
+                                                "kissShortcut"
+                                                "Kiss Shortcuts"
+                                                vscode.ViewColumn.Two
+                                                (object
+                                                    enableScripts true)))
         (let [&mut keyListener null]
             (set keyListener (shortcutPanel.webview.onDidReceiveMessage
                                     ->key (if (prefixMap.exists key)
