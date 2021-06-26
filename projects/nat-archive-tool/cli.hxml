@@ -1,0 +1,7 @@
+-lib kiss
+-lib uuid
+-lib tink_macro
+-lib tink_json
+-cp src
+--main nat.CLI
+--interp
