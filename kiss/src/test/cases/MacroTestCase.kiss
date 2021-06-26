@@ -13,3 +13,25 @@
 // Both forms of passing expression lists to macros should work:
 (defun sum1 [] (variadicPlus 1 2 3))
 (defun sum2 [] (listPlus [1 2 3]))
+
+// You should be able to run list comprehensions on expressions
+// and put the pieces back together in a modular way
+(defmacro altDefun [name args &rest body]
+    (let [argPairs
+                (groups (expList args) 2)
+            untypedArgs
+                []
+            letBindings
+                []]
+        (doFor [name type] argPairs
+            (untypedArgs.push name)
+            (letBindings.push name)
+            (print type)
+            (print name)
+            (letBindings.push `(the ,type ,name)))
+        (print letBindings)
+        `(defun ,name ,untypedArgs
+            (let ,letBindings ,@body))))
+
+(altDefun nameAndNumber [name String number Int]
+    "$name $number")

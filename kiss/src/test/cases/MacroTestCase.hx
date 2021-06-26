@@ -19,4 +19,8 @@ class MacroTestCase extends Test {
         Assert.equals(6, sum1());
         Assert.equals(6, sum2());
     }
+
+    function testModularMacros() {
+        Assert.equals("Nat 5", nameAndNumber("Nat", 5));
+    }
 }
