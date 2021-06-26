@@ -72,3 +72,7 @@ At the next milestone:
 Hopefully someday:
 
 * Professional game developers who want to learn the ways of Lisp
+
+## Limitations
+
+* No pattern matching in macros
