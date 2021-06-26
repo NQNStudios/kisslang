@@ -89,30 +89,22 @@
     (let [argPairs
                 (groups (expList args) 2)
             methodArgs
-                ~(for [name type] argPairs
+                (for [name type] argPairs
                     // TODO write a macroCase macro that simplifies this terrible mess,
                     // and maybe adds back precise pattern matching instead of relying
                     // on partial string matching
                     (let [expAsStr (Std.string type)]
                         (cond
-                            ((< -1 ~(max (expAsStr.indexOf "SelectedEntry") (expAsStr.indexOf "OneEntry"))) (typed "Entry" name))
-                            ((< -1 ~(max (expAsStr.indexOf "SelectedEntries") (expAsStr.indexof "Entries"))) (typed "Array<Entry>" name))
-                            ((< -1 ~(expAsStr.indexOf "Text")) (typed "String" name))
-                            ((< -1 ~(expAsStr.indexOf "Number")) (typed "Float" name)))))
+                            ((< -1 (max (expAsStr.indexOf "SelectedEntry") (expAsStr.indexOf "OneEntry"))) `:nat.Entry ,name)
+                            ((< -1 (max (expAsStr.indexOf "SelectedEntries") (expAsStr.indexof "Entries"))) `:Array<nat.Entry> ,name)
+                            ((< -1 (expAsStr.indexOf "Text")) `:String ,name)
+                            ((< -1 (expAsStr.indexOf "Number")) `:Float ,name))))
             commandArgs
                 (for [name type] argPairs
-                    // TODO this is also a mess because for some reason quasiquote wouldn't work here
-                    ~(call (symbol "object") [(symbol "name") (symbolNameExp name) (symbol "type") type]))]
+                    ~`(object name ,(symbolName name) type ,type))]
         `{
-            (defmethod ,name ,methodArgs ,body)
-            (dictSet commands ,(symbolNameExp name) (object args ,commandArgs handler ,name))}))
-
-(defmethod selectEntries [:Array<Entry> e]
-    (set selectedEntries e))
-
-(defmethod selectLastChangeSet []
-    (set selectedEntries lastChangeSet))
-
+            (defmethod ,name [,@methodArgs] ,@body)
+            (dictSet commands ,(symbolName name) (object args [,@commandArgs] handler (the Function ,name)))}))
 
 (defnew [&prop :Archive archive
             &prop :ArchiveUI ui]
@@ -123,4 +115,13 @@
     (defcommand selectEntry [e OneEntry]
         (set selectedEntries [e]))
 
-    )
+    /*
+    (defcommand selectEntries [entries (Entries null null)]
+        (set selectedEntries entries))
+    */
+
+    (defcommand selectLastChangeSet []
+        (set selectedEntries lastChangeSet))
+        
+    /*(defcommand createEntry [name (Text null null)]
+        ~name)*/)
