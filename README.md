@@ -76,3 +76,5 @@ Hopefully someday:
 ## Limitations
 
 * No pattern matching in macros
+* No type checking in macro definitions
+* Macros are extremely hard to debug

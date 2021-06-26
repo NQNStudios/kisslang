@@ -78,8 +78,11 @@ class Kiss {
     }
 
     static function _try<T>(operation:() -> T):Null<T> {
+        #if !macrotest
         try {
+        #end
             return operation();
+        #if !macrotest
         } catch (err:StreamError) {
             Sys.stderr().writeString(err + "\n");
             Sys.exit(1);
@@ -98,6 +101,7 @@ class Kiss {
             Sys.exit(1);
             return null;
         }
+        #end
     }
 
     /**
