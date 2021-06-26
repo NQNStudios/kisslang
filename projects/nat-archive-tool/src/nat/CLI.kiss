@@ -4,8 +4,7 @@
                 (new ArchiveController
                     (new Archive archiveDir)
                     (new CLI))]
-        (controller.collectAndValidateArg (object name "numerical" type (Number -5 5 1)) ->:Void val ~val)
-        (controller.collectAndValidateArg (object name "string" type (Text 5 null)) ->:Void val ~val)))
+        (controller.runCommand (object args [(object name "str" type (Text 3 55)) (object name "int" type (Number 0 5 1))] handler (lambda [fuck shit] ~"string $fuck number $shit")))))
 
 (defnew [])
 

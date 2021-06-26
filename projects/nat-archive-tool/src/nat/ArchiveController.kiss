@@ -1,13 +1,4 @@
-(defmethod selectEntry [:Entry e]
-    (set selectedEntries [e]))
-
-(defmethod selectEntries [:Array<Entry> e]
-    (set selectedEntries e))
-
-(defmethod selectLastChangeSet []
-    (set selectedEntries lastChangeSet))
-
-(defmethod :Void collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
+(defmethod :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
     (case arg.type
         (SelectedEntry
             (if (= 1 selectedEntries.length)
@@ -78,36 +69,50 @@
                             (ui.reportError "The requested command expects between $min and $max entries. You chose: $entries.length")
                     (continuation selectedEntries)))))))
 
-/*(defmethod :Void runCommand [command]
+(defmethod :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
+    (lambda :Void []
+        (_collectAndValidateArg arg ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
+
+(defmethod :Void runCommand [:Command command]
     (let [collectedArgs
                 []
-            callHandler
+            &mut lastCollector
                 (lambda []
-                    (set lastChangeSet (the ChangeSet (Reflect.callMethod command.handler collectedArgs)))
-                    (ui.handleChanges lastChangeSet))])
-        // If the command has no arguments, it can run synchronously with no hassle
-        (if !command.args
-                (callHandler)
-            // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
-            (let [argsToCollect
-                        (reversed command.args)
-                    composeArgCollector
-                        (lambda :Void->Void [:CommandArg arg :Void->Void lastResolver]
-                            (lambda :Void []
-                                (case arg.type
-                                    ((SelectedEntry
+                    (set lastChangeSet (the ChangeSet (Reflect.callMethod null command.handler collectedArgs)))
+                    (ui.handleChanges lastChangeSet))]
+        // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
+        (doFor arg (reversed command.args)
+            (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
+        (lastCollector)))
 
-                                        (ui.chooseEntry arg.prompt )))
-                                    (collectedArgs.push arg)
-                                    (lastResolver)
-                                ))
-                    resolve (lambda [:Dynamic arg]
-                        ())
-                ])
-            (doFor arg (reversed command.args)
-                )
-            )
-    )*/
+(defmacro defcommand [name args &rest body]
+    (let [argPairs
+                (groups (expList args) 2)
+            methodArgs
+                ~(for [name type] argPairs
+                    // TODO write a macroCase macro that simplifies this terrible mess,
+                    // and maybe adds back precise pattern matching instead of relying
+                    // on partial string matching
+                    (let [expAsStr (Std.string type)]
+                        (cond
+                            ((< -1 ~(max (expAsStr.indexOf "SelectedEntry") (expAsStr.indexOf "OneEntry"))) (typed "Entry" name))
+                            ((< -1 ~(max (expAsStr.indexOf "SelectedEntries") (expAsStr.indexof "Entries"))) (typed "Array<Entry>" name))
+                            ((< -1 ~(expAsStr.indexOf "Text")) (typed "String" name))
+                            ((< -1 ~(expAsStr.indexOf "Number")) (typed "Float" name)))))
+            commandArgs
+                (for [name type] argPairs
+                    // TODO this is also a mess because for some reason quasiquote wouldn't work here
+                    ~(call (symbol "object") [(symbol "name") (symbolNameExp name) (symbol "type") type]))]
+        `{
+            (defmethod ,name ,methodArgs ,body)
+            (dictSet commands ,(symbolNameExp name) (object args ,commandArgs handler ,name))}))
+
+(defmethod selectEntries [:Array<Entry> e]
+    (set selectedEntries e))
+
+(defmethod selectLastChangeSet []
+    (set selectedEntries lastChangeSet))
+
 
 (defnew [&prop :Archive archive
             &prop :ArchiveUI ui]
@@ -115,4 +120,7 @@
         &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)]
     
+    (defcommand selectEntry [e OneEntry]
+        (set selectedEntries [e]))
+
     )
