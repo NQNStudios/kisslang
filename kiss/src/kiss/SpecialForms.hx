@@ -23,7 +23,15 @@ class SpecialForms {
         map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             // Sometimes empty blocks are useful, so a checkNumArgs() seems unnecessary here for now.
 
-            EBlock([for (bodyExp in args) k.convert(bodyExp)]).withMacroPosOf(wholeExp);
+            // blocks can contain field forms that don't return an expression. These can't be included in blocks
+            var exprs = [];
+            for (bodyExp in args) {
+                var expr = k.convert(bodyExp);
+                if (expr != null) {
+                    exprs.push(expr);
+                }
+            }
+            EBlock(exprs).withMacroPosOf(wholeExp);
         };
 
         function arrayAccess(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
