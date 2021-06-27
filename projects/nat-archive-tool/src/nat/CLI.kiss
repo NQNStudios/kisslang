@@ -10,7 +10,9 @@
             (Sys.print ">> ")
             (let [command
                         (.trim (.toString (.readLine (Sys.stdin))))]
-                    (controller.runCommand (dictGet controller.commands command))))))
+                    (if (controller.commands.exists command)
+                            (controller.runCommand (dictGet controller.commands command))
+                        (Sys.print "$command is not a valid command"))))))
 
 (defnew [])
 
@@ -47,6 +49,7 @@
 
                 (case (the Array<Entry> matchingEntries)
                     ([e] (resolve e))
+                    ([] (throw "name $name doesn't match any entries"))
                     // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
                     (multipleEntries (throw "ambiguous between multiple entries"))))}
         0 Math.POSITIVE_INFINITY))
