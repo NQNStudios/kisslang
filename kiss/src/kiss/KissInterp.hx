@@ -3,6 +3,13 @@ package kiss;
 import hscript.Interp;
 import kiss.Prelude;
 
+/**
+ * Specialized hscript interpreter for hscript generated from Kiss expressions.
+ * When macrotest is defined by the compiler, many functions run without
+ * try/catch statements that are required for correct behavior -- this
+ * is actually helpful sometimes because it preserves callstacks from errors in
+ * macro definitions.
+ */
 class KissInterp extends Interp {
     // TODO standardize this with KissConfig.prepareInterp
     public function new() {
@@ -24,4 +31,25 @@ class KissInterp extends Interp {
         return super.exprReturn(e);
         #end
     }
+
+    #if macrotest
+    override function forLoop(n, it, e) {
+        var old = declared.length;
+        declared.push({n: n, old: locals.get(n)});
+        var it = makeIterator(expr(it));
+        while (it.hasNext()) {
+            locals.set(n, {r: it.next()});
+            // try {
+            expr(e);
+            /*} catch( err : Stop ) {
+                switch( err ) {
+                case SContinue:
+                case SBreak: break;
+                case SReturn: throw err;
+                }
+            }*/
+        }
+        restore(old);
+    }
+    #end
 }

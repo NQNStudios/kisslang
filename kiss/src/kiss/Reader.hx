@@ -242,6 +242,7 @@ class Reader {
         };
     }
 
+    // Read a string literal
     static function readString(stream:Stream, k:KissState) {
         var pos = stream.position();
         var stringParts:Array<ReaderExp> = [];
@@ -302,6 +303,7 @@ class Reader {
         } while (true);
     }
 
+    // Read a raw string literal
     static function readRawString(stream:Stream, k:KissState) {
         var terminator = '"#';
         do {
