@@ -6,12 +6,12 @@ interface ArchiveUI {
     /**
      * Prompt the user to enter text
      */
-    function enterText(prompt:String, resolve:(String) -> Void, ?minLength:Int, ?maxLength:Float):Void;
+    function enterText(prompt:String, resolve:(String) -> Void, minLength:Int, maxLength:Float):Void;
 
     /**
      * Prompt the user to enter a number
      */
-    function enterNumber(prompt:String, resolve:(Float) -> Void, ?min:Float, ?max:Float, ?inStepsOf:Float):Void;
+    function enterNumber(prompt:String, resolve:(Float) -> Void, min:Float, max:Float, ?inStepsOf:Float):Void;
 
     /**
      * Prompt the user to choose a single Entry
@@ -21,12 +21,17 @@ interface ArchiveUI {
     /**
      * Prompt the user to choose multiple Entries
      */
-    function chooseEntries(prompt:String, archive:Archive, resolve:(Array<Entry>) -> Void, ?min:Int, ?max:Float):Void;
+    function chooseEntries(prompt:String, archive:Archive, resolve:(Array<Entry>) -> Void, min:Int, max:Float):Void;
 
     /**
      * Update the interface to reflect changes made to Entries through commands
      */
     function handleChanges(changeSet:ChangeSet):Void;
+
+    /**
+     * Tell the user something useful
+     */
+    function displayMessage(message:String):Void;
 
     /**
      * Tell the user that something is wrong

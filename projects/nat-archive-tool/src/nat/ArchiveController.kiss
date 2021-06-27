@@ -1,3 +1,5 @@
+(load "Lib.kiss")
+
 (defmethod :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
     (case arg.type
         (SelectedEntry
@@ -67,7 +69,9 @@
                                 (< max entries.length))
 
                             (ui.reportError "The requested command expects between $min and $max entries. You chose: $entries.length")
-                    (continuation selectedEntries)))))))
+                    (continuation selectedEntries)))
+                min
+                max))))
 
 (defmethod :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
     (lambda :Void []
@@ -90,18 +94,17 @@
                 (groups (expList args) 2)
             methodArgs
                 (for [name type] argPairs
-                    // TODO write a macroCase macro that simplifies this terrible mess,
+                    // TODO write an exprCase macro that simplifies this terrible mess,
                     // and maybe adds back precise pattern matching instead of relying
                     // on partial string matching
-                    (let [expAsStr (Std.string type)]
-                        (cond
-                            ((< -1 (max (expAsStr.indexOf "SelectedEntry") (expAsStr.indexOf "OneEntry"))) `:nat.Entry ,name)
-                            ((< -1 (max (expAsStr.indexOf "SelectedEntries") (expAsStr.indexof "Entries"))) `:Array<nat.Entry> ,name)
-                            ((< -1 (expAsStr.indexOf "Text")) `:String ,name)
-                            ((< -1 (expAsStr.indexOf "Number")) `:Float ,name))))
+                    (exprCase type
+                        ((exprOr SelectedEntry OneEntry) `:nat.Entry ,name)
+                        ((exprOr (SelectedEntries _ _) (Entries _ _)) `:Array<nat.Entry> ,name)
+                        ((Text _ _) `:String ,name)
+                        ((Number _ _ _) `:Float ,name)))
             commandArgs
                 (for [name type] argPairs
-                    ~`(object name ,(symbolName name) type ,type))]
+                    `(object name ,(symbolName name) type ,type))]
         `{
             (defmethod ,name [,@methodArgs] ,@body)
             (dictSet commands ,(symbolName name) (object args [,@commandArgs] handler (the Function ,name)))}))
@@ -115,13 +118,15 @@
     (defcommand selectEntry [e OneEntry]
         (set selectedEntries [e]))
 
-    /*
     (defcommand selectEntries [entries (Entries null null)]
         (set selectedEntries entries))
-    */
 
     (defcommand selectLastChangeSet []
         (set selectedEntries lastChangeSet))
+
+    (defcommand printSelectedEntries [entries (SelectedEntries null null)]
+        (doFor e entries (ui.displayMessage (archive.fullString e))))
         
-    /*(defcommand createEntry [name (Text null null)]
-        ~name)*/)
+    (defcommand createEntry [name (Text null null)]
+        (archive.createEntry ->e
+            (addComponent archive e Name name))))

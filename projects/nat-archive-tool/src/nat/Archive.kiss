@@ -14,7 +14,8 @@
     // Assign entries to the Systems that care about them
     (doFor =>id entry entries
         (system.checkEntryInOrOut this entry))
-    (systems.push system))
+    (systems.push system)
+    system)
 
 (defmethod :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
     (let [e (_newEntry)]
@@ -34,7 +35,17 @@
         (Path.join [archiveDir "entries" (e.id.withExtension "json")])
         (Json.stringify e)))
 
-// TODO adding or removing components or files should save the Entry and re-check it in or out of systems
+(defmethod fullData [:Entry e]
+    (object
+        id e.id
+        components
+            (for =>type id e.components
+                =>type (haxe.Json.parse (File.getContent (haxe.io.Path.join [archiveDir "components" "$(dictGet e.components type).json"]))))
+        files
+            e.files))
+
+(defmethod fullString [:Entry e]
+    (haxe.Json.stringify (fullData e) null "\t"))
 
 (defun :Entry _newEntry []
     (object

@@ -1,8 +1,8 @@
 (load "../Lib.kiss")
 
-// TODO make a &super annotation that passes an argument to the super constructor
-(defnew [&prop :String tagFilterString
-            &prop :EntryProcessor processor] 
+(defnew [&prop :String tagFilterString // This doesn't need to be a &prop because it will be captured by the lambda, but maybe it will be useful to query from the system later
+            // TODO make a &super annotation that passes an argument to the super constructor
+            :EntryProcessor processor] 
     []
     (super
         (lambda [:Archive archive :Entry e] (tagsMatch archive e tagFilterString))

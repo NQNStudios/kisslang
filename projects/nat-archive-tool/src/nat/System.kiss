@@ -1,7 +1,9 @@
 (defprop :Map<String,Entry> entries (new Map))
 
 (defmethod :Void process [:Archive archive]
-    (doFor e (entries.iterator) (processEntry archive e)))
+    (doFor e (entries.iterator)
+        (processEntry archive e)
+        (archive.refreshEntry e)))
 
 (defnew [&prop :EntryChecker canProcessEntry
             &prop :EntryProcessor processEntry]

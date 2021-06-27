@@ -1,14 +1,20 @@
+(load "Lib.kiss")
+
 (defun :Void main []
     (let [[archiveDir] (Sys.args)
             controller
                 (new ArchiveController
                     (new Archive archiveDir)
                     (new CLI))]
-        (controller.runCommand (dictGet controller.commands "selectEntry"))))
+        (loop
+            (Sys.print ">> ")
+            (let [command
+                        (.trim (.toString (.readLine (Sys.stdin))))]
+                    (controller.runCommand (dictGet controller.commands command))))))
 
 (defnew [])
 
-(defmethod :Void enterText [prompt resolve &opt minLength maxLength]
+(defmethod :Void enterText [prompt resolve minLength maxLength]
     (Sys.print "$prompt ")
     (loop
         (let [entered (.toString (.readLine (Sys.stdin)))]
@@ -17,7 +23,7 @@
                 {(resolve entered)
                     (break)}))))
 
-(defmethod :Void enterNumber [prompt resolve &opt min max inStepsOf]
+(defmethod :Void enterNumber [prompt resolve min max &opt inStepsOf]
     (Sys.print "$prompt ")
     (loop
         (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
@@ -29,12 +35,28 @@
                 {(resolve entered)
                     (break)}))))
 
-(defmethod :Void chooseEntry [prompt archive resolve]
-    (resolve null))
+(defmethod :Void chooseEntry [prompt :Archive archive resolve]
+    // TODO allow narrowing down with a tag string
+    (enterText "entry name for $prompt"
+        ->name {
+            (let [matchingEntries []]
+                (.process (archive.addSystem
+                                        (stringComponentSystem archive Name name
+                                            (lambda [archive e]
+                                                (matchingEntries.push e)))) archive)
 
-(defmethod :Void chooseEntries [prompt archive resolve &opt min max]
+                (case (the Array<Entry> matchingEntries)
+                    ([e] (resolve e))
+                    // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
+                    (multipleEntries (throw "ambiguous between multiple entries"))))}
+        0 Math.POSITIVE_INFINITY))
+
+(defmethod :Void chooseEntries [prompt archive resolve min max]
     (resolve []))
 
 (defmethod handleChanges [changeSet])
+
+(defmethod :Void displayMessage [message]
+    (print message))
 
 (defmethod :Void reportError [error] ~error)
