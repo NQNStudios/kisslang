@@ -2,15 +2,13 @@
 
     [:Array<System> systems
             []
-        :Map<String,Template> templates
-            (new Map)
         :Map<String,Entry> entries
             (let [entryDir (Path.join [archiveDir "entries"])
                     componentDir (Path.join [archiveDir "components"])]
                 (FileSystem.createDirectory entryDir)
                 (FileSystem.createDirectory componentDir)
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
-                    (for file entryFiles =>(file.withoutExtension) ~(the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file])))))))])
+                    (for file entryFiles =>(file.withoutExtension) (the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file])))))))])
 
 (defmethod addSystem [:System system]
     // Assign entries to the Systems that care about them
@@ -18,18 +16,20 @@
         (system.checkEntryInOrOut this entry))
     (systems.push system))
 
-(defmethod addTemplate [name template]
-    (dictSet templates name template))
-
-(defmethod :Entry createEntry [template]
+(defmethod :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
     (let [e (_newEntry)]
-        (.prepareEntry (dictGet templates template) e)
-        (saveEntry e)
-        (doFor system systems
-            (system.checkEntryInOrOut this e))
+        (initializer e)
+        (refreshEntry e)
         e))
 
-(defmethod saveEntry [:Entry e]
+// After modifying an entry, this must be called. If you are writing in a createEntry initializer or a system's processEntry function, this will happen automatically.
+// Otherwise, you can guarantee it happens automatically by using the (withWritableEntry) macro in Lib.kiss
+(defmethod refreshEntry [:Entry e]
+    (_saveEntry e)
+    (doFor system systems
+        (system.checkEntryInOrOut this e)))
+
+(defmethod _saveEntry [:Entry e]
     (File.saveContent
         (Path.join [archiveDir "entries" (e.id.withExtension "json")])
         (Json.stringify e)))
