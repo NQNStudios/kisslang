@@ -6,6 +6,7 @@ import kiss.Reader;
 import kiss.ReaderExp;
 import kiss.Kiss;
 import kiss.CompileError;
+import uuid.Uuid;
 import sys.io.Process;
 
 using kiss.Kiss;
@@ -623,7 +624,89 @@ class Macros {
             exps[0];
         };
 
+        // The wildest code in Kiss to date
+        // TODO test exprCase!!
+        macros["exprCase"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, null, "(exprCase [expr] [pattern callExps...])");
+            var toMatch = exps.shift();
+
+            var b = wholeExp.expBuilder();
+            var functionKey = Uuid.v4();
+
+            exprCaseFunctions[functionKey] = (toMatchValue:ReaderExp) -> {
+                for (patternExp in exps) {
+                    switch (patternExp.def) {
+                        case CallExp(pattern, body):
+                            if (matchExpr(pattern, toMatchValue)) {
+                                return b.begin(body);
+                            }
+                        default:
+                            throw CompileError.fromExp(patternExp, "bad exprCase pattern expression");
+                    }
+                }
+
+                throw CompileError.fromExp(wholeExp, 'expression ${toMatch.def.toString()} matches no pattern in exprCase');
+            };
+
+            return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("k")]);
+        };
+
         return macros;
+    }
+
+    static var exprCaseFunctions:Map<String, ReaderExp->ReaderExp> = [];
+
+    public static function exprCase(id:String, toMatchValue:ReaderExp, k:KissState):ReaderExp {
+        return Helpers.runAtCompileTime(exprCaseFunctions[id](toMatchValue), k);
+    }
+
+    static function matchExpr(pattern:ReaderExp, instance:ReaderExp):Bool {
+        switch (pattern.def) {
+            case Symbol("_"):
+                return true;
+            case CallExp({pos: _, def: Symbol("exprOr")}, altPatterns):
+                for (altPattern in altPatterns) {
+                    if (matchExpr(altPattern, instance))
+                        return true;
+                }
+                return false;
+            case Symbol(patternSymbol):
+                return switch (instance.def) {
+                    case Symbol(instanceSymbol) if (patternSymbol == instanceSymbol):
+                        true;
+                    default:
+                        false;
+                };
+            case ListExp(patternExps):
+                switch (instance.def) {
+                    case ListExp(instanceExps) if (patternExps.length == instanceExps.length):
+                        for (idx in 0...patternExps.length) {
+                            if (!matchExpr(patternExps[idx], instanceExps[idx]))
+                                return false;
+                        }
+                        return true;
+                    default:
+                        return false;
+                }
+            case CallExp(patternFuncExp, patternExps):
+                switch (instance.def) {
+                    case CallExp(instanceFuncExp, instanceExps) if (patternExps.length == instanceExps.length):
+                        if (!matchExpr(patternFuncExp, instanceFuncExp))
+                            return false;
+                        for (idx in 0...patternExps.length) {
+                            if (!matchExpr(patternExps[idx], instanceExps[idx]))
+                                return false;
+                        }
+                        return true;
+                    default:
+                        return false;
+                }
+            // I don't think I'll ever want to match specific string literals, raw haxe, field expressions,
+            // key-value expressions, quasiquotes, unquotes, or UnquoteLists. This function can be expanded
+            // later if those features are ever needed.
+            default:
+                throw CompileError.fromExp(pattern, "unsupported pattern for exprCase");
+        }
     }
 
     // TODO use expBuilder()

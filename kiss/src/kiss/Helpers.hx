@@ -264,6 +264,7 @@ class Helpers {
             });
             interp.variables.set("k", k.forHScript());
             interp.variables.set("Helpers", Helpers);
+            interp.variables.set("Macros", Macros);
             interps.push(interp);
         } else {
             interps.push(interps[-1]);
