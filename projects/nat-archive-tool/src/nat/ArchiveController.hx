@@ -9,7 +9,8 @@ import uuid.Uuid;
 enum CommandArgType {
     SelectedEntry;
     SelectedEntries(min:Null<Int>, max:Null<Int>);
-    Text(minLength:Null<Int>, maxLength:Null<Float>); // max length is a float so Math.POSITIVE_INFINITY can be used
+    Text(maxLength:Null<Float>); // max length is a float so Math.POSITIVE_INFINITY can be used
+    VarText(maxLength:Null<Float>);
     Number(min:Null<Float>, max:Null<Float>, inStepsOf:Null<Float>);
     OneEntry; // This constructor must be disambiguated from the typedef "Entry"
     Entries(min:Null<Int>, max:Null<Int>);

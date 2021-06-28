@@ -6,7 +6,7 @@ interface ArchiveUI {
     /**
      * Prompt the user to enter text
      */
-    function enterText(prompt:String, resolve:(String) -> Void, minLength:Int, maxLength:Float):Void;
+    function enterText(prompt:String, resolve:(String) -> Void, maxLength:Float):Void;
 
     /**
      * Prompt the user to enter a number

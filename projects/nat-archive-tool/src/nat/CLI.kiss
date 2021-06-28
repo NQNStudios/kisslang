@@ -16,11 +16,11 @@
 
 (defnew [])
 
-(defmethod :Void enterText [prompt resolve minLength maxLength]
+(defmethod :Void enterText [prompt resolve maxLength]
     (Sys.print "$prompt ")
     (loop
         (let [entered (.toString (.readLine (Sys.stdin)))]
-            (if !(<= minLength entered.length maxLength)
+            (if !(<= entered.length maxLength)
                     (Sys.print "Try again? ")
                 {(resolve entered)
                     (break)}))))
@@ -57,7 +57,7 @@
                         ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))
                         // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
                         (multipleEntries (throw "ambiguous between multiple entries")))))}
-        0 Math.POSITIVE_INFINITY))
+        Math.POSITIVE_INFINITY))
 
 (defmethod :Void chooseEntries [prompt archive resolve min max]
     (_chooseEntries prompt archive resolve min max []))
