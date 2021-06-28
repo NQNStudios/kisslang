@@ -26,7 +26,7 @@ interface ArchiveUI {
     /**
      * Update the interface to reflect changes made to Entries through commands
      */
-    function handleChanges(changeSet:ChangeSet):Void;
+    function handleChanges(archive:Archive, changeSet:ChangeSet):Void;
 
     /**
      * Tell the user something useful

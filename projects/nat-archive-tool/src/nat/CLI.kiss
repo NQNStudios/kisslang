@@ -38,28 +38,58 @@
                     (break)}))))
 
 (defmethod :Void chooseEntry [prompt :Archive archive resolve]
+    (_chooseEntry prompt archive resolve ->(chooseEntry "empty name doesn't match any entries. Try again?" archive resolve)))
+
+(defmethod :Void _chooseEntry [prompt :Archive archive resolve onEmptyString]
     // TODO allow narrowing down with a tag string
     (enterText "entry name for $prompt"
         ->name {
-            (let [matchingEntries []]
-                (.process (archive.addSystem
-                                        (stringComponentSystem archive Name name
-                                            (lambda [archive e]
-                                                (matchingEntries.push e)))) archive)
+            (if !name
+                    (onEmptyString)
+                (let [matchingEntries []]
+                    (.process (archive.addSystem
+                                            (stringComponentSystem archive Name name
+                                                (lambda [archive e]
+                                                    (matchingEntries.push e)))) archive)
 
-                (case (the Array<Entry> matchingEntries)
-                    ([e] (resolve e))
-                    ([] (throw "name $name doesn't match any entries"))
-                    // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
-                    (multipleEntries (throw "ambiguous between multiple entries"))))}
+                    (case (the Array<Entry> matchingEntries)
+                        ([e] (resolve e))
+                        ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))
+                        // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
+                        (multipleEntries (throw "ambiguous between multiple entries")))))}
         0 Math.POSITIVE_INFINITY))
 
 (defmethod :Void chooseEntries [prompt archive resolve min max]
-    (resolve []))
+    (_chooseEntries prompt archive resolve min max []))
 
-(defmethod handleChanges [changeSet])
+(defmethod :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
+    (let [onEmptyString
+                ->(if (<= min collectedEntries.length)
+                        (resolve collectedEntries)
+                    (throw "not enough entries chosen"))
+            &mut :Void->Void chooseNextEntry
+                null
+            _chooseNextEntry
+                ->:Void {(_chooseEntry
+                                prompt
+                                archive
+                                ->:Void e {(collectedEntries.push e)
+                                                // If the maximum is reached, return it
+                                                (if (= max collectedEntries.length)
+                                                        (resolve collectedEntries)
+                                                    // Otherwise, recurse
+                                                    (chooseNextEntry))}
+                                onEmptyString)}]
+        (set chooseNextEntry _chooseNextEntry)
+        (_chooseNextEntry)))
+
+        
+(defmethod handleChanges [:Archive archive :ChangeSet changeSet]
+    (doFor e changeSet
+        (print (archive.fullString e))))
 
 (defmethod :Void displayMessage [message]
     (print message))
 
-(defmethod :Void reportError [error] ~error)
+(defmethod :Void reportError [error] 
+    (print error))
