@@ -225,7 +225,9 @@ class SpecialForms {
             return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), k.convert(body)).withMacroPosOf(wholeExp);
         }
 
-        map["doFor"] = forExpr.bind("doFor");
+        map["doFor"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            EBlock([forExpr("doFor", wholeExp, args, k), macro null]).withMacroPosOf(wholeExp);
+        };
         map["for"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
         };
