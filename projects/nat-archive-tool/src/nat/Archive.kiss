@@ -20,6 +20,7 @@
 (defmethod :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
     (let [e (_newEntry)]
         (initializer e)
+        (dictSet entries e.id e)
         (refreshEntry e)
         e))
 

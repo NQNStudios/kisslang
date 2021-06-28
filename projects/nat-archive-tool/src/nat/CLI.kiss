@@ -12,7 +12,7 @@
                         (.trim (.toString (.readLine (Sys.stdin))))]
                     (if (controller.commands.exists command)
                             (controller.runCommand (dictGet controller.commands command))
-                        (Sys.print "$command is not a valid command"))))))
+                        (Sys.println "$command is not a valid command"))))))
 
 (defnew [])
 

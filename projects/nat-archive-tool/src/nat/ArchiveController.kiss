@@ -57,7 +57,7 @@
                 archive
                 continuation))
         ((Entries min max)
-            (unless min (set min 0))
+            (unless min (set min 1))
             // TODO might want to optimize this O(n) count operation by pre-calculating it 
             (unless max (set max (count archive.entries)))
             (ui.chooseEntries
@@ -69,7 +69,7 @@
                                 (< max entries.length))
 
                             (ui.reportError "The requested command expects between $min and $max entries. You chose: $entries.length")
-                    (continuation selectedEntries)))
+                    (continuation entries)))
                 min
                 max))))
 
@@ -116,17 +116,17 @@
         :Map<String,Command> commands (new Map)]
     
     (defcommand selectEntry [e OneEntry]
-        (set selectedEntries [e]))
+        (set selectedEntries [e]) [])
 
     (defcommand selectEntries [entries (Entries null null)]
-        (set selectedEntries entries))
+        (set selectedEntries entries) [])
 
     (defcommand selectLastChangeSet []
-        (set selectedEntries lastChangeSet))
+        (set selectedEntries lastChangeSet) [])
 
     (defcommand printSelectedEntries [entries (SelectedEntries null null)]
-        (doFor e entries (ui.displayMessage (archive.fullString e))))
+        (doFor e entries (ui.displayMessage (archive.fullString e))) [])
         
     (defcommand createEntry [name (Text null null)]
-        (archive.createEntry ->e
-            (addComponent archive e Name name))))
+        [(archive.createEntry ->e
+            (addComponent archive e Name name))]))
