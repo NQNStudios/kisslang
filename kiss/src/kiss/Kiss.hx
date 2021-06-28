@@ -64,6 +64,7 @@ class Kiss {
                 "expList" => Symbol("Prelude.expList"),
                 "map" => Symbol("Lambda.map"),
                 "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
+                "flatten" => Symbol("Lambda.flatten"),
                 "has" => Symbol("Lambda.has"),
                 "count" => Symbol("Lambda.count")
             ],

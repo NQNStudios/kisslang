@@ -146,6 +146,10 @@
     (defcommand printSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
         
-    (defcommand createEntry [name (Text null null)]
+    (defcommand createEntry [name (Text null)]
         [(archive.createEntry ->e
-            (addComponent archive e Name name))]))
+            (addComponent archive e Name name))])
+    
+    (defcommand createEntries [names (VarText null)]
+        (flatten (for name names
+            (createEntry name)))))
