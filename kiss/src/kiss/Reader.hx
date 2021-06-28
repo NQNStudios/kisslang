@@ -103,11 +103,11 @@ class Reader {
                 case Symbol(_):
                     argsExp = b.list([firstExp]);
                     bodyExp = assertRead(stream, k);
-                case CallExp({pos: _, def: Symbol("begin")}, _):
+                case CallExp(_, _):
                     argsExp = b.list([]);
                     bodyExp = firstExp;
                 default:
-                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, or {body}, or one of those prefixed with :Void");
+                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, (exp) or {body}, or one of those prefixed with :Void");
             }
             if (!returnsValue) {
                 argsExp = TypedExp("Void", argsExp).withPosOf(argsExp);
