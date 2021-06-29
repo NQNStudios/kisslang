@@ -169,4 +169,16 @@
                         (withWritableComponents archive e [tags Tags]
                             (doFor tag tagsToAdd (dictSet tags tag 1)))
                     (addComponent archive e Tags (for tag tagsToAdd =>tag 1)))))
-        entries))
+        entries) // TODO this includes entries that already had the tag in the changeset
+
+    (defcommand removeTags [entries (SelectedEntries 1 null)
+                            tagsToRemove (VarText null)]
+        (doFor e entries
+            (withWritableEntry archive e
+                (when (hasComponent e Tags)
+                        (withWritableComponents archive e [tags Tags]
+                            (doFor tag tagsToRemove (tags.remove tag))))))
+        entries) // TODO this includes entries that didn't have the tag in the changeset
+        
+    (defcommand selectByTags [tagsBoolExp (Text null)]
+        (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp)))))
