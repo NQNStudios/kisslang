@@ -172,7 +172,7 @@
         entries) // TODO this includes entries that already had the tag in the changeset
 
     (defcommand removeTags [entries (SelectedEntries 1 null)
-                            tagsToRemove (VarText null)]
+                                tagsToRemove (VarText null)]
         (doFor e entries
             (withWritableEntry archive e
                 (when (hasComponent e Tags)
