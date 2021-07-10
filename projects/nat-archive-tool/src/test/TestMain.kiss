@@ -21,6 +21,8 @@
 
         (assert (hasComponent song1 Tags))
         (assert (hasComponent song2 Tags))
+        (assert (componentsMatch song1 "(and Name Author)"))
+        (assert (componentsMatch song2 "(and Name Author)"))
         (assert (tagsMatch archive song1 "(and song western)"))
         (assert !(tagsMatch archive song1 "(and song religious)"))
         (assert (tagsMatch archive song2 "(and song religious)"))

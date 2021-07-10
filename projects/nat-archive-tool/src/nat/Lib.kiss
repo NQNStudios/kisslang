@@ -71,3 +71,6 @@
 
 (defun tagsMatch [archive e tagsBoolExp]
     (BoolExpInterp.eval tagsBoolExp (tagList archive e)))
+
+(defun componentsMatch [:nat.Entry e componentsBoolExp]
+    (BoolExpInterp.eval componentsBoolExp (for =>cType cId e.components cType)))

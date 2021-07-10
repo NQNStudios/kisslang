@@ -181,4 +181,7 @@
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
     (defcommand selectByTags [tagsBoolExp (Text null)]
-        (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp)))))
+        (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
+        
+    (defcommand selectByComponents [componentsBoolExp (Text null)]
+        (selectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp)))))
