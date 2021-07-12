@@ -1,3 +1,16 @@
 (defvar runningInHaxe (#if interp true false))
 (defvar runningInPyOrJs (#if (or py js) true false))
 
+(defun number []
+    (let [&mut num 5]
+        (#when interp
+            (+= num 5)
+            (-= num 4))
+        num))
+
+(defun number2 []
+    (let [&mut num 12]
+        (#unless interp
+            (+= num 5)
+            (-= num 8))
+        num))

@@ -176,9 +176,10 @@ class Macros {
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
 
+            var b = wholeExp.expBuilder();
             var conditionExp = exps.shift();
             var thenExp = exps.shift();
-            var elseExp = if (exps.length > 0) exps.shift(); else null;
+            var elseExp = if (exps.length > 0) exps.shift(); else b.symbol("null");
 
             var parser = new Parser();
             var conditionInterp = new KissInterp(true);
@@ -198,7 +199,7 @@ class Macros {
             }
         };
 
-        function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
+        function bodyIf(formName:String, underlyingIf:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
             var b = wholeExp.expBuilder();
             var condition = if (negated) {
@@ -209,13 +210,15 @@ class Macros {
             } else {
                 args[0];
             }
-            return b.call(b.symbol("if"), [
+            return b.call(b.symbol(underlyingIf), [
                 condition,
                 b.begin(args.slice(1))
             ]);
         }
-        macros["when"] = bodyIf.bind("when", false);
-        macros["unless"] = bodyIf.bind("unless", true);
+        macros["when"] = bodyIf.bind("when", "if", false);
+        macros["unless"] = bodyIf.bind("unless", "if", true);
+        macros["#when"] = bodyIf.bind("#when", "#if", false);
+        macros["#unless"] = bodyIf.bind("#unless", "#if", true);
 
         macros["cond"] = cond;
 

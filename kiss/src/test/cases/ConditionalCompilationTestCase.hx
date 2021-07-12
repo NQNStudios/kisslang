@@ -17,4 +17,20 @@ class ConditionalCompilationTestCase extends Test {
         Assert.isTrue(runningInPyOrJs);
         #end
     }
+
+    function testWhen() {
+        #if interp
+        Assert.equals(6, number());
+        #else
+        Assert.equals(5, number());
+        #end
+    }
+
+    function testUnless() {
+        #if !interp
+        Assert.equals(9, number2());
+        #else
+        Assert.equals(12, number2());
+        #end
+    }
 }
