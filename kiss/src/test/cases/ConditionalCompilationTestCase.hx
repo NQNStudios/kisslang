@@ -39,10 +39,10 @@ class ConditionalCompilationTestCase extends Test {
         Assert.equals("C++", targetLanguage);
         #elseif interp
         Assert.equals("Haxe", targetLanguage);
-        #elseif js
-        Assert.equals("JavaScript", targetLanguage);
         #elseif hxnodejs
         Assert.equals("NodeJS", targetLanguage);
+        #elseif js
+        Assert.equals("JavaScript", targetLanguage);
         #elseif py
         Assert.equals("Python", targetLanguage);
         #end
