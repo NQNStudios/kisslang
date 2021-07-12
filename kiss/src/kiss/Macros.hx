@@ -299,20 +299,20 @@ class Macros {
             arraySet(wholeExp, exps, k);
         };
 
-        // TODO use expBuilder()
         macros["assert"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 2, "(assert [expression] [message])");
+            var b = wholeExp.expBuilder();
             var expression = exps[0];
             var basicMessage = 'Assertion ${expression.def.toString()} failed';
             var messageExp = if (exps.length > 1) {
-                CallExp(Symbol("+").withPosOf(wholeExp), [StrExp(basicMessage + ": ").withPosOf(wholeExp), exps[1]]);
+                b.callSymbol("+", [b.str(basicMessage + ": "), exps[1]]);
             } else {
-                StrExp(basicMessage);
+                b.str(basicMessage);
             };
-            CallExp(Symbol("unless").withPosOf(wholeExp), [
+            b.callSymbol("unless", [
                 expression,
-                CallExp(Symbol("throw").withPosOf(wholeExp), [messageExp.withPosOf(wholeExp)]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+                b.callSymbol("throw", [messageExp])
+            ]);
         };
 
         function stringsThatMatch(exp:ReaderExp) {
