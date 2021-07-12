@@ -124,7 +124,8 @@ class Macros {
             "<=" => "Prelude.lesserEqual",
             "=" => "Prelude.areEqual",
             "max" => "Prelude.max",
-            "min" => "Prelude.min"
+            "min" => "Prelude.min",
+            "zip" => "Prelude.zip"
         ];
 
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
@@ -166,10 +167,13 @@ class Macros {
             var min = if (exps.length > 1) exps[0] else b.symbol("0");
             var max = if (exps.length > 1) exps[1] else exps[0];
             var step = if (exps.length > 2) exps[2] else b.symbol("1");
-            b.call(
-                b.symbol("Prelude.range"), [
-                    min, max, step
-                ]);
+            b.callSymbol("Prelude.range", [min, max, step]);
+        };
+
+        macros["zip"] = (wholeExp:ReaderExp, exps:kiss.List<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, null, '(zip [listA] [listB] [moreLists...])');
+            var b = wholeExp.expBuilder();
+            return b.callSymbol("Prelude.zip", [b.list(exps.slice(0, -1)), exps[-1]]);
         };
 
         // Most conditional compilation macros are based on this macro:

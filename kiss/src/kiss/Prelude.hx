@@ -178,31 +178,45 @@ class Prelude {
         return fullGroups;
     }
 
-    public static function zip(a:Array<Dynamic>, b:Array<Dynamic>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
-        var max = Math.floor(if (a.length != b.length) {
+    public static function zip(arrays:Array<Array<Dynamic>>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
+        var lengthsAreEqual = true;
+        var lengths = [for (arr in arrays) arr.length];
+        var lengthOperands = [for (length in lengths) Operand.fromDynamic(length)];
+        for (idx in 1...lengths.length) {
+            if (lengths[idx] != lengths[idx - 1]) {
+                lengthsAreEqual = false;
+                break;
+            }
+        }
+        var max = Math.floor(if (!lengthsAreEqual) {
             switch (extraHandling) {
                 case Throw:
-                    throw 'zip was given lists of mis-matched size: $a, $b';
+                    throw 'zip was given lists of mis-matched size: $arrays';
                 case Keep:
-                    Math.max(a.length, b.length);
+                    Operand.toDynamic(Prelude.max(lengthOperands));
                 case Drop:
-                    Math.min(a.length, b.length);
+                    Operand.toDynamic(Prelude.min(lengthOperands));
             }
         } else {
-            a.length;
+            lengths[0];
         });
 
         return [
-            for (idx in 0...max) [
-                if (idx < a.length)
-                    a[idx]
-                else
-                    null,
-                if (idx < b.length)
-                    b[idx]
-                else
-                    null
-            ]
+            for (idx in 0...max) {
+                var zipped:Array<Dynamic> = [];
+
+                for (arr in arrays) {
+                    zipped.push(
+                        if (idx < arr.length) {
+                            arr[idx];
+                        } else {
+                            null;
+                        }
+                    );
+                }
+
+                zipped;
+            }
         ];
     }
 
@@ -213,7 +227,7 @@ class Prelude {
             l1.push(l[-1]);
             l2.unshift(l[0]);
         }
-        return zip(l1, l2);
+        return zip([l1, l2]);
     }
 
     public static function reversed<T>(l:kiss.List<T>):kiss.List<T> {

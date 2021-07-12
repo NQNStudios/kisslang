@@ -122,7 +122,8 @@
     (try (begin (zip [1 3] [2] Throw) (Assert.fail))
         (catch [error] (Assert.pass)))
     (try (begin (zip [1] [2 4] Throw) (Assert.fail))
-        (catch [error] (Assert.pass))))
+        (catch [error] (Assert.pass)))
+    (Assert.equals (.toString [[1 2 3] [2 null 3]]) (.toString (zip [1 2] [2] [3 3] Keep))))
 
 (defun _testLet []
     (let [a 5
