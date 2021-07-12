@@ -36,6 +36,16 @@ class Reader {
         readTable['"'] = readString;
         readTable["#"] = readRawString;
 
+        // Special symbols that wouldn't read as symbols, but should:
+        function forceSymbol(sym:String) {
+            readTable[sym] = (stream, k) -> Symbol(sym);
+        }
+        forceSymbol("#if");
+        forceSymbol("#when");
+        forceSymbol("#unless");
+        forceSymbol("#cond");
+        forceSymbol("#case");
+
         readTable["/*"] = (stream, k) -> {
             stream.takeUntilAndDrop("*/");
             null;
@@ -314,7 +324,7 @@ class Reader {
                 case '"':
                     break;
                 default:
-                    stream.error('Invalid syntax for raw string. Delete $next');
+                    stream.error('Invalid syntax for raw string.');
                     return null;
             }
         } while (true);

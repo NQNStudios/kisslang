@@ -8,6 +8,7 @@ import kiss.Kiss;
 import kiss.CompileError;
 import uuid.Uuid;
 import sys.io.Process;
+import hscript.Parser;
 
 using kiss.Kiss;
 using kiss.Reader;
@@ -169,6 +170,32 @@ class Macros {
                 b.symbol("Prelude.range"), [
                     min, max, step
                 ]);
+        };
+
+        // Conditional compilation is all based on this macro:
+        macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
+
+            var conditionExp = exps.shift();
+            var thenExp = exps.shift();
+            var elseExp = if (exps.length > 0) exps.shift(); else null;
+
+            var parser = new Parser();
+            var conditionInterp = new KissInterp(true);
+            var conditionStr = Reader.toString(conditionExp.def);
+            var conditionHScript = parser.parseString(Prelude.convertToHScript(conditionStr));
+            for (flag => value in Context.getDefines()) {
+                conditionInterp.variables.set(flag, value);
+            }
+            try {
+                return if (Prelude.truthy(conditionInterp.execute(conditionHScript))) {
+                    thenExp;
+                } else {
+                    elseExp;
+                }
+            } catch (e) {
+                throw CompileError.fromExp(conditionExp, 'condition for #if threw error $e');
+            }
         };
 
         function bodyIf(formName:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {

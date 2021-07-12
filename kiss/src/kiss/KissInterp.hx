@@ -11,9 +11,13 @@ import kiss.Prelude;
  * macro definitions.
  */
 class KissInterp extends Interp {
+    var nullForUnknownVar:Bool;
+
     // TODO standardize this with KissConfig.prepareInterp
-    public function new() {
+    public function new(nullForUnknownVar = false) {
         super();
+
+        this.nullForUnknownVar = nullForUnknownVar;
 
         variables.set("Prelude", Prelude);
         variables.set("Lambda", Lambda);
@@ -21,6 +25,18 @@ class KissInterp extends Interp {
         variables.set("Keep", ExtraElementHandling.Keep);
         variables.set("Drop", ExtraElementHandling.Drop);
         variables.set("Throw", ExtraElementHandling.Throw);
+    }
+
+    override function resolve(id:String):Dynamic {
+        if (nullForUnknownVar) {
+            return try {
+                super.resolve(id);
+            } catch (e:Dynamic) {
+                null;
+            }
+        } else {
+            return super.resolve(id);
+        }
     }
 
     override function exprReturn(e):Dynamic {

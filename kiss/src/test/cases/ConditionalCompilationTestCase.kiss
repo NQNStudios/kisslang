@@ -1,0 +1,3 @@
+(defvar runningInHaxe (#if interp true false))
+(defvar runningInPyOrJs (#if (or py js) true false))
+
