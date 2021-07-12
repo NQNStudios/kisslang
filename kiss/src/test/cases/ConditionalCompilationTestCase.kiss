@@ -21,7 +21,7 @@
         (interp "Haxe")
         (hxnodejs "NodeJS")
         (js "JavaScript")
-        (py "Python")))
+        (python "Python")))
 
 (defun _testCase []
     (#case var1ForCase

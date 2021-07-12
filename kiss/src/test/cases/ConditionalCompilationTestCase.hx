@@ -43,7 +43,7 @@ class ConditionalCompilationTestCase extends Test {
         Assert.equals("NodeJS", targetLanguage);
         #elseif js
         Assert.equals("JavaScript", targetLanguage);
-        #elseif py
+        #elseif python
         Assert.equals("Python", targetLanguage);
         #end
     }
