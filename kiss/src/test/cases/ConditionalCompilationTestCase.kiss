@@ -14,3 +14,11 @@
             (+= num 5)
             (-= num 8))
         num))
+
+(defvar targetLanguage
+    (#cond
+        (cpp "C++")
+        (interp "Haxe")
+        (hxnodejs "NodeJS")
+        (js "JavaScript")
+        (py "Python")))

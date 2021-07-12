@@ -220,7 +220,8 @@ class Macros {
         macros["#when"] = bodyIf.bind("#when", "#if", false);
         macros["#unless"] = bodyIf.bind("#unless", "#if", true);
 
-        macros["cond"] = cond;
+        macros["cond"] = cond.bind("if");
+        macros["#cond"] = cond.bind("#if");
 
         // (or... ) uses (cond... ) under the hood
         macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
@@ -740,16 +741,16 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
-    static function cond(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+    static function cond(underlyingIf:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
         wholeExp.checkNumArgs(1, null, "(cond [cases...])");
         var b = wholeExp.expBuilder();
         return switch (exps[0].def) {
             case CallExp(condition, body):
-                b.call(b.symbol("if"), [
+                b.call(b.symbol(underlyingIf), [
                     condition,
                     b.begin(body),
                     if (exps.length > 1) {
-                        cond(b.call(b.symbol("cond"), exps.slice(1)), exps.slice(1), k);
+                        cond(underlyingIf, b.call(b.symbol("cond"), exps.slice(1)), exps.slice(1), k);
                     } else {
                         b.symbol("null");
                     }

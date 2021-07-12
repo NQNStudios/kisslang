@@ -33,4 +33,18 @@ class ConditionalCompilationTestCase extends Test {
         Assert.equals(12, number2());
         #end
     }
+
+    function testCond() {
+        #if cpp
+        Assert.equals("C++", targetLanguage);
+        #elseif interp
+        Assert.equals("Haxe", targetLanguage);
+        #elseif js
+        Assert.equals("JavaScript", targetLanguage);
+        #elseif hxnodejs
+        Assert.equals("NodeJS", targetLanguage);
+        #elseif py
+        Assert.equals("Python", targetLanguage);
+        #end
+    }
 }
