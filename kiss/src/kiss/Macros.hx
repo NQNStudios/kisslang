@@ -739,21 +739,21 @@ class Macros {
         }
     }
 
-    // TODO use expBuilder()
     // cond expands telescopically into a nested if expression
     static function cond(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
         wholeExp.checkNumArgs(1, null, "(cond [cases...])");
+        var b = wholeExp.expBuilder();
         return switch (exps[0].def) {
             case CallExp(condition, body):
-                CallExp(Symbol("if").withPosOf(wholeExp), [
+                b.call(b.symbol("if"), [
                     condition,
-                    CallExp(Symbol("begin").withPosOf(wholeExp), body).withPosOf(wholeExp),
+                    b.begin(body),
                     if (exps.length > 1) {
-                        cond(CallExp(Symbol("cond").withPosOf(wholeExp), exps.slice(1)).withPosOf(wholeExp), exps.slice(1), k);
+                        cond(b.call(b.symbol("cond"), exps.slice(1)), exps.slice(1), k);
                     } else {
-                        Symbol("null").withPosOf(wholeExp);
+                        b.symbol("null");
                     }
-                ]).withPosOf(wholeExp);
+                ]);
             default:
                 throw CompileError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
         };
