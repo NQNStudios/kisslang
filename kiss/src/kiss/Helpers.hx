@@ -397,6 +397,7 @@ class Helpers {
     public static function expBuilder(posRef:ReaderExp) {
         return {
             call: (func:ReaderExp, args:Array<ReaderExp>) -> CallExp(func, args).withPosOf(posRef),
+            callSymbol: (symbol:String, args:Array<ReaderExp>) -> CallExp(Symbol(symbol).withPosOf(posRef), args).withPosOf(posRef),
             list: (exps:Array<ReaderExp>) -> ListExp(exps).withPosOf(posRef),
             str: (s:String) -> StrExp(s).withPosOf(posRef),
             symbol: (?name:String) -> Prelude.symbol(name).withPosOf(posRef),
