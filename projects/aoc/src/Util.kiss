@@ -1,0 +1,24 @@
+(defun readLines [file]
+    (.filter
+        (.map
+            // TODO implement escape sequences in kiss string literals
+            (.split (.replace (File.getContent file) #|"\r"|# "") #|"\n"|#)
+            StringTools.trim)
+        (lambda [l] (< 0 l.length))))
+
+(defun readParagraphLines [file]
+    (.filter
+        (for paragraph
+            (.split 
+                (.replace (File.getContent file) #|"\r"|# "")
+                #|"\n\n"|#)
+                (.filter
+                    (paragraph.split #|"\n"|#)
+                    (lambda [line] (< 0 line.length))))
+        (lambda [lines] (< 0 lines.length))))
+
+// TODO won't need to specify type here if last is not a quickNth
+(defun :kiss.List<Int> readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
+
+(defun countChar [char str]
+    (count (str.split "") (lambda [c] ?(= c char))))

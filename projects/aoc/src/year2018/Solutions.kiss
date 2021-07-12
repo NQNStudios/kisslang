@@ -1,0 +1,165 @@
+(defmacro day [num &rest body]
+    `(when (<= 0 (days.indexOf ,num))
+        (print (+ "day " (Std.string ,num)))
+        ,@body))
+
+(defmacro dayTodo [num]
+    `(day ,num (print "TODO")))
+
+(defun run [:kiss.List<Int> days]
+    (day 1
+        (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
+            (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))
+        (let [[a b] (SummingTuples.pairWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
+            (assert (= 545379 (* a b)) "pairWithSum is broken"))
+        (let [t (SummingTuples.trioWithSum 2020 [1721 979 366 299 675 1456])]
+            (assert (and (has t 675) (has t 366) (has t 979))
+                "trioWithSum is broken"))
+        (let [[a b c] (SummingTuples.trioWithSum 2020 (Util.readInts "src/year2020/inputs/day1-1.txt"))]
+            (assert (= 257778836 (* a b c))
+                "trioWithSum is broken")))
+                
+    (day 2
+        (assert (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck1))
+        (assert !(Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck1))
+        (assert (Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck1))
+        (assert (= 655 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck1)) (lambda [v] v))))
+        (assert (Passwords.validateInputLine "1-3 a: abcde" Passwords.parsePasswordCheck2))
+        (assert !(Passwords.validateInputLine "1-3 b: cdefg" Passwords.parsePasswordCheck2))
+        (assert !(Passwords.validateInputLine "2-9 c: ccccccccc" Passwords.parsePasswordCheck2))
+        (assert (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))))
+            
+    (day 3
+        (deflocal exampleHillTile [
+                                    "..##......."                                    
+                                    "#...#...#.."
+                                    ".#....#..#."
+                                    "..#.#...#.#"
+                                    ".#...##..#."
+                                    "..#.##....."
+                                    ".#.#.#....#"
+                                    ".#........#"
+                                    "#.##...#..."
+                                    "#...##....#"
+                                    ".#..#...#.#"])
+        (assert (= "..#.##.####" (Toboggan.pathString exampleHillTile 0 0 3 1)))
+        (assert (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 1)))
+        (assert (= 3 (Toboggan.pathTrees exampleHillTile 0 0 5 1)))
+        (assert (= 4 (Toboggan.pathTrees exampleHillTile 0 0 7 1)))
+        (assert (= 2 (Toboggan.pathTrees exampleHillTile 0 0 1 2)))
+        (assert (= 289 (Util.countChar "#" (Toboggan.pathString (Util.readLines "src/year2020/inputs/day3-1.txt") 0 0 3 1))))
+        (assert (= 5522401584 (let [hillTile (Util.readLines "src/year2020/inputs/day3-1.txt")]
+                (apply * (for args [[0 0 1 1] [0 0 3 1] [0 0 5 1] [0 0 7 1] [0 0 1 2]] (apply (Toboggan.pathTrees.bind hillTile) args)))))))
+    
+    (day 4
+        (assert (= 2 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-example.txt"))))
+        (assert (= 250 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt"))))
+        (assert (= 158 (Passports.countValidPassports (Stream.fromFile "src/year2020/inputs/day4-1.txt") "strict"))))
+        
+    (day 5
+        (assert (= 567 (Seating.seatId "BFFFBBFRRR")))
+        (let [:kiss.List<Int> seatIds (map (Util.readLines "src/year2020/inputs/day5-1.txt") Seating.seatId)]
+            (seatIds.sort (lambda [a b] (- a b)))
+            (assert (= 947 (nth seatIds -1)))
+            (deflocal &mut lastId -1)
+            (deflocal &mut myId -1)
+            (doFor id seatIds
+                (when (and (<= 0 lastId) !(= lastId (- id 1)))
+                    (set myId (- id 1))
+                    (break))
+                (set lastId id))
+            (assert (= 636 myId))))
+
+    (day 6
+        (assert (= 6 (Customs.countAnyYes ["abcx" "abcy" "abcz"])))
+        (assert (= 6683 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAnyYes))))
+        (assert (= 6 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-example2.txt") Customs.countAllYes))))
+        (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes)))))
+        
+    (day 7
+        (deflocal parentMap (new ParentMap))
+        (deflocal childMap (new ChildMap))
+        (doFor line (Util.readLines "src/year2020/inputs/day7.txt")
+            (Bags.parseRule line parentMap childMap))
+        (deflocal :Map<String,Bool> shinyGoldParents (new Map))
+        (Bags.findIndirectContainers "shiny gold" childMap shinyGoldParents)
+        (assert (= 172 (count shinyGoldParents)))
+        (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap))))
+    
+    (day 8
+        (let [example (new BootCodeExample)]
+            (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
+            (example.run))
+        (let [bootCode (new BootCodeReal)]
+            (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 bootCode.accumulator))))
+            (bootCode.run))
+        /* (print "BootCodeFixExample")
+        (let [bootCode (new BootCodeFixExample)]
+            (bootCode.setBreakHandler
+                (lambda [bootCodeFork]
+                    (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
+                            (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string bootCodeFork.forkedAt)))
+                        (print "hit an infinite loop"))))
+            (bootCode.addBreakPoint (bootCode.instructionCount))
+            (bootCode.run))
+        (print "BootCodeFixReal")
+        (let [bootCode (new BootCodeFix)]
+            (bootCode.setBreakHandler
+                (lambda [bootCodeFork]
+                    (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
+                            (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string (+ 1 bootCodeFork.forkedAt))))
+                        (print "hit an infinite loop"))))
+            (bootCode.addBreakPoint (bootCode.instructionCount))
+            (bootCode.run)) */
+        )
+    
+    (day 9
+        (assert (= 127 (XMAS.firstOffender 5
+            [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576])))
+        (assert (= 133015568 (XMAS.firstOffender 25 (Util.readInts "src/year2020/inputs/day9.txt"))))
+        (assert (= "[15,25,47,40]" (.toString (SummingTuples.contiguousSumTuple 127
+            [35 20 15 25 47 40 62 55 65 95 102 117 150 182 127 219 299 277 309 576]))))
+        (let [tuple (SummingTuples.contiguousSumTuple 133015568 (Util.readInts "src/year2020/inputs/day9.txt"))]
+            (assert (= 16107959 (+ (apply min tuple) (apply max tuple))))))
+
+    (day 10
+        (assert (Int64.eq 8 (Adapters.arrangementCount (sort [0 22 16 10 15 5 1 11 7 19 6 12 4]) 0)))
+        (assert (Int64.eq 19208 (Adapters.arrangementCount (sort [0 52 28 33 18 42 31 14 46 20 48 47 24 23 49 45 19 38 39 11 1 32 25 35 8 17 7 9 4 2 34 10 3]) 0)))
+        (let [adapters (sort (Util.readInts "src/year2020/inputs/day10.txt"))]
+            (adapters.unshift 0)
+            (adapters.push (+ 3 (last adapters)))
+            (let [diffs (Adapters.differences adapters)
+                    dist (Adapters.distribution diffs)]
+                (assert (= 1998 (* (dictGet dist 1) (dictGet dist 3)))))
+            (let [memoized (memoize Adapters.arrangementCount)]
+                (set Adapters.arrangementCount #|cast memoized|#))
+            (assert (= "347250213298688" (Int64.toStr (Adapters.arrangementCount adapters 0))))))
+
+    (day 11
+        (let [example (new FerrySimExample)
+                real (new FerrySimReal)]
+            (example.run)
+            (example.simulate)
+            (assert (= 71 (example.countFullSeats)))
+            (real.run)
+            (real.fullSimulate)
+            (assert (= 2329 (real.countFullSeats)))))
+
+    (day 12
+        (let [script (new EvasionScript)]
+            (script.run)
+            (assert (= 441 (+ (Math.abs script.x) (Math.abs script.y))))))
+
+    (dayTodo 13)
+    (dayTodo 14)
+    (dayTodo 15)
+    (dayTodo 16)
+    (dayTodo 17)
+    (dayTodo 18)
+    (dayTodo 19)
+    (dayTodo 20)
+    (dayTodo 21)
+    (dayTodo 22)
+    (dayTodo 23)
+    (dayTodo 24)
+    (dayTodo 25))
