@@ -188,11 +188,11 @@ class Macros {
             var parser = new Parser();
             var conditionInterp = new KissInterp(true);
             var conditionStr = Reader.toString(conditionExp.def);
-            var conditionHScript = parser.parseString(Prelude.convertToHScript(conditionStr));
             for (flag => value in Context.getDefines()) {
                 conditionInterp.variables.set(flag, value);
             }
             try {
+                var conditionHScript = parser.parseString(Prelude.convertToHScript(conditionStr));
                 return if (Prelude.truthy(conditionInterp.execute(conditionHScript))) {
                     thenExp;
                 } else {
@@ -231,7 +231,6 @@ class Macros {
             var parser = new Parser();
             var caseInterp = new KissInterp();
             var caseStr = Reader.toString(caseExp.def);
-            var caseHScript = parser.parseString(Prelude.convertToHScript(caseStr));
             for (matchBodySymbol in matchBodySymbols) {
                 caseInterp.variables.set(Prelude.symbolNameValue(matchBodySymbol), matchBodies.shift());
             }
@@ -239,6 +238,7 @@ class Macros {
                 caseInterp.variables.set(flag, value);
             }
             try {
+                var caseHScript = parser.parseString(Prelude.convertToHScript(caseStr));
                 return caseInterp.execute(caseHScript);
             } catch (e) {
                 throw CompileError.fromExp(caseExp, '#case evaluation threw error $e');
