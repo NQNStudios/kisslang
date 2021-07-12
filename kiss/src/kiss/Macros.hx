@@ -171,7 +171,7 @@ class Macros {
         };
 
         macros["zip"] = (wholeExp:ReaderExp, exps:kiss.List<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, null, '(zip [listA] [listB] [moreLists...])');
+            wholeExp.checkNumArgs(3, null, '(zip [listA] [listB] [moreLists...] [extraHandling])');
             var b = wholeExp.expBuilder();
             return b.callSymbol("Prelude.zip", [b.list(exps.slice(0, -1)), exps[-1]]);
         };
