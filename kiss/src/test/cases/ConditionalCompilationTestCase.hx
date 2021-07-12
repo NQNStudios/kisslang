@@ -47,4 +47,8 @@ class ConditionalCompilationTestCase extends Test {
         Assert.equals("Python", targetLanguage);
         #end
     }
+
+    function testCase() {
+        _testCase();
+    }
 }

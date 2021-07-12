@@ -22,3 +22,11 @@
         (hxnodejs "NodeJS")
         (js "JavaScript")
         (py "Python")))
+
+(defun _testCase []
+    (#case var1ForCase
+        ("var1" (Assert.pass))
+        (otherwise (Assert.fail)))
+    (#case var2ForCase
+        ("var2" (Assert.pass))
+        (otherwise (Assert.fail))))

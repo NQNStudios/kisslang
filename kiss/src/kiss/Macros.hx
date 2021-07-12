@@ -172,7 +172,7 @@ class Macros {
                 ]);
         };
 
-        // Conditional compilation is all based on this macro:
+        // Most conditional compilation macros are based on this macro:
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
 
@@ -199,6 +199,48 @@ class Macros {
             }
         };
 
+        // But not this one:
+        macros["#case"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
+            wholeExp.checkNumArgs(2, null, '(#case [expression] [cases...] [optional: (otherwise [default])])');
+            var b = wholeExp.expBuilder();
+
+            var caseVar = exps.shift();
+            var matchPatterns = [];
+            var matchBodies = [];
+            var matchBodySymbols = [];
+            var caseArgs = [caseVar];
+            for (exp in exps) {
+                switch (exp.def) {
+                    case CallExp(pattern, bodyExps):
+                        matchPatterns.push(pattern);
+                        matchBodies.push(b.begin(bodyExps));
+                        var gensym = b.symbol();
+                        matchBodySymbols.push(gensym);
+                        caseArgs.push(b.call(pattern, [gensym]));
+                    default:
+                        throw CompileError.fromExp(exp, "invalid pattern expression for #case");
+                }
+            }
+
+            var caseExp = b.callSymbol("case", caseArgs);
+
+            var parser = new Parser();
+            var caseInterp = new KissInterp();
+            var caseStr = Reader.toString(caseExp.def);
+            var caseHScript = parser.parseString(Prelude.convertToHScript(caseStr));
+            for (matchBodySymbol in matchBodySymbols) {
+                caseInterp.variables.set(Prelude.symbolNameValue(matchBodySymbol), matchBodies.shift());
+            }
+            for (flag => value in Context.getDefines()) {
+                caseInterp.variables.set(flag, value);
+            }
+            try {
+                return caseInterp.execute(caseHScript);
+            } catch (e) {
+                throw CompileError.fromExp(caseExp, '#case evaluation threw error $e');
+            }
+        }
+
         function bodyIf(formName:String, underlyingIf:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
             var b = wholeExp.expBuilder();
@@ -220,8 +262,8 @@ class Macros {
         macros["#when"] = bodyIf.bind("#when", "#if", false);
         macros["#unless"] = bodyIf.bind("#unless", "#if", true);
 
-        macros["cond"] = cond.bind("if");
-        macros["#cond"] = cond.bind("#if");
+        macros["cond"] = cond.bind("cond", "if");
+        macros["#cond"] = cond.bind("#cond", "#if");
 
         // (or... ) uses (cond... ) under the hood
         macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
@@ -741,8 +783,8 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
-    static function cond(underlyingIf:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-        wholeExp.checkNumArgs(1, null, "(cond [cases...])");
+    static function cond(formName:String, underlyingIf:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+        wholeExp.checkNumArgs(1, null, '($formName [cases...])');
         var b = wholeExp.expBuilder();
         return switch (exps[0].def) {
             case CallExp(condition, body):
@@ -750,7 +792,7 @@ class Macros {
                     condition,
                     b.begin(body),
                     if (exps.length > 1) {
-                        cond(underlyingIf, b.call(b.symbol("cond"), exps.slice(1)), exps.slice(1), k);
+                        cond(formName, underlyingIf, b.callSymbol(formName, exps.slice(1)), exps.slice(1), k);
                     } else {
                         b.symbol("null");
                     }

@@ -285,6 +285,13 @@ class Prelude {
         return v;
     }
 
+    public static function symbolNameValue(s:ReaderExp):String {
+        return switch (s.def) {
+            case Symbol(name): name;
+            default: throw 'expected $s to be a plain symbol';
+        };
+    }
+
     // ReaderExp helpers for macros:
     public static function symbol(?name:String):ReaderExpDef {
         if (name == null)

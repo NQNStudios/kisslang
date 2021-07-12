@@ -1,4 +1,6 @@
 -lib utest
 -D test
 -D hscriptPos
+-D var1ForCase=var1
+-D var2ForCase=var2
 --main test.TestMain
