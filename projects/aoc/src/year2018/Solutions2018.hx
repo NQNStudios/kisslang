@@ -8,4 +8,4 @@ import kiss.Stream;
 import Util;
 
 @:build(kiss.Kiss.build())
-class Solutions {}
+class Solutions2018 {}

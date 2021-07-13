@@ -24,4 +24,4 @@ import year2020.Evasion;
 #end
 
 @:build(kiss.Kiss.build())
-class Solutions {}
+class Solutions2020 {}

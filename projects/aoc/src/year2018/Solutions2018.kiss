@@ -1,0 +1,34 @@
+(load "../UtilMacros.kiss")
+
+(defun run []
+    (day 1
+        (let [inputs
+                    (.slice (.split (sys.io.File.getContent "src/year2018/inputs/day1.txt") "\n") 0 -1)
+                numbers
+                    (.map inputs Std.parseInt)]
+            (assert (= 529 (apply + numbers)))))
+
+    (dayTodo 2)
+    (dayTodo 3)
+    (dayTodo 4)
+    (dayTodo 5)
+    (dayTodo 6)
+    (dayTodo 7)
+    (dayTodo 8)
+    (dayTodo 9)
+    (dayTodo 10)
+    (dayTodo 11)
+    (dayTodo 12)
+    (dayTodo 13)
+    (dayTodo 14)
+    (dayTodo 15)
+    (dayTodo 16)
+    (dayTodo 17)
+    (dayTodo 18)
+    (dayTodo 19)
+    (dayTodo 20)
+    (dayTodo 21)
+    (dayTodo 22)
+    (dayTodo 23)
+    (dayTodo 24)
+    (dayTodo 25))

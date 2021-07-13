@@ -1,8 +1,0 @@
-(defun :Void main []
-    (let [
-            inputs (.slice (.split (sys.io.File.getContent "src/aoc2018/input_day1.txt") "\n") 0 -1)
-            numbers (.map inputs Std.parseInt)
-         ]
-        (print (apply + numbers))
-    )
-)
