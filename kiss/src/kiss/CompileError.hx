@@ -23,7 +23,7 @@ class CompileError {
         return new CompileError(exps, message);
     }
 
-    public function toString() {
+    public function toString(warning=false) {
         var posPrefix = switch (exps.length) {
             case 1:
                 exps[0].pos.toPrint();
@@ -34,11 +34,17 @@ class CompileError {
                 firstPos + '-' + lastPos.substr(justLineAndColumnIdx);
         }
 
-        return '\nKiss compilation failed!\n'
+        var failed = if (warning) "warning!"; else "failed!";
+
+        return '\nKiss compilation $failed\n'
             + posPrefix
             + ": "
             + message
             + "\nFrom:"
             + [for (exp in exps) exp.def.toString()].toString();
+    }
+
+    public static function warnFromExp(exp:ReaderExp, message:String) {
+        Prelude.print(new CompileError([exp], message).toString(true));
     }
 }
