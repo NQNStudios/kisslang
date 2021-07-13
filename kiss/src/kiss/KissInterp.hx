@@ -20,6 +20,13 @@ class KissInterp extends Interp {
         this.nullForUnknownVar = nullForUnknownVar;
 
         variables.set("Prelude", Prelude);
+        variables.set("kiss", {
+            Operand: {
+                fromDynamic: Operand.fromDynamic,
+                toDynamic: Operand.toDynamic
+            }
+        });
+        trace(variables["kiss"]);
         variables.set("Lambda", Lambda);
         variables.set("Std", Std);
         variables.set("Keep", ExtraElementHandling.Keep);

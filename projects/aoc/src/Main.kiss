@@ -1,9 +1,3 @@
 (defun :Void main []
-    (let [args (Sys.args)
-            [&mut days years] (for arg args 
-                                (case arg
-                                    ("all" [])
-                                    (otherwise (map (arg.split ",") Std.parseInt))))]
-        (set days (or days (for i (range 1 26) i)))
-        (when (or (= 0 years.length) (<= 0 (years.indexOf 2020)))
-            (Solutions2020.run days))))
+    (year 2020
+        (Solutions2020.run)))

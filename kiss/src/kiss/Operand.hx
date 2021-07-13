@@ -25,7 +25,7 @@ abstract Operand(Either<String, Float>) from Either<String, Float> to Either<Str
     // Doing this one implicitly just wasn't working in conjunction with Lambda.fold
 
     /* @:from */
-    public inline static function fromDynamic(d:Dynamic):Operand {
+    public static function fromDynamic(d:Dynamic):Operand {
         return switch (Type.typeof(d)) {
             case TInt | TFloat: Right(0.0 + d);
             // Treating true and false as operands can be useful for equality. In practice, no one should use them

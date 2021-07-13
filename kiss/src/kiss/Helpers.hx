@@ -259,6 +259,7 @@ class Helpers {
                     ReaderExpDef: ReaderExpDef
                 },
                 Operand: {
+                    toDynamic: Operand.toDynamic,
                     fromDynamic: Operand.fromDynamic
                 }
             });

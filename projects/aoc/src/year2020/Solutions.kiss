@@ -1,12 +1,6 @@
-(defmacro day [num &rest body]
-    `(when (<= 0 (days.indexOf ,num))
-        (print (+ "day " (Std.string ,num)))
-        ,@body))
+(load "../UtilMacros.kiss")
 
-(defmacro dayTodo [num]
-    `(day ,num (print "TODO")))
-
-(defun run [:kiss.List<Int> days]
+(defun run []
     (day 1
         (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
             (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))

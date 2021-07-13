@@ -1,4 +1,4 @@
-package year2020;
+package;
 
 import sys.io.File;
 import kiss.Prelude;

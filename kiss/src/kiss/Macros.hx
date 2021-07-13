@@ -192,7 +192,11 @@ class Macros {
                 conditionInterp.variables.set(flag, value);
             }
             try {
-                var conditionHScript = parser.parseString(Prelude.convertToHScript(conditionStr));
+                var hscriptStr = Prelude.convertToHScript(conditionStr);
+                #if test
+                Prelude.print(hscriptStr);
+                #end
+                var conditionHScript = parser.parseString(hscriptStr);
                 return if (Prelude.truthy(conditionInterp.execute(conditionHScript))) {
                     thenExp;
                 } else {

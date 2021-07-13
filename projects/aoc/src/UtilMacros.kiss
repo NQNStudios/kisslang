@@ -1,0 +1,7 @@
+(defmacro day [num &rest body]
+    `(#when (+ "day" (Std.string ,num))
+        (print (+ "day " (Std.string ,num)))
+        ,@body))
+
+(defmacro dayTodo [num]
+    `(day ,num (print "TODO")))

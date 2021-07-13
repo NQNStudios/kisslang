@@ -2,7 +2,6 @@ package year2020;
 
 import kiss.Prelude;
 import kiss.Operand;
-import year2020.Util;
 
 using StringTools;
 
