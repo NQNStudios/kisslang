@@ -107,7 +107,7 @@
             (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
         (lastCollector)))
 
-(defmacro defcommand [name args &rest body]
+(defmacro defcommand [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)
             methodArgs

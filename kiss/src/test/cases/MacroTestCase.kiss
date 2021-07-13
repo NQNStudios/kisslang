@@ -16,7 +16,7 @@
 
 // You should be able to run list comprehensions on expressions
 // and put the pieces back together in a modular way
-(defmacro altDefun [name args &rest body]
+(defmacro altDefun [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)
             untypedArgs

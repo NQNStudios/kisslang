@@ -416,15 +416,16 @@ class Macros {
             var maxArgs = 0;
             // Once the &opt meta appears, all following arguments are optional until &rest
             var optIndex = -1;
-            // Once the &rest meta appears, no other arguments can be declared
+            // Once the &rest or &body meta appears, no other arguments can be declared
             var restIndex = -1;
+            var requireRest = false;
             var argNames = [];
 
             var macroCallForm = '($name';
 
             for (arg in argList) {
                 if (restIndex != -1) {
-                    throw CompileError.fromExp(arg, "macros cannot declare arguments after a &rest argument");
+                    throw CompileError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
                 }
                 switch (arg.def) {
                     case Symbol(name):
@@ -442,9 +443,18 @@ class Macros {
                         optIndex = maxArgs;
                         ++maxArgs;
                     case MetaExp("rest", {pos: _, def: Symbol(name)}):
+                        if (name == "body") {
+                            CompileError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
+                        }
                         argNames.push(name);
                         macroCallForm += ' [$name...]';
                         restIndex = maxArgs;
+                        maxArgs = null;
+                    case MetaExp("body", {pos: _, def: Symbol(name)}):
+                        argNames.push(name);
+                        macroCallForm += ' [$name...]';
+                        restIndex = maxArgs;
+                        requireRest = true;
                         maxArgs = null;
                     default:
                         throw CompileError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest");
@@ -468,8 +478,13 @@ class Macros {
                 for (idx in optIndex...restIndex) {
                     args[innerArgNames.shift()] = if (exps.length > idx) innerExps[idx] else null;
                 }
-                if (innerArgNames.length > 0)
-                    args[innerArgNames.shift()] = innerExps.slice(restIndex);
+                if (innerArgNames.length > 0) {
+                    var restArgs = innerExps.slice(restIndex);
+                    if (requireRest && restArgs.length == 0) {
+                        throw CompileError.fromExp(wholeExp, 'Macro $name requires one or more expression for &body');
+                    }
+                    args[innerArgNames.shift()] = restArgs;
+                }
 
                 // Return the macro expansion:
                 return Helpers.runAtCompileTime(CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(2)).withPosOf(wholeExp), k, args);

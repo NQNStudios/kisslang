@@ -31,7 +31,7 @@
 
 // Retrieve multiple components from an Entity with mutable access.
 // All components will be serialized after the block is done.
-(defmacro withWritableComponents [archive e bindings &rest body]
+(defmacro withWritableComponents [archive e bindings &body body]
     (let [bindingPairs
                 (groups (expList bindings) 2 Throw)
             bindingList
@@ -49,7 +49,7 @@
             ,@saveList
             ,retValSymbol)))
 
-(defmacro withWritableEntry [archive e &rest body]
+(defmacro withWritableEntry [archive e &body body]
     (let [retValSymbol
                 (symbol)]
         `(let [,retValSymbol {,@body}]
