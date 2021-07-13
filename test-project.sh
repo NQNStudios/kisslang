@@ -37,5 +37,5 @@ then
 # Test other projects with their test.sh file
 else
     (cd projects/$KISS_PROJECT && haxelib install all --always)
-    (cd projects/$KISS_PROJECT && ./test.sh)
+    (cd projects/$KISS_PROJECT && ./test.sh "${@:2}")
 fi

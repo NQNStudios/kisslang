@@ -1,3 +1,4 @@
+(load "UtilMacros.kiss")
 (defun :Void main []
     (year 2020
         (Solutions2020.run)))

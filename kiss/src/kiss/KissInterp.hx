@@ -26,7 +26,6 @@ class KissInterp extends Interp {
                 toDynamic: Operand.toDynamic
             }
         });
-        trace(variables["kiss"]);
         variables.set("Lambda", Lambda);
         variables.set("Std", Std);
         variables.set("Keep", ExtraElementHandling.Keep);

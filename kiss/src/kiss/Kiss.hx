@@ -59,6 +59,7 @@ class Kiss {
                 "reversed" => Symbol("Prelude.reversed"), // TODO test reversed
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
                 "symbolName" => Symbol("Prelude.symbolName"),
+                "symbolNameValue" => Symbol("Prelude.symbolNameValue"),
                 "symbol" => Symbol("Prelude.symbol"),
                 "expList" => Symbol("Prelude.expList"),
                 "map" => Symbol("Lambda.map"),

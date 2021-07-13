@@ -1,5 +1,10 @@
+(defmacro year [num &rest body]
+    `(#when ,(symbol (+ "year" (symbolNameValue num)))
+        (print (+ "year " (Std.string ,num)))
+        ,@body))
+
 (defmacro day [num &rest body]
-    `(#when (+ "day" (Std.string ,num))
+    `(#when ,(symbol (+ "day" (symbolNameValue num)))
         (print (+ "day " (Std.string ,num)))
         ,@body))
 

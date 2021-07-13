@@ -189,15 +189,17 @@ class Macros {
             var conditionInterp = new KissInterp(true);
             var conditionStr = Reader.toString(conditionExp.def);
             for (flag => value in Context.getDefines()) {
-                conditionInterp.variables.set(flag, value);
+                if (flag != "kiss")
+                    conditionInterp.variables.set(flag, value);
             }
             try {
                 var hscriptStr = Prelude.convertToHScript(conditionStr);
                 #if test
-                Prelude.print(hscriptStr);
+                Prelude.print("#if condition hscript: " + hscriptStr);
                 #end
                 var conditionHScript = parser.parseString(hscriptStr);
                 return if (Prelude.truthy(conditionInterp.execute(conditionHScript))) {
+                    trace("using thenExp");
                     thenExp;
                 } else {
                     elseExp;
@@ -239,10 +241,15 @@ class Macros {
                 caseInterp.variables.set(Prelude.symbolNameValue(matchBodySymbol), matchBodies.shift());
             }
             for (flag => value in Context.getDefines()) {
-                caseInterp.variables.set(flag, value);
+                if (flag != "kiss")
+                    caseInterp.variables.set(flag, value);
             }
             try {
-                var caseHScript = parser.parseString(Prelude.convertToHScript(caseStr));
+                var hscriptStr = Prelude.convertToHScript(caseStr);
+                #if test
+                Prelude.print("#case hscript: " + hscriptStr);
+                #end
+                var caseHScript = parser.parseString(hscriptStr);
                 return caseInterp.execute(caseHScript);
             } catch (e) {
                 throw CompileError.fromExp(caseExp, '#case evaluation threw error $e');
