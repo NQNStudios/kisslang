@@ -567,13 +567,15 @@ class Macros {
             var bindingList = exps[0].bindingList("ifLet");
             var firstPattern = bindingList.shift();
             var firstValue = bindingList.shift();
+            var firstValueSymbol = b.symbol();
 
-            return b.call(
-                b.symbol("if"), [
-                    firstValue,
+            return b.callSymbol("let", [
+                b.list([firstValueSymbol, firstValue]),
+                b.callSymbol("if", [
+                    firstValueSymbol,
                     b.call(
                         b.symbol("case"), [
-                            firstValue,
+                            firstValueSymbol,
                             b.call(
                                 firstPattern, [
                                     if (bindingList.length == 0) {
@@ -590,7 +592,8 @@ class Macros {
                                 ])
                         ]),
                     elseExp
-                ]);
+                ])
+            ]);
         }
 
         macros["ifLet"] = ifLet;
@@ -598,23 +601,21 @@ class Macros {
         macros["whenLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
             var b = wholeExp.expBuilder();
-            b.call(
-                b.symbol("ifLet"), [
-                    exps[0],
-                    b.begin(exps.slice(1)),
-                    b.symbol("null")
-                ]);
+            b.callSymbol("ifLet", [
+                exps[0],
+                b.begin(exps.slice(1)),
+                b.symbol("null")
+            ]);
         };
 
         macros["unlessLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(unlessLet [[enum bindings...]] [body...])");
             var b = wholeExp.expBuilder();
-            b.call(
-                b.symbol("ifLet"), [
-                    exps[0],
-                    b.symbol("null"),
-                    b.begin(exps.slice(1))
-                ]);
+            b.callSymbol("ifLet", [
+                exps[0],
+                b.symbol("null"),
+                b.begin(exps.slice(1))
+            ]);
         };
 
         // TODO test this

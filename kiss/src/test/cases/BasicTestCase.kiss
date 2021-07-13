@@ -459,7 +459,13 @@
             (Assert.fail))
         (unlessLet [(Some (or 5 6)) some5]
             (print "something else went wrong!")
-            (Assert.fail))))
+            (Assert.fail))
+            
+        // Don't double evaluate the expression:    
+        (let [&mut v 1]
+            (unlessLet [2 (begin (+= v 1) v)]
+                (Assert.fail))
+            (Assert.equals 2 v))))
 
 (defun _testRawString []
     (Assert.equals #| "\\" |# #"\"#)
