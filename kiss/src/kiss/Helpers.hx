@@ -325,7 +325,7 @@ class Helpers {
                             case ListExp(elements):
                                 elements;
                             default:
-                                throw CompileError.fromExp(l[idx], ",@ can only be used with lists");
+                                throw CompileError.fromExp(listToInsert, ",@ can only be used with lists");
                         };
                     };
                     for (el in newElements) {
