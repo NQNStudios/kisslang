@@ -8,17 +8,12 @@
 
 Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 
-**Kiss aims to be:**
-
-- [x] A statically typed Lisp
-- [ ] that runs correctly almost anywhere,
-- [x] is usable at any stage of its development,
-- [ ] doesn't break downstream code when it updates,
-- [ ] and doesn't require full-time maintenance
+Kiss aims to be a statically typed Lisp that runs correctly almost anywhere using Haxe's FFI features.
 
 **Main features:**
 
-- [ ] Traditional Lisp macros
+- [x] Traditional Lisp macros
+- [x] Rust-style pattern-matching
 - [x] [Reader macros](https://gist.github.com/chaitanyagupta/9324402)
 - [x] Plug-and-play with every pure-Haxe library on Haxelib
 - [x] Smooth FFI with any non-Haxe library you can find or write Haxe bindings for
@@ -28,7 +23,7 @@ Kiss is a work in progress. (See: [Who should use Kiss?](#who-should-use-kiss))
 
 - [x] string interpolation
 - [x] Rust-style raw string literals
-- [ ] null-safe arrays
+- [x] syntactic sugar for Promise-based asynchronous code
 - [x] negative indexing
 - [x] list comprehensions
 - [x] immutability by default
