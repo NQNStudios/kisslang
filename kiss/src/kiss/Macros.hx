@@ -469,6 +469,7 @@ class Macros {
 
             macros[name] = (wholeExp:ReaderExp, innerExps:Array<ReaderExp>, k:KissState) -> {
                 wholeExp.checkNumArgs(minArgs, maxArgs, macroCallForm);
+                var b = wholeExp.expBuilder();
                 var innerArgNames = argNames.copy();
 
                 var args:Map<String, Dynamic> = [];
@@ -487,7 +488,7 @@ class Macros {
                 }
 
                 // Return the macro expansion:
-                return Helpers.runAtCompileTime(CallExp(Symbol("begin").withPosOf(wholeExp), exps.slice(2)).withPosOf(wholeExp), k, args);
+                return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
             };
 
             null;
@@ -833,16 +834,16 @@ class Macros {
         };
     }
 
-    // TODO use expBuilder()
     static function variadicMacro(func:String):MacroFunction {
         return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            CallExp(Symbol(func).withPosOf(wholeExp), [
-                ListExp([
+            var b = wholeExp.expBuilder();
+            b.callSymbol(func, [
+                b.list([
                     for (exp in exps) {
-                        CallExp(Symbol("kiss.Operand.fromDynamic").withPosOf(wholeExp), [exp]).withPosOf(wholeExp);
+                        b.callSymbol("kiss.Operand.fromDynamic", [exp]);
                     }
-                ]).withPosOf(wholeExp)
-            ]).withPosOf(wholeExp);
+                ])
+            ]);
         };
     }
 }
