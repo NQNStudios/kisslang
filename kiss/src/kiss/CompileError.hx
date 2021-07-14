@@ -23,7 +23,7 @@ class CompileError {
         return new CompileError(exps, message);
     }
 
-    public function toString(warning=false) {
+    public function toString(warning = false) {
         var posPrefix = switch (exps.length) {
             case 1:
                 exps[0].pos.toPrint();

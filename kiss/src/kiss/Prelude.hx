@@ -24,7 +24,7 @@ enum ExtraElementHandling {
 }
 
 class Prelude {
-    static function stringOrFloat(d:Dynamic):Either<String,Float> {
+    static function stringOrFloat(d:Dynamic):Either<String, Float> {
         return switch (Type.typeof(d)) {
             case TInt | TFloat: Right(0.0 + d);
             default:
@@ -39,7 +39,8 @@ class Prelude {
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
     static function _add(values:Array<Dynamic>):Dynamic {
         var sum:Dynamic = values[0];
-        for (value in values.slice(1)) sum += value;
+        for (value in values.slice(1))
+            sum += value;
         return sum;
     }
 
@@ -47,7 +48,8 @@ class Prelude {
 
     static function _subtract(values:Array<Dynamic>):Dynamic {
         var difference:Float = values[0];
-        for (value in values.slice(1)) difference -= value;
+        for (value in values.slice(1))
+            difference -= value;
         return difference;
     }
 
@@ -72,7 +74,8 @@ class Prelude {
 
     static function _multiply(values:Array<Dynamic>):Dynamic {
         var product = values[0];
-        for (value in values.slice(1)) product = _multiply2(product, value);
+        for (value in values.slice(1))
+            product = _multiply2(product, value);
         return product;
     }
 
@@ -80,7 +83,8 @@ class Prelude {
 
     static function _divide(values:Array<Dynamic>):Dynamic {
         var quotient:Float = values[0];
-        for (value in values.slice(1)) quotient /= value;
+        for (value in values.slice(1))
+            quotient /= value;
         return quotient;
     }
 
@@ -96,7 +100,8 @@ class Prelude {
 
     static function _min(values:Array<Dynamic>):Dynamic {
         var min = values[0];
-        for (value in values.slice(1)) min = Math.min(min, value);
+        for (value in values.slice(1))
+            min = Math.min(min, value);
         return min;
     }
 
@@ -104,7 +109,8 @@ class Prelude {
 
     static function _max(values:Array<Dynamic>):Dynamic {
         var max = values[0];
-        for (value in values.slice(1)) max = Math.max(max, value);
+        for (value in values.slice(1))
+            max = Math.max(max, value);
         return max;
     }
 
@@ -112,8 +118,8 @@ class Prelude {
 
     static function _comparison(op:String, values:Array<Dynamic>):Bool {
         for (idx in 1...values.length) {
-            var a = values[idx-1];
-            var b = values[idx];
+            var a:Dynamic = values[idx - 1];
+            var b:Dynamic = values[idx];
             var check = switch (op) {
                 case ">": a > b;
                 case ">=": a >= b;
