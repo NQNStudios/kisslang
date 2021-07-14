@@ -178,9 +178,9 @@ class Prelude {
                 case Throw:
                     throw 'zip was given lists of mis-matched size: $arrays';
                 case Keep:
-                    Prelude.max(lengths);
+                    Prelude._max(lengths);
                 case Drop:
-                    Prelude.min(lengths);
+                    Prelude._min(lengths);
             }
         } else {
             lengths[0];
