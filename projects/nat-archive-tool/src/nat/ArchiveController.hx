@@ -2,7 +2,6 @@ package nat;
 
 import kiss.Prelude;
 import kiss.List;
-import kiss.Operand;
 import haxe.Constraints;
 import uuid.Uuid;
 

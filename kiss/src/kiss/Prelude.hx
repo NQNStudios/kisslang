@@ -2,7 +2,6 @@ package kiss;
 
 using Std;
 
-import kiss.Operand;
 import kiss.ReaderExp;
 import haxe.ds.Either;
 import haxe.Constraints;
@@ -25,46 +24,39 @@ enum ExtraElementHandling {
 }
 
 class Prelude {
-    static function variadic(op:(Operand, Operand) -> Null<Operand>, comparison = false):(Array<Operand>) -> Dynamic {
-        return (l:kiss.List<Operand>) -> switch (Lambda.fold(l.slice(1), op, l[0])) {
-            case null:
-                false;
-            case somethingElse if (comparison):
-                true;
-            case somethingElse:
-                Operand.toDynamic(somethingElse);
+    static function stringOrFloat(d:Dynamic):Either<String,Float> {
+        return switch (Type.typeof(d)) {
+            case TInt | TFloat: Right(0.0 + d);
+            default:
+                if (Std.isOfType(d, String)) {
+                    Left(d);
+                } else {
+                    throw 'cannot use $d in multiplication';
+                };
         };
     }
 
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
-    static function _add(a:Operand, b:Operand):Operand {
-        return switch ([a, b]) {
-            case [Left(str), Left(str2)]:
-                Left(str2 + str);
-            case [Right(f), Right(f2)]:
-                Right(f + f2);
-            default:
-                throw 'cannot add mismatched types ${Operand.toDynamic(a)} and ${Operand.toDynamic(b)}';
-        };
+    static function _add(values:Array<Dynamic>):Dynamic {
+        var sum:Dynamic = values[0];
+        for (value in values.slice(1)) sum += value;
+        return sum;
     }
 
-    public static var add = variadic(_add);
+    public static var add:Function = Reflect.makeVarArgs(_add);
 
-    static function _subtract(val:Operand, from:Operand):Operand {
-        return switch ([from, val]) {
-            case [Right(from), Right(val)]:
-                Right(from - val);
-            default:
-                throw 'cannot subtract ${Operand.toDynamic(val)} from ${Operand.toDynamic(from)}';
-        }
+    static function _subtract(values:Array<Dynamic>):Dynamic {
+        var difference:Float = values[0];
+        for (value in values.slice(1)) difference -= value;
+        return difference;
     }
 
-    public static var subtract = variadic(_subtract);
+    public static var subtract:Function = Reflect.makeVarArgs(_subtract);
 
-    static function _multiply(a:Operand, b:Operand):Operand {
-        return switch ([a, b]) {
+    static function _multiply2(a:Dynamic, b:Dynamic):Dynamic {
+        return switch ([stringOrFloat(a), stringOrFloat(b)]) {
             case [Right(f), Right(f2)]:
-                Right(f * f2);
+                f * f2;
             case [Left(a), Left(b)]:
                 throw 'cannot multiply strings "$a" and "$b"';
             case [Right(i), Left(s)] | [Left(s), Right(i)] if (i % 1 == 0):
@@ -72,81 +64,75 @@ class Prelude {
                 for (_ in 0...Math.floor(i)) {
                     result += s;
                 }
-                Left(result);
+                result;
             default:
-                throw 'cannot multiply ${Operand.toDynamic(a)} and ${Operand.toDynamic(b)}';
+                throw 'cannot multiply $a and $b';
         };
     }
 
-    public static var multiply = variadic(_multiply);
-
-    static function _divide(bottom:Operand, top:Operand):Operand {
-        return switch ([top, bottom]) {
-            case [Right(f), Right(f2)]:
-                Right(f / f2);
-            default:
-                throw 'cannot divide $top by $bottom';
-        };
+    static function _multiply(values:Array<Dynamic>):Dynamic {
+        var product = values[0];
+        for (value in values.slice(1)) product = _multiply2(product, value);
+        return product;
     }
 
-    public static var divide = variadic(_divide);
+    public static var multiply:Function = Reflect.makeVarArgs(_multiply);
 
-    public static function mod(bottom:Operand, top:Operand):Operand {
-        return Right(top.toFloat() % bottom.toFloat());
+    static function _divide(values:Array<Dynamic>):Dynamic {
+        var quotient:Float = values[0];
+        for (value in values.slice(1)) quotient /= value;
+        return quotient;
     }
 
-    public static function pow(exponent:Operand, base:Operand):Operand {
-        return Right(Math.pow(base.toFloat(), exponent.toFloat()));
+    public static var divide:Function = Reflect.makeVarArgs(_divide);
+
+    public static function mod(top:Dynamic, bottom:Dynamic):Dynamic {
+        return top % bottom;
     }
 
-    static function _min(a:Operand, b:Operand):Operand {
-        return Right(Math.min(a.toFloat(), b.toFloat()));
+    public static function pow(base:Dynamic, exponent:Dynamic):Dynamic {
+        return Math.pow(base, exponent);
     }
 
-    public static var min = variadic(_min);
-
-    static function _max(a:Operand, b:Operand):Operand {
-        return Right(Math.max(a.toFloat(), b.toFloat()));
+    static function _min(values:Array<Dynamic>):Dynamic {
+        var min = values[0];
+        for (value in values.slice(1)) min = Math.min(min, value);
+        return min;
     }
 
-    public static var max = variadic(_max);
+    public static var min:Function = Reflect.makeVarArgs(_min);
 
-    static function _greaterThan(b:Operand, a:Operand):Null<Operand> {
-        return if (a == null || b == null) null else if (a.toFloat() > b.toFloat()) b else null;
+    static function _max(values:Array<Dynamic>):Dynamic {
+        var max = values[0];
+        for (value in values.slice(1)) max = Math.max(max, value);
+        return max;
     }
 
-    public static var greaterThan = variadic(_greaterThan, true);
+    public static var max:Function = Reflect.makeVarArgs(_max);
 
-    static function _greaterEqual(b:Operand, a:Operand):Null<Operand> {
-        return if (a == null || b == null) null else if (a.toFloat() >= b.toFloat()) b else null;
+    static function _comparison(op:String, values:Array<Dynamic>):Bool {
+        for (idx in 1...values.length) {
+            var a = values[idx-1];
+            var b = values[idx];
+            var check = switch (op) {
+                case ">": a > b;
+                case ">=": a >= b;
+                case "<": a < b;
+                case "<=": a <= b;
+                case "==": a == b;
+                default: throw 'Unreachable case';
+            }
+            if (!check)
+                return false;
+        }
+        return true;
     }
 
-    public static var greaterEqual = variadic(_greaterEqual, true);
-
-    static function _lessThan(b:Operand, a:Operand):Null<Operand> {
-        return if (a == null || b == null) null else if (a.toFloat() < b.toFloat()) b else null;
-    }
-
-    public static var lessThan = variadic(_lessThan, true);
-
-    static function _lesserEqual(b:Operand, a:Operand):Null<Operand> {
-        return if (a == null || b == null) null else if (a.toFloat() <= b.toFloat()) b else null;
-    }
-
-    public static var lesserEqual = variadic(_lesserEqual, true);
-
-    static function _areEqual(a:Operand, b:Operand):Null<Operand> {
-        return if (a == null || b == null) null else switch ([a, b]) {
-            case [Left(aStr), Left(bStr)] if (aStr == bStr):
-                a;
-            case [Right(aFloat), Right(bFloat)] if (aFloat == bFloat):
-                a;
-            default:
-                null;
-        };
-    }
-
-    public static var areEqual = variadic(_areEqual, true);
+    public static var greaterThan:Function = Reflect.makeVarArgs(_comparison.bind(">"));
+    public static var greaterEqual:Function = Reflect.makeVarArgs(_comparison.bind(">="));
+    public static var lessThan:Function = Reflect.makeVarArgs(_comparison.bind("<"));
+    public static var lesserEqual:Function = Reflect.makeVarArgs(_comparison.bind("<="));
+    public static var areEqual:Function = Reflect.makeVarArgs(_comparison.bind("=="));
 
     public static function sort<T>(a:Array<T>, ?comp:(T, T) -> Int):kiss.List<T> {
         if (comp == null)
@@ -181,7 +167,6 @@ class Prelude {
     public static function zip(arrays:Array<Array<Dynamic>>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
         var lengthsAreEqual = true;
         var lengths = [for (arr in arrays) arr.length];
-        var lengthOperands = [for (length in lengths) Operand.fromDynamic(length)];
         for (idx in 1...lengths.length) {
             if (lengths[idx] != lengths[idx - 1]) {
                 lengthsAreEqual = false;
@@ -193,9 +178,9 @@ class Prelude {
                 case Throw:
                     throw 'zip was given lists of mis-matched size: $arrays';
                 case Keep:
-                    Operand.toDynamic(Prelude.max(lengthOperands));
+                    Prelude.max(lengths);
                 case Drop:
-                    Operand.toDynamic(Prelude.min(lengthOperands));
+                    Prelude.min(lengths);
             }
         } else {
             lengths[0];

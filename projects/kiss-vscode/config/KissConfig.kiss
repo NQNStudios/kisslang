@@ -222,9 +222,6 @@
 (defun :Void prepareInterp []
     (interp.variables.set "kiss" 
         (object
-            Operand
-                (object
-                    fromDynamic Operand.fromDynamic)
             Prelude
                 Prelude))
             //interp.variables.set("Helpers", Helpers);
@@ -272,7 +269,6 @@
 
 import kiss.Prelude;
 import kiss.List;
-import kiss.Operand;
 
 @:build(kiss.Kiss.build())
 class ${className} {}

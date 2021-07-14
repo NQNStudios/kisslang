@@ -65,67 +65,17 @@ class Macros {
             };
         }
 
-        macros["%"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, 2, '(% [divisor] [dividend])');
-            var b = wholeExp.expBuilder();
-            b.opToDynamic(
-                b.call(
-                    b.symbol("Prelude.mod"), [
-                        b.opFromDynamic(exps[1]),
-                        b.opFromDynamic(exps[0])
-                    ]));
-        };
-
         destructiveVersion("%", "%=");
-
-        macros["^"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, 2, '(^ [base] [exponent])');
-            var b = wholeExp.expBuilder();
-            b.opToDynamic(
-                b.call(b.symbol("Prelude.pow"), [
-                    b.opFromDynamic(exps[1]),
-                    b.opFromDynamic(exps[0])
-                ]));
-        };
         destructiveVersion("^", "^=");
-
-        macros["+"] = variadicMacro("Prelude.add");
         destructiveVersion("+", "+=");
-
-        macros["-"] = variadicMacro("Prelude.subtract");
         destructiveVersion("-", "-=");
-
-        macros["*"] = variadicMacro("Prelude.multiply");
         destructiveVersion("*", "*=");
-
-        macros["/"] = variadicMacro("Prelude.divide");
         destructiveVersion("/", "/=");
 
-        macros["min"] = variadicMacro("Prelude.min");
-        macros["max"] = variadicMacro("Prelude.max");
-
-        macros[">"] = variadicMacro("Prelude.greaterThan");
-        macros[">="] = variadicMacro("Prelude.greaterEqual");
-        macros["<"] = variadicMacro("Prelude.lessThan");
-        macros["<="] = variadicMacro("Prelude.lesserEqual");
-
-        macros["="] = variadicMacro("Prelude.areEqual");
-
-        // the (apply [func] [args]) macro keeps its own list of aliases for the math operators
-        // that can't just be function aliases because they emulate &rest behavior
+        // These shouldn't be ident aliases because they are common variable names
         var opAliases = [
-            "+" => "Prelude.add",
-            "-" => "Prelude.subtract",
-            "*" => "Prelude.multiply",
-            "/" => "Prelude.divide",
-            ">" => "Prelude.greaterThan",
-            ">=" => "Prelude.greaterEqual",
-            "<" => "Prelude.lessThan",
-            "<=" => "Prelude.lesserEqual",
-            "=" => "Prelude.areEqual",
-            "max" => "Prelude.max",
             "min" => "Prelude.min",
-            "zip" => "Prelude.zip"
+            "max" => "Prelude.max"
         ];
 
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
@@ -139,22 +89,12 @@ class Macros {
                     b.symbol("null");
             };
             var func = switch (exps[0].def) {
-                case Symbol(sym) if (opAliases.exists(sym)):
-                    b.symbol(opAliases[sym]);
+                case Symbol(func) if (opAliases.exists(func)):
+                    b.symbol(opAliases[func]);
                 default:
                     exps[0];
             };
-            var args = switch (exps[0].def) {
-                case Symbol(sym) if (opAliases.exists(sym)):
-                    b.list([
-                        b.call(
-                            b.field("map", exps[1]), [
-                                b.symbol("kiss.Operand.fromDynamic")
-                            ])
-                    ]);
-                default:
-                    exps[1];
-            };
+            var args = exps[1];
             b.call(
                 b.symbol("Reflect.callMethod"), [
                     callOn, func, args
@@ -831,19 +771,6 @@ class Macros {
                 ]);
             default:
                 throw CompileError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
-        };
-    }
-
-    static function variadicMacro(func:String):MacroFunction {
-        return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            var b = wholeExp.expBuilder();
-            b.callSymbol(func, [
-                b.list([
-                    for (exp in exps) {
-                        b.callSymbol("kiss.Operand.fromDynamic", [exp]);
-                    }
-                ])
-            ]);
         };
     }
 }

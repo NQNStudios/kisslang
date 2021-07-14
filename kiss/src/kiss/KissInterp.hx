@@ -20,17 +20,13 @@ class KissInterp extends Interp {
         this.nullForUnknownVar = nullForUnknownVar;
 
         variables.set("Prelude", Prelude);
-        variables.set("kiss", {
-            Operand: {
-                fromDynamic: Operand.fromDynamic,
-                toDynamic: Operand.toDynamic
-            }
-        });
         variables.set("Lambda", Lambda);
         variables.set("Std", Std);
         variables.set("Keep", ExtraElementHandling.Keep);
         variables.set("Drop", ExtraElementHandling.Drop);
         variables.set("Throw", ExtraElementHandling.Throw);
+        // Might eventually need to simulate types in the namespace:
+        variables.set("kiss", {});
     }
 
     override function resolve(id:String):Dynamic {

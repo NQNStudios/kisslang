@@ -51,6 +51,7 @@ class Kiss {
             wrapListExps: true,
             loadedFiles: new Map<String, Bool>(),
             // Helpful built-in aliases
+            // These ones might conflict with a programmer's variable names, so they only apply in call expressions:
             callAliases: [
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
@@ -66,9 +67,24 @@ class Kiss {
                 "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
                 "flatten" => Symbol("Lambda.flatten"),
                 "has" => Symbol("Lambda.has"),
-                "count" => Symbol("Lambda.count")
+                "count" => Symbol("Lambda.count"),
+                "min" => Symbol("Prelude.min"),
+                "max" => Symbol("Prelude.max")
             ],
-            identAliases: new Map(),
+            // These ones won't conflict with variables and might commonly be used with (apply)
+            identAliases: [
+                "+" => Symbol("Prelude.add"),
+                "-" => Symbol("Prelude.subtract"),
+                "*" => Symbol("Prelude.multiply"),
+                "/" => Symbol("Prelude.divide"),
+                "%" => Symbol("Prelude.mod"),
+                "^" => Symbol("Prelude.pow"),
+                ">" => Symbol("Prelude.greaterThan"),
+                ">=" => Symbol("Prelude.greaterEqual"),
+                "<" => Symbol("Prelude.lessThan"),
+                "<=" => Symbol("Prelude.lesserEqual"),
+                "=" => Symbol("Prelude.areEqual")
+            ],
             fields: [],
             loadingDirectory: "",
             hscript: false
