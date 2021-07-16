@@ -1,0 +1,3 @@
+[submodule "projects/godot-squash-the-creeps-3d/addons/haxe"]
+	path = projects/godot-squash-the-creeps-3d/addons/haxe
+	url = https://github.com/HaxeGodot/editor-plugin.git
