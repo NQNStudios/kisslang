@@ -37,6 +37,8 @@ class ConditionalCompilationTestCase extends Test {
     function testCond() {
         #if cpp
         Assert.equals("C++", targetLanguage);
+        #elseif cs
+        Assert.equals("C#", targetLanguage);
         #elseif interp
         Assert.equals("Haxe", targetLanguage);
         #elseif hxnodejs

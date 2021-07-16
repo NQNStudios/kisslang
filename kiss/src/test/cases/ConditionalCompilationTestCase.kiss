@@ -18,6 +18,7 @@
 (defvar targetLanguage
     (#cond
         (cpp "C++")
+        (cs "C#")
         (interp "Haxe")
         (hxnodejs "NodeJS")
         (js "JavaScript")
