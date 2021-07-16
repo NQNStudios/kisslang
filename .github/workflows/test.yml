@@ -12,6 +12,7 @@ jobs:
         python-version: ['3.x']
         test-target: 
           - KISS_TARGET=cpp
+          - KISS_TARGET=cs
           - KISS_TARGET=interp
           - KISS_TARGET=js
           - KISS_TARGET=nodejs

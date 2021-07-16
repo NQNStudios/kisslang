@@ -1,0 +1,3 @@
+-lib hxcs
+-cs bin/cs/test
+-cmd bash kiss/build-scripts/cs/test-cs.sh
