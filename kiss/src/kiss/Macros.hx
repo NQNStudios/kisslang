@@ -139,9 +139,14 @@ class Macros {
                 #end
                 var conditionHScript = parser.parseString(hscriptStr);
                 return if (Prelude.truthy(conditionInterp.execute(conditionHScript))) {
-                    trace("using thenExp");
+                    #if test
+                    Prelude.print("using thenExp");
+                    #end
                     thenExp;
                 } else {
+                    #if test
+                    Prelude.print("using elseExp");
+                    #end
                     elseExp;
                 }
             } catch (e) {
