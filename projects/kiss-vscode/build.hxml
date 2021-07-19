@@ -8,4 +8,4 @@
 -D analyzer-optimize
 -D js-es=6
 -debug
-Main
+--main Main

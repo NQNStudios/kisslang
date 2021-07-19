@@ -1,4 +1,6 @@
+#if !test
 import vscode.*;
+#end
 import Sys;
 import sys.io.File;
 import sys.FileSystem;
@@ -26,8 +28,10 @@ typedef KissConfig = {
 @:build(kiss.Kiss.build())
 class Main {
     // TODO support EMeta(s:MetadataEntry, e:Expr) via Kiss so this signature can be moved to Main.kiss
+    #if !test
     @:expose("activate")
     static function activate(context:ExtensionContext) {
         _activate(context);
     }
+    #end
 }

@@ -3,35 +3,56 @@
         (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile"))
         ".kiss"]))
 
-(defun timeStamp []
-    (.replace (.replace (.toString (Date.now)) ":" "-") " " "-"))
-
 (defvar &mut activeConfigDir "")
+(defvar &mut lastConfigDir "")
+(defvar &mut builtinConfigDir "")
 (defvar &mut :KissConfig config null)
 
 (defun :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
-    (let [activeConfigPath (Path.join [activeConfigDir "config.js"])
-            backupConfigPath (Path.join [activeConfigDir (+ "config" (timeStamp) ".js")])]
-        // Backup existing config.js
-        (when (FileSystem.exists activeConfigPath)
-            (FileSystem.rename activeConfigPath backupConfigPath))
-        // Supply the default (empty) config if the user doesn't have one
-        (let [customConfigDir
+
+    // If a backup exists, delete it
+    (when (FileSystem.exists lastConfigDir)
+        (FileSystem.deleteDirectory lastConfigDir))
+    // Backup currently active config
+    // TODO maybe also expose that backup to the user via a "rollback .kiss" command so they can rollback their config without using Git?
+    (when (FileSystem.exists activeConfigDir)
+        (FileSystem.rename activeConfigDir lastConfigDir))
+    // Choose where to find the custom config
+    (let [customConfigDir
+                (#if test
+                        // When running unit tests, build the example config
+                        (Path.join [builtinConfigDir "example"])
+                    // When running for real, try the user's config directory
                     (if (FileSystem.exists (userConfigDir))
                             (userConfigDir)
-                        (Path.join [activeConfigDir "default"]))
-                customConfigFiles
-                    (FileSystem.readDirectory customConfigDir)]
-            // Copy the custom config files to the active config directory
-            (doFor file customConfigFiles
-                (File.copy
-                    (Path.join [customConfigDir file])
-                    (Path.join [activeConfigDir file])))
-            (let [buildResult
-                        (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
-                (if (and !buildResult.error (= 0 buildResult.status))
-                        // Successful compilation! require the config.js package.
+                        // Supply the default (empty) config if the user doesn't have one
+                        (Path.join [builtinConfigDir "default"])))
+                
+            // TODO this isn't recursive, so it doesn't allow the user to organize their config with folders
+            // TODO it would also attempt to copy over any documentation cache in the .kiss directory, but does File.copy work on directories?
+            customConfigFiles
+                (FileSystem.readDirectory customConfigDir)]
+        (FileSystem.createDirectory activeConfigDir)
+        // Copy the boilerplate config files to the active config directory
+        (doFor file ["build.hxml" "KissConfig.hx" "KissConfig.kiss"]
+            (File.copy
+                (Path.join [builtinConfigDir file])
+                (Path.join [activeConfigDir file])))
+        // Copy the user's custom config files to the active config directory
+        (doFor file customConfigFiles
+            (File.copy
+                (Path.join [customConfigDir file])
+                (Path.join [activeConfigDir file])))
+        // When running from unit tests, install all dependencies in the example config:
+        (#when test (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir)))
+        // Run the haxe compiler:
+        (let [buildResult
+                    (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
+            (if (and !buildResult.error (= 0 buildResult.status))
+                    // Successful compilation!
+                    (#unless test
+                        // Require the config.js package.
                         // But since Node.require() caches modules by filename,
                         // copy it to a unique path first so hot-reloading works properly.
                         (let [activeConfigFile (Path.join [activeConfigDir "config.js"])
@@ -43,49 +64,67 @@
                             (config.registerCommand "[r]eload Kiss config" tryLoadConfig)
                             (config.prepareInterp)
                             // User-defined init:
-                            (config.init)
-                            (Vscode.window.showInformationMessage "Config loaded successfully!"))
-                    // If there's a build error, restore the config.js backup
-                    (begin
-                        (when (FileSystem.exists backupConfigPath)
-                            (FileSystem.rename backupConfigPath activeConfigPath))
-                        (Vscode.window.showErrorMessage
-                            (+ "Config failed to compile: "
-                                (if buildResult.error 
-                                        #| "" + buildResult.error|#
-                                    #| "" + buildResult.stderr |#)))))))))
+                            (#unless test
+                                (config.init)
+                                (Vscode.window.showInformationMessage "Config loaded successfully!"))))
+                // Failed compilation!
+                (begin
+                    (FileSystem.deleteDirectory activeConfigDir)
+                    (when (FileSystem.exists lastConfigDir)
+                        (FileSystem.rename lastConfigDir activeConfigDir))
+                        (let [errorMessage
+                                    (+ "Config failed to compile: "
+                                        (if buildResult.error 
+                                                #| "" + buildResult.error|#
+                                            #| "" + buildResult.stderr |#))]
+                            (#if test
+                                    // If there's a build error when testing, throw a test failure
+                                    (throw errorMessage)
+                                // If there's a build error at runtime, tell the user
+                                (Vscode.window.showErrorMessage errorMessage))))))))
 
-(defun _activate [:ExtensionContext context]
-    (context.subscriptions.push
-        (Vscode.commands.registerCommand
-            "kiss.reloadConfig"
-            tryLoadConfig))
+(#unless test
+    (defun _activate [:ExtensionContext context]
+        (context.subscriptions.push
+            (Vscode.commands.registerCommand
+                "kiss.reloadConfig"
+                tryLoadConfig))
 
-    (context.subscriptions.push
-        (Vscode.commands.registerCommand
-            "kiss.runCommand"
-            (lambda :Void [] 
-                (if config
-                        (.runCommand (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
+        (context.subscriptions.push
+            (Vscode.commands.registerCommand
+                "kiss.runCommand"
+                (lambda :Void [] 
+                    (if config
+                            (.runCommand (the KissConfig config))
+                        (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
-    (context.subscriptions.push
-        (Vscode.commands.registerCommand
-            "kiss.runLastCommand"
-            (lambda :Void [] 
-                (if config
-                        (.runLastCommand (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
+        (context.subscriptions.push
+            (Vscode.commands.registerCommand
+                "kiss.runLastCommand"
+                (lambda :Void [] 
+                    (if config
+                            (.runLastCommand (the KissConfig config))
+                        (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
-    (context.subscriptions.push
-        (Vscode.commands.registerCommand
-            "kiss.runKeyboardShortcut"
-            (lambda :Void [] 
-                (if config
-                        (.runKeyboardShortcut (the KissConfig config))
-                    (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
+        (context.subscriptions.push
+            (Vscode.commands.registerCommand
+                "kiss.runKeyboardShortcut"
+                (lambda :Void [] 
+                    (if config
+                            (.runKeyboardShortcut (the KissConfig config))
+                        (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
 
-    // TODO overload Prelude.print to use showInformationMessage
+        // TODO overload Prelude.print to use showInformationMessage
 
-    (set activeConfigDir (Path.join [context.extensionPath "config"]))
-    (tryLoadConfig))
+        (set builtinConfigDir (Path.join [context.extensionPath "config"]))
+        (set activeConfigDir (Path.join [context.extensionPath "_activeConfig"]))
+        (set lastConfigDir (Path.join [context.extensionPath "_lastActiveConfig"]))
+        (tryLoadConfig)))
+
+(defun :Void main []
+    (#when test
+        // TODO 
+        (set builtinConfigDir "config")
+        (set activeConfigDir "_activeConfig")
+        (set lastConfigDir "_lastActiveConfig")
+        (tryLoadConfig)))

@@ -149,6 +149,7 @@ class Kiss {
     public static function load(kissFile:String, k:KissState, ?loadingDirectory:String) {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
+
         var fullPath = Path.join([loadingDirectory, kissFile]);
         if (k.loadedFiles.exists(fullPath)) {
             return;
