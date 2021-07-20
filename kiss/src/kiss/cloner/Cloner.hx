@@ -100,13 +100,12 @@ class Cloner {
         var classValue = Type.getClass(inValue);
         var outValue:T = Type.createEmptyInstance(classValue);
         var fields:Array<String> = Type.getInstanceFields(classValue);
-        for (i in 0...fields.length) {
-            var field = fields[i];
+        for (field in fields) {
             var property = Reflect.getProperty(inValue, field);
             try {
                 Reflect.setField(outValue, field, _clone(property));
             } catch (s) {
-                // There will be errors on C++ when trying to assign to a member function.
+                // There will be errors on C++ and C# when trying to assign to a member function.
                 // They're not important, because the function will already be on the clone.
             }
         }

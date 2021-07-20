@@ -212,7 +212,8 @@ class EmbeddedScript {
                             var fork = new kiss.cloner.Cloner().clone(this);
                             fork.instructions[instructionPointer] = command;
                             if (fork.breakPoints == null) {
-                                throw 'cloning failed';
+                                // This field is so much trouble to clone in C# because of its type
+                                fork.breakPoints = [for (point => condition in this.breakPoints) point => condition];
                             }
                             // trace('running a fork from ' + Std.string(instructionPointer + 1));
                             fork.run();
