@@ -107,6 +107,12 @@ class Cloner {
             } catch (s) {
                 // There will be errors on C++ and C# when trying to assign to a member function.
                 // They're not important, because the function will already be on the clone.
+                // However, some types won't clone properly on C#, and if that becomes a problem, tests should fail
+                #if cs
+                if (field != "breakPoints" && Std.string(s) == "Specified cast is not valid.") {
+                    throw 'Failed to clone field $field on $inValue';
+                }
+                #end
             }
         }
         return outValue;
