@@ -28,20 +28,38 @@ jobs:
       fail-fast: true
     runs-on: ${{ matrix.os }}
     env:
-      CI_OS_NAME: ${{matrix.os}}
+      CI_OS_NAME: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       # Set up Kiss runtimes:
+      # haxe
       - uses: krdlab/setup-haxe@v1.1.5
         with:
           haxe-version: ${{ matrix.haxe-version }}
+      # nodejs
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      # python
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      # mono
+      - run: brew install mono
+        if: ${{ matrix.os == 'macos-latest' }}
+      - run: choco install mono
+        if: ${{ matrix.os == 'windows-latest' }}
+      - run: |
+          # instructions for ubuntu 20.04 from here: https://www.mono-project.com/download/stable/#download-lin
+          sudo apt install gnupg ca-certificates
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install mono-devel
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      # output debug info
       - run: haxe -version
+      # run target test:
       - run: echo "${{ matrix.test-target }}" >> $GITHUB_ENV
       - run: ./test.sh
       

@@ -1,2 +1,2 @@
 #! /bin/bash
-./bin/cs/test/bin/TestMain || echo "C# tests failed"
+mono bin/cs/test/bin/TestMain.exe || echo "C# tests failed"
