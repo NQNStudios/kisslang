@@ -211,7 +211,9 @@ class EmbeddedScript {
                             // fields, otherwise DSL state will be lost when forking, which is unacceptable
                             var fork = new kiss.cloner.Cloner().clone(this);
                             fork.instructions[instructionPointer] = command;
-                            // trace(fork.breakPoints);
+                            if (fork.breakPoints == null) {
+                                throw 'cloning failed';
+                            }
                             // trace('running a fork from ' + Std.string(instructionPointer + 1));
                             fork.run();
                             // trace("fork finished");

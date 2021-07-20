@@ -39,7 +39,7 @@ class Cloner {
             return v;
         #end
 
-        #if neko
+        #if (neko || cs)
         try {
             if (Type.getClassName(cast v) != null)
                 return v;
@@ -68,7 +68,7 @@ class Cloner {
             case TEnum(e):
                 return v;
             case TUnknown:
-                return null;
+                throw 'Cannot clone object of unknown type $v';
         }
     }
 
