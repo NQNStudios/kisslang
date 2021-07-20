@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       # mono
-      - run: brew install mono
+      - run: brew install mono || brew link --overwrite mono
         if: ${{ matrix.os == 'macos-latest' }}
       - run: choco install mono
         if: ${{ matrix.os == 'windows-latest' }}
