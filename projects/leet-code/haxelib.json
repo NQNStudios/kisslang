@@ -1,0 +1,17 @@
+{
+	"main": "leet_code.Main",
+	"name": "leet-code",
+	"description": "",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang.git",
+	"contributors": [
+		"amelia, nat"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}

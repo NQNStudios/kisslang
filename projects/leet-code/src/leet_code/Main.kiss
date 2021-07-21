@@ -1,0 +1,20 @@
+(defun :Void main []
+  (defun :Array<Int> twosum [:Array<Int> numbers target]
+     (let [di (new Map<Int,Int>)]
+         (doFor [i num] (zip (collect (range numbers.length)) numbers Throw)
+            (print "$i $num" )
+             (if (di.exists (- target num)) 
+             (return [( + 1 (dictGet di    (- target num)  )) ( + i 1)])  
+)
+            (dictSet di num i)
+)
+
+
+ )
+  (return null) 
+
+) 
+    
+(print (twosum [1 2 3 4 5 6 ] 5) )
+)
+
