@@ -317,7 +317,7 @@ class Macros {
             ]);
         };
 
-        function stringsThatMatch(exp:ReaderExp) {
+        function stringsThatMatch(exp:ReaderExp, formName:String) {
             return switch (exp.def) {
                 case StrExp(s):
                     [s];
@@ -328,11 +328,11 @@ class Macros {
                                 case StrExp(s):
                                     s;
                                 default:
-                                    throw CompileError.fromExp(s, 'initiator list of defreadermacro must only contain strings');
+                                    throw CompileError.fromExp(s, 'initiator list of $formName must only contain strings');
                             }
                     ];
                 default:
-                    throw CompileError.fromExp(exp, 'first argument to defreadermacro should be a String or list of strings');
+                    throw CompileError.fromExp(exp, 'first argument to $formName should be a String or list of strings');
             };
         }
 
@@ -440,7 +440,7 @@ class Macros {
         };
 
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defreadermacro ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
+            wholeExp.checkNumArgs(3, null, '(defreadermacro [optional &start] ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
 
             // reader macros declared in the form (defreadermacro &start ...) will only be applied
             // at the beginning of lines
@@ -451,9 +451,9 @@ class Macros {
             var strings = switch (exps[0].def) {
                 case MetaExp("start", stringsExp):
                     table = k.startOfLineReadTable;
-                    stringsThatMatch(stringsExp);
+                    stringsThatMatch(stringsExp, "defreadermacro");
                 default:
-                    stringsThatMatch(exps[0]);
+                    stringsThatMatch(exps[0], "defreadermacro");
             };
             for (s in strings) {
                 switch (exps[1].def) {
@@ -472,6 +472,28 @@ class Macros {
                 }
             }
 
+            return null;
+        };
+
+        macros["undefreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(undefreadermacro [optional &start] ["[startingString]" or [startingStrings...]])');
+            // reader macros undeclared in the form (undefreadermacro &start ...) will be removed from the table
+            // for reader macros that must be at the beginning of lines
+            // at the beginning of lines
+            var table = k.readTable;
+
+            // reader macros can define a list of strings that will trigger the macro. When there are multiple,
+            // this macro will undefine all of them
+            var strings = switch (exps[0].def) {
+                case MetaExp("start", stringsExp):
+                    table = k.startOfLineReadTable;
+                    stringsThatMatch(stringsExp, "undefreadermacro");
+                default:
+                    stringsThatMatch(exps[0], "undefreadermacro");
+            };
+            for (s in strings) {
+                table.remove(s);
+            }
             return null;
         };
 

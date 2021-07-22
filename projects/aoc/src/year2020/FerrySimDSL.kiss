@@ -48,6 +48,7 @@
 (defreadermacro "L" [stream] `emptySeat)
 (defreadermacro "#" [stream] `fullSeat)
 (defreadermacro "." [stream] `floor)
+(undefreadermacro "...")
 
 (defreadermacro &start "" [stream]
     `(state.push ,(ReaderExp.ListExp (readExpArray stream #|"\n"|#))))
