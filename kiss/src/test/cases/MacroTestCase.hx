@@ -28,4 +28,8 @@ class MacroTestCase extends Test {
         Assert.equals(9, print);
         Assert.equals(9, aliasValue());
     }
+
+    function testUndefMacro() {
+        Assert.equals(11, andValue());
+    }
 }

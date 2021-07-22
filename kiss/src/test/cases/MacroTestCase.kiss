@@ -44,3 +44,8 @@
 (undefalias &ident alias)
 (defvar alias 9)
 (defun aliasValue [] alias)
+
+// If for whatever reason, you wanted to make a function called and
+(undefmacro and)
+(defun and [a b] (+ a b))
+(defun andValue [] (and 5 6))

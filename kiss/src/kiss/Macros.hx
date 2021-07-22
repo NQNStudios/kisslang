@@ -339,8 +339,6 @@ class Macros {
         macros["defmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, null, '(defmacro [name] [[args...]] [body...])');
 
-            var table = k.macros;
-
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw CompileError.fromExp(exps[0], "macro name should be a symbol");
@@ -436,6 +434,18 @@ class Macros {
                 return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
             };
 
+            null;
+        };
+
+        macros["undefmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(undefmacro [name])');
+
+            var name = switch (exps[0].def) {
+                case Symbol(name): name;
+                default: throw CompileError.fromExp(exps[0], "macro name should be a symbol");
+            };
+
+            k.macros.remove(name);
             null;
         };
 
