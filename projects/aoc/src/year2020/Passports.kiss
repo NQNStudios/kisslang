@@ -22,9 +22,9 @@
             (unless (and 
                         (hcl.startsWith "#")
                         (= hcl.length 7)
-                        (apply = (.concat [true] 
-                            (for c (.split (hcl.substr 1) "")
-                                (<= 0 (.indexOf (.split "0123456789abcdef" "") c))))))
+                        (apply = (concat [true] 
+                                    (for c (.split (hcl.substr 1) "")
+                                        (<= 0 (.indexOf (.split "0123456789abcdef" "") c))))))
                 (return false)))
         (let [ecl (dictGet pp "ecl")]
             (unless (<= 0 (.indexOf (.split "amb blu brn gry grn hzl oth" " ") ecl)) (return false)))

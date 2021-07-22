@@ -170,6 +170,16 @@ class Prelude {
         return fullGroups;
     }
 
+    static function _concat(arrays:Array<Dynamic>):Array<Dynamic> {
+        var arr:Array<Dynamic> = arrays[0];
+        for (nextArr in arrays.slice(1)) {
+            arr = arr.concat(nextArr);
+        }
+        return arr;
+    }
+
+    public static var concat:Function = Reflect.makeVarArgs(_concat);
+
     public static function zip(arrays:Array<Array<Dynamic>>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
         var lengthsAreEqual = true;
         var lengths = [for (arr in arrays) arr.length];

@@ -56,6 +56,7 @@ class Kiss {
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
                 "groups" => Symbol("Prelude.groups"),
+                "concat" => Symbol("Prelude.concat"),
                 "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
                 "reversed" => Symbol("Prelude.reversed"), // TODO test reversed
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize

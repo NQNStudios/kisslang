@@ -109,6 +109,9 @@
 (defun myTypeCheck []
     (the Int 5))
 
+(defun _testConcat []
+    (Assert.equals (.toString [1 2 3 4]) (.toString (concat [1] [2 3] [4]))))
+
 (defun _testGroups []
     (Assert.equals (.toString [[1 2] [3 4]]) (.toString (groups [1 2 3 4] 2)))
     (Assert.equals (.toString [[1 2 3] [4]]) (.toString (groups [1 2 3 4] 3 Keep)))

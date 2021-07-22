@@ -55,6 +55,10 @@ class BasicTestCase extends Test {
         _testCollect();
     }
 
+    function testConcat() {
+        _testConcat();
+    }
+
     function testVariadicAdd() {
         Assert.equals(6, BasicTestCase.mySum);
     }
