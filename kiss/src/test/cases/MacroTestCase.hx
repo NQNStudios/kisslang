@@ -23,4 +23,9 @@ class MacroTestCase extends Test {
     function testModularMacros() {
         Assert.equals("Nat 5", nameAndNumber("Nat", 5));
     }
+
+    function testUndefAlias() {
+        Assert.equals(9, print);
+        Assert.equals(9, aliasValue());
+    }
 }

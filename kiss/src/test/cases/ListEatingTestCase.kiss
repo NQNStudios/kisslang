@@ -23,6 +23,7 @@
                 (Assert.equals 4 b))
             (otherwise
                 (Assert.fail)))
+
         (case l
             ([::...rest last]
                 (Assert.equals (.toString [1 2 3]) (.toString rest))

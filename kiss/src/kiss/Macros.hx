@@ -497,10 +497,13 @@ class Macros {
             return null;
         };
 
-        macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(defalias [[&call or &ident] whenItsThis] [makeItThis])");
-            var aliasMap:Map<String, ReaderExpDef> = null;
-            var nameExp = switch (exps[0].def) {
+        // Having this floating out here is sketchy, but should work out fine because the variable is always re-set
+        // through the next function before being used in defalias or undefalias
+        var aliasMap:Map<String, ReaderExpDef> = null;
+
+        function getAliasName(k:KissState, nameExpWithMeta:ReaderExp, formName:String):String {
+            var error = CompileError.fromExp(nameExpWithMeta, 'first argument to $formName should be &call [alias] or &ident [alias]');
+            var nameExp = switch (nameExpWithMeta.def) {
                 case MetaExp("call", nameExp):
                     aliasMap = k.callAliases;
                     nameExp;
@@ -508,15 +511,29 @@ class Macros {
                     aliasMap = k.identAliases;
                     nameExp;
                 default:
-                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias annotated with either &call or &ident');
+                    throw error;
             };
-            var name = switch (nameExp.def) {
+            return switch (nameExp.def) {
                 case Symbol(whenItsThis):
                     whenItsThis;
                 default:
-                    throw CompileError.fromExp(exps[0], 'first argument to defalias should be a symbol for the alias annotated with either &call or &ident');
+                    throw error;
             };
+        }
+
+        macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(defalias [[&call or &ident] whenItsThis] [makeItThis])");
+            var name = getAliasName(k, exps[0], "defalias");
+
             aliasMap[name] = exps[1].def;
+            return null;
+        };
+
+        macros["undefalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, "(undefalias [[&call or &ident] alias])");
+            var name = getAliasName(k, exps[0], "undefalias");
+
+            aliasMap.remove(name);
             return null;
         };
 

@@ -35,3 +35,12 @@
 
 (altDefun nameAndNumber [name String number Int]
     "$name $number")
+
+// If for whatever reason, you wanted to make a variable called print
+(undefalias &call print)
+(defvar print 9)
+
+(defalias &ident alias 5)
+(undefalias &ident alias)
+(defvar alias 9)
+(defun aliasValue [] alias)
