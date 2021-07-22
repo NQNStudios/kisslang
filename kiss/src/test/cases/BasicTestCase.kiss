@@ -348,6 +348,7 @@
         (otherwise (Assert.fail)))
     (case 5
         ((when false (or 5 6)) (Assert.fail))
+        ((when true (or 7 8 9)) (Assert.fail))
         (otherwise (Assert.pass)))
     // In Haxe,
     // `switch (Some(true)) { case Some(true | false): "a"; default: "b"; }`

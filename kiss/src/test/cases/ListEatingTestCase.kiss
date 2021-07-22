@@ -1,0 +1,31 @@
+(defun _testListEating []
+    // TODO document that list-eating only works on explictly Array-typed variables
+    (let [:Array<Int> l [1 2 3 4]]
+        (case l
+            ([::a b ... c d]
+                (Assert.fail))
+            ([a b c d]
+                (Assert.pass))
+            (otherwise
+                (Assert.fail)))
+        
+        (case l
+            ([::a ...rest]
+                (Assert.equals 1 a)
+                (Assert.equals (.toString [2 3 4]) (.toString rest)))
+            (otherwise
+                (Assert.fail)))
+        
+        (case l
+            ([::a ...rest b]
+                (Assert.equals 1 a)
+                (Assert.equals (.toString [2 3]) (.toString rest))
+                (Assert.equals 4 b))
+            (otherwise
+                (Assert.fail)))
+        (case l
+            ([::...rest last]
+                (Assert.equals (.toString [1 2 3]) (.toString rest))
+                (Assert.equals 4 last))
+            (otherwise
+                (Assert.fail)))))

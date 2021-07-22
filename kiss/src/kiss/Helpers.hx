@@ -179,17 +179,53 @@ class Helpers {
         }
     }
 
-    public static function makeSwitchCase(caseExp:ReaderExp, k:KissState, ?guard:Expr):Case {
+    // The name of this function is confusing--it actually makes a Haxe `case` expression, not a switch-case expression
+    public static function makeSwitchCase(caseExp:ReaderExp, k:KissState):Case {
         var guard:Expr = null;
+        var restExpIndex = -1;
+        var restExpName = "";
+        var expNames = [];
+        var listVarSymbol = null;
 
         function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
             return switch (patternExp.def) {
                 case CallExp({pos: _, def: Symbol("when")}, whenExps):
                     patternExp.checkNumArgs(2, 2, "(when [guard] [pattern])");
                     if (guard != null)
-                        throw CompileError.fromExp(caseExp, "case expression can only have one `when` guard");
+                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` guard");
                     guard = macro Prelude.truthy(${k.convert(whenExps[0])});
                     makeSwitchPattern(whenExps[1]);
+                case ListEatingExp(exps) if (exps.length == 0):
+                    throw CompileError.fromExp(patternExp, "list-eating pattern should not be empty");
+                case ListEatingExp(exps):
+                    for (idx in 0...exps.length) {
+                        var exp = exps[idx];
+                        switch (exp.def) {
+                            case Symbol(_):
+                                expNames.push(exp);
+                            case ListRestExp(name):
+                                if (restExpIndex > -1) {
+                                    throw CompileError.fromExp(patternExp, "list-eating pattern cannot have multiple ... or ...[restVar] expressions");
+                                }
+                                restExpIndex = idx;
+                                restExpName = name;
+                            default:
+                                throw CompileError.fromExp(exp, "list-eating pattern can only contain symbols, ..., or ...[restVar]");
+                        }
+                    }
+
+                    if (restExpIndex == -1) {
+                        throw CompileError.fromExp(patternExp, "list-eating pattern is missing ... or ...[restVar]");
+                    }
+
+                    if (expNames.length == 0) {
+                        throw CompileError.fromExp(patternExp, "list-eating pattern must match at least one single element");
+                    }
+
+                    var b = patternExp.expBuilder();
+                    listVarSymbol = b.symbol();
+                    guard = k.convert(b.callSymbol(">", [b.field("length", listVarSymbol), b.raw(Std.string(expNames.length))]));
+                    makeSwitchPattern(listVarSymbol);
                 default:
                     [k.forCaseParsing().convert(patternExp)];
             }
@@ -197,9 +233,40 @@ class Helpers {
 
         return switch (caseExp.def) {
             case CallExp(patternExp, caseBodyExps):
+                var pattern = makeSwitchPattern(patternExp);
+                var b = caseExp.expBuilder();
+                var body = if (restExpIndex == -1) {
+                    k.convert(b.begin(caseBodyExps));
+                } else {
+                    var letBindings = [];
+                    for (idx in 0...restExpIndex) {
+                        letBindings.push(expNames.shift());
+                        letBindings.push(b.callSymbol("nth", [listVarSymbol, b.raw(Std.string(idx))]));
+                    }
+                    if (restExpName == "") {
+                        restExpName = "_";
+                    }
+                    letBindings.push(b.symbol(restExpName));
+                    var sliceArgs = [b.raw(Std.string(restExpIndex))];
+                    if (expNames.length > 0) {
+                        sliceArgs.push(b.callSymbol("-", [b.field("length", listVarSymbol), b.raw(Std.string(expNames.length))]));
+                    }
+                    letBindings.push(b.call(b.field("slice", listVarSymbol), sliceArgs));
+                    while (expNames.length > 0) {
+                        var idx = b.callSymbol("-", [b.field("length", listVarSymbol), b.raw(Std.string(expNames.length))]);
+                        letBindings.push(expNames.shift());
+                        letBindings.push(b.callSymbol("nth", [listVarSymbol, idx]));
+                    }
+                    var letExp = b.callSymbol("let", [b.list(letBindings)].concat(caseBodyExps));
+                    k.convert(letExp);
+                };
+                // These prints for debugging need to be wrapped in comments because they'll get picked up by convertToHScript()
+                // Prelude.print('/* $pattern */');
+                // Prelude.print('/* $body */');
+                // Prelude.print('/* $guard */');
                 {
-                    values: makeSwitchPattern(patternExp),
-                    expr: k.convert(CallExp(Symbol("begin").withPosOf(caseExp), caseBodyExps).withPosOf(caseExp)),
+                    values: pattern,
+                    expr: body,
                     guard: guard
                 };
             default:

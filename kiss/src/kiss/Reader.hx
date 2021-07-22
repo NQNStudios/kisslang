@@ -29,8 +29,10 @@ class Reader {
 
         readTable["("] = (stream, k) -> CallExp(assertRead(stream, k), readExpArray(stream, ")", k));
         readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
+        readTable["[::"] = (stream, k) -> ListEatingExp(readExpArray(stream, "]", k));
+        readTable["..."] = (stream, k) -> ListRestExp(nextToken(stream, "name for list-eating rest exp", true));
         // Provides a nice syntactic sugar for (if... {[then block]} {[else block]}),
-        // and also handles string interpolation cases like "${}more"
+        // and also handles string interpolation cases like "${exp}moreString"
         readTable["{"] = (stream:Stream, k) -> CallExp(Symbol("begin").withPos(stream.position()), readExpArray(stream, "}", k));
 
         readTable['"'] = readString;
@@ -133,9 +135,9 @@ class Reader {
 
     public static final terminators = [")", "]", "}", '"', "/*", "\n", " "];
 
-    public static function nextToken(stream:Stream, expect:String) {
+    public static function nextToken(stream:Stream, expect:String, allowEmptyString = false) {
         switch (stream.takeUntilOneOf(terminators, true)) {
-            case Some(tok) if (tok.length > 0):
+            case Some(tok) if (tok.length > 0 || allowEmptyString):
                 return tok;
             default:
                 stream.error('Expected $expect');
@@ -380,6 +382,17 @@ class Reader {
                 ',${exp.def.toString()}';
             case UnquoteList(exp):
                 ',@${exp.def.toString()}';
+            case ListEatingExp(exps):
+                var str = '[::';
+                str += [
+                    for (exp in exps) {
+                        exp.def.toString();
+                    }
+                ].join(" ");
+                str += ']';
+                str;
+            case ListRestExp(name):
+                '...${name}';
         }
     }
 }

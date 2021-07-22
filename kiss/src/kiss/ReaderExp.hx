@@ -20,4 +20,6 @@ enum ReaderExpDef {
     Quasiquote(exp:ReaderExp); // `[exp]
     Unquote(exp:ReaderExp); // ,[exp]
     UnquoteList(exp:ReaderExp); // ,@[exp]
+    ListEatingExp(exps:Array<ReaderExp>); // [::exp exp ...exps exp]
+    ListRestExp(name:String); // ...exps or ...
 }
