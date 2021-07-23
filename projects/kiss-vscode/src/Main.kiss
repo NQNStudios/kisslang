@@ -8,6 +8,16 @@
 (defvar &mut builtinConfigDir "")
 (defvar &mut :KissConfig config null)
 
+(defun walkDirectory [basePath directory :String->Void processFile :String->Void processSubdirectory]
+    (doFor fileOrFolder (FileSystem.readDirectory (joinPath basePath directory))
+        (case fileOrFolder
+            ((when (FileSystem.isDirectory (joinPath basePath directory folder)) folder)
+                (let [subdirectory (joinPath directory folder)]
+                    (processSubdirectory subdirectory)
+                    (walkDirectory basePath subdirectory processFile processSubdirectory)))
+            (file
+                (processFile (joinPath directory file))))))
+
 (defun :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
 
@@ -27,23 +37,23 @@
                     (if (FileSystem.exists (userConfigDir))
                             (userConfigDir)
                         // Supply the default (empty) config if the user doesn't have one
-                        (joinPath builtinConfigDir "default")))
-                
-            // TODO this isn't recursive, so it doesn't allow the user to organize their config with folders
-            // TODO it would also attempt to copy over any documentation cache in the .kiss directory, but does File.copy work on directories?
-            customConfigFiles
-                (FileSystem.readDirectory customConfigDir)]
+                        (joinPath builtinConfigDir "default")))]
         (FileSystem.createDirectory activeConfigDir)
         // Copy the boilerplate config files to the active config directory
-        (doFor file ["build.hxml" "KissConfig.hx" "KissConfig.kiss"]
-            (File.copy
-                (joinPath builtinConfigDir file)
-                (joinPath activeConfigDir file)))
-        // Copy the user's custom config files to the active config directory
-        (doFor file customConfigFiles
-            (File.copy
-                (joinPath customConfigDir file)
-                (joinPath activeConfigDir file)))
+        (doFor file (FileSystem.readDirectory builtinConfigDir)
+            (unless (FileSystem.isDirectory (joinPath builtinConfigDir file))
+                (File.copy
+                    (joinPath builtinConfigDir file)
+                    (joinPath activeConfigDir file))))
+        // Recursively copy the user's custom config files to the active config directory
+        (walkDirectory customConfigDir null
+            ->file
+                (File.copy
+                    (joinPath customConfigDir file)
+                    (joinPath activeConfigDir file))
+            ->folder
+                (FileSystem.createDirectory
+                    (joinPath activeConfigDir folder)))
         // When running from unit tests, install all dependencies in the example config:
         (#when test (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir)))
         // Run the haxe compiler:
@@ -51,8 +61,11 @@
                     (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
             (if (and !buildResult.error (= 0 buildResult.status))
                     // Successful compilation!
-                    (#unless test
-                        // Require the config.js package.
+                    (#if test
+                            // When testing:
+                            (print "Example config compiled successfully")
+                        // When running the extension:
+                        // Require the config.js package that was generated.
                         // But since Node.require() caches modules by filename,
                         // copy it to a unique path first so hot-reloading works properly.
                         (let [activeConfigFile (joinPath activeConfigDir "config.js")
@@ -64,9 +77,8 @@
                             (config.registerCommand "[r]eload Kiss config" tryLoadConfig)
                             (config.prepareInterp)
                             // User-defined init:
-                            (#unless test
-                                (config.init)
-                                (Vscode.window.showInformationMessage "Config loaded successfully!"))))
+                            (config.init)
+                            (Vscode.window.showInformationMessage "Config loaded successfully!")))
                 // Failed compilation!
                 (begin
                     (FileSystem.deleteDirectory activeConfigDir)
@@ -127,4 +139,7 @@
         (set builtinConfigDir "config")
         (set activeConfigDir "_activeConfig")
         (set lastConfigDir "_lastActiveConfig")
+        (tryLoadConfig)
+        // Load the config twice more to make sure it moves the last active config out of the way properly:
+        (tryLoadConfig)
         (tryLoadConfig)))
