@@ -3,12 +3,12 @@
     [:Array<System> systems
             []
         :Map<String,Entry> entries
-            (let [entryDir (Path.join [archiveDir "entries"])
-                    componentDir (Path.join [archiveDir "components"])]
+            (let [entryDir (joinPath archiveDir "entries")
+                    componentDir (joinPath archiveDir "components")]
                 (FileSystem.createDirectory entryDir)
                 (FileSystem.createDirectory componentDir)
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
-                    (for file entryFiles =>(file.withoutExtension) (the Entry (Json.parse (File.getContent (Path.join [archiveDir "entries" file])))))))])
+                    (for file entryFiles =>(file.withoutExtension) (the Entry (Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))])
 
 (defmethod addSystem [:System system]
     // Assign entries to the Systems that care about them
@@ -33,11 +33,11 @@
 
 (defmethod _saveEntry [:Entry e]
     (File.saveContent
-        (Path.join [archiveDir "entries" (e.id.withExtension "json")])
+        (joinPath archiveDir "entries" (e.id.withExtension "json"))
         (Json.stringify e)))
 
 (defmethod componentData [:Entry e :String componentType]
-    (haxe.Json.parse (File.getContent (haxe.io.Path.join [archiveDir "components" "$(dictGet e.components componentType).json"]))))
+    (haxe.Json.parse (File.getContent (joinPath archiveDir "components" "$(dictGet e.components componentType).json"))))
 
 (defmethod fullData [:Entry e]
     (object

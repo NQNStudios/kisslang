@@ -12,6 +12,7 @@ import js.node.Buffer;
 import sys.io.Process;
 #end
 import uuid.Uuid;
+import haxe.io.Path;
 
 using StringTools;
 using uuid.Uuid;
@@ -239,7 +240,7 @@ class Prelude {
 
     // Ranges with a min, exclusive max, and step size, just like Python.
     public static function range(min, max, step):Iterator<Int> {
-        if (step <= 0)
+        if (step <= 0 || max < min)
             throw "(range...) can only count up";
         var count = min;
         return {
@@ -253,6 +254,12 @@ class Prelude {
             }
         };
     }
+
+    static function _joinPath(parts:Array<Dynamic>) {
+        return Path.join([for (part in parts) cast(part, String)]);
+    }
+
+    public static var joinPath:Function = Reflect.makeVarArgs(_joinPath);
 
     public static dynamic function truthy<T>(v:T) {
         return switch (Type.typeof(v)) {

@@ -1,7 +1,7 @@
 (defun userConfigDir []
-    (Path.join [
+    (joinPath
         (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile"))
-        ".kiss"]))
+        ".kiss"))
 
 (defvar &mut activeConfigDir "")
 (defvar &mut lastConfigDir "")
@@ -22,12 +22,12 @@
     (let [customConfigDir
                 (#if test
                         // When running unit tests, build the example config
-                        (Path.join [builtinConfigDir "example"])
+                        (joinPath builtinConfigDir "example")
                     // When running for real, try the user's config directory
                     (if (FileSystem.exists (userConfigDir))
                             (userConfigDir)
                         // Supply the default (empty) config if the user doesn't have one
-                        (Path.join [builtinConfigDir "default"])))
+                        (joinPath builtinConfigDir "default")))
                 
             // TODO this isn't recursive, so it doesn't allow the user to organize their config with folders
             // TODO it would also attempt to copy over any documentation cache in the .kiss directory, but does File.copy work on directories?
@@ -37,13 +37,13 @@
         // Copy the boilerplate config files to the active config directory
         (doFor file ["build.hxml" "KissConfig.hx" "KissConfig.kiss"]
             (File.copy
-                (Path.join [builtinConfigDir file])
-                (Path.join [activeConfigDir file])))
+                (joinPath builtinConfigDir file)
+                (joinPath activeConfigDir file)))
         // Copy the user's custom config files to the active config directory
         (doFor file customConfigFiles
             (File.copy
-                (Path.join [customConfigDir file])
-                (Path.join [activeConfigDir file])))
+                (joinPath customConfigDir file)
+                (joinPath activeConfigDir file)))
         // When running from unit tests, install all dependencies in the example config:
         (#when test (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir)))
         // Run the haxe compiler:
@@ -55,8 +55,8 @@
                         // Require the config.js package.
                         // But since Node.require() caches modules by filename,
                         // copy it to a unique path first so hot-reloading works properly.
-                        (let [activeConfigFile (Path.join [activeConfigDir "config.js"])
-                                uniqueConfigFile (Path.join [activeConfigDir "$(.toShort (Uuid.v4)).js"])]
+                        (let [activeConfigFile (joinPath activeConfigDir "config.js")
+                                uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
                             (File.copy activeConfigFile uniqueConfigFile)
                             (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
                             // (FileSystem.deleteFile uniqueConfigFile)
@@ -116,9 +116,9 @@
 
         // TODO overload Prelude.print to use showInformationMessage
 
-        (set builtinConfigDir (Path.join [context.extensionPath "config"]))
-        (set activeConfigDir (Path.join [context.extensionPath "_activeConfig"]))
-        (set lastConfigDir (Path.join [context.extensionPath "_lastActiveConfig"]))
+        (set builtinConfigDir (joinPath context.extensionPath "config"))
+        (set activeConfigDir (joinPath context.extensionPath "_activeConfig"))
+        (set lastConfigDir (joinPath context.extensionPath "_lastActiveConfig"))
         (tryLoadConfig)))
 
 (defun :Void main []

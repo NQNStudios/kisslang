@@ -5,7 +5,7 @@
     `(.exists .components ,e ,(symbolName componentType)))
 
 (defmacro _componentPath [archive e componentType]
-    `(haxe.io.Path.join [.archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")]))
+    `(joinPath .archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")))
 
 // Changes to the object returned by (readComponent) will not be saved! Use (withWritableComponents) for making changes
 (defmacro readComponent [archive e componentType]

@@ -250,9 +250,9 @@
                 currentFileDirectory
                     (Path.directory currentFile)
                 haxeFile
-                    (Path.join [currentFileDirectory "${className}.hx"])
+                    (joinPath currentFileDirectory "${className}.hx")
                 kissFile
-                    (Path.join [currentFileDirectory "${className}.kiss"])
+                    (joinPath currentFileDirectory "${className}.kiss")
                 // Try to use the same package statement from the first line of the
                 // currently open Kiss class's .hx file
                 pkg

@@ -60,6 +60,7 @@ class Kiss {
                 "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
                 "reversed" => Symbol("Prelude.reversed"), // TODO test reversed
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
+                "joinPath" => Symbol("Prelude.joinPath"),
                 "symbolName" => Symbol("Prelude.symbolName"),
                 "symbolNameValue" => Symbol("Prelude.symbolNameValue"),
                 "symbol" => Symbol("Prelude.symbol"),
