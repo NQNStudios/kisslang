@@ -81,6 +81,7 @@ class Main {
         var pkg = name.replace("-", "_");
         var haxelibJson = {
             "name": name,
+            "contributors": promptFor("authors (comma-separated)").split(",").map(StringTools.trim),
             "url": promptFor("url", "https://github.com/NQNStudios/kisslang"),
             "license": promptFor("license", "LGPL"),
             "tags": {
@@ -91,7 +92,6 @@ class Main {
             "description": promptFor("description", ""),
             "version": "0.0.0",
             "releasenote": "",
-            "contributors": promptFor("authors (comma-separated)").split(",").map(StringTools.trim),
             "classPath": "src/",
             "main": '${pkg}.Main',
             "dependencies": {
