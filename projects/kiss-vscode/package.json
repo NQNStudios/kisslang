@@ -1,14 +1,82 @@
 {
+	"main": "bin/extension.js",
 	"name": "kiss-vscode",
-	"displayName": "kiss-vscode",
 	"description": "Kiss language plugin",
-	"version": "0.0.12",
-	"engines": {
-		"vscode": "^1.4.0"
+	"repository": {
+		"url": "https://github.com/NQNStudios/kisslang.git",
+		"type:": "git"
 	},
+	"homepage": "https://github.com/NQNStudios/kisslang/blob/master/projects/kiss-vscode/README.md",
 	"categories": [
 		"Programming Languages"
 	],
+	"publisher": "NQNStudios",
+	"contributes": {
+		"grammars": [
+			{
+				"language": "kiss",
+				"path": "./syntaxes/kiss.tmLanguage",
+				"scopeName": "source.kiss"
+			},
+			{
+				"path": "./syntaxes/codeblock.json",
+				"injectTo": [
+					"text.html.markdown"
+				],
+				"scopeName": "markdown.kiss.codeblock",
+				"embeddedLanguages": {
+					"meta.embedded.block.superjs": "kiss"
+				}
+			}
+		],
+		"keybindings": [
+			{
+				"command": "kiss.runLastCommand",
+				"mac": "cmd+.",
+				"key": "ctrl+."
+			},
+			{
+				"command": "kiss.runKeyboardShortcut",
+				"mac": "cmd+;",
+				"key": "ctrl+;"
+			}
+		],
+		"commands": [
+			{
+				"title": "Kiss: Run a Kiss command",
+				"command": "kiss.runCommand"
+			},
+			{
+				"title": "Kiss: Rerun the last command",
+				"command": "kiss.runLastCommand"
+			},
+			{
+				"title": "Kiss: Run a Kiss keyboard shortcut command",
+				"command": "kiss.runKeyboardShortcut"
+			},
+			{
+				"title": "Kiss: Reload Kiss config",
+				"command": "kiss.reloadConfig"
+			}
+		],
+		"languages": [
+			{
+				"id": "kiss",
+				"configuration": "./Kiss.configuration.json",
+				"extensions": [
+					".kiss"
+				],
+				"aliases": [
+					"Kiss",
+					"kiss"
+				]
+			}
+		]
+	},
+	"engines": {
+		"vscode": "^1.4.0"
+	},
+	"version": "0.0.13",
 	"activationEvents": [
 		"onStartupFinished",
 		"onCommand:kiss.runCommand",
@@ -16,63 +84,5 @@
 		"onCommand:kiss.runKeyboardShortcut",
 		"onCommand:kiss.reloadConfig"
 	],
-	"main": "bin/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "kiss.runCommand",
-				"title": "Kiss: Run a Kiss command"
-			},
-			{
-				"command": "kiss.runLastCommand",
-				"title": "Kiss: Rerun the last command"
-			},
-			{
-				"command": "kiss.runKeyboardShortcut",
-				"title": "Kiss: Run a Kiss keyboard shortcut command"
-			},
-			{
-				"command": "kiss.reloadConfig",
-				"title": "Kiss: Reload Kiss config"
-			}
-		],
-		"keybindings": [
-			{
-				"command": "kiss.runLastCommand",
-				"key": "ctrl+.",
-				"mac": "cmd+."
-			},
-			{
-				"command": "kiss.runKeyboardShortcut",
-				"key": "ctrl+;",
-				"mac": "cmd+;"
-			}
-		],
-		"languages": [{
-			"id": "kiss",
-			"aliases": ["Kiss", "kiss"],
-			"extensions": [".kiss"],
-			"configuration": "./Kiss.configuration.json"
-		  }],
-		  "grammars": [{
-			"language": "kiss",
-			"scopeName": "source.kiss",
-			"path": "./syntaxes/kiss.tmLanguage"
-		  },{
-			"scopeName": "markdown.kiss.codeblock",
-			"path": "./syntaxes/codeblock.json",
-			"injectTo": [
-			  "text.html.markdown"
-			],
-			"embeddedLanguages": {
-			  "meta.embedded.block.superjs": "kiss"
-			}
-		  }]
-	},
-	"publisher": "NQNStudios",
-	"repository": {
-		"type:": "git",
-		"url": "https://github.com/NQNStudios/kisslang.git"
-	},
-	"homepage": "https://github.com/NQNStudios/kisslang/blob/master/projects/kiss-vscode/README.md"
+	"displayName": "kiss-vscode"
 }
