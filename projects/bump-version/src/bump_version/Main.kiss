@@ -1,0 +1,16 @@
+(defun :Void main []
+    (let [[jsonFile workingDir]
+                (Sys.args)
+            json
+                (Json.parse
+                    (File.getContent (joinPath workingDir jsonFile)))
+            oldVersion
+                json.version
+            :kiss.List<Int> versionParts
+                (.map (oldVersion.split ".") Std.parseInt)]
+        (+= (nth versionParts -1) 1)
+        (let [newVersion
+                    (versionParts.join ".")]
+            (print "Bumping version of $jsonFile from $oldVersion -> $newVersion")
+            (set json.version newVersion)
+            (File.saveContent (joinPath workingDir jsonFile) (Json.stringify json "\t")))))

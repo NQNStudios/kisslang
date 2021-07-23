@@ -1,0 +1,17 @@
+{
+	"main": "bump_version.Main",
+	"name": "bump-version",
+	"description": "bump the version attribute of a json file",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
