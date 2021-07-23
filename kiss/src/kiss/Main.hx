@@ -66,12 +66,12 @@ class Main {
         return input;
     }
 
-    static function makeFileForNewProject(templateFile:Array<String>, projectName:String, pkg:String) {
+    static function makeFileForNewProject(templateFile:Array<String>, workingDir:String, projectName:String, pkg:String) {
         var kissLibPath = new Process("haxelib", ["libpath", "kiss"]).stdout.readAll().toString().trim();
         var fullTemplateFilePath = Path.join([kissLibPath, "template"].concat(templateFile));
         var newFileContent = File.getContent(fullTemplateFilePath).replace("template", pkg);
         var templateFileInNewProject = [for (part in templateFile) if (part == "template") pkg else part];
-        var newFilePath = Path.join([projectName].concat(templateFileInNewProject));
+        var newFilePath = Path.join([workingDir, projectName].concat(templateFileInNewProject));
         File.saveContent(newFilePath, newFileContent);
     }
 
@@ -98,12 +98,13 @@ class Main {
                 "kiss": ""
             }
         };
-        FileSystem.createDirectory('$name/src/$pkg');
-        makeFileForNewProject(["src", "template", "Main.hx"], name, pkg);
-        makeFileForNewProject(["src", "template", "Main.kiss"], name, pkg);
-        makeFileForNewProject(["build.hxml"], name, pkg);
-        makeFileForNewProject(["test.sh"], name, pkg);
-        File.saveContent('$name/haxelib.json', Json.stringify(haxelibJson, null, "\t"));
+        var workingDir = Sys.args().pop();
+        FileSystem.createDirectory(Path.join([workingDir, name, "src", pkg]));
+        makeFileForNewProject(["src", "template", "Main.hx"], workingDir, name, pkg);
+        makeFileForNewProject(["src", "template", "Main.kiss"], workingDir, name, pkg);
+        makeFileForNewProject(["build.hxml"], workingDir, name, pkg);
+        makeFileForNewProject(["test.sh"], workingDir, name, pkg);
+        File.saveContent(Path.join([workingDir, name, 'haxelib.json']), Json.stringify(haxelibJson, null, "\t"));
     }
 
     static function convert(args:Array<String>) {
