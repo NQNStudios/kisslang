@@ -360,6 +360,13 @@
     (case (Some 5)
         ((Some (or 6 5 4))
             (Assert.pass))
+        (otherwise (Assert.fail)))
+    // In Haxe, name = Pattern can be used in switch/case to match values: https://haxe.org/manual/lf-pattern-matching-variable-capture.html
+    // In Kiss, the syntax for this is (as name pattern)
+    (case (Some (Some 5))
+        ((Some (as inner (Some v)))
+            (Assert.equals 5 v)
+            (Assert.isTrue (Type.enumEq (Some 5) inner)))
         (otherwise (Assert.fail))))
 
 (defun _testMaps []

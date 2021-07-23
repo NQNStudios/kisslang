@@ -371,4 +371,9 @@ class SpecialForms {
             macro ${k.convert(args[0])} | ${caseOr(wholeExp, args.slice(1), k)};
         };
     };
+
+    public static function caseAs(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
+        wholeExp.checkNumArgs(2, 2, "(as [name] [pattern])");
+        return macro ${k.convert(args[0])} = ${k.convert(args[1])};
+    };
 }

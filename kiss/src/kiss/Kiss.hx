@@ -284,6 +284,7 @@ class Kiss {
         var copy = withoutListWrapping(k);
         copy.macros.remove("or");
         copy.specialForms["or"] = SpecialForms.caseOr;
+        copy.specialForms["as"] = SpecialForms.caseAs;
         return copy;
     }
 
