@@ -29,18 +29,22 @@ class FieldForms {
             map[newName] = form;
         }
 
-        map["defvar"] = varOrProperty.bind("defvar");
-        map["defprop"] = varOrProperty.bind("defprop");
+        map["defvar"] = varOrProperty.bind("classVar");
+        renameAndDeprecate("defvar", "classVar");
+        map["defprop"] = varOrProperty.bind("classProp");
+        renameAndDeprecate("defprop", "classProp");
 
-        map["defun"] = funcOrMethod.bind("defun");
-        map["defmethod"] = funcOrMethod.bind("defmethod");
+        map["defun"] = funcOrMethod.bind("classFunction");
+        renameAndDeprecate("defun", "classFunction");
+        map["defmethod"] = funcOrMethod.bind("classMethod");
+        renameAndDeprecate("defmethod", "classMethod");
 
         return map;
     }
 
     static function fieldAccess(formName:String, fieldName:String, nameExp:ReaderExp, ?access:Array<Access>) {
         if (access == null) {
-            access = if (formName == "defvar" || formName == "defprop") {
+            access = if (["defvar", "defprop", "classVar", "classProp"].indexOf(formName) != -1) {
                 [AFinal];
             } else {
                 [];
@@ -65,7 +69,7 @@ class FieldForms {
                 access.push(AFinal);
                 fieldAccess(formName, fieldName, nameExp, access);
             default:
-                if (formName == "defvar" || formName == "defun") {
+                if (["defvar", "defun", "classVar", "classFunction"].indexOf(formName) != -1) {
                     access.push(AStatic);
                 }
                 access.push(if (fieldName.startsWith("_")) APrivate else APublic);
