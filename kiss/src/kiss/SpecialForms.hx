@@ -20,6 +20,15 @@ class SpecialForms {
     public static function builtins() {
         var map:Map<String, SpecialFormFunction> = [];
 
+        function renameAndDeprecate(oldName:String, newName:String) {
+            var form = map[oldName];
+            map[oldName] = (wholeExp, args, k) -> {
+                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                form(wholeExp, args, k);
+            }
+            map[newName] = form;
+        }
+
         map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             // Sometimes empty blocks are useful, so a checkNumArgs() seems unnecessary here for now.
 

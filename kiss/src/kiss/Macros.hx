@@ -22,6 +22,15 @@ class Macros {
     public static function builtins() {
         var macros:Map<String, MacroFunction> = [];
 
+        function renameAndDeprecate(oldName:String, newName:String) {
+            var form = macros[oldName];
+            macros[oldName] = (wholeExp, args, k) -> {
+                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                form(wholeExp, args, k);
+            }
+            macros[newName] = form;
+        }
+
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, '(load "[file]")');
             switch (args[0].def) {

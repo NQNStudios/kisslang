@@ -20,6 +20,15 @@ class FieldForms {
     public static function builtins() {
         var map:Map<String, FieldFormFunction> = [];
 
+        function renameAndDeprecate(oldName:String, newName:String) {
+            var form = map[oldName];
+            map[oldName] = (wholeExp, args, k) -> {
+                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                form(wholeExp, args, k);
+            }
+            map[newName] = form;
+        }
+
         map["defvar"] = varOrProperty.bind("defvar");
         map["defprop"] = varOrProperty.bind("defprop");
 
