@@ -1,6 +1,7 @@
+(defun userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
 (defun userConfigDir []
     (joinPath
-        (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile"))
+        (userHome) 
         ".kiss"))
 
 (defvar &mut activeConfigDir "")
@@ -129,13 +130,12 @@
         // TODO overload Prelude.print to use showInformationMessage
 
         (set builtinConfigDir (joinPath context.extensionPath "config"))
-        (set activeConfigDir (joinPath context.extensionPath "_activeConfig"))
-        (set lastConfigDir (joinPath context.extensionPath "_lastActiveConfig"))
+        (set activeConfigDir (joinPath (userHome) ".kiss-vscode" "activeConfig"))
+        (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
         (tryLoadConfig)))
 
 (defun :Void main []
     (#when test
-        // TODO 
         (set builtinConfigDir "config")
         (set activeConfigDir "_activeConfig")
         (set lastConfigDir "_lastActiveConfig")
