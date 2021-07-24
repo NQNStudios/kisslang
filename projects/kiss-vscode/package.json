@@ -76,7 +76,7 @@
 	"engines": {
 		"vscode": "^1.4.0"
 	},
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"activationEvents": [
 		"onStartupFinished",
 		"onCommand:kiss.runCommand",
