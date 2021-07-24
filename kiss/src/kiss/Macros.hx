@@ -493,7 +493,7 @@ class Macros {
 
         macros["undefreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, '(undefReaderMacro [optional &start] ["[startingString]" or [startingStrings...]])');
-            // reader macros undeclared in the form (undefreadermacro &start ...) will be removed from the table
+            // reader macros undeclared in the form (undefReaderMacro &start ...) will be removed from the table
             // for reader macros that must be at the beginning of lines
             // at the beginning of lines
             var table = k.readTable;
@@ -503,9 +503,9 @@ class Macros {
             var strings = switch (exps[0].def) {
                 case MetaExp("start", stringsExp):
                     table = k.startOfLineReadTable;
-                    stringsThatMatch(stringsExp, "undefreadermacro");
+                    stringsThatMatch(stringsExp, "undefReaderMacro");
                 default:
-                    stringsThatMatch(exps[0], "undefreadermacro");
+                    stringsThatMatch(exps[0], "undefReaderMacro");
             };
             for (s in strings) {
                 table.remove(s);

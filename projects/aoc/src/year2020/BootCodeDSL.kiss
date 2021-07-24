@@ -1,6 +1,6 @@
 (load "BootCodeCommon.kiss")
 
-(defreadermacro "" [stream]
+(defReaderMacro "" [stream]
     `(,(ReaderExp.Symbol 
             (begin (stream.dropWhitespace) (nextToken stream)))
         (,(ReaderExp.Symbol 

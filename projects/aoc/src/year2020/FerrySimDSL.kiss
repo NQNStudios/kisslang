@@ -45,10 +45,10 @@
                 (for :FerrySquare seat row
                     (if #|seat == fullSeat|# 1 0))))))
 
-(defreadermacro "L" [stream] `emptySeat)
-(defreadermacro "#" [stream] `fullSeat)
-(defreadermacro "." [stream] `floor)
-(undefreadermacro "...")
+(defReaderMacro "L" [stream] `emptySeat)
+(defReaderMacro "#" [stream] `fullSeat)
+(defReaderMacro "." [stream] `floor)
+(undefReaderMacro "...")
 
-(defreadermacro &start "" [stream]
+(defReaderMacro &start "" [stream]
     `(state.push ,(ReaderExp.ListExp (readExpArray stream #|"\n"|#))))

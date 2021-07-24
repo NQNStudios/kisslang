@@ -4,7 +4,7 @@
 (prop &mut forked false)
 (prop &mut forkedAt -1)
 
-(defreadermacro ["jmp" "nop"] [stream]
+(defReaderMacro ["jmp" "nop"] [stream]
     (let [inst
                 (nextToken stream)
             instSymbol

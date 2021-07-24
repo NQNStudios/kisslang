@@ -9,19 +9,19 @@
 (function fixFacing [f]
     (Math.floor (% (if (> 0 f) (+ 4 f) f) 4)))
 
-(classMethod N [num]
+(method N [num]
     (set y (+ y num)))
-(classMethod S [num]
+(method S [num]
     (set y (- y num)))
-(classMethod E [num]
+(method E [num]
     (set x (+ x num)))
-(classMethod W [num]
+(method W [num]
     (set x (- x num)))
-(classMethod R [angle]
+(method R [angle]
     (set facing (fixFacing (+ facing (/ angle 90)))))
-(classMethod L [angle]
+(method L [angle]
     (set facing (fixFacing (- facing (/ angle 90)))))
-(classMethod F [num]
+(method F [num]
     (case facing
         (0 (E num))
         (1 (S num))
@@ -29,7 +29,7 @@
         (3 (N num))
         (otherwise (throw (+ "Bad facing" facing)))))
 
-(defreadermacro "" [stream]
+(defReaderMacro "" [stream]
     (stream.dropWhitespace)
     (if (stream.isEmpty)
             null
