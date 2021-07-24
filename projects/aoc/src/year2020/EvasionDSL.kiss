@@ -1,27 +1,27 @@
-(defprop &mut x 0)
-(defprop &mut y 0)
+(prop &mut x 0)
+(prop &mut y 0)
 // 0 is east
 // 1 is south
 // 2 is west
 // 3 is north
-(defprop &mut facing 0)
+(prop &mut facing 0)
 
-(defun fixFacing [f]
+(function fixFacing [f]
     (Math.floor (% (if (> 0 f) (+ 4 f) f) 4)))
 
-(defmethod N [num]
+(classMethod N [num]
     (set y (+ y num)))
-(defmethod S [num]
+(classMethod S [num]
     (set y (- y num)))
-(defmethod E [num]
+(classMethod E [num]
     (set x (+ x num)))
-(defmethod W [num]
+(classMethod W [num]
     (set x (- x num)))
-(defmethod R [angle]
+(classMethod R [angle]
     (set facing (fixFacing (+ facing (/ angle 90)))))
-(defmethod L [angle]
+(classMethod L [angle]
     (set facing (fixFacing (- facing (/ angle 90)))))
-(defmethod F [num]
+(classMethod F [num]
     (case facing
         (0 (E num))
         (1 (S num))

@@ -1,80 +1,80 @@
 // (load) brings in the fields and compile-time definitions of another Kiss file
 (load "BasicTestCaseExtra.kiss")
 
-// (defvar) declares static variables
-(defvar message "Howdy")
+// (var) declares static variables
+(var message "Howdy")
 
 // #| ... |# parses and injects raw Haxe code
-(defvar mathResult #|5 + 6 * 3|#) // Order of operations will apply
+(var mathResult #|5 + 6 * 3|#) // Order of operations will apply
 
-// (defun) declares static functions
-(defun myFloor [num] 
+// (function) declares static functions
+(function myFloor [num] 
     // funcalls can use dot access
     (Math.floor num))
 
 // functions are resolved in the macro context
-(defvar funResult (myFloor 7.5))
+(var funResult (myFloor 7.5))
 
-// (defprop) declares instance variables
-(defprop myField 5)
+// (prop) declares instance variables
+(prop myField 5)
 
-// (defmethod) declares instance methods
-(defmethod myMethod [] this.myField)
+// (method) declares instance methods
+(method myMethod [] this.myField)
 
 // [...] returns a Kiss array (they have special features and convert implicitly)
-(defvar myArray [1 2 3])
+(var myArray [1 2 3])
 
 // Array access is via nth
-(defvar myArrayLast (nth myArray -1))
+(var myArrayLast (nth myArray -1))
 
 // (collect) turns iterators to arrays
-(defun _testCollect []
+(function _testCollect []
     (Assert.equals "[0,1,2]" (Std.string (collect (range 3)))))
 
 // Variadic math uses haxe's Lambda.fold under the hood
-(defvar mySum (+ 1 2 3))
+(var mySum (+ 1 2 3))
 
-(defvar myDifference (- 5 4 3))
+(var myDifference (- 5 4 3))
 
-(defun _testMultiplication [] 
+(function _testMultiplication [] 
     (Assert.equals 60 (* 2 5 6))
     (Assert.equals 5522401584 (* 84 289 89 71 36))
     (Assert.equals "heyheyhey" (* "hey" 3)))
 
 // All math operations return floats, none truncate by default
-(defvar myQuotient (/ 6 3 2 2))
+(var myQuotient (/ 6 3 2 2))
 
-(defvar myRemainder (% 10 6))
+(var myRemainder (% 10 6))
 
-(defvar myPower (^ 2 8))
+(var myPower (^ 2 8))
 
-(defvar &mut myNum 6)
-(defvar myInc ++myNum)
+(var &mut myNum 6)
+(var myInc ++myNum)
 
-(defvar myMin (min 9 3 7 1))
-(defvar myMax (max 9 3 7 1))
+(var myMin (min 9 3 7 1))
+(var myMax (max 9 3 7 1))
 
-(defun _testLessThan []
+(function _testLessThan []
     (Assert.isTrue (< 1 2 3 4))
     (Assert.isFalse (< 1 1 3 4))
     (Assert.isFalse (< 1 12 12)))
     
-(defun _testLesserEqual []
+(function _testLesserEqual []
     (Assert.isTrue (<= 1 2 3 4))
     (Assert.isTrue (<= 1 1 3 4))
     (Assert.isFalse (<= 1 12 11)))
 
-(defun _testGreaterThan []
+(function _testGreaterThan []
     (Assert.isTrue (> 4 3 2 1))
     (Assert.isFalse (> 4 4 2 1))
     (Assert.isFalse (> 9 3 3)))
 
-(defun _testGreaterEqual []
+(function _testGreaterEqual []
     (Assert.isTrue (>= 4 3 2 1))
     (Assert.isTrue (>= 4 4 2 1))
     (Assert.isFalse (>= 9 4 5)))
 
-(defun _testEqual []
+(function _testEqual []
     (Assert.isTrue (= 1 1 1 1))
     (Assert.isFalse (= 1 2 1 1))
     (Assert.isTrue (= "hey" "hey" "hey"))
@@ -83,7 +83,7 @@
     (Assert.isFalse (= true false true))
     (Assert.isTrue (= false false false)))
 
-(defun _testIf []
+(function _testIf []
     (Assert.equals true (if 1 true false))
     (Assert.equals true (if 0 true false))
     (Assert.equals true (if -1 true false))
@@ -97,28 +97,28 @@
     (Assert.equals 5 (if true 5))
     (Assert.equals null (if false 5)))
 
-(defvar :Int myInt 8)
+(var :Int myInt 8)
 
-(defun myTryCatch [:Any e]
+(function myTryCatch [:Any e]
     (try
         (throw e)
         (catch [:String error] 5)
         (catch [:Int error] 6)
         (catch [error] 7)))
 
-(defun myTypeCheck []
+(function myTypeCheck []
     (the Int 5))
 
-(defun _testConcat []
+(function _testConcat []
     (Assert.equals (.toString [1 2 3 4]) (.toString (concat [1] [2 3] [4]))))
 
-(defun _testGroups []
+(function _testGroups []
     (Assert.equals (.toString [[1 2] [3 4]]) (.toString (groups [1 2 3 4] 2)))
     (Assert.equals (.toString [[1 2 3] [4]]) (.toString (groups [1 2 3 4] 3 Keep)))
     (try (begin (groups [1 2 3 4] 3 Throw) (Assert.fail))
         (catch [error] (Assert.pass))))
 
-(defun _testZip []
+(function _testZip []
     (Assert.equals (.toString [[1 2] [3 4]]) (.toString (zipThrow [1 3] [2 4])))
     (Assert.equals (.toString [[1 2] [3 null]]) (.toString (zipKeep [1 3] [2])))
     (Assert.equals (.toString [[1 2] [null 4]]) (.toString (zipKeep [1 null] [2 4])))
@@ -130,11 +130,11 @@
     (Assert.equals (.toString [[1 2]]) (.toString (zipDrop [1 2 3 4] [2])))
     (Assert.equals (.toString [[1 2] [3 4]]) (.toString (apply zipThrow [[1 3] [2 4]]))))
 
-(defun _testEnumerate []
+(function _testEnumerate []
     (Assert.equals (.toString [[0 1] [1 2]]) (.toString (enumerate [1 2])))
     (Assert.equals (.toString [[1 1] [2 2]]) (.toString (enumerate [1 2] 1))))
 
-(defun _testLet []
+(function _testLet []
     (let [a 5
             b 6
             :String c "stuff"]
@@ -146,50 +146,50 @@
         (set a "str2")
         (Assert.equals "str2" a)))
 
-(defvar myConstructedString (new String "sup"))
+(var myConstructedString (new String "sup"))
 
-(defvar myCond1 (cond 
+(var myCond1 (cond 
     ((= 5 6) "not this")
     ((= 8 9) "not this either")
     ((= 1 1) "this one")
     (true "not the default")))
 
-(defvar myCond2 (cond 
+(var myCond2 (cond 
     ((= 5 6) "not this")
     ((= 8 9) "not this either")
     ((= 2 1) "not the third one")
     (true "the default")))
 
-(defvar myCond3 (cond
+(var myCond3 (cond
     ((= 5 5) "this")
     (true "default")))
 
-(defvar myCondFallthrough (cond
+(var myCondFallthrough (cond
     (false "not this")))
 
-(defvar myOr1 (or null 5))
+(var myOr1 (or null 5))
 
-(defvar myAnd1 (and 5 6))
-(defvar myAnd2 (and false 5 6))
-(defvar myAnd3 (and 5 false 6))
+(var myAnd1 (and 5 6))
+(var myAnd2 (and false 5 6))
+(var myAnd3 (and 5 false 6))
 
-(defun mySetLocal []
+(function mySetLocal []
     (localVar &mut loc "one thing")
     (set loc "another thing")
     loc)
 
-(defvar myNot1 (not 5))
-(defvar myNot2 !5)
+(var myNot1 (not 5))
+(var myNot2 !5)
 
-(defvar myFilteredList (begin 
+(var myFilteredList (begin 
     (localVar l [-1 -2 5 -3 6])
     (l.filter (lambda [v] (< 0 v)))))
 
-(defvar myWhen1 (when true 5 6))
+(var myWhen1 (when true 5 6))
 
-(defvar myListOfTen [1 2 3 4 5 6 7 8 9 10])
+(var myListOfTen [1 2 3 4 5 6 7 8 9 10])
 
-(defun _testQuickNths []
+(function _testQuickNths []
     (Assert.equals 1 (first myListOfTen))
     (Assert.equals 2 (second myListOfTen))
     (Assert.equals 3 (third myListOfTen))
@@ -202,7 +202,7 @@
     (Assert.equals 10 (tenth myListOfTen))
     (Assert.equals 10 (last myListOfTen)))
 
-(defun _testListDestructuring []
+(function _testListDestructuring []
     (localVar [a b c d &mut e f g h i j] myListOfTen)
     (Assert.equals 1 a)
     (Assert.equals 2 b)
@@ -232,9 +232,9 @@
         (Assert.equals 10 j)))
 
 
-(defvar myMetaList [myListOfTen myListOfTen myListOfTen])
+(var myMetaList [myListOfTen myListOfTen myListOfTen])
 
-(defun _testDoFor []
+(function _testDoFor []
     (localVar &mut c 0)
     (doFor v myListOfTen
         (Assert.equals (+ c 1) v)
@@ -251,7 +251,7 @@
         (Assert.equals 9 i)
         (Assert.equals 10 j)))
 
-(defun _testFor []
+(function _testFor []
     (localVar incrementedList (for v myListOfTen (+ 1 v)))
     (let [[a b c d e f g h i j] incrementedList]
         (Assert.equals 2 a)
@@ -270,34 +270,34 @@
         (Assert.equals 5 e)
         (Assert.equals 10 i)))
 
-(defun myOptionalFunc [a &opt b c]
+(function myOptionalFunc [a &opt b c]
     (Assert.equals 5 a)
     (Assert.equals null b)
     (Assert.equals 6 (or c 6))) // (or [optionalVar] [defaultValue]) is the convention for default values
 
-(defun myRestSum [firstOne &rest :List<Int> others]
+(function myRestSum [firstOne &rest :List<Int> others]
     (localVar &mut sum firstOne)
     (doFor nextOne others (set sum (+ sum nextOne)))
     sum)
 
-(defvar myRest1 (myRestSum 5))
-(defvar myRest2 (myRestSum 1 1 1 1 1))
-(defvar myRest3 (myRestSum 1 2 2))
+(var myRest1 (myRestSum 5))
+(var myRest2 (myRestSum 1 1 1 1 1))
+(var myRest3 (myRestSum 1 2 2))
 
-(defun myCombinedOptRest [firstOne &opt secondOne &rest :List<String> thirdAndMore]
+(function myCombinedOptRest [firstOne &opt secondOne &rest :List<String> thirdAndMore]
     (localVar &mut concatString (+ firstOne (or secondOne "boop")))
     (doFor str thirdAndMore (set concatString (+ concatString str)))
     concatString)
 
-(defvar myCombined1 (myCombinedOptRest "a" "b" "c" "d"))
-(defvar myCombined2 (myCombinedOptRest "a"))
-(defvar myCombined3 (myCombinedOptRest "a" "b"))
+(var myCombined1 (myCombinedOptRest "a" "b" "c" "d"))
+(var myCombined2 (myCombinedOptRest "a"))
+(var myCombined3 (myCombinedOptRest "a" "b"))
 
-(defun _testFieldExps []
+(function _testFieldExps []
     (Assert.equals "hey" (.trim "  hey "))
     (Assert.equals "e" (.charAt (.trim "  hey ") 1)))
 
-(defun _testBreakContinue []
+(function _testBreakContinue []
     (let [[a b c]
                 (for val [1 2 3 4 5 6 7 8]
                     (if (> val 6)
@@ -309,7 +309,7 @@
         (Assert.equals 4 b)
         (Assert.equals 6 c)))
 
-(defun _testAssert []
+(function _testAssert []
     (try
             (assert false (+ "false " "should " "have " "been " "true"))
         (catch [:String message]
@@ -318,13 +318,13 @@
     (assert true)
     (assert ![]))
 
-(defun _testApply []
+(function _testApply []
     (Assert.equals 6 (apply + [1 2 3])))
 
-(defun applyWithMethod [obj]
+(function applyWithMethod [obj]
     (apply .multiply obj [6]))
 
-(defun _testAnonymousObject []
+(function _testAnonymousObject []
     (let [obj
                 (object
                     a "string A"
@@ -332,10 +332,10 @@
         (Assert.equals "string A" obj.a)
         (Assert.equals 5 obj.b)))
 
-(defun toOption [:Dynamic value]
+(function toOption [:Dynamic value]
     (if value (Some value) None))
 
-(defun _testCase []
+(function _testCase []
     (case (toOption [])
         (None (Assert.pass))
         ((Some value) (Assert.fail)))
@@ -375,7 +375,7 @@
             (Assert.isTrue (Type.enumEq (Some 5) inner)))
         (otherwise (Assert.fail))))
 
-(defun _testMaps []
+(function _testMaps []
     (localVar :Map<String,String> myMap [=>"hey" "you"
                         =>"found" "me"])
     (Assert.equals "you" (dictGet myMap "hey"))
@@ -389,7 +389,7 @@
         (Assert.equals "you" v1)
         (Assert.equals "me" v2)))
 
-(defun _testRange []
+(function _testRange []
     // With just one arg, it's the max:
     (localVar &mut :kiss.List<Int> myList (for i (range 5) i))
     (Assert.equals 4 (nth myList -1))
@@ -403,32 +403,32 @@
     (Assert.equals 9 (second myList))
     (Assert.equals 15 (last myList)))
 
-(defun _testRest []
+(function _testRest []
     (Assert.equals (.toString [2 3 4]) (.toString (rest [1 2 3 4]))))
 
-(defun doSomething [:Int->Int func]
+(function doSomething [:Int->Int func]
     (func 5))
 
-(defun itsAMonster [:Null<Map<String,Map<String,Array<String>>>> monsterArg] "but it still compiles")
+(function itsAMonster [:Null<Map<String,Map<String,Array<String>>>> monsterArg] "but it still compiles")
 
-(defun _testTypeParsing []
+(function _testTypeParsing []
     // Do stuff with functions that take complex type parameters, mostly just to check if it compiles
     (Assert.equals 5 (doSomething (lambda [i] i)))
     (Assert.equals 7 (doSomething (lambda [i] (+ i 2))))
     // Pass null to the really crazy one because I'm lazy:
     (Assert.equals "but it still compiles" (itsAMonster null)))
 
-(defmacro defconstfunc [name const] `(defun ,name [] ,const))
+(defMacro defconstfunc [name const] `(function ,name [] ,const))
 
 (defconstfunc func5 5)
 (defconstfunc funcHello "hello")
 
-(defun _testDefmacro []
+(function _testDefmacro []
     (Assert.equals 5 (func5))
     (Assert.equals "hello" (funcHello)))
 
-(defvar &mut welcomeCount 0)
-(defmacro macroWithLogic [name]
+(var &mut welcomeCount 0)
+(defMacro macroWithLogic [name]
     (localVar message1 (ReaderExp.StrExp "Welcome "))
     (localVar message2 (ReaderExp.StrExp " (Guest #"))
     (localVar message3 (ReaderExp.StrExp ")"))
@@ -436,16 +436,16 @@
     `(begin (set welcomeCount (+ welcomeCount 1))
         (+ ,message1 ,name ,message2 (Std.string welcomeCount) ,message3)))
 
-(defun _testDefmacroWithLogic []
+(function _testDefmacroWithLogic []
     (Assert.equals "Welcome Stevo (Guest #1)" (macroWithLogic "Stevo"))
     (Assert.equals "Welcome Bob (Guest #2)" (macroWithLogic "Bob")))
 
 // Make sure built-in call aliases don't override user-defined variables
-(defun _testCallAlias []
+(function _testCallAlias []
     (let [map [=>"hey" "you"]]
         (Assert.equals "you" (dictGet map "hey"))))
 
-(defun _testAssignArith []
+(function _testAssignArith []
     (localVar &mut num 5)
     (+= num 5 6)
     (Assert.equals 16 num)
@@ -460,7 +460,7 @@
     (-= num 5 6)
     (Assert.equals -10 num))
 
-(defun _testPatternLets []
+(function _testPatternLets []
     (let [some5 (Some 5)
             some6 (Some 6)
             none None
@@ -484,11 +484,11 @@
                 (Assert.fail))
             (Assert.equals 2 v))))
 
-(defun _testRawString []
+(function _testRawString []
     (Assert.equals #| "\\" |# #"\"#)
     (Assert.equals #| "\"#" |# ##""#"##))
 
-(defun _testKissStrings []
+(function _testKissStrings []
     (Assert.equals #| "\\\t\r\n\"$" |# "\\\t\r\n\"\$")
     (let [str "it's"
             num 3
@@ -497,7 +497,7 @@
         // string interpolation:
         (Assert.equals "it's 3asy as [a,b,c] [1,2,3]" "$str ${num}asy as $l1 $l2")))
 
-(defun _testArrowLambdas []
+(function _testArrowLambdas []
     (let [withArgs
                 ->[arg1 arg2] (+ arg1 arg2)
             withArg
@@ -515,13 +515,13 @@
         (void)
         (Assert.equals 6 num)))
 
-(defvar &mut voidRan false)
-(defun :Void myVoid [] (set voidRan true))
-(defun _testVoid []
+(var &mut voidRan false)
+(function :Void myVoid [] (set voidRan true))
+(function _testVoid []
     (myVoid)
     (Assert.isTrue voidRan))
 
-(defun _testLetThrow []
+(function _testLetThrow []
     (try
             {
                 (letThrow 

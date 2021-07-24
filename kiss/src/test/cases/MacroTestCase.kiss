@@ -1,22 +1,22 @@
-(defmacro defMultiple [varName funcName]
+(defMacro defMultiple [varName funcName]
     `{
-        (defvar ,varName 5)
-        (defun ,funcName [] 6)})
+        (var ,varName 5)
+        (function ,funcName [] 6)})
 
 (defMultiple myVar myFunc)
 
-(defmacro variadicPlus [&rest l]
+(defMacro variadicPlus [&rest l]
     `(+ ,@l))
-(defmacro listPlus [l]
+(defMacro listPlus [l]
     `(+ ,@l))
 
 // Both forms of passing expression lists to macros should work:
-(defun sum1 [] (variadicPlus 1 2 3))
-(defun sum2 [] (listPlus [1 2 3]))
+(function sum1 [] (variadicPlus 1 2 3))
+(function sum2 [] (listPlus [1 2 3]))
 
 // You should be able to run list comprehensions on expressions
 // and put the pieces back together in a modular way
-(defmacro altDefun [name args &body body]
+(defMacro altDefun [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)
             untypedArgs
@@ -30,22 +30,22 @@
             (print name)
             (letBindings.push `(the ,type ,name)))
         (print letBindings)
-        `(defun ,name ,untypedArgs
+        `(function ,name ,untypedArgs
             (let ,letBindings ,@body))))
 
 (altDefun nameAndNumber [name String number Int]
     "$name $number")
 
 // If for whatever reason, you wanted to make a variable called print
-(undefalias &call print)
-(defvar print 9)
+(undefAlias &call print)
+(var print 9)
 
-(defalias &ident alias 5)
-(undefalias &ident alias)
-(defvar alias 9)
-(defun aliasValue [] alias)
+(defAlias &ident alias 5)
+(undefAlias &ident alias)
+(var alias 9)
+(function aliasValue [] alias)
 
 // If for whatever reason, you wanted to make a function called and
-(undefmacro and)
-(defun and [a b] (+ a b))
-(defun andValue [] (and 5 6))
+(undefMacro and)
+(function and [a b] (+ a b))
+(function andValue [] (and 5 6))

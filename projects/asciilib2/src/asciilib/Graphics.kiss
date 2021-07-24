@@ -1,2 +1,2 @@
-(defmethod new [width height]
+(method new [width height]
     (super width height))

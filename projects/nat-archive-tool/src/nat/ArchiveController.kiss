@@ -1,6 +1,6 @@
 (load "Lib.kiss")
 
-(defmethod :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
+(method :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
     (case arg.type
         (SelectedEntry
             (if (= 1 selectedEntries.length)
@@ -91,11 +91,11 @@
                 min
                 max))))
 
-(defmethod :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
+(method :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
     (lambda :Void []
         (_collectAndValidateArg arg ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
 
-(defmethod :Void runCommand [:Command command]
+(method :Void runCommand [:Command command]
     (let [collectedArgs
                 []
             &mut lastCollector
@@ -125,7 +125,7 @@
                 (for [name type] argPairs
                     `(object name ,(symbolName name) type ,type))]
         `{
-            (defmethod ,name [,@methodArgs] ,@body)
+            (method ,name [,@methodArgs] ,@body)
             (dictSet commands ,(symbolName name) (object args [,@commandArgs] handler (the Function ,name)))}))
 
 (defnew [&prop :Archive archive

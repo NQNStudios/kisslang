@@ -1,7 +1,7 @@
-(defvar &mut staticCount 0)
-(defvar &mut instanceCount 0)
+(var &mut staticCount 0)
+(var &mut instanceCount 0)
 
-(defmethod new []
+(method new []
     (once
         (+= staticCount 1))
     (oncePerInstance

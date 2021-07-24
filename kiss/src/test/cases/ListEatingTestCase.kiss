@@ -1,4 +1,4 @@
-(defun _testListEating []
+(function _testListEating []
     // TODO document that list-eating only works on explictly Array-typed variables
     (let [:Array<Int> l [1 2 3 4]]
         (case l

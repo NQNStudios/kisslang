@@ -1,7 +1,7 @@
-(defprop &mut :Float->Void activeState null)
+(prop &mut :Float->Void activeState null)
 
-(defmethod new [:Float->Void initialState]
+(method new [:Float->Void initialState]
     (set activeState initialState))
 
-(defmethod :Void update [:Float elapsed]
+(method :Void update [:Float elapsed]
     (activeState elapsed))

@@ -1,6 +1,6 @@
 (load "../UtilMacros.kiss")
 
-(defun run []
+(function run []
     (day 1
         (let [inputs
                     (.slice (.split (sys.io.File.getContent "src/year2018/inputs/day1.txt") "\n") 0 -1)

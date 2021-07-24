@@ -1,8 +1,8 @@
 (load "BootCodeCommon.kiss")
 
-(defvar :Map<Int,Bool> instructionsTested (new Map<Int,Bool>))
-(defprop &mut forked false)
-(defprop &mut forkedAt -1)
+(var :Map<Int,Bool> instructionsTested (new Map<Int,Bool>))
+(prop &mut forked false)
+(prop &mut forkedAt -1)
 
 (defreadermacro ["jmp" "nop"] [stream]
     (let [inst

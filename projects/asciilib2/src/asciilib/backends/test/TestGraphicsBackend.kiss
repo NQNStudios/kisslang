@@ -1,12 +1,12 @@
-(defprop &mut :Int letterWidth 0)
-(defprop &mut :Int letterHeight 0)
-(defprop &mut :Int drawCalled 0)
+(prop &mut :Int letterWidth 0)
+(prop &mut :Int letterHeight 0)
+(prop &mut :Int drawCalled 0)
 
 (defnew [])
 
-(defmethod :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
+(method :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
     (set letterWidth _letterWidth)
     (set letterHeight _letterHeight))
 
-(defmethod :Void draw [:Graphics graphics]
+(method :Void draw [:Graphics graphics]
     (+= drawCalled 1))

@@ -1,4 +1,4 @@
-(defun :Void main []
+(function :Void main []
     (let [[jsonFile workingDir]
                 (Sys.args)
             json

@@ -47,7 +47,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(?:\()((?i:defmacro|defun|classFunction|classMethod|def[A-Z]\S+))\s+((?:\w|[+\-<>/*&amp;=.?!$%:@\[\]^{}~#|])+)</string>
+			<string>(?:\()((?i:defmacro|defMacro|defun|function|defmethod|method|def[A-Z]\S+))\s+((?:\w|[+\-<>/*&amp;=.?!$%:@\[\]^{}~#|])+)</string>
 			<key>name</key>
 			<string>meta.function.kiss</string>
 		</dict>
@@ -68,28 +68,11 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.type.kiss</string>
-				</dict>
-			</dict>
-			<key>match</key>
-			<string>(?:\()((?i:deftype|defstruct))\s+((?:\w|[+\-<>/*&amp;=.?!$%:@\[\]^{}~#|])+)</string>
-		</dict>
-		<dict>
-			<key>captures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>storage.type.function-type.kiss</string>
-				</dict>
-				<key>2</key>
-				<dict>
-					<key>name</key>
 					<string>entity.name.variable.kiss</string>
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(?:\()((?i:defvar|defprop|classVar|classProp))\s+((?:\w|[+\-<>/*&amp;=.?!$%:@\[\]^{}~#|])+)</string>
+			<string>(?:\()((?i:defvar|defprop|var|prop))\s+((?:\w|[+\-<>/*&amp;=.?!$%:@\[\]^{}~#|])+)</string>
 		</dict>
 		<!-- <dict>
 			<key>captures</key>
@@ -133,7 +116,7 @@
 		<dict>
 			<key>match</key>
 			<!-- TODO cut this down and add some missing ones -->
-			<string>(?<=\()(?i:\*|\*\*|\*\*\*|\+|\+\+|\+\+\+|\-|/|//|///|/=|<|<=|=|>|>=|and|apply|assert|begin|break|case|catch|concat|cond|continue|count|defMacro|defReaderMacro|defun|classMethod|classFunction|defvar|classVar|classProp|for|doFor|eighth|eval|fifth|first|fourth|localFunction|localVar|symbol|if|load|withFunction|withFunctions|lambda|last|let|loop|map|max|min|ninth|not|nth|setNth|getDict|setDict|or|otherwise|print|rest|return|reversed|second|set|sixth|Some|sort|symbolName|symbolNameValue|tenth|the|third|throw|trace|when|unless|ifLet|whenLet|unlessLet|forCase|doForCase|with[A-Z]\S+)(?=\s+)</string>
+			<string>(?<=\()(?i:\*|\*\*|\*\*\*|\+|\+\+|\+\+\+|\-|/|//|///|/=|<|<=|=|>|>=|and|apply|assert|begin|break|case|catch|concat|cond|continue|count|defMacro|defReaderMacro|defun|defmethod|method|function|defvar|var|defprop|prop|for|doFor|eighth|eval|fifth|first|fourth|localFunction|localVar|symbol|if|load|withFunction|withFunctions|lambda|last|let|loop|map|max|min|ninth|not|nth|setNth|getDict|setDict|or|otherwise|print|rest|return|reversed|second|set|sixth|Some|sort|symbolName|symbolNameValue|tenth|the|third|throw|trace|when|unless|ifLet|whenLet|unlessLet|forCase|doForCase|with[A-Z]\S+)(?=\s+)</string>
 			<key>name</key>
 			<string>keyword.control.kiss</string>
 		</dict>

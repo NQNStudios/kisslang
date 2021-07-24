@@ -64,13 +64,13 @@
                 (= ,value (readComponent ,archive e ,componentType))))
         ,process))
 
-(defun tagList [archive e]
+(function tagList [archive e]
     (let [t
                 (readComponent archive e Tags)]
         (collect (t.keys))))
 
-(defun tagsMatch [archive e tagsBoolExp]
+(function tagsMatch [archive e tagsBoolExp]
     (BoolExpInterp.eval tagsBoolExp (tagList archive e)))
 
-(defun componentsMatch [:nat.Entry e componentsBoolExp]
+(function componentsMatch [:nat.Entry e componentsBoolExp]
     (BoolExpInterp.eval componentsBoolExp (for =>cType cId e.components cType)))

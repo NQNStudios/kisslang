@@ -22,7 +22,7 @@
 /**
  * Helper functions
  */
-(defun selectedText []
+(function selectedText []
     (if (and activeTextEditor .selection activeTextEditor)
             (let [document
                         // TODO should be able to use activeTextEditor.document and have the alias still work
@@ -35,12 +35,12 @@
 
 // TODO make an async annotation that throws an error if the promise is not wrapped in awaitLet or awaitBegin or returned by an async function?
 // but in some cases it doesn't matter and there are so many edge cases.
-(defun insertAt [:vscode.Position pos text]
+(function insertAt [:vscode.Position pos text]
     (.edit activeTextEditor
         (lambda [e]
             (e.insert pos text))))
 
-(defun insert [text]
+(function insert [text]
     // TODO this let is because identifier alias dot access is broken:
     (let [editor activeTextEditor]
         (insertAt editor.selection.active text)))
@@ -49,18 +49,18 @@
  * State
  */
 
-(defvar :Map<String,Command> commands (new Map))
-(defvar :Map<String,ShortcutKey> commandShortcuts (new Map))
+(var :Map<String,Command> commands (new Map))
+(var :Map<String,ShortcutKey> commandShortcuts (new Map))
 
-(defvar &mut :String lastCommand null)
-(defvar parser (new Parser))
-(defvar interp (new Interp))
+(var &mut :String lastCommand null)
+(var parser (new Parser))
+(var interp (new Interp))
 
 /**
  * Functionality
  */
 
-(defun :Dynamic evalString [:String kissStr]
+(function :Dynamic evalString [:String kissStr]
     (try
             (interp.execute
                 (parser.parseString
@@ -69,16 +69,16 @@
             (errorMessage "Error `${e}` from $kissStr")
             null)))
 
-(defun :Void evalAndPrint [&opt :String selectedText]
+(function :Void evalAndPrint [&opt :String selectedText]
     (if selectedText
             (infoMessage (Std.string (evalString selectedText))))
         
         (awaitLet [kissStr (inputBox)]
             (infoMessage (Std.string (evalString kissStr)))))
 
-(defun :Void runCommand [&opt command] (_runCommand command))
+(function :Void runCommand [&opt command] (_runCommand command))
 
-(defun :Void _runCommand [&opt command inputText]
+(function :Void _runCommand [&opt command inputText]
     (unless inputText (set inputText (selectedText)))
     (if command
             {(set lastCommand command) ((dictGet commands command) inputText)}
@@ -95,13 +95,13 @@
                     (set lastCommand chosenCommand.label)
                     ((dictGet commands chosenCommand.label) inputText))))))
 
-(defun :Void runLastCommand [&opt _]
+(function :Void runLastCommand [&opt _]
     (if lastCommand
             (runCommand lastCommand)
         (errorMessage "No Kiss command was run previously.")))
 
-(defvar &mut :vscode.WebviewPanel shortcutPanel null)
-(defun :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
+(var &mut :vscode.WebviewPanel shortcutPanel null)
+(function :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
     // Preserve the selected text and focused document before opening the webview:
     (let [inputText (selectedText)]
         // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
@@ -133,7 +133,7 @@
                                             {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
         (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))))
 
-(defun shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
+(function shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
     (let [shortcutParagraphs
                 (for =>key shortcutKey prefixMap
                     "<p><strong>${key}</strong> - $(case shortcutKey
@@ -159,11 +159,11 @@
             </body>
         </html>"))
 
-(defun :Void runKeyboardShortcut [&opt _]
+(function :Void runKeyboardShortcut [&opt _]
     (showShortcutPanel))
 
 // Extract [k]eyboard [s]hortcuts from a string:
-(defun extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
+(function extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
     (unless stream (set stream (Stream.fromString str)))
     (unless shortcuts (set shortcuts ""))
     (case (stream.takeUntilAndDrop "[")
@@ -177,7 +177,7 @@
         (None
             shortcuts)))
 
-(defun :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
+(function :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
     (unless prefixMap (set prefixMap commandShortcuts))
     (let [firstKey (keys.shift)]
         (cond 
@@ -199,16 +199,16 @@
                             (registerShortcut keys description innerPrefixMap))
                     (dictSet prefixMap firstKey (Final description)))))))
 
-(defun registerCommand [description command]
+(function registerCommand [description command]
     (dictSet commands description command)
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
         (registerShortcut (keyboardShortcut.split "") description)))
 
 // Register a VSCode command (built-in, or from an extension)
-(defun registerExistingCommand [description command]
+(function registerExistingCommand [description command]
     (registerCommand description (lambda :Void [&opt _] (executeCommand command))))
 
-(defun :Void registerBuiltins []
+(function :Void registerBuiltins []
     (set Prelude.print
         ->[v] {
             (infoMessage (Std.string v))
@@ -220,7 +220,7 @@
     (registerCommand "[n]ew kiss class" newKissClass))
 
 // TODO standardize this with KissInterp
-(defun :Void prepareInterp []
+(function :Void prepareInterp []
     (interp.variables.set "kiss" 
         (object
             Prelude
@@ -244,7 +244,7 @@
         (awaitLet [,v (inputBox)]
             ,@body)))
 
-(defun :Void newKissClass [&opt _]
+(function :Void newKissClass [&opt _]
     (awaitLet [className (inputBox)]
         (let [currentFile
                     .fileName .document activeTextEditor

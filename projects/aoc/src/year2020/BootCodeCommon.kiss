@@ -1,9 +1,9 @@
-(defprop &mut accumulator 0)
+(prop &mut accumulator 0)
 
-(defmethod setBreakPoint [] (addBreakPoint instructionPointer))
+(method setBreakPoint [] (addBreakPoint instructionPointer))
 
-(defmethod nop [v :Dynamic self] (self.setBreakPoint))
-(defmethod acc [v :Dynamic self] (self.setBreakPoint) (set self.accumulator (+ self.accumulator v)))
-(defmethod jmp [v :Dynamic self]
+(method nop [v :Dynamic self] (self.setBreakPoint))
+(method acc [v :Dynamic self] (self.setBreakPoint) (set self.accumulator (+ self.accumulator v)))
+(method jmp [v :Dynamic self]
     (self.setBreakPoint)
     (set self.instructionPointer (+ self.instructionPointer (- v 1))))

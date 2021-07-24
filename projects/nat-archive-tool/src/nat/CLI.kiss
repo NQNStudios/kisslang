@@ -1,6 +1,6 @@
 (load "Lib.kiss")
 
-(defun :Void main []
+(function :Void main []
     (let [[archiveDir] (Sys.args)
             controller
                 (new ArchiveController
@@ -16,7 +16,7 @@
 
 (defnew [])
 
-(defmethod :Void enterText [prompt resolve maxLength]
+(method :Void enterText [prompt resolve maxLength]
     (Sys.print "$prompt ")
     (loop
         (let [entered (.toString (.readLine (Sys.stdin)))]
@@ -25,7 +25,7 @@
                 {(resolve entered)
                     (break)}))))
 
-(defmethod :Void enterNumber [prompt resolve min max &opt inStepsOf]
+(method :Void enterNumber [prompt resolve min max &opt inStepsOf]
     (Sys.print "$prompt ")
     (loop
         (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
@@ -37,10 +37,10 @@
                 {(resolve entered)
                     (break)}))))
 
-(defmethod :Void chooseEntry [prompt :Archive archive resolve]
+(method :Void chooseEntry [prompt :Archive archive resolve]
     (_chooseEntry prompt archive resolve ->(chooseEntry "empty name doesn't match any entries. Try again?" archive resolve)))
 
-(defmethod :Void _chooseEntry [prompt :Archive archive resolve onEmptyString]
+(method :Void _chooseEntry [prompt :Archive archive resolve onEmptyString]
     // TODO allow narrowing down with a tag string
     (enterText "entry name for $prompt"
         ->name {
@@ -59,10 +59,10 @@
                         (multipleEntries (throw "ambiguous between multiple entries")))))}
         Math.POSITIVE_INFINITY))
 
-(defmethod :Void chooseEntries [prompt archive resolve min max]
+(method :Void chooseEntries [prompt archive resolve min max]
     (_chooseEntries prompt archive resolve min max []))
 
-(defmethod :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
+(method :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
     (let [onEmptyString
                 ->(if (<= min collectedEntries.length)
                         (resolve collectedEntries)
@@ -84,12 +84,12 @@
         (_chooseNextEntry)))
 
         
-(defmethod handleChanges [:Archive archive :ChangeSet changeSet]
+(method handleChanges [:Archive archive :ChangeSet changeSet]
     (doFor e changeSet
         (print (archive.fullString e))))
 
-(defmethod :Void displayMessage [message]
+(method :Void displayMessage [message]
     (print message))
 
-(defmethod :Void reportError [error] 
+(method :Void reportError [error] 
     (print error))

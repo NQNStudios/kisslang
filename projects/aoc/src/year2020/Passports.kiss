@@ -1,4 +1,4 @@
-(defun readPassport [:Stream stream &opt :Map<String,String> pp]
+(function readPassport [:Stream stream &opt :Map<String,String> pp]
     (set pp (or pp (new Map<String,String>)))
     (when (stream.isEmpty) (return pp))
     (let [key (stream.expect "passport key" (lambda [] (stream.takeUntilAndDrop ":")))
@@ -8,7 +8,7 @@
             (begin (stream.dropWhitespace) pp)
         (begin (stream.dropWhitespace) (readPassport stream pp))))
 
-(defun checkPassport [:Map<String,String> pp strict]
+(function checkPassport [:Map<String,String> pp strict]
     (doFor key ["byr" "iyr" "eyr" "hgt" "hcl" "ecl" "pid"]
         (if !(pp.exists key) (return false)))
     (when strict
@@ -32,7 +32,7 @@
             (unless (and (= 9 pid.length) (Std.parseInt pid)) (return false))))
     (return true))
 
-(defun countValidPassports [:Stream stream &opt strict c]
+(function countValidPassports [:Stream stream &opt strict c]
     (unless c (set c 0))
     (if (stream.isEmpty)
             c

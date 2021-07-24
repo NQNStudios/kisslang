@@ -1,4 +1,4 @@
-(defun readLines [file]
+(function readLines [file]
     (.filter
         (.map
             // TODO implement escape sequences in kiss string literals
@@ -6,7 +6,7 @@
             StringTools.trim)
         (lambda [l] (< 0 l.length))))
 
-(defun readParagraphLines [file]
+(function readParagraphLines [file]
     (.filter
         (for paragraph
             (.split 
@@ -18,7 +18,7 @@
         (lambda [lines] (< 0 lines.length))))
 
 // TODO won't need to specify type here if last is not a quickNth
-(defun :kiss.List<Int> readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
+(function :kiss.List<Int> readInts [file] (let [lines (readLines file)] (lines.map Std.parseInt)))
 
-(defun countChar [char str]
+(function countChar [char str]
     (count (str.split "") (lambda [c] ?(= c char))))

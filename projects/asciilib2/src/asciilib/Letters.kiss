@@ -3,10 +3,10 @@
         :Int height _height
         :Array<String> rows (for _ (range height) (* (or letter " ") width))])
 
-(defmethod getChar [x y]
+(method getChar [x y]
     (.charAt (nth rows y) x))
 
-(defmethod setChar [x y char]
+(method setChar [x y char]
     (let [row (nth rows y)
             left (row.substr 0 x)
             right (row.substr (+ x 1))]

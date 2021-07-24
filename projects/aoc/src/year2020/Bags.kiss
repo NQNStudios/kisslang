@@ -1,7 +1,7 @@
-(defun bagColor [:String bag]
+(function bagColor [:String bag]
     (bag.substr 0 (Math.floor (- (bag.indexOf "bag") 1))))
 
-(defun parseRule [:String line :ParentMap parentMap :ChildMap childMap]
+(function parseRule [:String line :ParentMap parentMap :ChildMap childMap]
     (unless (<= 0 (line.indexOf "contain no other bags"))
         (let [[containerStr contents] (line.split "contain ")
                 contentStrs (contents.split ", ")]
@@ -15,13 +15,13 @@
                         (.push (dictGet childMap (bagColor colorStr)) (bagColor containerStr))))
             (dictSet parentMap (bagColor containerStr) innerMap))))
 
-(defun findIndirectContainers [color :ChildMap childMap :Map<String,Bool> outMap]
+(function findIndirectContainers [color :ChildMap childMap :Map<String,Bool> outMap]
     (when (childMap.exists color)
         (doFor parentColor (dictGet childMap color)
             (dictSet outMap parentColor true)
             (findIndirectContainers parentColor childMap outMap))))
 
-(defun totalChildBags [bag :ParentMap parentMap]
+(function totalChildBags [bag :ParentMap parentMap]
     (if (parentMap.exists bag)
             (begin
                 (localVar &mut sum 0)

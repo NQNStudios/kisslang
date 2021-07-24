@@ -1,21 +1,21 @@
-(defvar runningInHaxe (#if interp true false))
-(defvar runningInPyOrJs (#if (or py js) true false))
+(var runningInHaxe (#if interp true false))
+(var runningInPyOrJs (#if (or py js) true false))
 
-(defun number []
+(function number []
     (let [&mut num 5]
         (#when interp
             (+= num 5)
             (-= num 4))
         num))
 
-(defun number2 []
+(function number2 []
     (let [&mut num 12]
         (#unless interp
             (+= num 5)
             (-= num 8))
         num))
 
-(defvar targetLanguage
+(var targetLanguage
     (#cond
         (cpp "C++")
         (cs "C#")
@@ -24,7 +24,7 @@
         (js "JavaScript")
         (python "Python")))
 
-(defun _testCase []
+(function _testCase []
     (#case var1ForCase
         ("var1" (Assert.pass))
         (otherwise (Assert.fail)))

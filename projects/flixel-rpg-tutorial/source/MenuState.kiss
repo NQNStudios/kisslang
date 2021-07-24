@@ -1,9 +1,9 @@
-(defprop &mut :FlxButton playButton null)
+(prop &mut :FlxButton playButton null)
 
-(defmethod &override :Void create []
+(method &override :Void create []
     (set playButton (new FlxButton 0 0 "Play" clickPlay))
     (playButton.screenCenter)
     (add playButton))
 
-(defun clickPlay []
+(function clickPlay []
     (FlxG.switchState (new PlayState)))

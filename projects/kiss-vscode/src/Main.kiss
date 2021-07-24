@@ -1,15 +1,15 @@
-(defun userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
-(defun userConfigDir []
+(function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
+(function userConfigDir []
     (joinPath
         (userHome) 
         ".kiss"))
 
-(defvar &mut activeConfigDir "")
-(defvar &mut lastConfigDir "")
-(defvar &mut builtinConfigDir "")
-(defvar &mut :KissConfig config null)
+(var &mut activeConfigDir "")
+(var &mut lastConfigDir "")
+(var &mut builtinConfigDir "")
+(var &mut :KissConfig config null)
 
-(defun walkDirectory [basePath directory :String->Void processFile :String->Void processSubdirectory]
+(function walkDirectory [basePath directory :String->Void processFile :String->Void processSubdirectory]
     (doFor fileOrFolder (FileSystem.readDirectory (joinPath basePath directory))
         (case fileOrFolder
             ((when (FileSystem.isDirectory (joinPath basePath directory folder)) folder)
@@ -19,7 +19,7 @@
             (file
                 (processFile (joinPath directory file))))))
 
-(defun :Void tryLoadConfig [&opt :String text]
+(function :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
 
     // If a backup exists, delete it
@@ -97,7 +97,7 @@
                                 (Vscode.window.showErrorMessage errorMessage))))))))
 
 (#unless test
-    (defun _activate [:ExtensionContext context]
+    (function _activate [:ExtensionContext context]
         (context.subscriptions.push
             (Vscode.commands.registerCommand
                 "kiss.reloadConfig"
@@ -134,7 +134,7 @@
         (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
         (tryLoadConfig)))
 
-(defun :Void main []
+(function :Void main []
     (#when test
         (set builtinConfigDir "config")
         (set activeConfigDir "_activeConfig")

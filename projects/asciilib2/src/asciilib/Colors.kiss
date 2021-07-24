@@ -8,33 +8,33 @@
 
     (fill (or fillColor Black)))
 
-(defmethod fill [:Color color]
+(method fill [:Color color]
     (red.fill 0 area color.r)
     (green.fill 0 area color.g)
     (blue.fill 0 area color.b))
 
-(defmethod _index [x y]
+(method _index [x y]
     (+ x (* y width)))
 
 (defmacro withIndex [idxName xName yName &body body]
     `(let [,idxName (_index ,xName ,yName)]
         ,@body))
 
-(defmethod getPixel [x y]
+(method getPixel [x y]
     (withIndex idx x y
         (object r (red.get idx) g (green.get idx) b (blue.get idx))))
 
-(defmethod setPixel [x y color]
+(method setPixel [x y color]
     (withIndex idx x y
         (red.set idx color.r)
         (green.set idx color.g)
         (blue.set idx color.b)))
 
-(defun equal [c1 c2]
+(function equal [c1 c2]
     (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b)))
 
-(defvar Black (object r 0 g 0 b 0))
-(defvar Red (object r 255 g 0 b 0))
-(defvar Green (object r 0 g 255 b 0))
-(defvar Blue (object r 0 g 0 b 255))
-(defvar White (object r 255 g 255 b 255))
+(var Black (object r 0 g 0 b 0))
+(var Red (object r 255 g 0 b 0))
+(var Green (object r 0 g 255 b 0))
+(var Blue (object r 0 g 0 b 255))
+(var White (object r 255 g 255 b 255))

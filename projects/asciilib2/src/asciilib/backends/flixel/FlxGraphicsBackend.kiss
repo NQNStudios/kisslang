@@ -1,8 +1,8 @@
-(defprop &mut :FlxGroup backgroundColors null)
-(defprop &mut :FlxGroup letters null)
-(defprop &mut :Int letterWidth 0)
-(defprop &mut :Int letterHeight 0)
-(defprop &mut :FlxBitmapFont font null)
+(prop &mut :FlxGroup backgroundColors null)
+(prop &mut :FlxGroup letters null)
+(prop &mut :Int letterWidth 0)
+(prop &mut :Int letterHeight 0)
+(prop &mut :FlxBitmapFont font null)
 
 (defnew [_state
             _fontAsset
@@ -13,14 +13,14 @@
         :FlxRect region _region
         :FlxPoint spacing _spacing])
 
-(defmethod :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
+(method :Void initialize [:String title :Int width :Int height :Int _letterWidth :Int _letterHeight]
     (set letterWidth _letterWidth)
     (set letterHeight _letterHeight)
     (set font (FlxBitmapFont.fromMonospace fontAsset fontLetters (new FlxPoint letterWidth letterHeight) region spacing))
     (set backgroundColors (new FlxGroup))
     (set letters (new FlxGroup)))
 
-(defmethod :Void draw [:Graphics graphics]
+(method :Void draw [:Graphics graphics]
     (backgroundColors.kill)
     (set backgroundColors (new FlxGroup))
     (letters.kill)

@@ -1,6 +1,6 @@
 // Airplane seating
 
-(defun search [:Array<String> letters min max rowOrColumn]
+(function search [:Array<String> letters min max rowOrColumn]
     (if (= min max)
             min
         (let [middle (Math.floor (/ (+ min max) 2))]
@@ -11,7 +11,7 @@
                 (["R" "column"] (search letters (+ 1 middle) max rowOrColumn))
                 (otherwise (throw "invalid search call"))))))
 
-(defun seatId [:String boardingPass]
+(function seatId [:String boardingPass]
     (+
         (* 8 (search (.split (boardingPass.substr 0 7) "") 0 127 "row"))
         (search (.split (boardingPass.substr 7) "") 0 7 "column")))

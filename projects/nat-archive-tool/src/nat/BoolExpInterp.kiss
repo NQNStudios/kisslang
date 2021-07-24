@@ -1,4 +1,4 @@
-(defun eval [:String expStr :Array<String> activeConditions]
+(function eval [:String expStr :Array<String> activeConditions]
     (let [hscriptExp
                 (.parseString (new Parser)
                     (Prelude.convertToHScript expStr))

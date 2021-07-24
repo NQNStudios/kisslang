@@ -1,4 +1,4 @@
-(defun myFun []
+(function myFun []
     (localVar something 5)
     )
 

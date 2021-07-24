@@ -1,6 +1,6 @@
 (load "../UtilMacros.kiss")
 
-(defun run []
+(function run []
     (day 1
         (let [p (SummingTuples.pairWithSum 2020 [1721 979 366 299 675 1456])]
             (assert (and (has p 1721) (has p 299)) "pairWithSum is broken"))

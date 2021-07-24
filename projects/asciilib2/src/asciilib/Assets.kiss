@@ -2,11 +2,11 @@
     [:Map<String,Surface> _surfaces (new Map)])
 
 // TODO don't allow overriding a key -- use a macro so all load___() calls check their maps first
-(defmethod loadSurface [key path]
+(method loadSurface [key path]
     (dictSet _surfaces key (Surface.fromString (backend.loadText path))))
 
 // TODO runtime-assert that the key exists. Use a macro so all get___() calls check their maps first
-(defmethod getSurface [key]
+(method getSurface [key]
     (dictGet _surfaces key))
 
 // TODO freeSurface() etc.

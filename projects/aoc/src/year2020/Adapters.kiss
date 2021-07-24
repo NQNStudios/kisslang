@@ -1,7 +1,7 @@
-(defun differences [:kiss.List<Int> ratings]
+(function differences [:kiss.List<Int> ratings]
     (for pair (pairs ratings) (- 0 (apply - pair))))
 
-(defun distribution [:kiss.List<Int> numbers]
+(function distribution [:kiss.List<Int> numbers]
     (let [:Map<Int,Int> dist (new Map)]
         (doFor num numbers
             (dictSet dist num
@@ -10,7 +10,7 @@
                     1)))
         dist))
 
-(defun &dynamic arrangementCount [:kiss.List<Int> ratings startingIndex]
+(function &dynamic arrangementCount [:kiss.List<Int> ratings startingIndex]
     (if (= startingIndex (- ratings.length 1)) 1
         (let [&mut :Int64 sum 0
                 startingRating (nth ratings startingIndex)

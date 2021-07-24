@@ -1,8 +1,8 @@
 (defnew [])
 
-(defmethod :Void initialize [:Assets assets]
+(method :Void initialize [:Assets assets]
     (assets.loadSurface "laptop" AssetPaths.laptop__srf))
-(defmethod :Void update [:Game game :Float deltaSeconds] 0)
-(defmethod :Void draw [:Void->Graphics graphics :Assets assets]
+(method :Void update [:Game game :Float deltaSeconds] 0)
+(method :Void draw [:Void->Graphics graphics :Assets assets]
     (oncePerInstance
         (.blitSurface (graphics) (assets.getSurface "laptop") 0 0)))

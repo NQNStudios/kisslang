@@ -1,30 +1,30 @@
-(defreadermacro &start "!" [stream] 
+(defReaderMacro &start "!" [stream] 
     (let [line (stream.expect "a string line" (lambda [] (stream.takeLine)))]
         (ReaderExp.StrExp line)))
 
-(defun myLine []
+(function myLine []
     !String that takes the rest of the line
     )
 
-(defun myBool []
+(function myBool []
     (begin !false))
 
-(defalias &call pluppers +)
-(defalias &ident fluffers 5)
-(defalias &ident buffers 4)
+(defAlias &call pluppers +)
+(defAlias &ident fluffers 5)
+(defAlias &ident buffers 4)
 
-(defvar mySum (pluppers fluffers buffers))
+(var mySum (pluppers fluffers buffers))
 
 // Read b c directly as strings
-(defreadermacro ["b" "c"] [stream] #|ReaderExp.StrExp(stream.expect("b, or c", function () stream.takeChars(1)))|#)
+(defReaderMacro ["b" "c"] [stream] #|ReaderExp.StrExp(stream.expect("b, or c", function () stream.takeChars(1)))|#)
 
-(defvar str1 b)
-(defvar str2 c)
+(var str1 b)
+(var str2 c)
 
 // rassert asserts the next expression without parens
-(defreadermacro "rassert" [stream] `(assert ,(read stream)))
+(defReaderMacro "rassert" [stream] `(assert ,(read stream)))
 
-(defun _testQuasiquoteMacro []
+(function _testQuasiquoteMacro []
     rassert [5]
     rassert b
     rassert fluffers

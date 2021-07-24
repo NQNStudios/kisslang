@@ -16,10 +16,10 @@
     (graphicsBackend.initialize title width height letterWidth letterHeight)
     (gameLogic.initialize assets))
 
-(defmethod update [:Float deltaSeconds]
+(method update [:Float deltaSeconds]
     (gameLogic.update this deltaSeconds))
 
-(defmethod draw []
+(method draw []
     (let [&mut changedGraphics false]
         (gameLogic.draw (lambda [] (set changedGraphics true) graphics) assets)
         (when changedGraphics (graphicsBackend.draw graphics))))

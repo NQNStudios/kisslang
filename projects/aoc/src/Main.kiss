@@ -1,5 +1,5 @@
 (load "UtilMacros.kiss")
-(defun :Void main []
+(function :Void main []
     (year 2018
         (Solutions2018.run))
     (year 2020

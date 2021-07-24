@@ -1,4 +1,4 @@
-(defun firstOffender [preambleLength :kiss.List<Int> input]
+(function firstOffender [preambleLength :kiss.List<Int> input]
     (doFor idx (range preambleLength input.length)
         (unless (SummingTuples.pairWithSum (nth input idx) (input.slice (- idx preambleLength) idx))
             (return (nth input idx))))

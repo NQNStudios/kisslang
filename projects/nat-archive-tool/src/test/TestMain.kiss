@@ -4,7 +4,7 @@
 (load "../nat/Lib.kiss")
 
 
-(defun :Void main []
+(function :Void main []
     (assert (BoolExpInterp.eval "true" []))
     (assert !(BoolExpInterp.eval "false" []))
     (assert !(BoolExpInterp.eval "flag" []))

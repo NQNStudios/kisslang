@@ -1,8 +1,8 @@
-(defun path [:kiss.List<String> hillTile x0 y0 dx dy]
+(function path [:kiss.List<String> hillTile x0 y0 dx dy]
     (if (>= y0 .length hillTile)
             []
         (concat [(.charAt (nth hillTile y0) (Math.floor (% x0 .length (nth hillTile y0))))] (path hillTile (+ x0 dx) (+ y0 dy) dx dy))))
 
-(defun pathString [:kiss.List<String> hillTile x0 y0 dx dy] (.join (path hillTile x0 y0 dx dy) ""))
+(function pathString [:kiss.List<String> hillTile x0 y0 dx dy] (.join (path hillTile x0 y0 dx dy) ""))
 
-(defun pathTrees [:kiss.List<String> hillTile x0 y0 dx dy] (Util.countChar "#" (pathString hillTile x0 y0 dx dy)))
+(function pathTrees [:kiss.List<String> hillTile x0 y0 dx dy] (Util.countChar "#" (pathString hillTile x0 y0 dx dy)))

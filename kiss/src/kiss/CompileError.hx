@@ -34,12 +34,9 @@ class CompileError {
                 firstPos + '-' + lastPos.substr(justLineAndColumnIdx);
         }
 
-        var failed = if (warning) "warning!"; else "failed!";
+        var failed = if (warning) "warning"; else "failed";
 
-        return '\nKiss compilation $failed\n'
-            + posPrefix
-            + ": "
-            + message
+        return '$posPrefix: Kiss compilation $failed: $message'
             + "\nFrom:"
             + [for (exp in exps) exp.def.toString()].toString();
     }

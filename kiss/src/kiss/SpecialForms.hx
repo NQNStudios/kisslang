@@ -226,7 +226,7 @@ class SpecialForms {
                 case KeyValueExp(_, _): k.convert(namesExp);
                 default: {
                         bodyExps.insert(0,
-                            CallExp(Symbol("deflocal").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
+                            CallExp(Symbol("localVar").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
                         macro $i{uniqueVarName};
                     }
             };

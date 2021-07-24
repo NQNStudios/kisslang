@@ -340,7 +340,7 @@ class Macros {
         }
 
         macros["defmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defmacro [name] [[args...]] [body...])');
+            wholeExp.checkNumArgs(3, null, '(defMacro [name] [[args...]] [body...])');
 
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
@@ -439,9 +439,10 @@ class Macros {
 
             null;
         };
+        renameAndDeprecate("defmacro", "defMacro");
 
         macros["undefmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(undefmacro [name])');
+            wholeExp.checkNumArgs(1, 1, '(undefMacro [name])');
 
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
@@ -451,9 +452,10 @@ class Macros {
             k.macros.remove(name);
             null;
         };
+        renameAndDeprecate("undefmacro", "undefMacro");
 
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defreadermacro [optional &start] ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
+            wholeExp.checkNumArgs(3, null, '(defReaderMacro [optional &start] ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
 
             // reader macros declared in the form (defreadermacro &start ...) will only be applied
             // at the beginning of lines
@@ -464,9 +466,9 @@ class Macros {
             var strings = switch (exps[0].def) {
                 case MetaExp("start", stringsExp):
                     table = k.startOfLineReadTable;
-                    stringsThatMatch(stringsExp, "defreadermacro");
+                    stringsThatMatch(stringsExp, "defReaderMacro");
                 default:
-                    stringsThatMatch(exps[0], "defreadermacro");
+                    stringsThatMatch(exps[0], "defReaderMacro");
             };
             for (s in strings) {
                 switch (exps[1].def) {
@@ -487,9 +489,10 @@ class Macros {
 
             return null;
         };
+        renameAndDeprecate("defreadermacro", "defReaderMacro");
 
         macros["undefreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(undefreadermacro [optional &start] ["[startingString]" or [startingStrings...]])');
+            wholeExp.checkNumArgs(1, 1, '(undefReaderMacro [optional &start] ["[startingString]" or [startingStrings...]])');
             // reader macros undeclared in the form (undefreadermacro &start ...) will be removed from the table
             // for reader macros that must be at the beginning of lines
             // at the beginning of lines
@@ -509,6 +512,7 @@ class Macros {
             }
             return null;
         };
+        renameAndDeprecate("undefreadermacro", "undefReaderMacro");
 
         // Having this floating out here is sketchy, but should work out fine because the variable is always re-set
         // through the next function before being used in defalias or undefalias
@@ -535,20 +539,22 @@ class Macros {
         }
 
         macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(defalias [[&call or &ident] whenItsThis] [makeItThis])");
-            var name = getAliasName(k, exps[0], "defalias");
+            wholeExp.checkNumArgs(2, 2, "(defAlias [[&call or &ident] whenItsThis] [makeItThis])");
+            var name = getAliasName(k, exps[0], "defAlias");
 
             aliasMap[name] = exps[1].def;
             return null;
         };
+        renameAndDeprecate("defalias", "defAlias");
 
         macros["undefalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, "(undefalias [[&call or &ident] alias])");
-            var name = getAliasName(k, exps[0], "undefalias");
+            wholeExp.checkNumArgs(1, 1, "(undefAlias [[&call or &ident] alias])");
+            var name = getAliasName(k, exps[0], "undefAlias");
 
             aliasMap.remove(name);
             return null;
         };
+        renameAndDeprecate("undefalias", "undefAlias");
 
         // Macros that null-check and extract patterns from enums (inspired by Rust)
         function ifLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
@@ -661,11 +667,11 @@ class Macros {
 
             var propertyDefs = [for (bindingPair in bindingPairs) {
                 var b = bindingPair[0].expBuilder();
-                b.call(b.symbol("defprop"), [bindingPair[0]]);
+                b.call(b.symbol("prop"), [bindingPair[0]]);
             }];
             var propertySetExps = [for (bindingPair in bindingPairs) {
                 var b = bindingPair[1].expBuilder();
-                b.call(b.symbol("set"), [b.symbol(Helpers.varName("a defprop property binding", bindingPair[0])), bindingPair[1]]);
+                b.call(b.symbol("set"), [b.symbol(Helpers.varName("a prop property binding", bindingPair[0])), bindingPair[1]]);
             }];
 
             var argList = [];
@@ -676,7 +682,7 @@ class Macros {
                     case MetaExp("prop", propExp):
                         argList.push(propExp);
                         propertyDefs.push(
-                            b.call(b.symbol("defprop"), [propExp]));
+                            b.call(b.symbol("prop"), [propExp]));
                         // TODO allow &prop &mut or &mut &prop
                         switch (propExp.def) {
                             case TypedExp(_, {pos: _, def: Symbol(name)}):
@@ -693,7 +699,7 @@ class Macros {
             var b = wholeExp.expBuilder();
 
             return b.begin(propertyDefs.concat([
-                b.call(b.symbol("defmethod"), [
+                b.call(b.symbol("method"), [
                     b.symbol("new"),
                     b.list(argList)
                 ].concat(propertySetExps).concat(exps.slice(2)))
@@ -715,8 +721,8 @@ class Macros {
             return b.call(b.symbol("when"), [flag, b.call(b.symbol("set"), [flag, b.symbol("false")])].concat(exps));
         }
 
-        macros["once"] = once.bind("defvar");
-        macros["oncePerInstance"] = once.bind("defprop");
+        macros["once"] = once.bind("var");
+        macros["oncePerInstance"] = once.bind("prop");
 
         // Replace "try" with this in a try-catch statement to let all exceptions throw
         // their original call stacks. This is more convenient for debugging than trying to
