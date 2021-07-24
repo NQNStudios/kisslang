@@ -56,11 +56,9 @@ class Kiss {
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
                 "groups" => Symbol("Prelude.groups"),
-                "concat" => Symbol("Prelude.concat"),
                 "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
                 "reversed" => Symbol("Prelude.reversed"), // TODO test reversed
                 "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
-                "joinPath" => Symbol("Prelude.joinPath"),
                 "symbolName" => Symbol("Prelude.symbolName"),
                 "symbolNameValue" => Symbol("Prelude.symbolNameValue"),
                 "symbol" => Symbol("Prelude.symbol"),
@@ -70,11 +68,12 @@ class Kiss {
                 "flatten" => Symbol("Lambda.flatten"),
                 "has" => Symbol("Lambda.has"),
                 "count" => Symbol("Lambda.count"),
+                // These work with (apply) because they are added as "opAliases" in Macros.kiss:
                 "min" => Symbol("Prelude.min"),
-                "max" => Symbol("Prelude.max")
+                "max" => Symbol("Prelude.max"),
             ],
-            // These ones won't conflict with variables and might commonly be used with (apply)
             identAliases: [
+                // These ones won't conflict with variables and might commonly be used with (apply)
                 "+" => Symbol("Prelude.add"),
                 "-" => Symbol("Prelude.subtract"),
                 "*" => Symbol("Prelude.multiply"),
@@ -85,7 +84,13 @@ class Kiss {
                 ">=" => Symbol("Prelude.greaterEqual"),
                 "<" => Symbol("Prelude.lessThan"),
                 "<=" => Symbol("Prelude.lesserEqual"),
-                "=" => Symbol("Prelude.areEqual")
+                "=" => Symbol("Prelude.areEqual"),
+                // These ones *probably* won't conflict with variables and might commonly be used with (apply) because they are variadic
+                "concat" => Symbol("Prelude.concat"),
+                "zipKeep" => Symbol("Prelude.zipKeep"),
+                "zipDrop" => Symbol("Prelude.zipDrop"),
+                "zipThrow" => Symbol("Prelude.zipThrow"),
+                "joinPath" => Symbol("Prelude.joinPath"),
             ],
             fields: [],
             loadingDirectory: "",

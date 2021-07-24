@@ -181,46 +181,50 @@ class Prelude {
 
     public static var concat:Function = Reflect.makeVarArgs(_concat);
 
-    public static function zip(arrays:Array<Array<Dynamic>>, extraHandling = Drop):kiss.List<kiss.List<Dynamic>> {
-        var lengthsAreEqual = true;
-        var lengths = [for (arr in arrays) arr.length];
-        for (idx in 1...lengths.length) {
-            if (lengths[idx] != lengths[idx - 1]) {
-                lengthsAreEqual = false;
-                break;
-            }
-        }
-        var max = Math.floor(if (!lengthsAreEqual) {
-            switch (extraHandling) {
-                case Throw:
-                    throw 'zip was given lists of mis-matched size: $arrays';
-                case Keep:
-                    Prelude._max(lengths);
-                case Drop:
-                    Prelude._min(lengths);
-            }
-        } else {
-            lengths[0];
-        });
+    static function _zip(iterables:Array<Dynamic>, extraHandling:ExtraElementHandling):Array<Array<Dynamic>> {
+        var lists = [];
+        var iterators = [for (iterable in iterables) iterable.iterator()];
 
-        return [
-            for (idx in 0...max) {
-                var zipped:Array<Dynamic> = [];
+        while (true) {
+            var zipped:Array<Dynamic> = [];
 
-                for (arr in arrays) {
-                    zipped.push(
-                        if (idx < arr.length) {
-                            arr[idx];
-                        } else {
-                            null;
-                        }
-                    );
+            var someNonNull = false;
+            for (it in iterators) {
+                switch (extraHandling) {
+                    case Keep:
+                        zipped.push(
+                            if (it.hasNext()) {
+                                someNonNull = true;
+                                it.next();
+                            } else {
+                                null;
+                            });
+                    default:
+                        if (it.hasNext())
+                            zipped.push(it.next());
                 }
-
-                zipped;
             }
-        ];
+
+            switch (extraHandling) {
+                case _ if (zipped.length == 0):
+                    break;
+                case Keep if (!someNonNull):
+                    break;
+                case Drop if (zipped.length != iterators.length):
+                    break;
+                case Throw if (zipped.length != iterators.length):
+                    throw 'zip${extraHandling} was given iterables of mis-matched size: $iterables';
+                default:
+            }
+
+            lists.push(zipped);
+        }
+        return lists;
     }
+
+    public static var zipKeep:Function = Reflect.makeVarArgs(_zip.bind(_, Keep));
+    public static var zipDrop:Function = Reflect.makeVarArgs(_zip.bind(_, Drop));
+    public static var zipThrow:Function = Reflect.makeVarArgs(_zip.bind(_, Throw));
 
     public static function pairs(l:kiss.List<Dynamic>, loopAround = false):kiss.List<kiss.List<Dynamic>> {
         var l1 = l.slice(0, l.length - 1);
@@ -229,7 +233,7 @@ class Prelude {
             l1.push(l[-1]);
             l2.unshift(l[0]);
         }
-        return zip([l1, l2]);
+        return zipThrow(l1, l2);
     }
 
     public static function reversed<T>(l:kiss.List<T>):kiss.List<T> {

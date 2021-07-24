@@ -35,9 +35,9 @@
 // TODO rectangle type
 // TODO optional source rectangle argument
 (defmethod blitSurface [:Surface surface x y]
-    (doFor [srcX destX] (zip (collect (range 0 surface.width)) (collect (range x (+ x surface.width))) Drop)
+    (doFor [srcX destX] (zipDrop (range surface.width) (range x (+ x surface.width)))
         (when (< -1 destX width)
-            (doFor [srcY destY] (zip (collect (range 0 surface.height)) (collect (range y (+ y surface.height))) Drop)
+            (doFor [srcY destY] (zipDrop (range 0 surface.height) (range y (+ y surface.height)))
                 (when (< -1 destY height)
                     (when (surface.isCellOpaque srcX srcY)
                         (setBackgroundColor destX destY (surface.getBackgroundColor srcX srcY))

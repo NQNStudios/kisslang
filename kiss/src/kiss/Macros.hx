@@ -110,12 +110,6 @@ class Macros {
             b.callSymbol("Prelude.range", [min, max, step]);
         };
 
-        macros["zip"] = (wholeExp:ReaderExp, exps:kiss.List<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(3, null, '(zip [listA] [listB] [moreLists...] [extraHandling])');
-            var b = wholeExp.expBuilder();
-            return b.callSymbol("Prelude.zip", [b.list(exps.slice(0, -1)), exps[-1]]);
-        };
-
         // Most conditional compilation macros are based on this macro:
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
