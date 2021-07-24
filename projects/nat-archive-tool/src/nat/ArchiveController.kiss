@@ -128,7 +128,7 @@
             (method ,name [,@methodArgs] ,@body)
             (dictSet commands ,(symbolName name) (object args [,@commandArgs] handler (the Function ,name)))}))
 
-(defnew [&prop :Archive archive
+(defNew [&prop :Archive archive
             &prop :ArchiveUI ui]
     [&mut :Array<Entry> selectedEntries []
         &mut :ChangeSet lastChangeSet []

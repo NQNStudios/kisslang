@@ -689,7 +689,7 @@ class Macros {
                                 propertySetExps.push(
                                     b.call(b.symbol("set"), [b.field(name, b.symbol("this")), b.symbol(name)]));
                             default:
-                                throw CompileError.fromExp(arg, "invalid use of &prop in defnew");
+                                throw CompileError.fromExp(arg, "invalid use of &prop in defNew");
                         }
                     default:
                         argList.push(arg);

@@ -1,4 +1,4 @@
-(defnew [title
+(defNew [title
             width
             height
             letterWidth

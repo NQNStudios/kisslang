@@ -1,4 +1,4 @@
-(defnew [_width _height :T defaultValue]
+(defNew [_width _height :T defaultValue]
     [:Int width _width
         :Int height _height
         :Array<Array<T>> rows (for _ (range height) (for _ (range width) defaultValue))])

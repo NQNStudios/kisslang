@@ -5,7 +5,7 @@
         (processEntry archive e)
         (archive.refreshEntry e)))
 
-(defnew [&prop :EntryChecker canProcessEntry
+(defNew [&prop :EntryChecker canProcessEntry
             &prop :EntryProcessor processEntry]
     [])
 

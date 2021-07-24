@@ -1,4 +1,4 @@
-(defnew [&prop :String archiveDir]
+(defNew [&prop :String archiveDir]
 
     [:Array<System> systems
             []

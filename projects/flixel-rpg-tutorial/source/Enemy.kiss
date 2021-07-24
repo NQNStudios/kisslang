@@ -1,6 +1,6 @@
 (var &inline :Float SPEED 140)
 
-(defnew [:Float x :Float y :EnemyType _type]
+(defNew [:Float x :Float y :EnemyType _type]
     [:EnemyType type _type
         :FSM brain (new FSM idle)
         &mut :Float idleTimer 0

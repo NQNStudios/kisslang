@@ -1,4 +1,4 @@
-(defnew [&prop :AssetsBackend backend]
+(defNew [&prop :AssetsBackend backend]
     [:Map<String,Surface> _surfaces (new Map)])
 
 // TODO don't allow overriding a key -- use a macro so all load___() calls check their maps first

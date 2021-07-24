@@ -1,4 +1,4 @@
-(defnew [_width _height &opt :Color backgroundColor :String letter :Color letterColor]
+(defNew [_width _height &opt :Color backgroundColor :String letter :Color letterColor]
     [:Int width _width
         :Int height _height
         :Colors backgroundColors (new Colors width height (or backgroundColor Colors.Black))

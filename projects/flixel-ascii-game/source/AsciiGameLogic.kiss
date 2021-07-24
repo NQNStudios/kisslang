@@ -1,4 +1,4 @@
-(defnew [])
+(defNew [])
 
 (method :Void initialize [:Assets assets]
     (assets.loadSurface "laptop" AssetPaths.laptop__srf))

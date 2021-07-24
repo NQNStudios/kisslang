@@ -4,7 +4,7 @@
 (prop &mut :Int letterHeight 0)
 (prop &mut :FlxBitmapFont font null)
 
-(defnew [_state
+(defNew [_state
             _fontAsset
             &opt _letters _region _spacing]
     [:FlxState state _state
