@@ -17,7 +17,7 @@
         (true fullSeat)))
 
 (defun neighbors [x y :Array<Array<FerrySquare>> grid]
-    (deflocal &mut n [])
+    (localVar &mut n [])
     (doFor xx (range (- x 1) (+ x 2))
         (doFor yy (range (- y 1) (+ y 2))
             (unless (and (= x xx) (= y yy))
@@ -28,7 +28,7 @@
 (defprop &mut :Array<Array<FerrySquare>> state [])
 
 (defmethod simulate []
-    (deflocal changed (object changed false))
+    (localVar changed (object changed false))
     (set state
         (for rowIdx (range state.length)
             (let [:Array<FerrySquare> row (nth state rowIdx)]

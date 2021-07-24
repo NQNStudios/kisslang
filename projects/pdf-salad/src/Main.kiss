@@ -1,6 +1,6 @@
 (defun loadAll [:Array<String> paths :Function callback &opt :Array<PDFDocument> pdfs]
     (unless pdfs (set pdfs []))
-    (deflocal nextPdf (paths.shift))
+    (localVar nextPdf (paths.shift))
     (if (nextPdf.endsWith ".pdf")
             (awaitLet [pdf (PDFDocument.load (Fs.readFileSync (print nextPdf)))]
                 (pdfs.push pdf)

@@ -236,7 +236,7 @@ class Macros {
             var uniqueVarSymbol = b.symbol();
 
             b.begin([
-                b.call(b.symbol("deflocal"), [
+                b.call(b.symbol("localVar"), [
                     b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
                     b.symbol("null")
                 ]),
@@ -277,7 +277,7 @@ class Macros {
 
             b.begin([
                 b.call(
-                    b.symbol("deflocal"), [
+                    b.symbol("localVar"), [
                         b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
                         b.symbol("null")
                     ]),

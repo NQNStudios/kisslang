@@ -174,7 +174,7 @@
 (defvar myAnd3 (and 5 false 6))
 
 (defun mySetLocal []
-    (deflocal &mut loc "one thing")
+    (localVar &mut loc "one thing")
     (set loc "another thing")
     loc)
 
@@ -182,7 +182,7 @@
 (defvar myNot2 !5)
 
 (defvar myFilteredList (begin 
-    (deflocal l [-1 -2 5 -3 6])
+    (localVar l [-1 -2 5 -3 6])
     (l.filter (lambda [v] (< 0 v)))))
 
 (defvar myWhen1 (when true 5 6))
@@ -203,7 +203,7 @@
     (Assert.equals 10 (last myListOfTen)))
 
 (defun _testListDestructuring []
-    (deflocal [a b c d &mut e f g h i j] myListOfTen)
+    (localVar [a b c d &mut e f g h i j] myListOfTen)
     (Assert.equals 1 a)
     (Assert.equals 2 b)
     (Assert.equals 3 c)
@@ -235,7 +235,7 @@
 (defvar myMetaList [myListOfTen myListOfTen myListOfTen])
 
 (defun _testDoFor []
-    (deflocal &mut c 0)
+    (localVar &mut c 0)
     (doFor v myListOfTen
         (Assert.equals (+ c 1) v)
         (set c v))
@@ -252,7 +252,7 @@
         (Assert.equals 10 j)))
 
 (defun _testFor []
-    (deflocal incrementedList (for v myListOfTen (+ 1 v)))
+    (localVar incrementedList (for v myListOfTen (+ 1 v)))
     (let [[a b c d e f g h i j] incrementedList]
         (Assert.equals 2 a)
         (Assert.equals 3 b)
@@ -264,7 +264,7 @@
         (Assert.equals 9 h)
         (Assert.equals 10 i)
         (Assert.equals 11 j))
-    (deflocal smallerMetaList (for [a b c d e f g h i j] myMetaList [a e i]))
+    (localVar smallerMetaList (for [a b c d e f g h i j] myMetaList [a e i]))
     (doFor [a e i] smallerMetaList
         (Assert.equals 1 a)
         (Assert.equals 5 e)
@@ -276,7 +276,7 @@
     (Assert.equals 6 (or c 6))) // (or [optionalVar] [defaultValue]) is the convention for default values
 
 (defun myRestSum [firstOne &rest :List<Int> others]
-    (deflocal &mut sum firstOne)
+    (localVar &mut sum firstOne)
     (doFor nextOne others (set sum (+ sum nextOne)))
     sum)
 
@@ -285,7 +285,7 @@
 (defvar myRest3 (myRestSum 1 2 2))
 
 (defun myCombinedOptRest [firstOne &opt secondOne &rest :List<String> thirdAndMore]
-    (deflocal &mut concatString (+ firstOne (or secondOne "boop")))
+    (localVar &mut concatString (+ firstOne (or secondOne "boop")))
     (doFor str thirdAndMore (set concatString (+ concatString str)))
     concatString)
 
@@ -376,7 +376,7 @@
         (otherwise (Assert.fail))))
 
 (defun _testMaps []
-    (deflocal :Map<String,String> myMap [=>"hey" "you"
+    (localVar :Map<String,String> myMap [=>"hey" "you"
                         =>"found" "me"])
     (Assert.equals "you" (dictGet myMap "hey"))
     (Assert.equals "me" (dictGet myMap "found"))
@@ -391,7 +391,7 @@
 
 (defun _testRange []
     // With just one arg, it's the max:
-    (deflocal &mut :kiss.List<Int> myList (for i (range 5) i))
+    (localVar &mut :kiss.List<Int> myList (for i (range 5) i))
     (Assert.equals 4 (nth myList -1))
     // with two args, they are min and max:
     (set myList (for i (range 3 5) i))
@@ -429,9 +429,9 @@
 
 (defvar &mut welcomeCount 0)
 (defmacro macroWithLogic [name]
-    (deflocal message1 (ReaderExp.StrExp "Welcome "))
-    (deflocal message2 (ReaderExp.StrExp " (Guest #"))
-    (deflocal message3 (ReaderExp.StrExp ")"))
+    (localVar message1 (ReaderExp.StrExp "Welcome "))
+    (localVar message2 (ReaderExp.StrExp " (Guest #"))
+    (localVar message3 (ReaderExp.StrExp ")"))
     
     `(begin (set welcomeCount (+ welcomeCount 1))
         (+ ,message1 ,name ,message2 (Std.string welcomeCount) ,message3)))
@@ -446,7 +446,7 @@
         (Assert.equals "you" (dictGet map "hey"))))
 
 (defun _testAssignArith []
-    (deflocal &mut num 5)
+    (localVar &mut num 5)
     (+= num 5 6)
     (Assert.equals 16 num)
     (%= num 5)

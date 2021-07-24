@@ -178,9 +178,10 @@ class SpecialForms {
         }
 
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, "(deflocal [optional :type] [variable] [optional: &mut] [value])");
+            wholeExp.checkNumArgs(2, 3, "(localVar [optional :type] [variable] [optional: &mut] [value])");
             EVars(toVars(args[0], args[1], k)).withMacroPosOf(wholeExp);
         };
+        renameAndDeprecate("deflocal", "localVar");
 
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(let [[bindings...]] [body...])");

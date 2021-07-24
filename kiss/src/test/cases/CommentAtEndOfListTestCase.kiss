@@ -1,4 +1,4 @@
 (defun myFun []
-    (deflocal something 5)
+    (localVar something 5)
     // This comment used to cause a hard-to-track-down error!
     )

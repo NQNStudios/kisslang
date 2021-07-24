@@ -24,7 +24,7 @@
         (assert (= 673 (count (map (Util.readLines "src/year2020/inputs/day2-1.txt") (.bind Passwords.validateInputLine _ Passwords.parsePasswordCheck2)) (lambda [v] v)))))
             
     (day 3
-        (deflocal exampleHillTile [
+        (localVar exampleHillTile [
                                     "..##......."                                    
                                     "#...#...#.."
                                     ".#....#..#."
@@ -55,8 +55,8 @@
         (let [:kiss.List<Int> seatIds (map (Util.readLines "src/year2020/inputs/day5-1.txt") Seating.seatId)]
             (seatIds.sort (lambda [a b] (- a b)))
             (assert (= 947 (nth seatIds -1)))
-            (deflocal &mut lastId -1)
-            (deflocal &mut myId -1)
+            (localVar &mut lastId -1)
+            (localVar &mut myId -1)
             (doFor id seatIds
                 (when (and (<= 0 lastId) !(= lastId (- id 1)))
                     (set myId (- id 1))
@@ -71,11 +71,11 @@
         (assert (= 3122 (apply + (map (Util.readParagraphLines "src/year2020/inputs/day6-1.txt") Customs.countAllYes)))))
         
     (day 7
-        (deflocal parentMap (new ParentMap))
-        (deflocal childMap (new ChildMap))
+        (localVar parentMap (new ParentMap))
+        (localVar childMap (new ChildMap))
         (doFor line (Util.readLines "src/year2020/inputs/day7.txt")
             (Bags.parseRule line parentMap childMap))
-        (deflocal :Map<String,Bool> shinyGoldParents (new Map))
+        (localVar :Map<String,Bool> shinyGoldParents (new Map))
         (Bags.findIndirectContainers "shiny gold" childMap shinyGoldParents)
         (assert (= 172 (count shinyGoldParents)))
         (assert (= 39645 (Bags.totalChildBags "shiny gold" parentMap))))

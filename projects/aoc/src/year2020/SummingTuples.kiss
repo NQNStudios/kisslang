@@ -1,6 +1,6 @@
 (defun :kiss.List<Int> pairWithSum [sum :kiss.List<Int> numbers]
     // Put the numbers in a map for random access. This gives an O(n) solution
-    (deflocal :Map<Int,Int> numbersMap (new Map))
+    (localVar :Map<Int,Int> numbersMap (new Map))
     (doFor number numbers
         (dictSet numbersMap number (- sum number))
         (let [requiredForPair (dictGet numbersMap number)]
@@ -18,7 +18,7 @@
 
 (defun contiguousSumTuple [sum :kiss.List<Int> numbers]
     (doFor i (range numbers.length)
-        (deflocal &mut testSum (nth numbers i))
+        (localVar &mut testSum (nth numbers i))
         (doFor j (range (+ i 1) numbers.length)
             (set testSum (+ testSum (nth numbers j)))
             (cond 

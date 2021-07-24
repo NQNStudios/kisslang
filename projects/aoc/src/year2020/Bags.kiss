@@ -5,7 +5,7 @@
     (unless (<= 0 (line.indexOf "contain no other bags"))
         (let [[containerStr contents] (line.split "contain ")
                 contentStrs (contents.split ", ")]
-                (deflocal :Map<String,Int> innerMap (new Map))
+                (localVar :Map<String,Int> innerMap (new Map))
                 (doFor str contentStrs
                     (let [parts (str.split " ")
                             quantity (Std.parseInt (parts.shift))
@@ -24,7 +24,7 @@
 (defun totalChildBags [bag :ParentMap parentMap]
     (if (parentMap.exists bag)
             (begin
-                (deflocal &mut sum 0)
+                (localVar &mut sum 0)
                 (doFor =>childColor quantity (dictGet parentMap bag)
                     (set sum (+ sum quantity (* quantity (totalChildBags childColor parentMap)))))
                 sum)
