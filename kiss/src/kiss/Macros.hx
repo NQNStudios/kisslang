@@ -653,13 +653,13 @@ class Macros {
 
         macros["awaitLet"] = awaitLet;
 
-        // TODO test defnew
+        // TODO test defNew
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(defnew [[args...]] [[optional property bindings...]] [optional body...]");
+            wholeExp.checkNumArgs(1, null, "(defNew [[args...]] [[optional property bindings...]] [optional body...]");
 
             var args = exps[0];
             var bindingList = if (exps.length > 1) {
-                exps[1].bindingList("defnew", true);
+                exps[1].bindingList("defNew", true);
             } else {
                 [];
             };
@@ -676,7 +676,7 @@ class Macros {
 
             var argList = [];
             // &prop in the argument list defines a property supplied directly as an argument
-            for (arg in Helpers.argList(args, "defnew")) {
+            for (arg in Helpers.argList(args, "defNew")) {
                 var b = arg.expBuilder();
                 switch (arg.def) {
                     case MetaExp("prop", propExp):
@@ -705,6 +705,7 @@ class Macros {
                 ].concat(propertySetExps).concat(exps.slice(2)))
             ]));
         };
+        renameAndDeprecate("defnew", "defNew");
 
         macros["collect"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, "(collect [iterator or iterable])");
