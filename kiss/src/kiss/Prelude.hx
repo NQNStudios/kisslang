@@ -239,11 +239,11 @@ class Prelude {
     }
 
     // Ranges with a min, exclusive max, and step size, just like Python.
-    public static function range(min, max, step):Iterator<Int> {
+    public static function range(min, max, step):Iterator<Int> & Iterable<Int> {
         if (step <= 0 || max < min)
             throw "(range...) can only count up";
         var count = min;
-        return {
+        var iterator = {
             next: () -> {
                 var oldCount = count;
                 count += step;
@@ -252,6 +252,11 @@ class Prelude {
             hasNext: () -> {
                 count < max;
             }
+        };
+        return {
+            iterator: () -> iterator,
+            next: () -> iterator.next(),
+            hasNext: () -> iterator.hasNext()
         };
     }
 
