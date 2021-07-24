@@ -135,6 +135,10 @@ class BasicTestCase extends Test {
         Assert.equals(5, BasicTestCase.myTypeCheck());
     }
 
+    function testEnumerate() {
+        _testEnumerate();
+    }
+
     function testGroups() {
         _testGroups();
     }

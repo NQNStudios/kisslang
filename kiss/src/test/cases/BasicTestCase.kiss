@@ -130,6 +130,10 @@
     (Assert.equals (.toString [[1 2]]) (.toString (zipDrop [1 2 3 4] [2])))
     (Assert.equals (.toString [[1 2] [3 4]]) (.toString (apply zipThrow [[1 3] [2 4]]))))
 
+(defun _testEnumerate []
+    (Assert.equals "[[0,a],[1,b]]" (.toString (enumerate ["a" "b"])))
+    (Assert.equals "[[1,a],[2,b]]" (.toString (enumerate ["a" "b"] 1))))
+
 (defun _testLet []
     (let [a 5
             b 6

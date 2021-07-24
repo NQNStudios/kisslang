@@ -149,7 +149,7 @@ class Prelude {
         return sorted;
     }
 
-    public static function groups<T>(a:Array<T>, size, extraHandling = Drop) {
+    public static function groups<T>(a:Array<T>, size, extraHandling = Drop):kiss.List<kiss.List<T>> {
         var numFullGroups = Math.floor(a.length / size);
         var fullGroups = [
             for (num in 0...numFullGroups) {
@@ -171,7 +171,7 @@ class Prelude {
         return fullGroups;
     }
 
-    static function _concat(arrays:Array<Dynamic>):Array<Dynamic> {
+    static function _concat(arrays:Array<Dynamic>):kiss.List<Dynamic> {
         var arr:Array<Dynamic> = arrays[0];
         for (nextArr in arrays.slice(1)) {
             arr = arr.concat(nextArr);
@@ -181,7 +181,7 @@ class Prelude {
 
     public static var concat:Function = Reflect.makeVarArgs(_concat);
 
-    static function _zip(iterables:Array<Dynamic>, extraHandling:ExtraElementHandling):Array<Array<Dynamic>> {
+    static function _zip(iterables:Array<Dynamic>, extraHandling:ExtraElementHandling):kiss.List<kiss.List<Dynamic>> {
         var lists = [];
         var iterators = [for (iterable in iterables) iterable.iterator()];
 
@@ -226,6 +226,10 @@ class Prelude {
     public static var zipDrop:Function = Reflect.makeVarArgs(_zip.bind(_, Drop));
     public static var zipThrow:Function = Reflect.makeVarArgs(_zip.bind(_, Throw));
 
+    public static function enumerate(l:kiss.List<Dynamic>, startingIdx = 0):kiss.List<kiss.List<Dynamic>> {
+        return zipThrow(range(startingIdx, startingIdx + l.length, 1), l);
+    }
+
     public static function pairs(l:kiss.List<Dynamic>, loopAround = false):kiss.List<kiss.List<Dynamic>> {
         var l1 = l.slice(0, l.length - 1);
         var l2 = l.slice(1, l.length);
@@ -243,7 +247,10 @@ class Prelude {
     }
 
     // Ranges with a min, exclusive max, and step size, just like Python.
-    public static function range(min, max, step):Iterator<Int> & Iterable<Int> {
+    public static function range(min, max, step):Iterator<Int>
+        & Iterable<Int>
+
+    {
         if (step <= 0 || max < min)
             throw "(range...) can only count up";
         var count = min;
@@ -257,13 +264,13 @@ class Prelude {
                 count < max;
             }
         };
+
         return {
             iterator: () -> iterator,
             next: () -> iterator.next(),
             hasNext: () -> iterator.hasNext()
         };
     }
-
     static function _joinPath(parts:Array<Dynamic>) {
         return Path.join([for (part in parts) cast(part, String)]);
     }
@@ -337,7 +344,7 @@ class Prelude {
         };
     }
 
-    public static function expList(s:ReaderExp):Array<ReaderExp> {
+    public static function expList(s:ReaderExp):kiss.List<ReaderExp> {
         return switch (s.def) {
             case ListExp(exps):
                 exps;
