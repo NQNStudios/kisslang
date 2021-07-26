@@ -134,6 +134,7 @@
         (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
         (tryLoadConfig)))
 
+// Manually define main so it will exist when test is not defined:
 (function :Void main []
     (#when test
         (set builtinConfigDir "config")

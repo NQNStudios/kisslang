@@ -160,12 +160,25 @@ class Kiss {
             var topLevelBegin = load(kissFile, k);
 
             if (topLevelBegin != null) {
-
-            // TODO this is where an error would be thrown, or main() would be generated from top-level expressions
-            // TODO There are two ideas for how to handle expressions at the top level of a Kiss file:
-            //      1. Throw an error, because the top level should only contain field definitions
-            //      2. Append the expression to the body of an automatically generated main() function
-            // if that result is non-null, try to make main (but this may cause a duplicate declaration)
+                // If no main function is defined manually, Kiss expressions at the top of a file will be put in a main function.
+                // If a main function IS defined, this will result in an error
+                if (k.fieldDict.exists("main")) {
+                    throw CompileError.fromExp(topLevelBegin, '$kissFile has expressions outside of field definitions, but already defines its own main function.');
+                }
+                var b = topLevelBegin.expBuilder();
+                // This doesn't need to be added to the fieldDict because all code generation is done
+                k.fieldList.push({
+                    name: "main",
+                    access: [AStatic],
+                    kind: FFun(Helpers.makeFunction(
+                        b.symbol("main"),
+                        false,
+                        b.list([]),
+                        [topLevelBegin],
+                        k,
+                        "function")),
+                    pos: topLevelBegin.macroPos()
+                });
             }
 
             k.fieldList;
