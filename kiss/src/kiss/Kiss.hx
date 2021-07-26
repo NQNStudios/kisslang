@@ -185,7 +185,7 @@ class Kiss {
         });
     }
 
-    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String):Null<ReaderExp> {
+    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String, loadAllExps = false):Null<ReaderExp> {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
 
@@ -221,7 +221,9 @@ class Kiss {
                 }
                 return true;
             }
-            if (!isEmpty(expr)) {
+            // When calling from build(), we can't add all expressions to the (begin) returned by (load), because that will
+            // cause double-evaluation of field forms
+            if (loadAllExps || !isEmpty(expr)) {
                 loadedExps.push(nextExp);
             }
         });
