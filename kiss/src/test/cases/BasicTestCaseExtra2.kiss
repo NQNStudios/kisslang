@@ -1,0 +1,2 @@
+// Using inline (load) for something like this would actually be terrible:
+(set thatValue 50)

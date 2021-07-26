@@ -1,6 +1,11 @@
 // (load) brings in the fields and compile-time definitions of another Kiss file
 (load "BasicTestCaseExtra.kiss")
 
+(function _testLoadInline []
+    (let [&mut thatValue 5]
+        (load "BasicTestCaseExtra2.kiss")
+        (Assert.equals 50 thatValue)))
+
 // (var) declares static variables
 (var message "Howdy")
 

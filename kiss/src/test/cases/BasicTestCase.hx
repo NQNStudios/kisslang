@@ -278,6 +278,10 @@ class BasicTestCase extends Test {
         Assert.equals("loaded", BasicTestCase.loadedFunction());
     }
 
+    function testLoadInline() {
+        _testLoadInline();
+    }
+
     function testAssignArith() {
         _testAssignArith();
     }
