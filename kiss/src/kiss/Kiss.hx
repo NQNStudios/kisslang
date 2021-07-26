@@ -223,8 +223,11 @@ class Kiss {
             }
             // When calling from build(), we can't add all expressions to the (begin) returned by (load), because that will
             // cause double-evaluation of field forms
-            if (loadAllExps || !isEmpty(expr)) {
+            if (loadAllExps) {
                 loadedExps.push(nextExp);
+            } else if (!isEmpty(expr)) {
+                // don't double-compile macros:
+                loadedExps.push(RawHaxe(expr.toString()).withPosOf(nextExp));
             }
         });
 
