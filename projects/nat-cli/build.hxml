@@ -1,5 +1,0 @@
--lib nat-archive-tool
--lib kiss
--cp src
---main nat_cli.Main
---interp
