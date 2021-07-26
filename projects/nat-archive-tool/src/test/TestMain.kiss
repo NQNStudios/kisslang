@@ -1,35 +1,30 @@
-// TODO external programs need to be able to find and (load) this path to get the macros:
-// ^ That should be solved by allowing an optional first argument to load that is a symbol
-// of a library name that can be used to resolve the source dir in the user's Haxelib maybe?
+// External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "../nat/Lib.kiss")
 
+(assert (BoolExpInterp.eval "true" []))
+(assert !(BoolExpInterp.eval "false" []))
+(assert !(BoolExpInterp.eval "flag" []))
+(assert (BoolExpInterp.eval "flag" ["flag"]))
+(assert !(BoolExpInterp.eval "(and flag false)" ["flag"]))
+(assert (BoolExpInterp.eval "(or flag otherFlag)" ["otherFlag"]))
+(let [archive
+            (new Archive "src/test/example-archive")
+        song1
+            (dictGet archive.entries "song1")
+        song2
+            (dictGet archive.entries "song2")]
 
-(function :Void main []
-    (assert (BoolExpInterp.eval "true" []))
-    (assert !(BoolExpInterp.eval "false" []))
-    (assert !(BoolExpInterp.eval "flag" []))
-    (assert (BoolExpInterp.eval "flag" ["flag"]))
-    (assert !(BoolExpInterp.eval "(and flag false)" ["flag"]))
-    (assert (BoolExpInterp.eval "(or flag otherFlag)" ["otherFlag"]))
-    //trace(error);
-    (let [archive
-                (new Archive "src/test/example-archive")
-            song1
-                (dictGet archive.entries "song1")
-            song2
-                (dictGet archive.entries "song2")]
+    (assert (hasComponent song1 Tags))
+    (assert (hasComponent song2 Tags))
+    (assert (componentsMatch song1 "(and Name Author)"))
+    (assert (componentsMatch song2 "(and Name Author)"))
+    (assert (tagsMatch archive song1 "(and song western)"))
+    (assert !(tagsMatch archive song1 "(and song religious)"))
+    (assert (tagsMatch archive song2 "(and song religious)"))
+    (assert !(tagsMatch archive song2 "(and song western)"))
 
-        (assert (hasComponent song1 Tags))
-        (assert (hasComponent song2 Tags))
-        (assert (componentsMatch song1 "(and Name Author)"))
-        (assert (componentsMatch song2 "(and Name Author)"))
-        (assert (tagsMatch archive song1 "(and song western)"))
-        (assert !(tagsMatch archive song1 "(and song religious)"))
-        (assert (tagsMatch archive song2 "(and song religious)"))
-        (assert !(tagsMatch archive song2 "(and song western)"))
-
-        (withWritableComponents archive song1
-            [author Author
-                name Name]
-            (assert (= author "Rafael Krux"))
-            (assert (= name "Adventure")))))
+    (withWritableComponents archive song1
+        [author Author
+            name Name]
+        (assert (= author "Rafael Krux"))
+        (assert (= name "Adventure"))))

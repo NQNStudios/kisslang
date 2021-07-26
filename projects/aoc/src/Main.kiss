@@ -1,6 +1,6 @@
 (load "UtilMacros.kiss")
-(function :Void main []
-    (year 2018
-        (Solutions2018.run))
-    (year 2020
-        (Solutions2020.run)))
+
+(year 2018
+    (Solutions2018.run))
+(year 2020
+    (Solutions2020.run))

@@ -1,18 +1,18 @@
+// External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "Lib.kiss")
 
-(function :Void main []
-    (let [[archiveDir] (Sys.args)
-            controller
-                (new ArchiveController
-                    (new Archive archiveDir)
-                    (new CLI))]
-        (loop
-            (Sys.print ">> ")
-            (let [command
-                        (.trim (.toString (.readLine (Sys.stdin))))]
-                    (if (controller.commands.exists command)
-                            (controller.runCommand (dictGet controller.commands command))
-                        (Sys.println "$command is not a valid command"))))))
+(let [[archiveDir] (Sys.args)
+        controller
+            (new ArchiveController
+                (new Archive archiveDir)
+                (new CLI))]
+    (loop
+        (Sys.print ">> ")
+        (let [command
+                    (.trim (.toString (.readLine (Sys.stdin))))]
+                (if (controller.commands.exists command)
+                        (controller.runCommand (dictGet controller.commands command))
+                    (Sys.println "$command is not a valid command")))))
 
 (defNew [])
 
