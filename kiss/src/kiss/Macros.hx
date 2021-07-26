@@ -131,8 +131,10 @@ class Macros {
             var conditionInterp = new KissInterp(true);
             var conditionStr = Reader.toString(conditionExp.def);
             for (flag => value in Context.getDefines()) {
-                if (flag != "kiss")
+                // Don't overwrite types that are put in all KissInterps, i.e. the kiss namespace
+                if (!conditionInterp.variables.exists(flag)) {
                     conditionInterp.variables.set(flag, value);
+                }
             }
             try {
                 var hscriptStr = Prelude.convertToHScript(conditionStr);
