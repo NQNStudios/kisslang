@@ -1,7 +1,15 @@
 package kiss;
 
+import sys.io.Process;
 #if macro
 import kiss.Kiss;
+import kiss.Helpers;
+import sys.FileSystem;
+import sys.io.File;
+import haxe.io.Path;
+
+using StringTools;
+using haxe.io.Path;
 
 enum CompileLang {
     JavaScript;
@@ -43,26 +51,92 @@ class CompilerTools {
      * @return A function that, when called, executes the script and returns the script output as a string.
      */
     public static function compileToScript(exps:Array<ReaderExp>, args:CompilationArgs):() -> String {
-        // TODO if folder exists, delete it
-        // TODO create it again
-        // TODO copy all files in
-            // import.hx if given
-            // hxml file if given
-            // language-specific project file if given
-            // main .hx file if given, or default
-                // make sure it calls build() on the right file, and imports kiss.Prelude
-            // all extra files
-            // make the main.kiss file just a begin of array(exps)
+        // if folder exists, delete it
+        if (FileSystem.exists(args.outputFolder)) {
+            for (file in FileSystem.readDirectory(args.outputFolder)) {
+                FileSystem.deleteFile(Path.join([args.outputFolder, file]));
+            }
+            FileSystem.deleteDirectory(args.outputFolder);
+        }
 
-        // TODO generate build.hxml
-            // -lib kiss
-            // target compiler arguments and -cmd argument according to lang
-        // run haxelib install all in folder
-        // install language-specific dependencies
-        // call haxe args.hxml build.hxml
+        // create it again
+        FileSystem.createDirectory(args.outputFolder);
+
+        // Copy all files in that don't need to be processed in some way
+        function copyToFolder(file) {
+            File.copy(file, Path.join([args.outputFolder, file.withoutDirectory()]));
+        }
+
+        if (args.extraFiles == null) {
+            args.extraFiles = [];
+        }
+        for (file in [args.importHxFile, args.hxmlFile, args.langProjectFile].concat(args.extraFiles)) {
+            if (file != null) {
+                copyToFolder(file);
+            }
+        }
+        
+        // If a main haxe file was given, use it
+        var mainHxFile = if (args.mainHxFile != null) {
+            args.mainHxFile;
+        }
+        // Otherwise use the default
+        else {
+            Path.join([Helpers.libPath("kiss"), "src", "kiss", "ScriptMain.hx"]);
+        }
+        copyToFolder(mainHxFile);
+
+        var mainClassName = mainHxFile.withoutDirectory().withoutExtension();
+
+        // make the kiss file just the given expressions dumped into a file,
+        // with a corresponding name to the mainClassName
+        var kissFileContent = "";
+        for (exp in exps) {
+            kissFileContent += Reader.toString(exp.def) + "\n";
+        }
+        File.saveContent(Path.join([args.outputFolder, '$mainClassName.kiss']), kissFileContent);
+
+        // generate build.hxml
+        var buildHxmlContent = "";
+        buildHxmlContent += "-lib kiss\n";
+        buildHxmlContent += '--main $mainClassName\n';
+        switch (args.lang) {
+            case JavaScript:
+                // Throw in hxnodejs because we know node will be running the script:
+                buildHxmlContent += '-lib hxnodejs\n';
+                buildHxmlContent += '-js $mainClassName.js\n';
+            case Python:
+                buildHxmlContent += '-python $mainClassName.py\n';
+        }
+        var buildHxmlFile = Path.join([args.outputFolder, 'build.hxml']);
+        File.saveContent(buildHxmlFile, buildHxmlContent);
+
+        // run haxelib install on given hxml and generated hxml
+        var hxmlFiles = [buildHxmlFile];
+        Helpers.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
+        if (args.hxmlFile != null) {
+            hxmlFiles.push(args.hxmlFile);
+            Helpers.assertProcess("haxelib", ["install", "--always", args.hxmlFile]);
+        }
+
+        // TODO install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
+
+        // Compile the script
+        Helpers.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
+
+        var command = "";
+        var scriptExt = "";
+        switch (args.lang) {
+            case JavaScript:
+                command = "node";
+                scriptExt = "js";
+            case Python:
+                command = "python";
+                scriptExt = "py";
+        }
+ 
         // return lambda that calls new Process() that runs the target-specific file
-
-        return () -> "";
+        return () -> Helpers.assertProcess(command, [Path.join([args.outputFolder, '$mainClassName.$scriptExt'])]);
     }
 }
 #end

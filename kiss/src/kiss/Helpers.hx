@@ -12,6 +12,7 @@ import kiss.Kiss;
 import kiss.SpecialForms;
 import kiss.Prelude;
 import uuid.Uuid;
+import sys.io.Process;
 
 using uuid.Uuid;
 using tink.MacroApi;
@@ -491,5 +492,20 @@ class Helpers {
             default:
                 throw CompileError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
         };
+    }
+
+    // Get the path to a haxelib the user has installed
+    public static function libPath(haxelibName:String) {
+        return assertProcess("haxelib", ["libpath", haxelibName]);
+    }
+
+    public static function assertProcess(command:String, args:Array<String>):String {
+        var p = new Process(command, args);
+        switch (p.exitCode()) {
+            case 0:
+                return p.stdout.readAll().toString().trim();
+            default:
+                throw p.stderr.readAll().toString().trim();
+        }
     }
 }

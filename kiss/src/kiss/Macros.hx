@@ -7,7 +7,6 @@ import kiss.ReaderExp;
 import kiss.Kiss;
 import kiss.CompileError;
 import uuid.Uuid;
-import sys.io.Process;
 import hscript.Parser;
 
 using kiss.Kiss;
@@ -46,7 +45,7 @@ class Macros {
 
             var libPath = switch (args[0].def) {
                 case StrExp(libName):
-                    new Process("haxelib", ["libpath", libName]).stdout.readAll().toString().trim();
+                    Helpers.libPath(libName);
                 default:
                     throw CompileError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
             };
