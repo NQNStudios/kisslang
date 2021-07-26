@@ -1,14 +1,16 @@
 // Lib is its own class because, while it would make sense to group its functions and macros in Archive.kiss,
 // other files would not be able to (load "Archive.kiss") for the macro definitions without taking on Archive's constructor.
 
-(defmacro hasComponent [e componentType]
+// External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+
+(defMacro hasComponent [e componentType]
     `(.exists .components ,e ,(symbolName componentType)))
 
-(defmacro _componentPath [archive e componentType]
+(defMacro _componentPath [archive e componentType]
     `(joinPath .archiveDir (the nat.Archive ,archive) "components" (+ (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType)) ".json")))
 
 // Changes to the object returned by (readComponent) will not be saved! Use (withWritableComponents) for making changes
-(defmacro readComponent [archive e componentType]
+(defMacro readComponent [archive e componentType]
     // TODO add to the documentation a hint that macros should use fully qualified type paths so macro caller classes don't need to import everything
     `(the nat.components ,componentType 
         (tink.Json.parse
@@ -16,14 +18,14 @@
 
 // Components have to be saved individually after writing because the Entity only knows their ids,
 // not the data they contain. This is more ergonomically done by using (withWritableComponents...)
-(defmacro writeComponent [archive e componentType c]
+(defMacro writeComponent [archive e componentType c]
     `(sys.io.File.saveContent
         (_componentPath ,archive ,e ,componentType)
         (tink.Json.stringify
             (the nat.components ,componentType ,c))))
 
 // TODO check not overwriting a component
-(defmacro addComponent [archive e componentType c]
+(defMacro addComponent [archive e componentType c]
     `(let [componentId (Uuid.v4)]
         (dictSet .components ,e ,(symbolName componentType) componentId)
         (writeComponent ,archive ,e ,componentType ,c)
@@ -31,7 +33,7 @@
 
 // Retrieve multiple components from an Entity with mutable access.
 // All components will be serialized after the block is done.
-(defmacro withWritableComponents [archive e bindings &body body]
+(defMacro withWritableComponents [archive e bindings &body body]
     (let [bindingPairs
                 (groups (expList bindings) 2 Throw)
             bindingList
@@ -49,7 +51,7 @@
             ,@saveList
             ,retValSymbol)))
 
-(defmacro withWritableEntry [archive e &body body]
+(defMacro withWritableEntry [archive e &body body]
     (let [retValSymbol
                 (symbol)]
         `(let [,retValSymbol {,@body}]
@@ -57,7 +59,7 @@
             ,retValSymbol)))
 
 // Create a system that selects Entries according to a single string component (i.e. Name or Author) matching the given value
-(defmacro stringComponentSystem [archive componentType value process]
+(defMacro stringComponentSystem [archive componentType value process]
     `(new System
         (lambda [archive :Entry e]
             ?(and (hasComponent e ,componentType)

@@ -238,7 +238,7 @@
             random Std.random
             int Std.int)))
 
-(defmacro withValueOrInputBox [v &body body]
+(defMacro withValueOrInputBox [v &body body]
     `(if ,v
             {,@body}
         (awaitLet [,v (inputBox)]

@@ -107,7 +107,7 @@
             (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
         (lastCollector)))
 
-(defmacro defcommand [name args &body body]
+(defMacro defCommand [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)
             methodArgs
@@ -134,34 +134,34 @@
         &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)]
     
-    (defcommand selectEntry [e OneEntry]
+    (defCommand selectEntry [e OneEntry]
         (set selectedEntries [e]) [])
 
-    (defcommand selectEntries [entries (Entries null null)]
+    (defCommand selectEntries [entries (Entries null null)]
         (set selectedEntries entries) [])
 
-    (defcommand selectAllEntries []
+    (defCommand selectAllEntries []
         (set selectedEntries (for =>id e archive.entries e)) [])
 
-    (defcommand selectLastChangeSet []
+    (defCommand selectLastChangeSet []
         (set selectedEntries lastChangeSet) [])
 
-    (defcommand printSelectedEntries [entries (SelectedEntries null null)]
+    (defCommand printSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
     
-    (defcommand printComponent [entries (SelectedEntries null null)
+    (defCommand printComponent [entries (SelectedEntries null null)
                                     componentType (Text null)]
         (doFor e entries (ui.displayMessage (archive.componentData e componentType))) [])
         
-    (defcommand createEntry [name (Text null)]
+    (defCommand createEntry [name (Text null)]
         [(archive.createEntry ->e
             (addComponent archive e Name name))])
     
-    (defcommand createEntries [names (VarText null)]
+    (defCommand createEntries [names (VarText null)]
         (flatten (for name names
             (createEntry name))))
             
-    (defcommand addTags [entries (SelectedEntries 1 null)
+    (defCommand addTags [entries (SelectedEntries 1 null)
                             tagsToAdd (VarText null)]
         (doFor e entries
             (withWritableEntry archive e
@@ -171,7 +171,7 @@
                     (addComponent archive e Tags (for tag tagsToAdd =>tag 1)))))
         entries) // TODO this includes entries that already had the tag in the changeset
 
-    (defcommand removeTags [entries (SelectedEntries 1 null)
+    (defCommand removeTags [entries (SelectedEntries 1 null)
                                 tagsToRemove (VarText null)]
         (doFor e entries
             (withWritableEntry archive e
@@ -180,8 +180,8 @@
                             (doFor tag tagsToRemove (tags.remove tag))))))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
-    (defcommand selectByTags [tagsBoolExp (Text null)]
+    (defCommand selectByTags [tagsBoolExp (Text null)]
         (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
         
-    (defcommand selectByComponents [componentsBoolExp (Text null)]
+    (defCommand selectByComponents [componentsBoolExp (Text null)]
         (selectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp)))))
