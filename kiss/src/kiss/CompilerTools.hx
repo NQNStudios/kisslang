@@ -1,12 +1,13 @@
 package kiss;
 
-
 #if macro
 import kiss.Kiss;
 import kiss.Helpers;
 import sys.FileSystem;
 import sys.io.File;
 import haxe.io.Path;
+import haxe.macro.Expr;
+import haxe.macro.Context;
 
 using StringTools;
 using haxe.io.Path;
@@ -38,9 +39,9 @@ typedef CompilationArgs = {
 class CompilerTools {
     /**
      * Compile a kiss file into a standalone script.
-     * @return A function that, when called, executes the script and returns the script output as a string.
+     * @return An expression of a function that, when called, executes the script and returns the script output as a string.
      */
-    public static function compileFileToScript(kissFile:String, args:CompilationArgs):() -> String {
+    public static function compileFileToScript(kissFile:String, args:CompilationArgs):Expr {
         var k = Kiss.defaultKissState();
         var beginExpsInFile = Kiss.load(kissFile, k, "", true);
         return compileToScript([beginExpsInFile], args);
@@ -48,9 +49,9 @@ class CompilerTools {
 
     /**
      * Compile kiss expressions into a standalone script
-     * @return A function that, when called, executes the script and returns the script output as a string.
+     * @return An expression of a function that, when called, executes the script and returns the script output as a string.
      */
-    public static function compileToScript(exps:Array<ReaderExp>, args:CompilationArgs):() -> String {
+    public static function compileToScript(exps:Array<ReaderExp>, args:CompilationArgs):Expr {
         // if folder exists, delete it
         if (FileSystem.exists(args.outputFolder)) {
             for (file in FileSystem.readDirectory(args.outputFolder)) {
@@ -75,7 +76,7 @@ class CompilerTools {
                 copyToFolder(file);
             }
         }
-        
+
         // If a main haxe file was given, use it
         var mainHxFile = if (args.mainHxFile != null) {
             args.mainHxFile;
@@ -113,16 +114,16 @@ class CompilerTools {
 
         // run haxelib install on given hxml and generated hxml
         var hxmlFiles = [buildHxmlFile];
-        Helpers.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
+        Prelude.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
         if (args.hxmlFile != null) {
             hxmlFiles.push(args.hxmlFile);
-            Helpers.assertProcess("haxelib", ["install", "--always", args.hxmlFile]);
+            Prelude.assertProcess("haxelib", ["install", "--always", args.hxmlFile]);
         }
 
         // TODO install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
 
         // Compile the script
-        Helpers.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
+        Prelude.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
 
         var command = "";
         var scriptExt = "";
@@ -134,9 +135,11 @@ class CompilerTools {
                 command = "python";
                 scriptExt = "py";
         }
- 
-        // return lambda that calls new Process() that runs the target-specific file
-        return () -> Helpers.assertProcess(command, [Path.join([args.outputFolder, '$mainClassName.$scriptExt'])]);
+
+        // return an expression for a lambda that calls new Process() that runs the target-specific file
+        var callingCode = '() -> kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])])';
+        trace(callingCode);
+        return Context.parse(callingCode, Context.currentPos());
     }
 }
 #end

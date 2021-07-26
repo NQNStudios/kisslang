@@ -496,16 +496,6 @@ class Helpers {
 
     // Get the path to a haxelib the user has installed
     public static function libPath(haxelibName:String) {
-        return assertProcess("haxelib", ["libpath", haxelibName]);
-    }
-
-    public static function assertProcess(command:String, args:Array<String>):String {
-        var p = new Process(command, args);
-        switch (p.exitCode()) {
-            case 0:
-                return p.stdout.readAll().toString().trim();
-            default:
-                throw p.stderr.readAll().toString().trim();
-        }
+        return Prelude.assertProcess("haxelib", ["libpath", haxelibName]);
     }
 }

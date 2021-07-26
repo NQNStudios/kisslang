@@ -367,8 +367,8 @@ class Prelude {
         #if (!macro && hxnodejs)
         var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], {input: '${kissStr}\n'});
         if (kissProcess.status != 0) {
-            var error:String = kissProcess.stderr;
-            throw 'failed to convert ${kissStr} to hscript: ${error}';
+            var error:Buffer = kissProcess.stderr;
+            throw 'failed to convert ${kissStr} to hscript: ${error.toString()}';
         }
         var output:Buffer = kissProcess.stdout;
         return output.toString();
@@ -390,6 +390,30 @@ class Prelude {
         }
         #else
         throw "Can't convert Kiss to HScript on this target.";
+        #end
+    }
+
+    public static function assertProcess(command:String, args:Array<String>):String {
+        #if sys
+        var p = new Process(command, args);
+        switch (p.exitCode()) {
+            case 0:
+                return p.stdout.readAll().toString().trim();
+            default:
+                throw p.stderr.readAll().toString().trim();
+        }
+        #elseif hxnodejs
+        var p = ChildProcess.spawnSync(command, args);
+        switch (p.status) {
+            case 0:
+                var output:Buffer = p.stdout;
+                return output.toString();
+            default:
+                var error:String = p.stderr;
+                throw error;
+        }
+        #else
+        throw "Can't run a subprocess on this target."
         #end
     }
 }

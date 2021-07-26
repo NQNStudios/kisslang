@@ -73,6 +73,7 @@ class Kiss {
                 "has" => Symbol("Lambda.has"),
                 "count" => Symbol("Lambda.count"),
                 "enumerate" => Symbol("Prelude.enumerate"),
+                "assertProcess" => Symbol("Prelude.assertProcess"),
                 // These work with (apply) because they are added as "opAliases" in Macros.kiss:
                 "min" => Symbol("Prelude.min"),
                 "max" => Symbol("Prelude.max"),
