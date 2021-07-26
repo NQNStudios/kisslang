@@ -470,7 +470,8 @@ class Helpers {
             meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
             field: (f:String, exp:ReaderExp) -> FieldExp(f, exp).withPosOf(posRef),
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
-            begin: (exps:Array<ReaderExp>) -> CallExp(Symbol("begin").withPosOf(posRef), exps).withPosOf(posRef)
+            begin: (exps:Array<ReaderExp>) -> CallExp(Symbol("begin").withPosOf(posRef), exps).withPosOf(posRef),
+            none: () -> None.withPosOf(posRef)
         };
     }
 

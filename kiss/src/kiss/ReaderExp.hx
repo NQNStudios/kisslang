@@ -22,4 +22,5 @@ enum ReaderExpDef {
     UnquoteList(exp:ReaderExp); // ,@[exp]
     ListEatingExp(exps:Array<ReaderExp>); // [::exp exp ...exps exp]
     ListRestExp(name:String); // ...exps or ...
+    None; // not an expression, i.e. (#unless falseCondition exp)
 }

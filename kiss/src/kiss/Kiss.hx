@@ -191,9 +191,24 @@ class Kiss {
             // readerExpToHaxeExpr must be called to process readermacro, alias, and macro definitions
             var expr = readerExpToHaxeExpr(nextExp, k);
 
-            // exps in the loaded file that actually become haxe expressions can be inserted into the file that loaded them at the position
-            // (load) was called
-            if (expr != null) {
+            // exps in the loaded file that actually become haxe expressions can be inserted into the
+            // file that loaded them at the position (load) was called.
+            // conditional compiler macros like (#when) tend to return empty blocks, or blocks containing empty blocks
+            // when they contain field forms, so this should also be ignored
+            function isEmpty(expr) {
+                switch (expr.expr) {
+                    case EBlock([]):
+                    case EBlock(blockExps):
+                        for (exp in blockExps) {
+                            if (!isEmpty(exp))
+                                return false;
+                        }
+                    default:
+                        return false;
+                }
+                return true;
+            }
+            if (!isEmpty(expr)) {
                 loadedExps.push(nextExp);
             }
         });
@@ -228,7 +243,7 @@ class Kiss {
         return k.fieldList;
     }
 
-    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Null<Expr> {
+    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
         var macros = k.macros;
         var fieldForms = k.fieldForms;
         var specialForms = k.specialForms;
@@ -238,7 +253,11 @@ class Kiss {
         if (k.hscript)
             exp = Helpers.removeTypeAnnotations(exp);
 
+        var none = EBlock([]).withMacroPosOf(exp);
+
         var expr = switch (exp.def) {
+            case None:
+                none;
             case Symbol(alias) if (k.identAliases.exists(alias)):
                 readerExpToHaxeExpr(k.identAliases[alias].withPosOf(exp), k);
             case Symbol(name):
@@ -253,13 +272,13 @@ class Kiss {
                 var field = fieldForms[ff](exp, args, k);
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
-                null; // Field forms are no-ops
+                none; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expanded = macros[mac](exp, args, k);
                 if (expanded != null) {
                     convert(expanded);
                 } else {
-                    null;
+                    none;
                 };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
                 specialForms[specialForm](exp, args, k);

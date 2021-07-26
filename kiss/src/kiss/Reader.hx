@@ -393,6 +393,8 @@ class Reader {
                 str;
             case ListRestExp(name):
                 '...${name}';
+            case None:
+                '';
         }
     }
 }
