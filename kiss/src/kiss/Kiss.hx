@@ -29,10 +29,14 @@ typedef KissState = {
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
     wrapListExps:Bool,
-    loadedFiles:Map<String, Bool>,
+    loadedFiles:Map<String, Null<ReaderExp>>,
     callAliases:Map<String, ReaderExpDef>,
     identAliases:Map<String, ReaderExpDef>,
-    fields:Array<Field>,
+    fieldList:Array<Field>,
+    // TODO This map was originally created to track whether the programmer wrote their own main function, but could also
+    // be used to allow macros to edit fields that were already defined (for instance, to decorate a function or add something
+    // to the constructor body)
+    fieldDict:Map<String, Field>,
     loadingDirectory:String,
     hscript:Bool
 };
@@ -49,7 +53,7 @@ class Kiss {
             specialForms: SpecialForms.builtins(),
             macros: Macros.builtins(),
             wrapListExps: true,
-            loadedFiles: new Map<String, Bool>(),
+            loadedFiles: new Map<String, ReaderExp>(),
             // Helpful built-in aliases
             // These ones might conflict with a programmer's variable names, so they only apply in call expressions:
             callAliases: [
@@ -93,7 +97,8 @@ class Kiss {
                 "zipThrow" => Symbol("Prelude.zipThrow"),
                 "joinPath" => Symbol("Prelude.joinPath"),
             ],
-            fields: [],
+            fieldList: [],
+            fieldDict: new Map(),
             loadingDirectory: "",
             hscript: false
         };
@@ -144,37 +149,62 @@ class Kiss {
             if (k == null)
                 k = defaultKissState();
 
-            if (useClassFields)
-                k.fields = Context.getBuildFields();
+            if (useClassFields) {
+                k.fieldList = Context.getBuildFields();
+                for (field in k.fieldList) {
+                    k.fieldDict[field.name] = field;
+                }
+            }
             k.loadingDirectory = loadingDirectory;
 
-            load(kissFile, k);
+            var topLevelBegin = load(kissFile, k);
 
-            k.fields;
+            if (topLevelBegin != null) {
+
+            // TODO this is where an error would be thrown, or main() would be generated from top-level expressions
+            // TODO There are two ideas for how to handle expressions at the top level of a Kiss file:
+            //      1. Throw an error, because the top level should only contain field definitions
+            //      2. Append the expression to the body of an automatically generated main() function
+            // if that result is non-null, try to make main (but this may cause a duplicate declaration)
+            }
+
+            k.fieldList;
         });
     }
 
-    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String) {
+    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String):Null<ReaderExp> {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
 
         var fullPath = Path.join([loadingDirectory, kissFile]);
         if (k.loadedFiles.exists(fullPath)) {
-            return;
+            return k.loadedFiles[fullPath];
         }
-        k.loadedFiles[fullPath] = true;
         var stream = Stream.fromFile(fullPath);
+        var startPosition = stream.position();
+        var loadedExps = [];
         Reader.readAndProcess(stream, k, (nextExp) -> {
             #if test
             Sys.println(nextExp.def.toString());
             #end
 
+            // readerExpToHaxeExpr must be called to process readermacro, alias, and macro definitions
             var expr = readerExpToHaxeExpr(nextExp, k);
 
-            // TODO There are two ideas for how to handle expressions at the top level of a Kiss file:
-            //      1. Throw an error, because the top level should only contain field definitions
-            //      2. Append the expression to the body of an automatically generated main() function
+            // exps in the loaded file that actually become haxe expressions can be inserted into the file that loaded them at the position
+            // (load) was called
+            if (expr != null) {
+                loadedExps.push(nextExp);
+            }
         });
+
+        var exp = if (loadedExps.length > 0) {
+            CallExp(Symbol("begin").withPos(startPosition), loadedExps).withPos(startPosition);
+        } else {
+            null;
+        }
+        k.loadedFiles[fullPath] = exp;
+        return exp;
     }
 
     /**
@@ -184,14 +214,18 @@ class Kiss {
         if (k == null)
             k = defaultKissState();
 
-        if (useClassFields)
-            k.fields = Context.getBuildFields();
+        if (useClassFields) {
+            k.fieldList = Context.getBuildFields();
+            for (field in k.fieldList) {
+                k.fieldDict[field.name] = field;
+            }
+        }
 
         for (file in kissFiles) {
             build(file, k, false);
         }
 
-        return k.fields;
+        return k.fieldList;
     }
 
     public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Null<Expr> {
@@ -216,7 +250,9 @@ class Kiss {
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
             case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff)):
-                k.fields.push(fieldForms[ff](exp, args, k));
+                var field = fieldForms[ff](exp, args, k);
+                k.fieldList.push(field);
+                k.fieldDict[field.name] = field;
                 null; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 var expanded = macros[mac](exp, args, k);
