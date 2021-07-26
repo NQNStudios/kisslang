@@ -1,6 +1,6 @@
 package kiss;
 
-import sys.io.Process;
+
 #if macro
 import kiss.Kiss;
 import kiss.Helpers;
