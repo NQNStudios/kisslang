@@ -125,7 +125,7 @@ class Macros {
             var b = wholeExp.expBuilder();
             var conditionExp = exps.shift();
             var thenExp = exps.shift();
-            var elseExp = if (exps.length > 0) exps.shift(); else b.symbol("null");
+            var elseExp = if (exps.length > 0) exps.shift(); else b.none();
 
             var parser = new Parser();
             var conditionInterp = new KissInterp(true);
