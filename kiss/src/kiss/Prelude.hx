@@ -359,7 +359,7 @@ class Prelude {
     /**
      * On Sys targets and nodejs, Kiss can be converted to hscript at runtime
      * NOTE on non-nodejs targets, after the first time calling this function,
-     * it will be much faster
+     * it will be much faster -- but things like reader macros will get stuck in the KissState, which you may not intend
      * NOTE on non-nodejs sys targets, newlines in raw strings will be stripped away.
      * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
      */
@@ -393,9 +393,21 @@ class Prelude {
         #end
     }
 
-    public static function assertProcess(command:String, args:Array<String>):String {
+    public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>):String {
+        if (inputLines != null) {
+            for (line in inputLines) {
+                if (line.indexOf("\n") != -1) {
+                    throw 'newline is not allowed in the middle of a process input line: "${line.replace("\n", "\\n")}"';
+                }
+            }
+        }
         #if sys
         var p = new Process(command, args);
+        if (inputLines != null) {
+            for (line in inputLines) {
+                p.stdin.writeString('$line\n');
+            }
+        }
         switch (p.exitCode()) {
             case 0:
                 return p.stdout.readAll().toString().trim();
@@ -403,7 +415,11 @@ class Prelude {
                 throw p.stderr.readAll().toString().trim();
         }
         #elseif hxnodejs
-        var p = ChildProcess.spawnSync(command, args);
+        var p = if (inputLines != null) {
+            ChildProcess.spawnSync(command, args, {input: inputLines.join("\n")});
+        } else {
+            ChildProcess.spawnSync(command, args);
+        }
         switch (p.status) {
             case 0:
                 var output:Buffer = p.stdout;
@@ -413,7 +429,7 @@ class Prelude {
                 throw error;
         }
         #else
-        throw "Can't run a subprocess on this target."
+        throw "Can't run a subprocess on this target.";
         #end
     }
 }
