@@ -18,9 +18,8 @@ enum CompileLang {
 }
 
 typedef CompilationArgs = {
-    lang:CompileLang,
     // path to a folder where the script will be compiled
-    outputFolder:String,
+    ?outputFolder:String,
     // path to a file with haxe import statements in it
     ?importHxFile:String,
     // path to a file with hxml args in it (SHOULD NOT specify target or main class)
@@ -41,17 +40,21 @@ class CompilerTools {
      * Compile a kiss file into a standalone script.
      * @return An expression of a function that, when called, executes the script and returns the script output as a string.
      */
-    public static function compileFileToScript(kissFile:String, args:CompilationArgs):Expr {
+    public static function compileFileToScript(kissFile:String, lang:CompileLang, args:CompilationArgs):Expr {
         var k = Kiss.defaultKissState();
         var beginExpsInFile = Kiss.load(kissFile, k, "", true);
-        return compileToScript([beginExpsInFile], args);
+        return compileToScript([beginExpsInFile], lang, args);
     }
 
     /**
      * Compile kiss expressions into a standalone script
      * @return An expression of a function that, when called, executes the script and returns the script output as a string.
      */
-    public static function compileToScript(exps:Array<ReaderExp>, args:CompilationArgs):Expr {
+    public static function compileToScript(exps:Array<ReaderExp>, lang:CompileLang, args:CompilationArgs):Expr {
+        if (args.outputFolder == null) {
+            args.outputFolder = Path.join(["bin", '_kissScript${nextAnonymousScriptId++}']);
+        }
+
         // if folder exists, delete it
         if (FileSystem.exists(args.outputFolder)) {
             for (file in FileSystem.readDirectory(args.outputFolder)) {
@@ -101,7 +104,7 @@ class CompilerTools {
         var buildHxmlContent = "";
         buildHxmlContent += "-lib kiss\n";
         buildHxmlContent += '--main $mainClassName\n';
-        switch (args.lang) {
+        switch (lang) {
             case JavaScript:
                 // Throw in hxnodejs because we know node will be running the script:
                 buildHxmlContent += '-lib hxnodejs\n';
@@ -127,7 +130,7 @@ class CompilerTools {
 
         var command = "";
         var scriptExt = "";
-        switch (args.lang) {
+        switch (lang) {
             case JavaScript:
                 command = "node";
                 scriptExt = "js";
@@ -137,9 +140,13 @@ class CompilerTools {
         }
 
         // return an expression for a lambda that calls new Process() that runs the target-specific file
-        var callingCode = '() -> kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])])';
+        var callingCode = 'function (?inputLines:Array<String>) { return kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])], inputLines); }';
+        #if test
         trace(callingCode);
+        #end
         return Context.parse(callingCode, Context.currentPos());
     }
+
+    static var nextAnonymousScriptId = 0;
 }
 #end

@@ -310,7 +310,7 @@ class Helpers {
     // When we ARE running at compiletime already, the pre-existing interp will be used
     static var interps:kiss.List<Interp> = [];
 
-    public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
+    public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
         var code = k.forHScript().convert(exp).toString(); // tink_macro to the rescue
         #if test
         Prelude.print("Compile-time hscript: " + code);
@@ -353,6 +353,11 @@ class Helpers {
         if (value == null) {
             throw CompileError.fromExp(exp, "compile-time evaluation returned null");
         }
+        return value;
+    }
+
+    public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
+        var value = runAtCompileTimeDynamic(exp, k, args);
         var expResult = compileTimeValueToReaderExp(value, exp);
         #if test
         Prelude.print('Compile-time value: ${Reader.toString(expResult.def)}');
@@ -363,6 +368,7 @@ class Helpers {
     // The value could be either a ReaderExp, ReaderExpDef, Array of ReaderExp/ReaderExpDefs, or something else entirely,
     // but it needs to be a ReaderExp for evalUnquotes()
     static function compileTimeValueToReaderExp(e:Dynamic, source:ReaderExp):ReaderExp {
+        // TODO if it's a string, return a StrExp. That way, symbolNameValue() won't be required
         return if (Std.isOfType(e, Array)) {
             var arr:Array<Dynamic> = e;
             var listExps = arr.map(compileTimeValueToReaderExp.bind(_, source));
@@ -463,6 +469,7 @@ class Helpers {
         return {
             call: (func:ReaderExp, args:Array<ReaderExp>) -> CallExp(func, args).withPosOf(posRef),
             callSymbol: (symbol:String, args:Array<ReaderExp>) -> CallExp(Symbol(symbol).withPosOf(posRef), args).withPosOf(posRef),
+            print: (arg:ReaderExp) -> CallExp(Symbol("print").withPosOf(posRef), [arg]).withPosOf(posRef),
             list: (exps:Array<ReaderExp>) -> ListExp(exps).withPosOf(posRef),
             str: (s:String) -> StrExp(s).withPosOf(posRef),
             symbol: (?name:String) -> Prelude.symbol(name).withPosOf(posRef),

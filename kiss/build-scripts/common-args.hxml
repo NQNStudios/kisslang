@@ -1,6 +1,7 @@
 -lib hscript
 -lib uuid
 -lib tink_macro
+-lib tink_json
 -cp kiss/src
 -cp cloner/src
 -D analyzer-optimize

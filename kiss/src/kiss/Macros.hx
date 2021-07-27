@@ -6,13 +6,17 @@ import kiss.Reader;
 import kiss.ReaderExp;
 import kiss.Kiss;
 import kiss.CompileError;
+import kiss.CompilerTools;
 import uuid.Uuid;
 import hscript.Parser;
+import haxe.EnumTools;
 
 using kiss.Kiss;
+using kiss.Prelude;
 using kiss.Reader;
 using kiss.Helpers;
 using StringTools;
+using tink.MacroApi;
 
 // Macros generate new Kiss reader expressions from the arguments of their call expression.
 typedef MacroFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Null<ReaderExp>;
@@ -758,6 +762,72 @@ class Macros {
             };
 
             return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("k")]);
+        };
+
+        // Maybe the NEW wildest code in Kiss?
+        macros["#extern"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(4, null, "(#extern <BodyType> <lang> <?compileArgs object> [<typed bindings...>] <body...>)");
+
+            var bodyType = exps.shift();
+            var langExp = exps.shift();
+            var originalLang = langExp.symbolNameValue();
+            // make the lang argument forgiving, because many will assume it can match the compiler defines and command-line arguments of Haxe
+            var lang = switch (originalLang) {
+                case "python" | "py": "Python";
+                case "js" | "javascript": "JavaScript";
+                default: originalLang;
+            };
+
+            var allowedLangs = EnumTools.getConstructors(CompileLang);
+            if (allowedLangs.indexOf(lang) == -1) {
+                throw CompileError.fromExp(langExp, 'unsupported lang for #extern: $originalLang should be one of $allowedLangs');
+            }
+            var langArg = EnumTools.createByName(CompileLang, lang);
+
+            var compileArgsExp = null;
+            var bindingListExp = null;
+            var nextArg = exps.shift();
+            switch (nextArg.def) {
+                case CallExp({pos: _, def: Symbol("object")}, _):
+                    compileArgsExp = nextArg;
+                    nextArg = exps.shift();
+                case ListExp(_):
+                // Let the next switch handle the binding list
+                default:
+                    throw CompileError.fromExp(nextArg, "second argument to #extern can either be a CompileArgs object or a list of typed bindings");
+            }
+            switch (nextArg.def) {
+                case ListExp(_):
+                    bindingListExp = nextArg;
+                default:
+                    throw CompileError.fromExp(nextArg, "#extern requires a list of typed bindings");
+            }
+
+            var compileArgs:CompilationArgs = if (compileArgsExp != null) {
+                Helpers.runAtCompileTimeDynamic(compileArgsExp, k);
+            } else {
+                {};
+            }
+
+            trace(compileArgs);
+            trace(bindingListExp);
+            // TODO generate tink_json writers and parsers for this
+
+            var b = wholeExp.expBuilder();
+            var externExps = [
+                b.print(
+                    b.callSymbol("tink.Json.stringify", [
+                        b.callSymbol("the", [
+                            bodyType, b.begin(exps)
+                        ])
+                    ]))
+            ];
+            b.callSymbol("the", [
+                bodyType,
+                b.callSymbol("tink.Json.parse", [
+                    b.call(b.raw(CompilerTools.compileToScript(externExps, langArg, compileArgs).toString()), [])
+                ])
+            ]);
         };
 
         return macros;

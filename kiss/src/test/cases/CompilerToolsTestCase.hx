@@ -3,6 +3,7 @@ package test.cases;
 import utest.Assert;
 import utest.Test;
 import kiss.CompilerTools;
+import kiss.Prelude;
 #if macro
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -15,8 +16,7 @@ class CompilerToolsTestCase extends Test {
 
     static macro function _testCompileHelloWorldJs() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", {
-                lang: JavaScript,
+            "kiss/template/src/template/Main.kiss", JavaScript, {
                 outputFolder: "bin/helloWorldJsTest",
             });
     }
@@ -27,8 +27,7 @@ class CompilerToolsTestCase extends Test {
 
     static macro function _testCompileHelloWorldPy() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", {
-                lang: Python,
+            "kiss/template/src/template/Main.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTest",
             });
     }

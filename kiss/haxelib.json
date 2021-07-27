@@ -12,6 +12,7 @@
     "dependencies": {
         "hscript": "",
         "uuid": "",
-        "tink_macro": ""
+        "tink_macro": "",
+        "tink_json": ""
     }
 }

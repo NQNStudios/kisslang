@@ -47,6 +47,7 @@ class Reader {
         forceSymbol("#unless");
         forceSymbol("#cond");
         forceSymbol("#case");
+        forceSymbol("#extern");
 
         readTable["/*"] = (stream, k) -> {
             stream.takeUntilAndDrop("*/");

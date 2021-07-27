@@ -1,0 +1,13 @@
+(function _testExternPython []
+    (Assert.isTrue
+        (#extern Bool python []
+            (#if python
+                    true
+                false))))
+
+(function _testExternJavaScript []
+    (Assert.isTrue
+        (#extern Bool js []
+            (#if js
+                    true
+                false))))
