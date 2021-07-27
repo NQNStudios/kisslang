@@ -1,10 +1,10 @@
 // solution to: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
   (function :Array<Int> twosum [:Array<Int> numbers target]
      (let [di (new Map<Int,Int>)]
-         (doFor [i num] (enumerate numbers)
+         (doFor [i num] (enumerate numbers 1)
           //  (print "$i $num")
              (if (di.exists (- target num))
-             (return [(+ 1 (dictGet di (- target num))) (+ i 1)]))
+             (return [(dictGet di (- target num)) i]))
             (dictSet di num i)))
   (return null))
 
