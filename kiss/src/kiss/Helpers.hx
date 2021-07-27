@@ -466,19 +466,37 @@ class Helpers {
     // Return convenient functions for succinctly making new ReaderExps that link back to an original exp's
     // position in source code
     public static function expBuilder(posRef:ReaderExp) {
+        function _symbol(?name:String) {
+            return Prelude.symbol(name).withPosOf(posRef);
+        }
+        function call(func:ReaderExp, args:Array<ReaderExp>) {
+            return CallExp(func, args).withPosOf(posRef);
+        }
+        function callSymbol(symbol:String, args:Array<ReaderExp>) {
+            return call(_symbol(symbol), args);
+        }
+        function field(f:String, exp:ReaderExp) {
+            return FieldExp(f, exp).withPosOf(posRef);
+        }
+        function list(exps:Array<ReaderExp>) {
+            return ListExp(exps).withPosOf(posRef);
+        }
         return {
-            call: (func:ReaderExp, args:Array<ReaderExp>) -> CallExp(func, args).withPosOf(posRef),
-            callSymbol: (symbol:String, args:Array<ReaderExp>) -> CallExp(Symbol(symbol).withPosOf(posRef), args).withPosOf(posRef),
+            call: call,
+            callSymbol: callSymbol,
+            callField: (fieldName:String, callOn:ReaderExp, args:Array<ReaderExp>) -> call(field(fieldName, callOn), args),
             print: (arg:ReaderExp) -> CallExp(Symbol("print").withPosOf(posRef), [arg]).withPosOf(posRef),
-            list: (exps:Array<ReaderExp>) -> ListExp(exps).withPosOf(posRef),
+            the: (type:ReaderExp, value:ReaderExp) -> callSymbol("the", [type, value]),
+            list: list,
             str: (s:String) -> StrExp(s).withPosOf(posRef),
-            symbol: (?name:String) -> Prelude.symbol(name).withPosOf(posRef),
+            symbol: _symbol,
             raw: (code:String) -> RawHaxe(code).withPosOf(posRef),
             typed: (path:String, exp:ReaderExp) -> TypedExp(path, exp).withPosOf(posRef),
             meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
-            field: (f:String, exp:ReaderExp) -> FieldExp(f, exp).withPosOf(posRef),
+            field: field,
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
-            begin: (exps:Array<ReaderExp>) -> CallExp(Symbol("begin").withPosOf(posRef), exps).withPosOf(posRef),
+            begin: (exps:Array<ReaderExp>) -> callSymbol("begin", exps),
+            let: (bindings:Array<ReaderExp>, body:Array<ReaderExp>) -> callSymbol("let", [list(bindings)].concat(body)),
             none: () -> None.withPosOf(posRef)
         };
     }

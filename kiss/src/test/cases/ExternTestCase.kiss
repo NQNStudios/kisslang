@@ -1,13 +1,10 @@
 (function _testExternPython []
     (Assert.isTrue
-        (#extern Bool python []
-            (#if python
-                    true
-                false))))
+        (#extern Bool python [:String passingString "Hello python!"]
+            (python.NativeStringTools.startswith passingString "Hello"))))
 
 (function _testExternJavaScript []
-    (Assert.isTrue
-        (#extern Bool js []
-            (#if js
-                    true
-                false))))
+    (Assert.equals 18
+        (let [jsToEval "5+6+7"]
+            (#extern Int js [:String jsToEval _]
+                (js.Lib.eval jsToEval)))))

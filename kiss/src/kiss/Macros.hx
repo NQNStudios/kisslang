@@ -809,25 +809,49 @@ class Macros {
                 {};
             }
 
-            trace(compileArgs);
-            trace(bindingListExp);
-            // TODO generate tink_json writers and parsers for this
-
             var b = wholeExp.expBuilder();
+
+            // TODO generate tink_json writers and parsers for this
+            var bindingList = bindingListExp.bindingList("#extern", true);
+
+            var idx = 0;
+            var stringifyExpList = [];
+            var parseBindingList = [];
+            while (idx < bindingList.length) {
+                var type = "";
+                var untypedName = switch (bindingList[idx].def) {
+                    case TypedExp(_type, symbol = {pos: _, def: Symbol(name)}):
+                        type = _type;
+                        symbol;
+                    default: throw CompileError.fromExp(bindingList[idx], "name in #extern binding list must be a typed symbol");
+                };
+                switch (bindingList[idx + 1].def) {
+                    // _ in the value position of the #extern binding list will reuse the name as the value
+                    case Symbol("_"):
+                        bindingList[idx + 1] = untypedName;
+                    default:
+                }
+                stringifyExpList.push(b.callSymbol("tink.Json.stringify", [b.the(b.symbol(type), bindingList[idx + 1])]));
+                parseBindingList.push(bindingList[idx]);
+                parseBindingList.push(b.callSymbol("tink.Json.parse", [b.callField("readLine", b.callSymbol("Sys.stdin", []), [])]));
+                idx += 2;
+            }
+
             var externExps = [
                 b.print(
                     b.callSymbol("tink.Json.stringify", [
-                        b.callSymbol("the", [
-                            bodyType, b.begin(exps)
-                        ])
+                        b.the(bodyType, if (bindingList.length > 0) {
+                            b.let(parseBindingList, exps);
+                        } else {
+                            b.begin(exps);
+                        })
                     ]))
             ];
-            b.callSymbol("the", [
+            b.the(
                 bodyType,
                 b.callSymbol("tink.Json.parse", [
-                    b.call(b.raw(CompilerTools.compileToScript(externExps, langArg, compileArgs).toString()), [])
-                ])
-            ]);
+                    b.call(b.raw(CompilerTools.compileToScript(externExps, langArg, compileArgs).toString()), [b.list(stringifyExpList)])
+                ]));
         };
 
         return macros;

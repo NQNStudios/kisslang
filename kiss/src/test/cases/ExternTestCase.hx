@@ -7,6 +7,7 @@ import kiss.Prelude;
 
 @:build(kiss.Kiss.build())
 class ExternTestCase extends Test {
+    #if (sys || hxnodejs)
     function testExternPython() {
         _testExternPython();
     }
@@ -14,4 +15,5 @@ class ExternTestCase extends Test {
     function testExternJavaScript() {
         _testExternJavaScript();
     }
+    #end
 }
