@@ -10,6 +10,7 @@ import haxe.macro.Context;
 #end
 
 class CompilerToolsTestCase extends Test {
+    #if (sys || hxnodejs)
     function testCompileHelloWorldJs() {
         Assert.equals("Hello world!", _testCompileHelloWorldJs()());
     }
@@ -33,4 +34,5 @@ class CompilerToolsTestCase extends Test {
     }
 
     // TODO test what happens when passing more arguments/files
+    #end
 }
