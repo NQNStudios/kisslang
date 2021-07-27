@@ -10,7 +10,9 @@ import haxe.macro.Context;
 #end
 
 class CompilerToolsTestCase extends Test {
-    #if (sys || hxnodejs)
+    // Skip these tests on C# for now because they will fail due to this haxe bug:
+    // https://github.com/HaxeFoundation/haxe/issues/10332
+    #if ((sys || hxnodejs) && !cs)
     function testCompileHelloWorldJs() {
         Assert.equals("Hello world!", _testCompileHelloWorldJs()());
     }

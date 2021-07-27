@@ -7,7 +7,9 @@ import kiss.Prelude;
 
 @:build(kiss.Kiss.build())
 class ExternTestCase extends Test {
-    #if (sys || hxnodejs)
+    // Skip these tests on C# for now because they will fail due to this haxe bug:
+    // https://github.com/HaxeFoundation/haxe/issues/10332
+    #if ((sys || hxnodejs) && !cs)
     function testExternPython() {
         _testExternPython();
     }
