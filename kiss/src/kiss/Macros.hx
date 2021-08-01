@@ -661,12 +661,16 @@ class Macros {
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, null, "(defNew [[args...]] [[optional property bindings...]] [optional body...]");
 
-            var args = exps[0];
-            var bindingList = if (exps.length > 1) {
-                exps[1].bindingList("defNew", true);
-            } else {
-                [];
-            };
+            var args = exps.shift();
+            var bindingList = [];
+
+            if (exps.length != 0) {
+                switch (exps[0].def) {
+                    case ListExp(_):
+                        bindingList = exps.shift().bindingList("defNew", true);
+                    default:
+                }
+            }
             var bindingPairs = Prelude.groups(bindingList, 2);
 
             var propertyDefs = [for (bindingPair in bindingPairs) {
@@ -706,7 +710,7 @@ class Macros {
                 b.call(b.symbol("method"), [
                     b.symbol("new"),
                     b.list(argList)
-                ].concat(propertySetExps).concat(exps.slice(2)))
+                ].concat(propertySetExps).concat(exps))
             ]));
         };
         renameAndDeprecate("defnew", "defNew");
