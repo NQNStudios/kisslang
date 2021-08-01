@@ -412,7 +412,7 @@ class Prelude {
             case 0:
                 return p.stdout.readAll().toString().trim();
             default:
-                throw p.stderr.readAll().toString().trim();
+                throw 'process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}';
         }
         #elseif hxnodejs
         var p = if (inputLines != null) {
@@ -425,8 +425,9 @@ class Prelude {
                 var output:Buffer = p.stdout;
                 return output.toString();
             default:
-                var error:String = p.stderr;
-                throw error;
+                var output:Buffer = p.stdout;
+                var error:Buffer = p.stderr;
+                throw 'process $command $args failed:\n${output.toString() + error.toString()}';
         }
         #else
         throw "Can't run a subprocess on this target.";

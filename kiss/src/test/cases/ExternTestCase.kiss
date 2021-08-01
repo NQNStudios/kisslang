@@ -10,5 +10,4 @@
     (Assert.equals 18
         (let [jsToEval "5+6+7"]
             (#extern Int js [:String jsToEval _]
-                (js.Lib.eval jsToEval)))))
-)
+                (js.Lib.eval jsToEval))))))
