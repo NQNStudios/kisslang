@@ -3,7 +3,7 @@
 KISS_TARGET=${KISS_TARGET:-$1}
 KISS_TARGET=${KISS_TARGET:-interp}
 
-haxelib dev kiss kiss
+./test-env.sh
 
 # If Travis is running tests, basic dependencies need to be installed
 if [ ! -z "$CI_OS_NAME" ]
