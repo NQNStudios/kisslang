@@ -24,7 +24,7 @@ typedef CompilationArgs = {
     ?importHxFile:String,
     // path to a file with hxml args in it (SHOULD NOT specify target or main class)
     ?hxmlFile:String,
-    // path to a package.json or requirements.txt file
+    // path to a package.json, requirements.txt, or setup.py file
     ?langProjectFile:String,
     // path to a haxe file defining the Main class
     ?mainHxFile:String,
@@ -56,6 +56,8 @@ class CompilerTools {
         }
 
         // if folder exists, delete it
+        // TODO this assumes the user hasn't put folders in the folder, which
+        // would cause a failure because we're not deleting recursively
         if (FileSystem.exists(args.outputFolder)) {
             for (file in FileSystem.readDirectory(args.outputFolder)) {
                 FileSystem.deleteFile(Path.join([args.outputFolder, file]));
@@ -123,10 +125,10 @@ class CompilerTools {
             Prelude.assertProcess("haxelib", ["install", "--always", args.hxmlFile]);
         }
 
-        // TODO install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
-
         // Compile the script
         Prelude.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
+
+        // TODO install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
 
         var command = "";
         var scriptExt = "";
@@ -134,9 +136,29 @@ class CompilerTools {
             case JavaScript:
                 command = "node";
                 scriptExt = "js";
+            // npm install outputfolder
             case Python:
                 command = "python";
                 scriptExt = "py";
+                if (args.langProjectFile != null) {
+                    trace(args.langProjectFile);
+                    // Make a virtual environment
+                    // NOTE this is placed outside the output folder, so it will get reused.
+                    // In some cases this might be bad if the virtual environment gets bad
+                    // versions of dependencies stuck in it
+                    var envFolder = '${args.outputFolder}-env';
+                    Prelude.assertProcess("python", ["-m", "venv", envFolder]);
+                    var envPython = Path.join([envFolder, "Scripts", "python"]);
+                    command = envPython;
+                    switch (args.langProjectFile.extension()) {
+                        case "txt":
+                            // the requirements file's original path is fine for this case
+                            Prelude.assertProcess(envPython, ["-m", "pip", "install", "-r", args.langProjectFile]);
+                        case "py":
+                            // python setup.py install
+                            Prelude.assertProcess(envPython, [Path.join([args.outputFolder, args.langProjectFile.withoutDirectory()]), "install"]);
+                    }
+                }
         }
 
         // return an expression for a lambda that calls new Process() that runs the target-specific file

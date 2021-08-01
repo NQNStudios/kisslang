@@ -15,6 +15,7 @@ class CompilerToolsTestCase extends Test {
     #if ((sys || hxnodejs) && !cs)
     function testCompileHelloWorldJs() {
         Assert.equals("Hello world!", _testCompileHelloWorldJs()());
+        Assert.equals("Hello world!", _testCompileHelloWorldJsWithPackageJson()());
     }
 
     static macro function _testCompileHelloWorldJs() {
@@ -24,14 +25,40 @@ class CompilerToolsTestCase extends Test {
             });
     }
 
+    static macro function _testCompileHelloWorldJsWithPackageJson() {
+        return CompilerTools.compileFileToScript(
+            "kiss/template/src/template/Main.kiss", JavaScript, {
+                outputFolder: "bin/helloWorldJsTestWithPackageJson",
+                // langProjectFile: "kiss/src/test/files/package.json"
+            });
+    }
+
     function testCompileHelloWorldPy() {
         Assert.equals("Hello world!", _testCompileHelloWorldPy()());
+        Assert.equals("Hello world!", _testCompileHelloWorldPyWithRequirementsTxt()());
+        Assert.equals("Hello world!", _testCompileHelloWorldPyWithSetupPy()());
     }
 
     static macro function _testCompileHelloWorldPy() {
         return CompilerTools.compileFileToScript(
             "kiss/template/src/template/Main.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTest",
+            });
+    }
+
+    static macro function _testCompileHelloWorldPyWithRequirementsTxt() {
+        return CompilerTools.compileFileToScript(
+            "kiss/template/src/template/Main.kiss", Python, {
+                outputFolder: "bin/helloWorldPyTestWithRequirementsTxt",
+                langProjectFile: "kiss/src/test/files/requirements.txt"
+            });
+    }
+
+    static macro function _testCompileHelloWorldPyWithSetupPy() {
+        return CompilerTools.compileFileToScript(
+            "kiss/template/src/template/Main.kiss", Python, {
+                outputFolder: "bin/helloWorldPyTestWithSetupPy",
+                langProjectFile: "kiss/src/test/files/setup.py"
             });
     }
 
