@@ -1,0 +1,5 @@
+-lib kiss
+-cp src
+--main requests_externs.Main
+--python bin/main.py
+--cmd python bin/main.py
