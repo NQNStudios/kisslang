@@ -23,8 +23,9 @@ class Requests {
         return NativeRequests.get(url, mapToDict(params), kwArgs);
     }
 
-    static function mapToDict(?map:Map<String,String>) {
-        if (map == null) return null;
+    static function mapToDict(?map:Map<String, String>) {
+        if (map == null)
+            return null;
         var dict = new Dict<String, String>();
         for (key => value in map) {
             dict.set(key, value);

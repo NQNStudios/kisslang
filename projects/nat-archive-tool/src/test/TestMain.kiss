@@ -1,21 +1,13 @@
 // External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "../nat/Lib.kiss")
 
-(print "dicks")
-
 (assert (BoolExpInterp.eval "true" []))
-(print "dicks")
 (assert !(BoolExpInterp.eval "false" []))
-(print "dicks")
 (assert !(BoolExpInterp.eval "flag" []))
-(print "dicks")
 (assert (BoolExpInterp.eval "flag" ["flag"]))
-(print "dicks")
 (assert !(BoolExpInterp.eval "(and flag false)" ["flag"]))
-(print "dicks")
 (assert (BoolExpInterp.eval "(or flag otherFlag)" ["otherFlag"]))
 
-(print "dicks")
 (let [archive
             (new Archive "src/test/example-archive")
         song1
@@ -23,7 +15,6 @@
         song2
             (dictGet archive.entries "song2")]
 
-(print "dicks")
     (assert (hasComponent song1 Tags))
     (assert (hasComponent song2 Tags))
     (assert (componentsMatch song1 "(and Name Author)"))
@@ -32,15 +23,12 @@
     (assert !(tagsMatch archive song1 "(and song religious)"))
     (assert (tagsMatch archive song2 "(and song religious)"))
     (assert !(tagsMatch archive song2 "(and song western)"))
-(print "dicks")
 
     (withWritableComponents archive song1
         [author Author
             name Name]
         (assert (= author "Rafael Krux"))
         (assert (= name "Adventure"))))
-
-(print "dicks")
 
 (let [wikipedia (new MediaWikiSystem "https://en.wikipedia.org/w/api.php" null null 1)]
     //~(wikipedia.queryProp ["Phoenix Wright"] ["images"])
