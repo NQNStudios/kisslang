@@ -10,27 +10,31 @@
         processor))
 
 // TODO make this an externMethod --
-    // but mediaWikiUrl, headers, and maxLag will still have to be specified, not as args
-    // unless all vars and props are passed to externmethods by default
-(method :Dynamic queryProp [:Array<String> titles :Array<String> props]
+// but mediaWikiUrl, headers, and maxLag will still have to be specified, not as args
+// unless all vars and props are passed to externmethods by default
+(method :Dynamic query [:Map<String,Array<String>> params]
     (Json.parse
         (#extern String python
             (object
                 hxmlFile "extern-files/python/args.hxml"
                 importHxFile "extern-files/python/import.hx"
                 langProjectFile "extern-files/python/requirements.txt")
-            [:Array<String> titles _ :Array<String> props _ :String mediaWikiUrl _ :String maxLag (if maxLag (Std.string maxLag) "1") :Map<String,String> headers _]
+            [:Map<String,Array<String>> params _ :String mediaWikiUrl _ :String maxLag (if maxLag (Std.string maxLag) "1") :Map<String,String> headers _]
             (let [response
                         (Requests.get mediaWikiUrl 
-                            [
-                                =>"action" "query"
-                                =>"titles" (titles.join "|")
-                                =>"prop" (props.join "|")
-                                =>"maxlag" maxLag
-                                =>"format" "json"
-                            ]
+                            (let [innerParams
+                                        [
+                                            =>"action" "query"
+                                            =>"maxlag" maxLag
+                                            =>"format" "json"
+                                        ]]
+                                (doFor =>param paramValues params (dictSet innerParams param (paramValues.join "|")))
+                                innerParams)
                             (object headers headers))]
                 (assert response.ok)
                 response.text))))
+
+(defmethod queryImageTitles [:Array<String> pageTitles]
+    (flatten (for =>_id page (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" pageTitles =>"prop" ["images"]])) (page.images.map ->image image.title))))
 
 (var headers [=>"User-Agent" "NatArchiveTool/0.0.0 (https://github.com/NQNStudios/kisslang/tree/main/projects/nat-archive-tool; natquaylenelson@gmail.com) Requests/2.26.0"])
