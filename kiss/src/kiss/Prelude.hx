@@ -368,14 +368,26 @@ class Prelude {
      * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
      */
     public static function convertToHScript(kissStr:String):String {
-        #if (!macro && (hxnodejs || python))
+        #if (!macro && hxnodejs)
         var hscript = try {
             assertProcess("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], kissStr.split('\n'));
         } catch (e) {
             throw 'failed to convert ${kissStr} to hscript:\n$e';
         }
-        var output:Buffer = kissProcess.stdout;
-        return output.toString();
+        if (hscript.startsWith(">>> ")) {
+            hscript = hscript.substr(4);
+        }
+        return hscript.trim();
+        #elseif (!macro && python)
+        var hscript = try {
+            assertProcess("haxelib", ["run", "kiss", "convert", "--hscript"], [kissStr.replace('\n', ' ')], false);
+        } catch (e) {
+            throw 'failed to convert ${kissStr} to hscript:\n$e';
+        }
+        if (hscript.startsWith(">>> ")) {
+            hscript = hscript.substr(4);
+        }
+        return hscript.trim();
         #elseif sys
         if (kissProcess == null)
             kissProcess = new Process("haxelib", ["run", "kiss", "convert", "--hscript"]);
@@ -397,7 +409,7 @@ class Prelude {
         #end
     }
 
-    public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>):String {
+    public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true):String {
         if (inputLines != null) {
             for (line in inputLines) {
                 if (line.indexOf("\n") != -1) {
@@ -415,14 +427,20 @@ class Prelude {
         if (inputLines != null) {
             for (line in inputLines) {
                 p.stdin.write(new Bytearray('$line\n', "utf-8"));
-                trace(line);
             }
         }
-        switch (p.wait()) {
-            case 0:
+
+        if (fullProcess) {
+            if (p.wait() == 0) {
                 return p.stdout.readall().decode().trim();
-            default:
+            } else {
                 throw 'process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}';
+            }
+        } else {
+            // The haxe extern for FileIO.readline() says it's a string, but it's not, it's bytes!
+            var bytes:Dynamic = p.stdout.readline();
+            var s:String = bytes.decode();
+            return Prelude.print(s.trim());
         }
         #elseif sys
         var p = new Process(command, args);
@@ -431,11 +449,14 @@ class Prelude {
                 p.stdin.writeString('$line\n');
             }
         }
-        switch (p.exitCode()) {
-            case 0:
+        if (fullProcess) {
+            if (p.exitCode() == 0) {
                 return p.stdout.readAll().toString().trim();
-            default:
+            } else {
                 throw 'process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}';
+            }
+        } else {
+            return p.stdout.readLine().toString().trim();
         }
         #elseif hxnodejs
         var p = if (inputLines != null) {
