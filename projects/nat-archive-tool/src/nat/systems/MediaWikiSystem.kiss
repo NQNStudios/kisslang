@@ -18,13 +18,13 @@
             hxmlFile "extern-files/python/args.hxml"
             importHxFile "extern-files/python/import.hx"
             langProjectFile "extern-files/python/requirements.txt")
-        [:Array<String> titles _ :Array<String> props _ :String mediaWikiUrl _ :Float maxLag (or maxLag 1) :Map<String,String> headers _]
+        [:Array<String> titles _ :Array<String> props _ :String mediaWikiUrl _ :String maxLag (if maxLag (Std.string maxLag) "1") :Map<String,String> headers _]
         (Requests.get mediaWikiUrl 
             [
                 =>"action" "query"
                 =>"titles" (titles.join "|")
                 =>"prop" (props.join "|")
-                =>"maxlag" (Std.string maxLag)
+                =>"maxlag" maxLag
                 =>"format" "json"
             ]
             (object headers headers))))
