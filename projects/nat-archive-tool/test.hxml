@@ -4,5 +4,3 @@
 -lib requests-externs
 -cp test
 --main test.TestMain
---python bin/main.py
---cmd python bin/main.py
