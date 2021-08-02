@@ -6,6 +6,7 @@ import nat.BoolExpInterp;
 import nat.Archive;
 import nat.Lib;
 import nat.components.*;
+import nat.systems.*;
 
 @:build(kiss.Kiss.build())
 class TestMain {}

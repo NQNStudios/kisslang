@@ -2,6 +2,7 @@
 -lib uuid
 -lib tink_macro
 -lib tink_json
+-lib requests-externs
 -cp src
 --main nat.CLI
 --interp

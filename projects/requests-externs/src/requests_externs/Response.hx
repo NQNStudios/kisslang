@@ -1,4 +1,6 @@
 package requests_externs;
 
 @:pythonImport("requests.Response")
-extern class Response {}
+extern class NativeResponse {}
+
+typedef Response = {};

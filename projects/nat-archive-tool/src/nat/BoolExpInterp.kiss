@@ -1,9 +1,9 @@
 (function eval [:String expStr :Array<String> activeConditions]
-    (let [hscriptExp
-                (.parseString (new Parser)
-                    (Prelude.convertToHScript expStr))
-            interp
-                (new BoolExpInterp)]
+    (let [hscript (Prelude.convertToHScript expStr)
+            parser (new Parser)
+            hscriptExp (parser.parseString hscript)
+            interp (new BoolExpInterp)]
+
         (doFor condition activeConditions
             (interp.variables.set condition true))
         ?(interp.execute hscriptExp)))

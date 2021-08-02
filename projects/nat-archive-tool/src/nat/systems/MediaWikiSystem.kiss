@@ -1,0 +1,32 @@
+(load "../Lib.kiss")
+
+(defNew [&prop :String mediaWikiUrl
+            // TODO make a &super annotation that passes an argument to the super constructor
+            :EntryChecker canProcess
+            :EntryProcessor processor
+            &prop :Null<Float> maxLag] 
+    (super
+        canProcess
+        processor))
+
+// TODO make this an externMethod --
+    // but mediaWikiUrl, headers, and maxLag will still have to be specified, not as args
+    // unless all vars and props are passed to externmethods by default
+(method :Response queryProp [:Array<String> titles :Array<String> props]
+    (#extern Response python
+        (object
+            hxmlFile "extern-files/python/args.hxml"
+            importHxFile "extern-files/python/import.hx"
+            langProjectFile "extern-files/python/requirements.txt")
+        [:Array<String> titles _ :Array<String> props _ :String mediaWikiUrl _ :Float maxLag (or maxLag 1) :Map<String,String> headers _]
+        (Requests.get mediaWikiUrl 
+            [
+                =>"action" "query"
+                =>"titles" (titles.join "|")
+                =>"prop" (props.join "|")
+                =>"maxlag" (Std.string maxLag)
+                =>"format" "json"
+            ]
+            (object headers headers))))
+
+(var headers [=>"User-Agent" "NatArchiveTool/0.0.0 (https://github.com/NQNStudios/kisslang/tree/main/projects/nat-archive-tool; natquaylenelson@gmail.com) Requests/2.26.0"])
