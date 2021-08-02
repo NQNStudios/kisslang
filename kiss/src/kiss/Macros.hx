@@ -835,7 +835,7 @@ class Macros {
                         bindingList[idx + 1] = untypedName;
                     default:
                 }
-                stringifyExpList.push(b.callSymbol("tink.Json.stringify", [b.the(b.symbol(type), bindingList[idx + 1])]));
+                stringifyExpList.push(b.the(b.symbol("String"), b.callSymbol("tink.Json.stringify", [b.the(b.symbol(type), bindingList[idx + 1])])));
                 parseBindingList.push(bindingList[idx]);
                 parseBindingList.push(b.callSymbol("tink.Json.parse", [b.callField("readLine", b.callSymbol("Sys.stdin", []), [])]));
                 idx += 2;
