@@ -31,4 +31,4 @@
         (assert (= name "Adventure"))))
 
 (let [wikipedia (new MediaWikiSystem "https://en.wikipedia.org/w/api.php" null null 1)]
-    ~(wikipedia.queryImageTitles ["Phoenix Wright"]))
+    ~(wikipedia.queryImageUrls (wikipedia.queryImageTitles ["Phoenix Wright"])))
