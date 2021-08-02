@@ -11,6 +11,10 @@ import js.node.Buffer;
 #elseif sys
 import sys.io.Process;
 #end
+#if python
+import python.lib.subprocess.Popen;
+import python.Bytearray;
+#end
 import uuid.Uuid;
 import haxe.io.Path;
 
@@ -401,7 +405,26 @@ class Prelude {
                 }
             }
         }
-        #if sys
+        #if python
+        // on Python, after new Process() is called, writing inputLines to stdin becomes impossible. Use python.lib.subprocess instead
+        var p = Popen.create([command].concat(args), {
+            stdin: -1, // -1 represents PIPE which allows communication
+            stdout: -1,
+            stderr: -1,
+        });
+        if (inputLines != null) {
+            for (line in inputLines) {
+                p.stdin.write(new Bytearray('$line\n', "utf-8"));
+                trace(line);
+            }
+        }
+        switch (p.wait()) {
+            case 0:
+                return p.stdout.readall().decode().trim();
+            default:
+                throw 'process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}';
+        }
+        #elseif sys
         var p = new Process(command, args);
         if (inputLines != null) {
             for (line in inputLines) {
