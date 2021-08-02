@@ -3,7 +3,6 @@ package requests_externs;
 import haxe.extern.EitherType;
 import python.Dict;
 import python.KwArgs;
-import requests_externs.Response;
 
 typedef NativeRequestKwArgs = {
     ?headers:Dict<String, String>
@@ -15,12 +14,12 @@ typedef RequestKwArgs = {
 
 @:pythonImport("requests")
 extern class NativeRequests {
-    public static function get(url:String, params:Dict<String, String>, ?kwArgs:KwArgs<RequestKwArgs>):NativeResponse;
+    public static function get(url:String, params:Dict<String, String>, ?kwArgs:KwArgs<NativeRequestKwArgs>):Dynamic;
 }
 
 class Requests {
-    public static function get(url:String, params:Map<String, String>, ?kwArgs:KwArgs<RequestKwArgs>):NativeResponse {
-        return NativeRequests.get(url, mapToDict(params), kwArgs);
+    public static function get(url:String, params:Map<String, String>, ?kwArgs:RequestKwArgs):Dynamic {
+        return NativeRequests.get(url, mapToDict(params), kwArgsToNativeKwArgs(kwArgs));
     }
 
     static function mapToDict(?map:Map<String, String>) {
@@ -33,7 +32,9 @@ class Requests {
         return dict;
     }
 
-    static function kwArgsToNativeKwArgs(kwArgs:RequestKwArgs) {
+    static function kwArgsToNativeKwArgs(?kwArgs:RequestKwArgs) {
+        if (kwArgs == null)
+            return null;
         return {
             headers: mapToDict(kwArgs.headers)
         };
