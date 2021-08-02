@@ -368,11 +368,11 @@ class Prelude {
      * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
      */
     public static function convertToHScript(kissStr:String):String {
-        #if (!macro && hxnodejs)
-        var kissProcess = ChildProcess.spawnSync("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], {input: '${kissStr}\n'});
-        if (kissProcess.status != 0) {
-            var error:Buffer = kissProcess.stderr;
-            throw 'failed to convert ${kissStr} to hscript: ${error.toString()}';
+        #if (!macro && (hxnodejs || python))
+        var hscript = try {
+            assertProcess("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], kissStr.split('\n'));
+        } catch (e) {
+            throw 'failed to convert ${kissStr} to hscript:\n$e';
         }
         var output:Buffer = kissProcess.stdout;
         return output.toString();
