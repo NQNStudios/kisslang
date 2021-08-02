@@ -1,2 +1,3 @@
+-lib hxnodejs
 --js bin/js/main.js
 --cmd node bin/js/main.js 
