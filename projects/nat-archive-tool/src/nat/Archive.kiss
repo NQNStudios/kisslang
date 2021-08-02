@@ -4,9 +4,11 @@
             []
         :Map<String,Entry> entries
             (let [entryDir (joinPath archiveDir "entries")
-                    componentDir (joinPath archiveDir "components")]
+                    componentDir (joinPath archiveDir "components")
+                    filesDir (joinPath archiveDir "files")]
                 (FileSystem.createDirectory entryDir)
                 (FileSystem.createDirectory componentDir)
+                (FileSystem.createDirectory filesDir)
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
                     (for file entryFiles =>(file.withoutExtension) (the Entry (Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))])
 

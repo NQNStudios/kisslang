@@ -51,6 +51,13 @@
             ,@saveList
             ,retValSymbol)))
 
+(function addFile [:Archive archive :Entry e :String file &opt leaveOriginalCopy]
+    (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
+        (unless !(= -1 (e.files.indexOf pathWithoutDir))
+            ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
+                file (joinPath archive.archiveDir "files" pathWithoutDir))
+            (e.files.push pathWithoutDir))))
+
 (defMacro withWritableEntry [archive e &body body]
     (let [retValSymbol
                 (symbol)]

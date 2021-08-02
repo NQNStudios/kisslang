@@ -184,4 +184,13 @@
         (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
         
     (defCommand selectByComponents [componentsBoolExp (Text null)]
-        (selectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp)))))
+        (selectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp))))
+        
+    (defCommand attachFiles [entries (SelectedEntries 1 null)
+        // TODO add File and Files as an argument type for commands, ArchiveUI
+        // TODO make tkinter file browser externs and use tkinter as the file picking mechanism for CLI
+                                files (VarText null)]
+        (doFor e entries
+            (doFor file files
+                (withWritableEntry archive e (addFile archive e file))))
+        entries))
