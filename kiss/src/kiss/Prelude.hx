@@ -410,6 +410,9 @@ class Prelude {
     }
 
     public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true):String {
+        #if test
+        Prelude.print('running $command $args $inputLines');
+        #end
         if (inputLines != null) {
             for (line in inputLines) {
                 if (line.indexOf("\n") != -1) {
