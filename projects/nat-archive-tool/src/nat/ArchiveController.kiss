@@ -186,5 +186,5 @@
                                 files (VarText null)]
         (doFor e entries
             (doFor file files
-                (withWritableEntry archive e (addFile archive e file))))
+                (addFile archive e file)))
         entries))

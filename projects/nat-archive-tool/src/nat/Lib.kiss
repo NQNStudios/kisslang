@@ -26,10 +26,10 @@
 
 // TODO check not overwriting a component
 (defMacro addComponent [archive e componentType c]
-    `(let [componentId (Uuid.v4)]
+    `(withWritableEntry ,archive ,e (let [componentId (uuid.Uuid.v4)]
         (dictSet .components ,e ,(symbolName componentType) componentId)
         (writeComponent ,archive ,e ,componentType ,c)
-        ,e))
+        ,e)))
 
 // Retrieve multiple components from an Entity with mutable access.
 // All components will be serialized after the block is done.
