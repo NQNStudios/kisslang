@@ -51,7 +51,7 @@
             ,@saveList
             ,retValSymbol)))
 
-(function addFile [:Archive archive :Entry e :String file &opt leaveOriginalCopy]
+(function addFile [:nat.Archive archive :nat.Entry e :String file &opt leaveOriginalCopy]
     (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
         (unless !(= -1 (e.files.indexOf pathWithoutDir))
             ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
@@ -68,7 +68,7 @@
 // Create a system that selects Entries according to a single string component (i.e. Name or Author) matching the given value
 (defMacro stringComponentSystem [archive componentType value process]
     `(new System
-        (lambda [archive :Entry e]
+        (lambda [archive :nat.Entry e]
             ?(and (hasComponent e ,componentType)
                 (= ,value (readComponent ,archive e ,componentType))))
         ,process))
