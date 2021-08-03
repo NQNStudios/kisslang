@@ -443,7 +443,7 @@ class Prelude {
             // The haxe extern for FileIO.readline() says it's a string, but it's not, it's bytes!
             var bytes:Dynamic = p.stdout.readline();
             var s:String = bytes.decode();
-            return Prelude.print(s.trim());
+            return s.trim();
         }
         #elseif sys
         var p = new Process(command, args);
