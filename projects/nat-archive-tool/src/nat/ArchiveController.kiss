@@ -134,34 +134,35 @@
         &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)]
     
-    (defCommand selectEntry [e OneEntry]
+    (defCommand SelectEntry [e OneEntry]
         (set selectedEntries [e]) [])
 
-    (defCommand selectEntries [entries (Entries null null)]
+    (defCommand SelectEntries [entries (Entries null null)]
         (set selectedEntries entries) [])
 
-    (defCommand selectAllEntries []
+    (defCommand SelectAllEntries []
         (set selectedEntries (for =>id e archive.entries e)) [])
 
-    (defCommand selectLastChangeSet []
+    (defCommand SelectLastChangeSet []
         (set selectedEntries lastChangeSet) [])
 
-    (defCommand printSelectedEntries [entries (SelectedEntries null null)]
+    (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
     
-    (defCommand printComponent [entries (SelectedEntries null null)
+    (defCommand PrintComponent [entries (SelectedEntries null null)
                                     componentType (Text null)]
         (doFor e entries (ui.displayMessage (archive.componentData e componentType))) [])
         
-    (defCommand createEntry [name (Text null)]
+    (defCommand CreateEntry [name (Text null)]
         [(archive.createEntry ->e
             (addComponent archive e Name name))])
     
-    (defCommand createEntries [names (VarText null)]
+    (defCommand CreateEntries [names (VarText null)]
+        // createEntry returns a list, so these lists must be flattened
         (flatten (for name names
-            (createEntry name))))
+            (CreateEntry name))))
             
-    (defCommand addTags [entries (SelectedEntries 1 null)
+    (defCommand AddTags [entries (SelectedEntries 1 null)
                             tagsToAdd (VarText null)]
         (doFor e entries
             (withWritableEntry archive e
@@ -171,7 +172,7 @@
                     (addComponent archive e Tags (for tag tagsToAdd =>tag 1)))))
         entries) // TODO this includes entries that already had the tag in the changeset
 
-    (defCommand removeTags [entries (SelectedEntries 1 null)
+    (defCommand RemoveTags [entries (SelectedEntries 1 null)
                                 tagsToRemove (VarText null)]
         (doFor e entries
             (withWritableEntry archive e
@@ -180,13 +181,13 @@
                             (doFor tag tagsToRemove (tags.remove tag))))))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
-    (defCommand selectByTags [tagsBoolExp (Text null)]
-        (selectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
+    (defCommand SelectByTags [tagsBoolExp (Text null)]
+        (SelectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
         
-    (defCommand selectByComponents [componentsBoolExp (Text null)]
-        (selectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp))))
+    (defCommand SelectByComponents [componentsBoolExp (Text null)]
+        (SelectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp))))
         
-    (defCommand attachFiles [entries (SelectedEntries 1 null)
+    (defCommand AttachFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
         // TODO make tkinter file browser externs and use tkinter as the file picking mechanism for CLI
                                 files (VarText null)]

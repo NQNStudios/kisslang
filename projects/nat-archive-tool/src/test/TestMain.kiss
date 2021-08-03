@@ -28,7 +28,12 @@
         [author Author
             name Name]
         (assert (= author "Rafael Krux"))
-        (assert (= name "Adventure"))))
+        (assert (= name "Adventure")))
 
-(let [wikipedia (new MediaWikiSystem "https://en.wikipedia.org/w/api.php" null null 1)]
-    ~(wikipedia.queryImageUrls (wikipedia.queryImageTitles ["Phoenix Wright"])))
+    (let [wikipedia (new MediaWikiSystem "https://en.wikipedia.org/w/api.php" null null 1)]
+        ~(wikipedia.queryImageUrls (wikipedia.queryImageTitles ["Phoenix Wright"])))
+
+    // TODO make a dummy UI for this, instead of passing null
+    (let [controller (new ArchiveController archive null)]
+        // TODO test controller
+        0))
