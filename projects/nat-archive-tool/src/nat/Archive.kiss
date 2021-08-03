@@ -19,6 +19,9 @@
     (systems.push system)
     system)
 
+(method processSystems []
+    (doFor system systems (system.process this)))
+
 (method :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
     (let [e (_newEntry)]
         (initializer e)

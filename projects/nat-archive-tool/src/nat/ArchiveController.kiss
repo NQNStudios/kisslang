@@ -133,6 +133,10 @@
     [&mut :Array<Entry> selectedEntries []
         &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)]
+
+    // Add systems!
+    (archive.addSystem (new WikipediaImageSystem))
+    (archive.processSystems)
     
     (defCommand SelectEntry [e OneEntry]
         (set selectedEntries [e]) [])
@@ -180,11 +184,10 @@
     (defCommand SelectByComponents [componentsBoolExp (Text null)]
         (SelectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp))))
         
-    (defCommand AttachFiles [entries (SelectedEntries 1 null)
+    (defCommand AddFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
         // TODO make tkinter file browser externs and use tkinter as the file picking mechanism for CLI
                                 files (VarText null)]
         (doFor e entries
-            (doFor file files
-                (addFile archive e file)))
+            (addFiles archive e files))
         entries))

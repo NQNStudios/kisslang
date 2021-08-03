@@ -1,11 +1,1 @@
-{
-    "id": "song1",
-    "components": [
-        ["Name", "name1"],
-        ["Author", "author1"],
-        ["Tags", "tags1"]
-    ],
-    "files": [
-        "Adventure.mp3"
-    ]
-}
+{"components":[["Tags","tags1"],["Name","name1"],["Author","author1"]],"files":["Adventure.mp3"],"id":"song1"}

@@ -141,7 +141,6 @@ class CompilerTools {
                 command = "python";
                 scriptExt = "py";
                 if (args.langProjectFile != null) {
-                    trace(args.langProjectFile);
                     // Make a virtual environment
                     // NOTE this is placed outside the output folder, so it will get reused.
                     // In some cases this might be bad if the virtual environment gets bad

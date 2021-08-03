@@ -34,10 +34,16 @@
                 (assert response.ok)
                 response.text))))
 
-(defmethod queryImageTitles [:Array<String> pageTitles]
-    (flatten (for =>_id page (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" pageTitles =>"prop" ["images"]])) (page.images.map ->image image.title))))
+(method :Array<String> queryImageTitles [:Array<String> pageTitles]
+    (flatten
+        (for =>_id page (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" pageTitles =>"prop" ["images"]]))
+            (if page.images
+                    (page.images.map ->image image.title)
+                []))))
 
-(defmethod queryImageUrls [:Array<String> imageTitles]
-    (flatten (for =>_id image (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]])) (image.imageinfo.map ->image image.url))))
+(method :Array<String> queryImageUrls [:Array<String> imageTitles]
+    (flatten
+        (for =>_id image (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]]))
+            (image.imageinfo.map ->image image.url))))
 
 (var headers [=>"User-Agent" "NatArchiveTool/0.0.0 (https://github.com/NQNStudios/kisslang/tree/main/projects/nat-archive-tool; natquaylenelson@gmail.com) Requests/2.26.0"])
