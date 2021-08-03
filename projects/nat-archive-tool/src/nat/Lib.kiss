@@ -51,13 +51,6 @@
             ,@saveList
             ,retValSymbol)))
 
-(function addFile [:nat.Archive archive :nat.Entry e :String file &opt leaveOriginalCopy]
-    (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
-        (unless !(= -1 (e.files.indexOf pathWithoutDir))
-            ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
-                file (joinPath archive.archiveDir "files" pathWithoutDir))
-            (e.files.push pathWithoutDir))))
-
 (defMacro withWritableEntry [archive e &body body]
     (let [retValSymbol
                 (symbol)]
@@ -83,3 +76,23 @@
 
 (function componentsMatch [:nat.Entry e componentsBoolExp]
     (BoolExpInterp.eval componentsBoolExp (for =>cType cId e.components cType)))
+
+(function addFile [:nat.Archive archive :nat.Entry e :String file &opt leaveOriginalCopy]
+    (withWritableEntry archive e
+        (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
+            (unless !(= -1 (e.files.indexOf pathWithoutDir))
+                ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
+                    file (joinPath archive.archiveDir "files" pathWithoutDir))
+                (e.files.push pathWithoutDir)))))
+
+(function addTags [:nat.Archive archive :nat.Entry e :Array<String> tagsToAdd]
+    (if (hasComponent e Tags)
+            (withWritableComponents archive e [tags Tags]
+                (doFor tag tagsToAdd (dictSet tags tag 1)))
+        (addComponent archive e Tags (for tag tagsToAdd =>tag 1))))
+
+(function removeTags [:nat.Archive archive :nat.Entry e :Array<String> tagsToRemove]
+    (when (hasComponent e Tags)
+        (withWritableComponents archive e [tags Tags]
+            (doFor tag tagsToRemove (tags.remove tag)))))
+
