@@ -301,6 +301,10 @@ class Prelude {
         }
     }
 
+    public static function chooseRandom<T>(l:kiss.List<T>) {
+        return l[Std.random(l.length)];
+    }
+
     // Based on: http://old.haxe.org/doc/snip/memoize
     public static function memoize(func:Function, ?caller:Dynamic):Function {
         var argMap = new Map<String, Dynamic>();

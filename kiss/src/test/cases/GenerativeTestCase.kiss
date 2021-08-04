@@ -1,0 +1,55 @@
+(defMacroVar maxInt 1000000000)
+(defMacroVar maxStringLength 20)
+(defMacroVar maxExps 4)
+
+(defMacroFunction _macroList [func length]
+    ~(for _ (range length) (func)))
+
+(defMacro macroRepeat [exp length]
+    `(begin ,@(_macroList ->{exp} (eval length))))
+
+(defMacroFunction _randomLengthMacroList [func]
+    (_macroList func (+ 2 (random (- maxExps 2)))))
+
+(defMacroFunction _randomLetterString []
+    (ReaderExp.StrExp (apply + (for _ (range (random maxStringLength)) (chooseRandom (.split "abcdefghijklmnopqrstuvwxyz" ""))))))
+
+(defMacroFunction _randomFalsyExp []
+    ((chooseRandom
+        [
+            ->{`null}
+            ->{`false}
+            ->{`""}
+            ->{`[]}
+            ->{`(or ,@(_randomLengthMacroList _randomFalsyExp))}
+            ->{`(and
+                    ,@(_randomLengthMacroList _randomUncertainExp)
+                    (_randomFalsyExp)
+                    ,@(_randomLengthMacroList _randomUncertainExp))}
+        ])))
+(defMacro randomFalsyExp []
+    ~(_randomFalsyExp))
+
+(defMacroFunction _randomTruthyExp []
+    ((chooseRandom
+        [
+            ->{`true}
+            ->{(_randomLetterString)}
+        ])))
+(defMacro randomTruthyExp []
+    ~(_randomTruthyExp))
+
+(defMacroFunction _randomUncertainExp []
+    ((chooseRandom
+        [
+            ->(_randomFalsyExp)
+            ->(_randomTruthyExp)
+        ])))
+(defMacro randomUncertainExp []
+    ~(_randomUncertainExp))
+
+(function _testTruthy []
+    (macroRepeat (Assert.isTrue ?(randomTruthyExp)) maxExps))
+
+(function _testFalsy []
+    (macroRepeat (Assert.isFalse ?(randomFalsyExp)) maxExps))

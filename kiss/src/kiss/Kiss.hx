@@ -76,6 +76,7 @@ class Kiss {
                 "count" => Symbol("Lambda.count"),
                 "enumerate" => Symbol("Prelude.enumerate"),
                 "assertProcess" => Symbol("Prelude.assertProcess"),
+                "random" => Symbol("Std.random"),
                 // These work with (apply) because they are added as "opAliases" in Macros.kiss:
                 "min" => Symbol("Prelude.min"),
                 "max" => Symbol("Prelude.max"),
@@ -93,6 +94,8 @@ class Kiss {
                 "<" => Symbol("Prelude.lessThan"),
                 "<=" => Symbol("Prelude.lesserEqual"),
                 "=" => Symbol("Prelude.areEqual"),
+                // These ones *probably* won't conflict with variables and might be passed as functions
+                "chooseRandom" => Symbol("Prelude.chooseRandom"),
                 // These ones *probably* won't conflict with variables and might commonly be used with (apply) because they are variadic
                 "concat" => Symbol("Prelude.concat"),
                 "zipKeep" => Symbol("Prelude.zipKeep"),
