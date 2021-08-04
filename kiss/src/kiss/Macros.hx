@@ -733,6 +733,27 @@ class Macros {
         macros["once"] = once.bind("var");
         macros["oncePerInstance"] = once.bind("prop");
 
+        macros["defMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(defMacroVar <name> <value>)");
+
+            var name = exps[0].symbolNameValue();
+
+            k.macroVars[name] = Helpers.runAtCompileTimeDynamic(exps[1], k);
+
+            return null;
+        };
+
+        macros["defMacroFunction"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, null, "(defMacroFunction <name> [<args>] <body...>)");
+            var b = wholeExp.expBuilder();
+            var name = exps[0].symbolNameValue();
+            var lambdaExp = b.callSymbol("lambda", [exps[1]].concat(exps.slice(2)));
+
+            k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
+
+            return null;
+        };
+
         // Replace "try" with this in a try-catch statement to let all exceptions throw
         // their original call stacks. This is more convenient for debugging than trying to
         // comment out the "try" and its catches, and re-balance parens

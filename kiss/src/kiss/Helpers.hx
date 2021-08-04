@@ -331,6 +331,9 @@ class Helpers {
             interp.variables.set("k", k.forHScript());
             interp.variables.set("Helpers", Helpers);
             interp.variables.set("Macros", Macros);
+            for (name => value in k.macroVars) {
+                interp.variables.set(name, value);
+            }
             interps.push(interp);
         } else {
             interps.push(new Cloner().clone(interps[-1]));

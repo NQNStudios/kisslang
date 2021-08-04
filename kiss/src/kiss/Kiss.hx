@@ -38,7 +38,8 @@ typedef KissState = {
     // to the constructor body)
     fieldDict:Map<String, Field>,
     loadingDirectory:String,
-    hscript:Bool
+    hscript:Bool,
+    macroVars:Map<String, Dynamic>
 };
 
 class Kiss {
@@ -101,7 +102,8 @@ class Kiss {
             fieldList: [],
             fieldDict: new Map(),
             loadingDirectory: "",
-            hscript: false
+            hscript: false,
+            macroVars: new Map()
         };
 
         // Helpful aliases
