@@ -19,6 +19,7 @@ class KissInterp extends Interp {
 
         this.nullForUnknownVar = nullForUnknownVar;
 
+        variables.set("Reflect", Reflect);
         variables.set("Prelude", Prelude);
         variables.set("Lambda", Lambda);
         variables.set("Std", Std);

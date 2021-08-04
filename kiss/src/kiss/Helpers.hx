@@ -334,6 +334,9 @@ class Helpers {
             for (name => value in k.macroVars) {
                 interp.variables.set(name, value);
             }
+            // This is kind of a big deal:
+            interp.variables.set("eval", Helpers.runAtCompileTimeDynamic.bind(_, k));
+
             interps.push(interp);
         } else {
             interps.push(new Cloner().clone(interps[-1]));

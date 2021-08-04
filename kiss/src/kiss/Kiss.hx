@@ -58,6 +58,7 @@ class Kiss {
             // Helpful built-in aliases
             // These ones might conflict with a programmer's variable names, so they only apply in call expressions:
             callAliases: [
+                // TODO some of these probably won't conflict, and could be passed as functions for a number of reasons
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
                 "groups" => Symbol("Prelude.groups"),
@@ -106,7 +107,6 @@ class Kiss {
             macroVars: new Map()
         };
 
-        // Helpful aliases
         return k;
     }
 
