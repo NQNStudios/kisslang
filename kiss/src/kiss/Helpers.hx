@@ -11,6 +11,7 @@ import kiss.CompileError;
 import kiss.Kiss;
 import kiss.SpecialForms;
 import kiss.Prelude;
+import kiss.cloner.Cloner;
 import uuid.Uuid;
 import sys.io.Process;
 
@@ -332,12 +333,10 @@ class Helpers {
             interp.variables.set("Macros", Macros);
             interps.push(interp);
         } else {
-            interps.push(interps[-1]);
+            interps.push(new Cloner().clone(interps[-1]));
         }
         var parsed = parser.parseString(code);
 
-        // TODO if an internal evaluation ever needs to end before its outer evaluation is done,
-        // this will cause problems because the old args will be overwritten and lost
         interps[-1].variables.set("__args__", args); // trippy
         if (args != null) {
             for (arg => value in args) {
