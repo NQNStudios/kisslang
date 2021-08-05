@@ -26,8 +26,8 @@
         (doFor [name type] argPairs
             (untypedArgs.push name)
             (letBindings.push name)
-            (print type)
-            (print name)
+            // (print type)
+            // (print name)
             (letBindings.push `(the ,type ,name)))
         (print letBindings)
         `(function ,name ,untypedArgs
