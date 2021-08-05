@@ -313,7 +313,7 @@ class Helpers {
 
     public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
         var code = k.forHScript().convert(exp).toString(); // tink_macro to the rescue
-        #if test
+        #if macrotest
         Prelude.print("Compile-time hscript: " + code);
         #end
         var parser = new Parser();
@@ -364,7 +364,7 @@ class Helpers {
     public static function runAtCompileTime(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
         var value = runAtCompileTimeDynamic(exp, k, args);
         var expResult = compileTimeValueToReaderExp(value, exp);
-        #if test
+        #if macrotest
         Prelude.print('Compile-time value: ${Reader.toString(expResult.def)}');
         #end
         return expResult;
