@@ -14,6 +14,12 @@
 (defMacroFunction _randomLetterString []
     (ReaderExp.StrExp (apply + (for _ (range (+ 1 (random (- maxStringLength 1)))) (chooseRandom (.split "abcdefghijklmnopqrstuvwxyz" ""))))))
 
+(defMacroFunction _randomInt []
+    (symbol (Std.string (random maxInt))))
+
+(defMacroFunction _randomFloat []
+    (symbol (Std.string (+ (random maxInt) (/ 1 (random maxInt))))))
+
 (defMacroFunction _randomFalsyExp []
     ((chooseRandom
         [
@@ -34,7 +40,18 @@
     ((chooseRandom
         [
             ->{`true}
-            ->{(_randomLetterString)}
+            ->(_randomLetterString)
+            ->(_randomInt)
+            ->(_randomFloat)
+            // These cause stack overflows because it's hard to implement a recursion limit at macro time
+            /*->{`[,@(_randomLengthMacroList _randomLetterString)]}
+            ->{`[,@(_randomLengthMacroList _randomInt)]}
+            ->{`[,@(_randomLengthMacroList _randomFloat)]}
+            ->{`(and ,@(_randomLengthMacroList _randomTruthyExp))}
+            ->{`(or 
+                    ,@(_randomLengthMacroList _randomUncertainExp)
+                    ,(_randomTruthyExp)
+                    ,@(_randomLengthMacroList _randomUncertainExp))}*/
         ])))
 (defMacro randomTruthyExp []
     (printExp (_randomTruthyExp) "Truthy"))
@@ -45,8 +62,6 @@
             ->(_randomFalsyExp)
             ->(_randomTruthyExp)
         ])))
-(defMacro randomUncertainExp []
-    (_randomUncertainExp))
 
 (function _testTruthy []
     (macroRepeat (Assert.isTrue ?(randomTruthyExp)) 10))
