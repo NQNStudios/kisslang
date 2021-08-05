@@ -322,12 +322,21 @@ class Prelude {
         return f;
     }
 
-    public static dynamic function print<T>(v:T):T {
+    public static dynamic function printStr(s:String) {
         #if (sys || hxnodejs)
-        Sys.println(v);
+        Sys.println(s);
         #else
-        trace(v);
+        trace(s);
         #end
+    }
+
+    public static function print<T>(v:T, label = ""):T {
+        var toPrint = label;
+        if (label.length > 0) {
+            toPrint += ": ";
+        }
+        toPrint += Std.string(v);
+        printStr(toPrint);
         return v;
     }
 

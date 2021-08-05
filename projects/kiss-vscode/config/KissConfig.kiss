@@ -209,10 +209,7 @@
     (registerCommand description (lambda :Void [&opt _] (executeCommand command))))
 
 (function :Void registerBuiltins []
-    (set Prelude.print
-        ->[v] {
-            (infoMessage (Std.string v))
-            v})
+    (set Prelude.printStr Vscode.window.showInformationMessage)
     (registerCommand "Run a [k]iss command" runCommand)
     (registerCommand "Rerun last command" runLastCommand)
     (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)

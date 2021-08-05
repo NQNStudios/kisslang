@@ -28,7 +28,7 @@
                     ,@(_randomLengthMacroList _randomUncertainExp))}
         ])))
 (defMacro randomFalsyExp []
-    ~(_randomFalsyExp))
+    (printExp (_randomFalsyExp) "Falsy"))
 
 (defMacroFunction _randomTruthyExp []
     ((chooseRandom
@@ -37,7 +37,7 @@
             ->{(_randomLetterString)}
         ])))
 (defMacro randomTruthyExp []
-    ~(_randomTruthyExp))
+    (printExp (_randomTruthyExp) "Truthy"))
 
 (defMacroFunction _randomUncertainExp []
     ((chooseRandom

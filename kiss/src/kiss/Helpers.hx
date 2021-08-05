@@ -323,6 +323,7 @@ class Helpers {
             interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
             interp.variables.set("ReaderExp", ReaderExpDef);
             interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
+            interp.variables.set("printExp", printExp);
             interp.variables.set("kiss", {
                 ReaderExp: {
                     ReaderExpDef: ReaderExpDef
@@ -383,6 +384,17 @@ class Helpers {
         } else {
             (e : ReaderExp);
         }
+    }
+
+    public static function printExp(e:Dynamic, label = "") {
+        var toPrint = label;
+        if (label.length > 0) {
+            toPrint += ": ";
+        }
+        var expDef = if (e.def != null) e.def else e;
+        toPrint += Reader.toString(expDef);
+        Prelude.printStr(toPrint);
+        return e;
     }
 
     static function evalUnquoteLists(l:Array<ReaderExp>, k:KissState, ?args:Map<String, Dynamic>):Array<ReaderExp> {
