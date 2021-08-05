@@ -342,7 +342,11 @@ class Helpers {
         } else {
             interps.push(new Cloner().clone(interps[-1]));
         }
-        var parsed = parser.parseString(code);
+        var parsed = try {
+            parser.parseString(code);
+        } catch (e) {
+            throw CompileError.fromExp(exp, 'macro-time hscript parsing failed with $e:\n$code');
+        }
 
         interps[-1].variables.set("__args__", args); // trippy
         if (args != null) {
