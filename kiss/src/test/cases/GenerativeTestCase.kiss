@@ -1,6 +1,7 @@
 (defMacroVar maxInt 1000000000)
 (defMacroVar maxStringLength 20)
 (defMacroVar maxExps 4)
+(defMacroVar maxDepth 15)
 
 (defMacroFunction _macroList [func length]
     (for _ (range length) (func)))
@@ -22,37 +23,46 @@
 
 (defMacroFunction _randomFalsyExp []
     ((chooseRandom
-        [
-            ->{`null}
-            ->{`false}
-            ->{`""}
-            ->{`[]}
-            ->{`(or ,@(_randomLengthMacroList _randomFalsyExp))}
-            ->{`(and
-                    ,@(_randomLengthMacroList _randomUncertainExp)
-                    ,(_randomFalsyExp)
-                    ,@(_randomLengthMacroList _randomUncertainExp))}
-        ])))
+        (concat
+            [
+                ->{`null}
+                ->{`false}
+                ->{`""}
+                ->{`[]}
+            ]
+            (if (< (macroDepth) maxDepth)
+                    [
+                        ->{`(or ,@(_randomLengthMacroList _randomFalsyExp))}
+                        ->{`(and
+                                ,@(_randomLengthMacroList _randomUncertainExp)
+                                ,(_randomFalsyExp)
+                                ,@(_randomLengthMacroList _randomUncertainExp))}
+                    ]
+                [])))))
 (defMacro randomFalsyExp []
     (printExp (_randomFalsyExp) "Falsy"))
 
 (defMacroFunction _randomTruthyExp []
     ((chooseRandom
-        [
-            ->{`true}
-            ->(_randomLetterString)
-            ->(_randomInt)
-            ->(_randomFloat)
-            // These cause stack overflows because it's hard to implement a recursion limit at macro time
-            /*->{`[,@(_randomLengthMacroList _randomLetterString)]}
-            ->{`[,@(_randomLengthMacroList _randomInt)]}
-            ->{`[,@(_randomLengthMacroList _randomFloat)]}
-            ->{`(and ,@(_randomLengthMacroList _randomTruthyExp))}
-            ->{`(or 
-                    ,@(_randomLengthMacroList _randomUncertainExp)
-                    ,(_randomTruthyExp)
-                    ,@(_randomLengthMacroList _randomUncertainExp))}*/
-        ])))
+        (concat
+            [
+                ->{`true}
+                ->(_randomLetterString)
+                ->(_randomInt)
+                ->(_randomFloat)
+            ]
+            (if (< (macroDepth) maxDepth)
+                    [
+                        ->{`[,@(_randomLengthMacroList _randomLetterString)]}
+                        ->{`[,@(_randomLengthMacroList _randomInt)]}
+                        ->{`[,@(_randomLengthMacroList _randomFloat)]}
+                        ->{`(and ,@(_randomLengthMacroList _randomTruthyExp))}
+                        ->{`(or 
+                                ,@(_randomLengthMacroList _randomUncertainExp)
+                                ,(_randomTruthyExp)
+                                ,@(_randomLengthMacroList _randomUncertainExp))}
+                    ]
+                [])))))
 (defMacro randomTruthyExp []
     (printExp (_randomTruthyExp) "Truthy"))
 

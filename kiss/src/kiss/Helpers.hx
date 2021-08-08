@@ -337,6 +337,7 @@ class Helpers {
             }
             // This is kind of a big deal:
             interp.variables.set("eval", Helpers.runAtCompileTimeDynamic.bind(_, k));
+            interp.variables.set("macroDepth", () -> interps.length);
 
             interps.push(interp);
         } else {
