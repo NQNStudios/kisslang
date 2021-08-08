@@ -146,10 +146,11 @@ class CompilerTools {
                     // In some cases this might be bad if the virtual environment gets bad
                     // versions of dependencies stuck in it
                     var envFolder = '${args.outputFolder}-env';
-                    trace(Prelude.assertProcess("python", ["-m", "venv", envFolder]).replace("\n", " "));
-                    var envPython = Path.join([envFolder, "Scripts", "python"]);
+                    Prelude.assertProcess("python", ["-m", "venv", envFolder]);
+                    var envBinDir = if (Sys.systemName() == "Windows") "Scripts" else "bin";
                     trace(Prelude.assertProcess("ls", [envFolder]).replace("\n", " "));
-                    trace(Prelude.assertProcess("ls", [Path.join([envFolder, "Scripts"])]).replace("\n", " "));
+                    trace(Prelude.assertProcess("ls", [Path.join([envFolder, envBinDir])]).replace("\n", " "));
+                    var envPython = Path.join([envFolder, envBinDir, "python"]);
                     command = envPython;
                     switch (args.langProjectFile.extension()) {
                         case "txt":
