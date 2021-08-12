@@ -11,6 +11,9 @@ import js.node.Buffer;
 #elseif sys
 import sys.io.Process;
 #end
+#if (sys || hxnodejs)
+import sys.FileSystem;
+#end
 #if python
 import python.lib.subprocess.Popen;
 import python.Bytearray;
@@ -372,6 +375,23 @@ class Prelude {
     #if sys
     private static var kissProcess:Process = null;
     #end
+
+    public static function walkDirectory(basePath, directory, processFile:(String) -> Void, processSubdirectory:(String) -> Void) {
+        #if (sys || hxnodejs)
+        for (fileOrFolder in FileSystem.readDirectory(joinPath(basePath, directory))) {
+            switch (fileOrFolder) {
+                case folder if (FileSystem.isDirectory(joinPath(basePath, directory, folder))):
+                    var subdirectory = joinPath(directory, folder);
+                    processSubdirectory(subdirectory);
+                    walkDirectory(basePath, subdirectory, processFile, processSubdirectory);
+                case file:
+                    processFile(joinPath(directory, file));
+            }
+        }
+        #else
+        throw "Can't walk a directory on this target.";
+        #end
+    }
 
     /**
      * On Sys targets and nodejs, Kiss can be converted to hscript at runtime

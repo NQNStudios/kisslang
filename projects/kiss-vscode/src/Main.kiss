@@ -9,16 +9,6 @@
 (var &mut builtinConfigDir "")
 (var &mut :KissConfig config null)
 
-(function walkDirectory [basePath directory :String->Void processFile :String->Void processSubdirectory]
-    (doFor fileOrFolder (FileSystem.readDirectory (joinPath basePath directory))
-        (case fileOrFolder
-            ((when (FileSystem.isDirectory (joinPath basePath directory folder)) folder)
-                (let [subdirectory (joinPath directory folder)]
-                    (processSubdirectory subdirectory)
-                    (walkDirectory basePath subdirectory processFile processSubdirectory)))
-            (file
-                (processFile (joinPath directory file))))))
-
 (function :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
 

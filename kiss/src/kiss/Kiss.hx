@@ -77,6 +77,7 @@ class Kiss {
                 "enumerate" => Symbol("Prelude.enumerate"),
                 "assertProcess" => Symbol("Prelude.assertProcess"),
                 "random" => Symbol("Std.random"),
+                "walkDirectory" => Symbol("Prelude.walkDirectory"),
                 // These work with (apply) because they are added as "opAliases" in Macros.kiss:
                 "min" => Symbol("Prelude.min"),
                 "max" => Symbol("Prelude.max"),
