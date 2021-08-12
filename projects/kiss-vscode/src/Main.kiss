@@ -45,8 +45,13 @@
             ->folder
                 (FileSystem.createDirectory
                     (joinPath activeConfigDir folder)))
-        // When running from unit tests, install all dependencies in the example config:
-        (#when test (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir)))
+        // install all Haxe dependencies:
+        (assert (= 0 .status (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir))))
+        // install all Node dependencies:
+        (when (FileSystem.exists (joinPath activeConfigDir "package.json"))
+            (assert (= 0 .status (if (= "Windows" (Sys.systemName))
+                                            (ChildProcess.spawnSync "cmd.exe" ["/c" "npm" "install"] (object cwd activeConfigDir))
+                                        (ChildProcess.spawnSync "npm" ["install"] (object cwd activeConfigDir))))))
         // Run the haxe compiler:
         (let [buildResult
                     (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
