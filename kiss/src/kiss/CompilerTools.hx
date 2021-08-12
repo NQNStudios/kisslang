@@ -134,7 +134,35 @@ class CompilerTools {
             case JavaScript:
                 command = "node";
                 scriptExt = "js";
-            // npm install outputfolder
+                // npm install outputfolder
+                if (args.langProjectFile != null) {
+                    // This can only be done in the current working directory, so the project file needs to be moved here
+                    // Move existing package.json, package-lock.json, node_modules out of the way:
+                    function move(file, newName) {
+                        if (FileSystem.exists(file)) {
+                            FileSystem.rename(file, newName);
+                        }
+                    }
+                    move("package.json", "package.json.temp");
+                    move("package-lock.json", "package-lock.json.temp");
+                    move("node_modules", "node_modules.temp");
+
+                    File.copy(args.langProjectFile, "package.json");
+
+                    if (Sys.systemName() == "Windows") {
+                        Prelude.assertProcess("cmd.exe", ["/c", 'npm', 'install']);
+                    } else {
+                        Prelude.assertProcess("npm", ['install']);
+                    }
+
+                    FileSystem.deleteFile("package.json");
+                    move("node_modules", Prelude.joinPath(args.outputFolder, "node_modules"));
+                    move("package-lock.json", Prelude.joinPath(args.outputFolder, "package-lock.json"));
+
+                    move("package.json.temp", "package.json");
+                    move("package-lock.json.temp", "package-lock.json");
+                    move("node_modules.temp", "node_modules");
+                }
             case Python:
                 command = "python";
                 scriptExt = "py";

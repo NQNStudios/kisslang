@@ -29,7 +29,7 @@ class CompilerToolsTestCase extends Test {
         return CompilerTools.compileFileToScript(
             "kiss/template/src/template/Main.kiss", JavaScript, {
                 outputFolder: "bin/helloWorldJsTestWithPackageJson",
-                // langProjectFile: "kiss/src/test/files/package.json"
+                langProjectFile: "kiss/src/test/files/package.json"
             });
     }
 
