@@ -59,9 +59,7 @@ class CompilerTools {
         // TODO this assumes the user hasn't put folders in the folder, which
         // would cause a failure because we're not deleting recursively
         if (FileSystem.exists(args.outputFolder)) {
-            for (file in FileSystem.readDirectory(args.outputFolder)) {
-                FileSystem.deleteFile(Path.join([args.outputFolder, file]));
-            }
+            Prelude.walkDirectory(null, args.outputFolder, (file) -> FileSystem.deleteFile(file), null, (folder) -> FileSystem.deleteDirectory(folder));
             FileSystem.deleteDirectory(args.outputFolder);
         }
 
@@ -148,8 +146,8 @@ class CompilerTools {
                     var envFolder = '${args.outputFolder}-env';
                     Prelude.assertProcess("python", ["-m", "venv", envFolder]);
                     var envBinDir = if (Sys.systemName() == "Windows") "Scripts" else "bin";
-                    trace(Prelude.assertProcess("ls", [envFolder]).replace("\n", " "));
-                    trace(Prelude.assertProcess("ls", [Path.join([envFolder, envBinDir])]).replace("\n", " "));
+                    // trace(Prelude.assertProcess("ls", [envFolder]).replace("\n", " "));
+                    // trace(Prelude.assertProcess("ls", [Path.join([envFolder, envBinDir])]).replace("\n", " "));
                     var envPython = Path.join([envFolder, envBinDir, "python"]);
                     command = envPython;
                     switch (args.langProjectFile.extension()) {

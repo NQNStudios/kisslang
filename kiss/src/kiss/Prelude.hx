@@ -376,14 +376,18 @@ class Prelude {
     private static var kissProcess:Process = null;
     #end
 
-    public static function walkDirectory(basePath, directory, processFile:(String) -> Void, processSubdirectory:(String) -> Void) {
+    public static function walkDirectory(basePath, directory, processFile:(String) -> Void, ?processFolderBefore:(String) -> Void,
+            ?processFolderAfter:(String) -> Void) {
         #if (sys || hxnodejs)
         for (fileOrFolder in FileSystem.readDirectory(joinPath(basePath, directory))) {
             switch (fileOrFolder) {
                 case folder if (FileSystem.isDirectory(joinPath(basePath, directory, folder))):
                     var subdirectory = joinPath(directory, folder);
-                    processSubdirectory(subdirectory);
-                    walkDirectory(basePath, subdirectory, processFile, processSubdirectory);
+                    if (processFolderBefore != null)
+                        processFolderBefore(subdirectory);
+                    walkDirectory(basePath, subdirectory, processFile, processFolderBefore, processFolderAfter);
+                    if (processFolderAfter != null)
+                        processFolderAfter(subdirectory);
                 case file:
                     processFile(joinPath(directory, file));
             }
