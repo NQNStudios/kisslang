@@ -13,6 +13,7 @@ import sys.io.Process;
 #end
 #if (sys || hxnodejs)
 import sys.FileSystem;
+import sys.io.File;
 #end
 #if python
 import python.lib.subprocess.Popen;
@@ -334,13 +335,28 @@ class Prelude {
         return f;
     }
 
-    public static dynamic function printStr(s:String) {
+    public static function _printStr(s:String) {
         #if (sys || hxnodejs)
         Sys.println(s);
         #else
         trace(s);
         #end
     }
+
+    #if (sys || hxnodejs)
+    static var externLogFile = "externLog.txt";
+
+    public static function _externPrintStr(s:String) {
+        var logContent = try {
+            File.getContent(externLogFile);
+        } catch (e) {
+            "";
+        }
+        File.saveContent(externLogFile, '${logContent}${s}\n');
+    }
+    #end
+
+    public static var printStr:(String) -> Void = _printStr;
 
     public static function print<T>(v:T, label = ""):T {
         var toPrint = label;
@@ -497,9 +513,9 @@ class Prelude {
             }
         }
 
-        if (fullProcess) {
+        var output = if (fullProcess) {
             if (p.wait() == 0) {
-                return p.stdout.readall().decode().trim();
+                p.stdout.readall().decode().trim();
             } else {
                 throw 'process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}';
             }
@@ -507,8 +523,10 @@ class Prelude {
             // The haxe extern for FileIO.readline() says it's a string, but it's not, it's bytes!
             var bytes:Dynamic = p.stdout.readline();
             var s:String = bytes.decode();
-            return s.trim();
+            s.trim();
         }
+        p.terminate();
+        return output;
         #elseif sys
         var p = new Process(command, args);
         if (inputLines != null) {
@@ -516,30 +534,34 @@ class Prelude {
                 p.stdin.writeString('$line\n');
             }
         }
-        if (fullProcess) {
+        var output = if (fullProcess) {
             if (p.exitCode() == 0) {
-                return p.stdout.readAll().toString().trim();
+                p.stdout.readAll().toString().trim();
             } else {
                 throw 'process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}';
             }
         } else {
-            return p.stdout.readLine().toString().trim();
+            p.stdout.readLine().toString().trim();
         }
+        p.kill();
+        p.close();
+        return output;
         #elseif hxnodejs
         var p = if (inputLines != null) {
             ChildProcess.spawnSync(command, args, {input: inputLines.join("\n")});
         } else {
             ChildProcess.spawnSync(command, args);
         }
-        switch (p.status) {
+        var output = switch (p.status) {
             case 0:
                 var output:Buffer = p.stdout;
-                return output.toString();
+                output.toString();
             default:
                 var output:Buffer = p.stdout;
                 var error:Buffer = p.stderr;
                 throw 'process $command $args failed:\n${output.toString() + error.toString()}';
         }
+        return output;
         #else
         throw "Can't run a subprocess on this target.";
         #end

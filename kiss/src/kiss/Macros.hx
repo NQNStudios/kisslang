@@ -864,15 +864,22 @@ class Macros {
             }
 
             var externExps = [
-                b.let([b.symbol("__args__"), b.callSymbol("Sys.args", [])],
-                    [b.print(
+                b.let([b.symbol("__args__"), b.callSymbol("Sys.args", [])], [
+                    b.callSymbol("set", [
+                        b.symbol("Prelude.printStr"),
+                        b.symbol("Prelude._externPrintStr")
+                    ]),
+                    b.callSymbol("Prelude._printStr", [
                         b.callSymbol("tink.Json.stringify", [
                             b.the(bodyType, if (bindingList.length > 0) {
                                 b.let(parseBindingList, exps);
                             } else {
                                 b.begin(exps);
                             })
-                        ]))])
+                        ])
+                    ]),
+                    b.callSymbol("Sys.exit", [b.symbol("0")])
+                ])
             ];
             b.the(
                 bodyType,
