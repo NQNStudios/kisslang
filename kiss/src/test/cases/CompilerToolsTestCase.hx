@@ -14,8 +14,8 @@ class CompilerToolsTestCase extends Test {
     // https://github.com/HaxeFoundation/haxe/issues/10332
     #if ((sys || hxnodejs) && !cs)
     function testCompileHelloWorldJs() {
-        Assert.equals("Hello world!", _testCompileHelloWorldJs()());
-        Assert.equals("Hello world!", _testCompileHelloWorldJsWithPackageJson()());
+        Assert.equals("Hello world!", _testCompileHelloWorldJs()().trim());
+        Assert.equals("Hello world!", _testCompileHelloWorldJsWithPackageJson()().trim());
     }
 
     static macro function _testCompileHelloWorldJs() {
@@ -34,9 +34,9 @@ class CompilerToolsTestCase extends Test {
     }
 
     function testCompileHelloWorldPy() {
-        Assert.equals("Hello world!", _testCompileHelloWorldPy()());
-        Assert.equals("Hello world!", _testCompileHelloWorldPyWithRequirementsTxt()());
-        Assert.equals("Hello world!", _testCompileHelloWorldPyWithSetupPy()());
+        Assert.equals("Hello world!", _testCompileHelloWorldPy()().trim());
+        Assert.equals("Hello world!", _testCompileHelloWorldPyWithRequirementsTxt()().trim());
+        Assert.equals("Hello world!", _testCompileHelloWorldPyWithSetupPy()().trim());
     }
 
     static macro function _testCompileHelloWorldPy() {
