@@ -4,6 +4,9 @@ import utest.Assert;
 import utest.Test;
 import kiss.CompilerTools;
 import kiss.Prelude;
+
+using StringTools;
+
 #if macro
 import haxe.macro.Expr;
 import haxe.macro.Context;
