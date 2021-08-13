@@ -190,7 +190,7 @@ class CompilerTools {
         }
 
         // return an expression for a lambda that calls new Process() that runs the target-specific file
-        var callingCode = 'function (?inputLines:Array<String>) { return kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])], inputLines); }';
+        var callingCode = 'function (?inputLines:Array<String>) { return kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])].concat(inputLines)); }';
         #if test
         trace(callingCode);
         #end

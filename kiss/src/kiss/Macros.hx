@@ -856,21 +856,23 @@ class Macros {
                         bindingList[idx + 1] = untypedName;
                     default:
                 }
+
                 stringifyExpList.push(b.the(b.symbol("String"), b.callSymbol("tink.Json.stringify", [b.the(b.symbol(type), bindingList[idx + 1])])));
                 parseBindingList.push(bindingList[idx]);
-                parseBindingList.push(b.callSymbol("tink.Json.parse", [b.callField("readLine", b.callSymbol("Sys.stdin", []), [])]));
+                parseBindingList.push(b.callSymbol("tink.Json.parse", [b.callField("shift", b.symbol("__args__"), [])]));
                 idx += 2;
             }
 
             var externExps = [
-                b.print(
-                    b.callSymbol("tink.Json.stringify", [
-                        b.the(bodyType, if (bindingList.length > 0) {
-                            b.let(parseBindingList, exps);
-                        } else {
-                            b.begin(exps);
-                        })
-                    ]))
+                b.let([b.symbol("__args__"), b.callSymbol("Sys.args", [])],
+                    [b.print(
+                        b.callSymbol("tink.Json.stringify", [
+                            b.the(bodyType, if (bindingList.length > 0) {
+                                b.let(parseBindingList, exps);
+                            } else {
+                                b.begin(exps);
+                            })
+                        ]))])
             ];
             b.the(
                 bodyType,
