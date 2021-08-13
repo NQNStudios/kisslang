@@ -31,6 +31,15 @@ enum ExtraElementHandling {
     Throw; // Throw an error
 }
 
+enum KissTarget {
+    Cpp;
+    CSharp;
+    Haxe;
+    JavaScript;
+    NodeJS;
+    Python;
+}
+
 class Prelude {
     static function stringOrFloat(d:Dynamic):Either<String, Float> {
         return switch (Type.typeof(d)) {
@@ -446,9 +455,27 @@ class Prelude {
         #end
     }
 
+    public static function getTarget():KissTarget {
+        return #if cpp
+            Cpp;
+        #elseif cs
+            CSharp;
+        #elseif interp
+            Haxe;
+        #elseif hxnodejs
+            NodeJS;
+        #elseif js
+            JavaScript;
+        #elseif python
+            Python;
+        #else
+            throw "Unsupported target language for Kiss";
+        #end
+    }
+
     public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true):String {
         #if test
-        Prelude.print('running $command $args $inputLines');
+        Prelude.print('running $command $args $inputLines from ${Prelude.getTarget()}');
         #end
         if (inputLines != null) {
             for (line in inputLines) {
