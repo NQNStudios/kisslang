@@ -70,7 +70,7 @@ class Kiss {
                 "symbol" => Symbol("Prelude.symbol"),
                 "expList" => Symbol("Prelude.expList"),
                 "map" => Symbol("Lambda.map"),
-                "filter" => Symbol("Lambda.filter"), // TODO use truthy as the default filter function
+                "filter" => Symbol("Prelude.filter"),
                 "flatten" => Symbol("Lambda.flatten"),
                 "has" => Symbol("Lambda.has"),
                 "count" => Symbol("Lambda.count"),

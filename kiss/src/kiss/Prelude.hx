@@ -517,4 +517,10 @@ class Prelude {
         throw "Can't run a subprocess on this target.";
         #end
     }
+
+    public static function filter<T>(l:Iterable<T>, ?p:(T) -> Bool):kiss.List<T> {
+        if (p == null)
+            p = Prelude.truthy;
+        return Lambda.filter(l, p);
+    }
 }
