@@ -13,13 +13,15 @@
                 (readComponent archive e Name)
             :Array<String> wikipediaImageUrls
                 (queryImageUrls (queryImageTitles [title]))]
-        (doFor url wikipediaImageUrls
-            (assertProcess "wget" ["--directory-prefix=${archive.archiveDir}" url]))
         (addFiles archive e
             (for url wikipediaImageUrls
-                (joinPath archive.archiveDir
-                    ~(.replace
-                        (.urlDecode (url.withoutDirectory))
-                        // Some symbols shouldn't be decoded because they're invalid in file systems!
-                        "\"" "%22"))))
+                (let [filePath
+                            (joinPath archive.archiveDir
+                                ~(.replace
+                                    (.urlDecode (url.withoutDirectory))
+                                    // Some symbols shouldn't be decoded because they're invalid in file systems!
+                                    "\"" "%22"))]
+                    (print url "downloading")
+                    (assertProcess "curl" ["--output" filePath url])
+                    filePath)))
         (addTags archive e ["wikipediaProcessed"])))

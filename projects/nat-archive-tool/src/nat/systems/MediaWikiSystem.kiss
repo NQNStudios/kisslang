@@ -20,6 +20,8 @@
                 importHxFile "extern-files/python/import.hx"
                 langProjectFile "extern-files/python/requirements.txt")
             [:Map<String,Array<String>> params _ :String mediaWikiUrl _ :String maxLag (if maxLag (Std.string maxLag) "1") :Map<String,String> headers _]
+            
+            (print "extern query call $params")
             (let [response
                         (Requests.get mediaWikiUrl 
                             (let [innerParams
@@ -30,8 +32,11 @@
                                         ]]
                                 (doFor =>param paramValues params (dictSet innerParams param (paramValues.join "|")))
                                 innerParams)
-                            (object headers headers))]
+                            (object
+                                headers headers
+                                timeout 2))]
                 (assert response.ok)
+                (print "call finished: ${response.text}")
                 response.text))))
 
 (method :Array<String> queryImageTitles [:Array<String> pageTitles]
@@ -43,7 +48,9 @@
 
 (method :Array<String> queryImageUrls [:Array<String> imageTitles]
     (flatten
-        (for =>_id image (the haxe.DynamicAccess<Dynamic> .pages .query (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]]))
+        (for =>_id image
+                (the haxe.DynamicAccess<Dynamic>
+                    .pages .query (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]]))
             (if image.imageinfo
                     (image.imageinfo.map ->image image.url)
                 []))))

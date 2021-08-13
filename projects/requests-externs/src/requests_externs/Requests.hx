@@ -5,11 +5,13 @@ import python.Dict;
 import python.KwArgs;
 
 typedef NativeRequestKwArgs = {
-    ?headers:Dict<String, String>
+    ?headers:Dict<String, String>,
+    ?timeout:Float
 }
 
 typedef RequestKwArgs = {
-    ?headers:Map<String, String>
+    ?headers:Map<String, String>,
+    ?timeout:Float
 }
 
 @:pythonImport("requests")
@@ -36,7 +38,8 @@ class Requests {
         if (kwArgs == null)
             return null;
         return {
-            headers: mapToDict(kwArgs.headers)
+            headers: mapToDict(kwArgs.headers),
+            timeout: kwArgs.timeout
         };
     }
 }
