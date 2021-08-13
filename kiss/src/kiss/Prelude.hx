@@ -39,6 +39,7 @@ enum KissTarget {
     JavaScript;
     NodeJS;
     Python;
+    Macro;
 }
 
 class Prelude {
@@ -484,6 +485,8 @@ class Prelude {
             JavaScript;
         #elseif python
             Python;
+        #elseif macro
+            Macro;
         #else
             throw "Unsupported target language for Kiss";
         #end
