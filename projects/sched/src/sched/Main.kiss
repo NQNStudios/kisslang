@@ -1,0 +1,63 @@
+(function :Time currentTime []
+    (let [now (Date.now)
+            &mut ampm AM]
+        (Time 
+            (case (now.getHours)
+                (0 12)
+                (12
+                    (set ampm PM)
+                    12)
+                ((when (> hours 12) hours)
+                    (set ampm PM)
+                    (- hours 12))
+                (hours hours))
+            (now.getMinutes)
+            ampm)))
+
+(function :Int sortIndex [time]
+    (case time
+        ((Time 12 minute AM) minute)
+        ((Time hour minute AM) (+ minute (* 60 hour)))
+        ((Time 12 minute PM) (+ minute (* 60 12)))
+        ((Time hour minute PM) (+ minute (* 60 (+ hour 12))))))
+
+(function isBefore [time1 time2]
+    (< (sortIndex time1) (sortIndex time2)))
+
+(function isAfter [time1 time2]
+    !(isBefore time1 time2))
+
+(defMacro simpleSchedule [&body args]
+    `[,@(for [startTime text] (groups args 2 Throw)
+        `(object
+            start ,startTime
+            text ,text))])
+
+(var sampleSchedule
+    (simpleSchedule
+        (Time 8 0 AM) "Coffee & shower"
+        (Time 8 30 AM) "Breakfast"
+        (Time 9 0 AM) "Writing or piano"
+        (Time 10 0 AM) "Morning captures"
+        (Time 11 0 AM) "Break"
+        (Time 12 0 PM) "Lunch"
+        (Time 1 0 PM) "After-lunch work"
+        (Time 2 0 PM) "Break"
+        (Time 3 0 PM) "After break work"
+        (Time 5 0 PM) "Chill out"))
+
+// Count midnight as the first hour of the day
+(assert (isBefore (Time 12 0 AM) (Time 12 0 PM)))
+(assert (isBefore (Time 11 59 AM) (Time 12 0 PM)))
+
+(function currentEntry [schedule]
+    (let [now (currentTime)]
+        (doFor [event nextEvent] (pairs schedule)
+            (when (and (isAfter now event.start) (isBefore now nextEvent.start))
+                (return event.text)))
+    (when (isAfter now .start (nth schedule -1))
+        (return .text (nth schedule -1))))
+    "Nothing scheduled right now")
+
+(print (currentTime))
+(print (currentEntry sampleSchedule))
