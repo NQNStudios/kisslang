@@ -149,6 +149,11 @@
     (archive.addSystem (new WikipediaImageSystem))
     (archive.processSystems)
     
+    (defCommand Help []
+        (ui.displayMessage
+            (+ "Available commands:\n"
+                (commandNames.join "\n"))) [])
+
     (defCommand SelectEntry [e OneEntry]
         (set selectedEntries [e]) [])
 
