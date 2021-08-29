@@ -95,7 +95,13 @@
     (lambda :Void []
         (_collectAndValidateArg arg ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
 
-(method :Void runCommand [:Command command]
+(method :Void tryRunCommand [:String commandName]
+    (let [lowerCommandName (commandName.toLowerCase)]
+        (if (commands.exists lowerCommandName)
+                (_runCommand (dictGet commands lowerCommandName))
+            (ui.displayMessage "$commandName is not a valid command"))))
+
+(method :Void _runCommand [:Command command]
     (let [collectedArgs
                 []
             &mut lastCollector
@@ -126,7 +132,12 @@
                     `(object name ,(symbolName name) type ,type))]
         `{
             (method ,name [,@methodArgs] ,@body)
-            (dictSet commands ,(symbolName name) (object args [,@commandArgs] handler (the Function ,name)))}))
+            // Preserve the capitalization of the command name for pretty help message
+            (commandNames.push ,(symbolName name))
+            // Store the command name without capitalization for forgiving call conventions
+            (dictSet commands ,(ReaderExp.StrExp (.toLowerCase (symbolNameValue name))) (object args [,@commandArgs] handler (the Function ,name)))}))
+
+(var :Array<String> commandNames [])
 
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]

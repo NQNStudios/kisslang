@@ -10,9 +10,7 @@
         (Sys.print ">> ")
         (let [command
                     (.trim (.toString (.readLine (Sys.stdin))))]
-                (if (controller.commands.exists command)
-                        (controller.runCommand (dictGet controller.commands command))
-                    (Sys.println "$command is not a valid command")))))
+                (controller.tryRunCommand command))))
 
 (defNew [])
 
