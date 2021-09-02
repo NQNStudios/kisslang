@@ -1,2 +1,3 @@
+-lib hxcpp
 --cpp bin/cpp
 --cmd bash test-cpp.sh 
