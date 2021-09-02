@@ -3,6 +3,7 @@
 -lib kiss
 -lib uuid
 -lib hscript
+-lib tink_macro
 -cp src
 -js bin/extension.js
 -D analyzer-optimize
