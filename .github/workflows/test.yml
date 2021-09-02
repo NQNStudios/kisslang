@@ -25,6 +25,7 @@ jobs:
           - KISS_PROJECT=nat-archive-tool
           - KISS_PROJECT=pdf-salad
           - KISS_PROJECT=leet-code
+          - KISS_PROJECT=sched
       fail-fast: true
     runs-on: ${{ matrix.os }}
     env:
