@@ -370,6 +370,21 @@ class SpecialForms {
             macro !$truthyExp;
         };
 
+        map["cast"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 2, '(cast <value> <optional type>)');
+            var e = k.convert(args[0]);
+            var t = null;
+            if (args.length > 1) {
+                switch (args[1].def) {
+                    case Symbol(typePath):
+                        t = Helpers.parseComplexType(typePath, args[1]);
+                    default:
+                        throw CompileError.fromExp(args[1], 'second argument to cast should be a type path symbol');
+                }
+            }
+            ECast(e, t).withMacroPosOf(wholeExp);
+        }
+
         return map;
     }
 
