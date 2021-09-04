@@ -68,11 +68,21 @@ class FieldForms {
             case MetaExp("final", nameExp):
                 access.push(AFinal);
                 fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("public", nameExp):
+                access.push(APublic);
+                fieldAccess(formName, fieldName, nameExp, access);
+            case MetaExp("private", nameExp):
+                access.push(APrivate);
+                fieldAccess(formName, fieldName, nameExp, access);
             default:
                 if (["defvar", "defun", "var", "function"].indexOf(formName) != -1) {
                     access.push(AStatic);
                 }
-                access.push(if (fieldName.startsWith("_")) APrivate else APublic);
+                // If &public or &private is not used, a shortcut to make a private field is
+                // to start its name with _
+                if (access.indexOf(APrivate) == -1 && access.indexOf(APublic) == -1) {
+                    access.push(if (fieldName.startsWith("_")) APrivate else APublic);
+                }
                 access;
         };
     }
