@@ -26,6 +26,7 @@ jobs:
           - KISS_PROJECT=pdf-salad
           - KISS_PROJECT=leet-code
           - KISS_PROJECT=sched
+          - KISS_PROJECT=godot-squash-the-creeps-3d
       fail-fast: true
     runs-on: ${{ matrix.os }}
     env:
