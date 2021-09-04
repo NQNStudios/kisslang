@@ -4,5 +4,6 @@
 --define analyzer-optimize
 --class-path scripts
 --library godot
+--library kiss
 --macro godot.Godot.buildProject()
 --dce full
