@@ -3,6 +3,7 @@
 --define no-compilation
 --define analyzer-optimize
 --class-path scripts
+--library hxcs
 --library godot
 --library kiss
 --macro godot.Godot.buildProject()
