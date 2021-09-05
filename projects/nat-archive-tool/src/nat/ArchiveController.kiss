@@ -139,13 +139,18 @@
 
 (var :Array<String> commandNames [])
 
+
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]
     [&mut :Array<Entry> selectedEntries []
         &mut :ChangeSet lastChangeSet []
-        :Map<String,Command> commands (new Map)]
+        :Map<String,Command> commands (new Map)
+        :NameSystem nameSystem (new NameSystem)]
+
+    (ui.setController this)
 
     // Add systems!
+    (archive.addSystem nameSystem)
     (archive.addSystem (new WikipediaImageSystem))
     (archive.processSystems)
     

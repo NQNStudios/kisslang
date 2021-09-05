@@ -4,6 +4,11 @@ import nat.ArchiveController;
 
 interface ArchiveUI {
     /**
+     * Accept and store a reference to the controller
+     */
+    function setController(controller:ArchiveController):Void;
+
+    /**
      * Prompt the user to enter text
      */
     function enterText(prompt:String, resolve:(String) -> Void, maxLength:Float):Void;

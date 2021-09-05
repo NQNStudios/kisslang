@@ -12,6 +12,10 @@
                     (.trim (.toString (.readLine (Sys.stdin))))]
                 (controller.tryRunCommand command))))
 
+(prop &mut :ArchiveController controller)
+
+(method :Void setController [controller] (set this.controller controller))
+
 (defNew [])
 
 (method :Void enterText [prompt resolve maxLength]
@@ -44,12 +48,7 @@
         ->name {
             (if !name
                     (onEmptyString)
-                (let [matchingEntries []]
-                    (.process (archive.addSystem
-                                            (stringComponentSystem archive Name name
-                                                (lambda [archive e]
-                                                    (matchingEntries.push e)))) archive)
-
+                (let [matchingEntries (controller.nameSystem.getEntries name)]
                     (case (the Array<Entry> matchingEntries)
                         ([e] (resolve e))
                         ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))

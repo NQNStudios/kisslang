@@ -1,0 +1,17 @@
+(load "../Lib.kiss")
+
+(prop :Map<String,Array<Entry>> entriesByName (new Map))
+
+// Stores a map of named entries, for instant lookup by name
+(defNew []
+    (super
+        ->[archive e] (hasComponent e Name)
+        ->[archive e] (let [name (readComponent archive e Name)]
+                             (if (entriesByName.exists name)
+                                    (.push (dictGet entriesByName name) e)
+                                (dictSet entriesByName name [e]))
+                        // Because the if statement doesn't unify by type :(
+                        null)))
+
+(method :Array<Entry> getEntries [name]
+    (or (dictGet entriesByName name) []))
