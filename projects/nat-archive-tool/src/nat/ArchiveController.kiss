@@ -211,4 +211,7 @@
                                 files (VarText null)]
         (doFor e entries
             (addFiles archive e files))
-        entries))
+        entries)
+    
+    (defCommand SelectByName [name (Text null)]
+        (SelectEntries (nameSystem.getEntries name)) []))
