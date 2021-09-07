@@ -14,4 +14,7 @@
                         null)))
 
 (method :Array<Entry> getEntries [name]
-    (or (dictGet entriesByName (name.toLowerCase)) []))
+    (let [entries (dictGet entriesByName (name.toLowerCase))]
+        (if entries
+                entries
+            [])))
