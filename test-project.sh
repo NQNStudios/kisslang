@@ -15,6 +15,7 @@ then
         haxelib install openfl
         haxelib install flixel
         haxelib install flixel-addons
+        haxelib install flixel-ui
         haxelib install hxcpp
     fi
 
