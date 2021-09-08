@@ -13,3 +13,5 @@
     (if (canProcessEntry archive e)
             (dictSet entries e.id e)
         (entries.remove e.id)))
+
+// TODO systems may need access to a UI
