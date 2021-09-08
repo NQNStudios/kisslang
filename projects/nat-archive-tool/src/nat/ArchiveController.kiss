@@ -153,7 +153,7 @@
     (archive.addSystem nameSystem)
     (archive.addSystem (new WikipediaImageSystem))
     // Just for testing:
-    (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))
+    // (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))
 
     (archive.processSystems)
     
