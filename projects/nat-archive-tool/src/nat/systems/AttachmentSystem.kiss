@@ -1,0 +1,14 @@
+(load "../Lib.kiss")
+
+(defNew [&prop :Array<String> extensions
+            :AttachmentProcessor processor] 
+    (super
+        ->[archive e]
+            {
+                (doFor file e.files
+                    (when !(= -1 (extensions.indexOf (file.extension)))
+                        (return true)))
+                false
+            }
+        ->[archive e]
+            (processor archive e (filter e.files ->file !(= -1 (extensions.indexOf (file.extension)))))))
