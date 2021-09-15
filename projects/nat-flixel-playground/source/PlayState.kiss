@@ -1,5 +1,55 @@
+(loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+
 (method &override :Void create []
-    (super.create))
+    (super.create)
+    // TODO find a way to pass the archiveDir to a HaxeFlixel game
+    /*(let [[archiveDir] (Sys.args)]
+        (new ArchiveController
+            (new Archive archiveDir)
+            this))*/)
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed))
+
+(prop &mut :ArchiveController controller)
+
+(method :Void setController [controller] (set this.controller controller))
+
+(method :Void enterText [prompt resolve maxLength]
+    (resolve ""))
+    
+(method :Void enterNumber [prompt resolve min max &opt inStepsOf]
+    (resolve 0))
+
+(method :Void chooseEntry [prompt :Archive archive resolve]
+    (resolve null))
+
+(method :Void chooseEntries [prompt archive resolve min max]
+    (_chooseEntries prompt archive resolve min max []))
+
+(method :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
+    (let [&mut :Void->Void chooseNextEntry
+                null
+            _chooseNextEntry
+                ->:Void {(chooseEntry
+                                prompt
+                                archive
+                                ->:Void e {(collectedEntries.push e)
+                                                // If the maximum is reached, return it
+                                                (if (= max collectedEntries.length)
+                                                        (resolve collectedEntries)
+                                                    // Otherwise, recurse
+                                                    (chooseNextEntry))})}]
+        (set chooseNextEntry _chooseNextEntry)
+        (_chooseNextEntry)))
+
+        
+(method handleChanges [:Archive archive :ChangeSet changeSet]
+    (doFor e changeSet
+        (print (archive.fullString e))))
+
+(method :Void displayMessage [message]
+    (print message))
+
+(method :Void reportError [error] 
+    (print error))
