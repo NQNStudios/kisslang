@@ -66,11 +66,33 @@ class CompilerTools {
         // create it again
         FileSystem.createDirectory(args.outputFolder);
 
-        // Copy all files in that don't need to be processed in some way
-        function copyToFolder(file) {
-            File.copy(file, Path.join([args.outputFolder, file.withoutDirectory()]));
+        // Find the haxelib folder of the class compiling a script (trickier than it should be):
+        var module = Context.getLocalModule();
+        var moduleFile = module.replace(".", "/") + ".hx";
+        var fullFile = Context.getPosInfos(Context.currentPos()).file.replace("\\", "/");
+        var classPath = fullFile.replace(moduleFile, "");
+        var classPathFolders = classPath.split("/");
+        while (classPathFolders.length > 0) {
+            try {
+                Helpers.libPath(classPathFolders[classPathFolders.length - 1]);
+                break;
+            } catch (e) {
+                classPathFolders.pop();
+            }
+        }
+        if (classPathFolders.length == 0) {
+            throw 'compileToScript called by file $moduleFile which is not in a haxelib folder';
+        }
+        var haxelibPath = classPathFolders.join("/");
+
+        function copyToFolder(file, ?libPath) {
+            if (libPath == null)
+                libPath = haxelibPath;
+
+            File.copy(Path.join([libPath, file]), Path.join([args.outputFolder, file.withoutDirectory()]));
         }
 
+        // Copy all files in that don't need to be processed in some way
         if (args.extraFiles == null) {
             args.extraFiles = [];
         }
@@ -80,15 +102,15 @@ class CompilerTools {
             }
         }
 
-        // If a main haxe file was given, use it
-        var mainHxFile = if (args.mainHxFile != null) {
-            args.mainHxFile;
-        }
+        // If a main haxe file was given, use it.
         // Otherwise use the default
-        else {
-            Path.join([Helpers.libPath("kiss"), "src", "kiss", "ScriptMain.hx"]);
+        var mainHxFile = "ScriptMain.hx";
+        if (args.mainHxFile != null) {
+            mainHxFile = args.mainHxFile;
+            copyToFolder(mainHxFile);
+        } else {
+            copyToFolder(mainHxFile, Path.join([Helpers.libPath("kiss"), "src", "kiss"]));
         }
-        copyToFolder(mainHxFile);
 
         var mainClassName = mainHxFile.withoutDirectory().withoutExtension();
 
@@ -120,7 +142,7 @@ class CompilerTools {
         Prelude.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
         if (args.hxmlFile != null) {
             hxmlFiles.push(args.hxmlFile);
-            Prelude.assertProcess("haxelib", ["install", "--always", args.hxmlFile]);
+            Prelude.assertProcess("haxelib", ["install", "--always", Path.join([haxelibPath, args.hxmlFile])]);
         }
 
         // Compile the script
@@ -147,7 +169,7 @@ class CompilerTools {
                     move("package-lock.json", "package-lock.json.temp");
                     move("node_modules", "node_modules.temp");
 
-                    File.copy(args.langProjectFile, "package.json");
+                    File.copy(Path.join([haxelibPath, args.langProjectFile]), "package.json");
 
                     if (Sys.systemName() == "Windows") {
                         Prelude.assertProcess("cmd.exe", ["/c", 'npm', 'install']);
@@ -181,7 +203,7 @@ class CompilerTools {
                     switch (args.langProjectFile.extension()) {
                         case "txt":
                             // the requirements file's original path is fine for this case
-                            Prelude.assertProcess(envPython, ["-m", "pip", "install", "-r", args.langProjectFile]);
+                            Prelude.assertProcess(envPython, ["-m", "pip", "install", "-r", Path.join([haxelibPath, args.langProjectFile])]);
                         case "py":
                             // python setup.py install
                             Prelude.assertProcess(envPython, [Path.join([args.outputFolder, args.langProjectFile.withoutDirectory()]), "install"]);
