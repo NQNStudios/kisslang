@@ -32,7 +32,7 @@ class CompilerToolsTestCase extends Test {
         return CompilerTools.compileFileToScript(
             "kiss/template/src/template/Main.kiss", JavaScript, {
                 outputFolder: "bin/helloWorldJsTestWithPackageJson",
-                langProjectFile: "kiss/src/test/files/package.json"
+                langProjectFile: "src/test/files/package.json"
             });
     }
 
@@ -53,7 +53,7 @@ class CompilerToolsTestCase extends Test {
         return CompilerTools.compileFileToScript(
             "kiss/template/src/template/Main.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTestWithRequirementsTxt",
-                langProjectFile: "kiss/src/test/files/requirements.txt"
+                langProjectFile: "src/test/files/requirements.txt"
             });
     }
 
@@ -61,7 +61,7 @@ class CompilerToolsTestCase extends Test {
         return CompilerTools.compileFileToScript(
             "kiss/template/src/template/Main.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTestWithSetupPy",
-                langProjectFile: "kiss/src/test/files/setup.py"
+                langProjectFile: "src/test/files/setup.py"
             });
     }
 

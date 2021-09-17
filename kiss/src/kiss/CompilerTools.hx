@@ -86,8 +86,9 @@ class CompilerTools {
         var haxelibPath = classPathFolders.join("/");
 
         function copyToFolder(file, ?libPath) {
-            if (libPath == null)
+            if (libPath == null) {
                 libPath = haxelibPath;
+            }
 
             File.copy(Path.join([libPath, file]), Path.join([args.outputFolder, file.withoutDirectory()]));
         }
