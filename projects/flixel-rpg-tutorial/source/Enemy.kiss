@@ -49,7 +49,9 @@
                 (animation.play "u"))
 
             (FlxObject.DOWN
-                (animation.play "d"))))
+                (animation.play "d"))
+            
+            (otherwise {})))
 
     (brain.update elapsed)
     (super.update elapsed))
