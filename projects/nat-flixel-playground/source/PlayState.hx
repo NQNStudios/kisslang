@@ -8,6 +8,10 @@ import nat.BoolExpInterp;
 import nat.Archive;
 import nat.ArchiveUI;
 import nat.ArchiveController;
+import flixel.addons.ui.FlxInputText;
+import flixel.addons.ui.FlxUIPopup;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
 
 using StringTools;
 

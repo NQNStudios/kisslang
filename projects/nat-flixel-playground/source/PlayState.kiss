@@ -2,21 +2,51 @@
 
 (method &override :Void create []
     (super.create)
-    // TODO find a way to pass the archiveDir to a HaxeFlixel game
-    /*(let [[archiveDir] (Sys.args)]
+    // TODO find a better way to pass the archiveDir to a HaxeFlixel game
+    (let [archiveDir (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))]
         (new ArchiveController
             (new Archive archiveDir)
-            this))*/)
+            this))
+
+    (add messages)
+
+    // TODO make a button that can be clicked to run typeCommand()        
+    // TODO make sprites for entries that have images
+    )
 
 (method &override :Void update [:Float elapsed]
-    (super.update elapsed))
+    (super.update elapsed)
+    
+    // Press ENTER to type a command to run
+    (when (and !textInput FlxG.keys.justPressed.ENTER)
+        (typeCommand))
+    (when (and textInput !textInput.alive)
+        (set textInput.callback null)
+        (set textInput null)))
+
+(method :Void typeCommand []
+    (enterText
+        "command to run"
+        ->commandName (controller.tryRunCommand commandName)
+        Math.POSITIVE_INFINITY))
 
 (prop &mut :ArchiveController controller)
 
 (method :Void setController [controller] (set this.controller controller))
 
+(prop &mut :FlxInputText textInput null)
+
 (method :Void enterText [prompt resolve maxLength]
-    (resolve ""))
+    (set textInput (new FlxInputText 0 0 300 prompt))
+    (textInput.screenCenter)
+    (set textInput.callback
+        ->:Void [text action]
+            (case [text action]
+                ([text FlxInputText.ENTER_ACTION]
+                    (textInput.kill)
+                    (resolve text))
+                (otherwise {})))
+    (add textInput))
     
 (method :Void enterNumber [prompt resolve min max &opt inStepsOf]
     (resolve 0))
@@ -27,6 +57,7 @@
 (method :Void chooseEntries [prompt archive resolve min max]
     (_chooseEntries prompt archive resolve min max []))
 
+// TODO is it possible to resolve with less than max?
 (method :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
     (let [&mut :Void->Void chooseNextEntry
                 null
@@ -48,8 +79,14 @@
     (doFor e changeSet
         (print (archive.fullString e))))
 
+(prop &mut :Int messageY 0)
+(prop :FlxGroup messages (new FlxGroup))
 (method :Void displayMessage [message]
-    (print message))
+    (messages.add (new FlxText 0 messageY 0 message))
+    (+= messageY 8))
 
 (method :Void reportError [error] 
-    (print error))
+    (let [text (new FlxText 0 messageY 0 error)]
+        (text.setFormat null 8 FlxColor.RED)
+        (messages.add text)
+        (+= messageY 8)))
