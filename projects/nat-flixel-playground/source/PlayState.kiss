@@ -76,14 +76,23 @@
 
         
 (method handleChanges [:Archive archive :ChangeSet changeSet]
+    // TODO refresh the sprites/other UI elements for entries that changed data
     (doFor e changeSet
         (print (archive.fullString e))))
 
 (prop &mut :Int messageY 0)
-(prop :FlxGroup messages (new FlxGroup))
+(prop &mut :FlxGroup messages (new FlxGroup))
 (method :Void displayMessage [message]
     (messages.add (new FlxText 0 messageY 0 message))
     (+= messageY 8))
+
+// TODO add a UI way to call this
+(method :Void clearMessages []
+    (messages.kill)
+    (set messages (new FlxGroup))
+    (set messageY 0))
+
+// TODO add a way to scroll through messages/move the camera
 
 (method :Void reportError [error] 
     (let [text (new FlxText 0 messageY 0 error)]
