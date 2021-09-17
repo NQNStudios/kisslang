@@ -99,7 +99,7 @@
     (let [lowerCommandName (commandName.toLowerCase)]
         (if (commands.exists lowerCommandName)
                 (_runCommand (dictGet commands lowerCommandName))
-            (ui.displayMessage "$commandName is not a valid command"))))
+            (ui.reportError "$commandName is not a valid command"))))
 
 (method :Void _runCommand [:Command command]
     (let [collectedArgs
