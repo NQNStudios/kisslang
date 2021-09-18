@@ -7,7 +7,7 @@ import haxe.Json;
 
 using haxe.io.Path;
 
-typedef AttachmentProcessor = (Archive, Entry, Array<String>) -> Dynamic;
+typedef AttachmentProcessor = (Archive, Entry, Array<FileRef>) -> Dynamic;
 
 /**
  * Base System that processes Entries based on whether they have file attachments
