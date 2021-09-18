@@ -12,6 +12,7 @@ import flixel.addons.ui.FlxInputText;
 import flixel.addons.ui.FlxUIPopup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.FlxCamera;
 
 using StringTools;
 

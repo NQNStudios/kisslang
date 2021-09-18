@@ -8,7 +8,14 @@
             (new Archive archiveDir)
             this))
 
-    (add messages)
+    (prop &mut :FlxGroup uiGroup (new FlxGroup))
+    (add uiGroup)
+
+    (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
+    (set uiCamera.bgColor FlxColor.TRANSPARENT)
+    (FlxG.cameras.add uiCamera false)
+
+    (set uiGroup.cameras [uiCamera])
 
     // TODO make a button that can be clicked to run typeCommand()        
     // TODO make sprites for entries that have images
@@ -22,11 +29,25 @@
         (typeCommand))
     (when (and textInput !textInput.alive)
         (set textInput.callback null)
-        (set textInput null)))
+        (set textInput null))
+    
+    // Scroll the UI with the mouse:
+    (var UI_SCROLL_FACTOR 2)
+    (+= uiCamera.y (* FlxG.mouse.wheel UI_SCROLL_FACTOR))
+    // TODO allow changing the a scroll factor
+
+    // And with the up/down keys:
+    (var KEYBOARD_SCROLL_SPEED 200)
+    (when (> uiGroup.length 0)
+        (when FlxG.keys.pressed.DOWN
+            (-= uiCamera.y (/ KEYBOARD_SCROLL_SPEED 60)))
+        
+        (when FlxG.keys.pressed.UP
+            (+= uiCamera.y (/ KEYBOARD_SCROLL_SPEED 60)))))
 
 (method :Void typeCommand []
     (enterText
-        "command to run"
+        "command to run:"
         ->commandName (controller.tryRunCommand commandName)
         Math.POSITIVE_INFINITY))
 
@@ -34,19 +55,26 @@
 
 (method :Void setController [controller] (set this.controller controller))
 
+(prop &mut :FlxText textInputLabel null)
 (prop &mut :FlxInputText textInput null)
 
 (method :Void enterText [prompt resolve maxLength]
-    (set textInput (new FlxInputText 0 0 300 prompt))
-    (textInput.screenCenter)
+    (set textInputLabel (new FlxText 0 0 300 prompt))
+    (showUI textInputLabel)
+    (set textInput (new FlxInputText 0 0 300 ""))
+    (set textInput.hasFocus true)
     (set textInput.callback
         ->:Void [text action]
             (case [text action]
                 ([text FlxInputText.ENTER_ACTION]
-                    (textInput.kill)
+                    (hideUI textInput)
+                    // This part is hacky...
+                    (set lastUI textInputLabel)
+                    (hideUI textInputLabel)
                     (resolve text))
+                //([_ FlxInputText.])
                 (otherwise {})))
-    (add textInput))
+    (showUI textInput))
     
 (method :Void enterNumber [prompt resolve min max &opt inStepsOf]
     (resolve 0))
@@ -80,22 +108,38 @@
     (doFor e changeSet
         (print (archive.fullString e))))
 
-(prop &mut :Int messageY 0)
-(prop &mut :FlxGroup messages (new FlxGroup))
-(method :Void displayMessage [message]
-    (messages.add (new FlxText 0 messageY 0 message))
-    (+= messageY 8))
+(prop &mut :Int uiY 0)
+
+(prop &mut :FlxSprite lastUI null)
+
+(method :Void showUI [:FlxSprite ui]
+    (set ui.y uiY)
+    (uiGroup.add ui)
+    (set lastUI ui)
+    (+= uiY ui.height)
+    (when (> uiY FlxG.height) (-= uiCamera.y ui.height)))
+
+(method :Void hideUI [:FlxSprite ui]
+    (uiGroup.remove ui)
+    (ui.kill)
+    (when (= lastUI ui) (-= uiY ui.height)))
+
+(method :Void displayMessage [:String message]
+    (let [messageText (new FlxText 0 0 0 (message.replace "\n" "|"))]
+        (showUI messageText)))
 
 // TODO add a UI way to call this
-(method :Void clearMessages []
-    (messages.kill)
-    (set messages (new FlxGroup))
-    (set messageY 0))
+(method :Void clearUI []
+    (uiGroup.kill)
+    (set uiGroup (new FlxGroup))
+    (add uiGroup)
+    (set uiY 0)
+    (set uiCamera.y 0))
 
 // TODO add a way to scroll through messages/move the camera
 
-(method :Void reportError [error] 
-    (let [text (new FlxText 0 messageY 0 error)]
+(method :Void reportError [:String error] 
+    (let [text (new FlxText 0 0 0 (error.replace "\n" "|"))]
         (text.setFormat null 8 FlxColor.RED)
-        (messages.add text)
-        (+= messageY 8)))
+        (showUI text)))
+
