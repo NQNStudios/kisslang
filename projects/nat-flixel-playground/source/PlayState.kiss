@@ -141,7 +141,7 @@
     (uiGroup.add ui)
     (set lastUI ui)
     (+= uiY ui.height)
-    (when (> uiY FlxG.height) (-= uiCamera.y ui.height)))
+    (when (> uiY FlxG.height) (+= uiCamera.scroll.y ui.height)))
 
 (method :Void hideUI [:FlxSprite ui]
     (uiGroup.remove ui)
@@ -152,18 +152,16 @@
     (let [messageText (new FlxText 0 0 0 (message.replace "\n" "|"))]
         (showUI messageText)))
 
-// TODO add a UI way to call this
 (method :Void clearUI []
     (uiGroup.kill)
     (set uiGroup (new FlxGroup))
+    (set uiGroup.cameras [uiCamera])
     (add uiGroup)
     (set uiY 0)
-    (set uiCamera.y 0))
-
-// TODO add a way to scroll through messages/move the camera
+    (set uiCamera.scroll.x 0)
+    (set uiCamera.scroll.y 0))
 
 (method :Void reportError [:String error] 
     (let [text (new FlxText 0 0 0 (error.replace "\n" "|"))]
         (text.setFormat null 8 FlxColor.RED)
         (showUI text)))
-
