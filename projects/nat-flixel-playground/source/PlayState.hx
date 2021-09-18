@@ -14,6 +14,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.FlxCamera;
 import flixel.math.FlxVector;
+import flixel.addons.plugin.FlxMouseControl;
 
 using StringTools;
 

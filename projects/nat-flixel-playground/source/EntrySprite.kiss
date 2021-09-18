@@ -8,4 +8,12 @@
             ((object x x y y z z)
                 (super x y)))
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
-            ->bitmapData (loadGraphic bitmapData))))
+            ->bitmapData {
+                (loadGraphic bitmapData)
+                (enableMouseClicks false)
+                (enableMouseDrag)
+             }))
+    (set mouseStopDragCallback
+        ->[self _dx _dy]
+            (withWritableComponents archive e [positions Positions]
+                (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0)))))

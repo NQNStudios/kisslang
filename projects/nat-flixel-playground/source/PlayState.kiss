@@ -7,6 +7,9 @@
 
 (method &override :Void create []
     (super.create)
+
+	(FlxG.plugins.add (new FlxMouseControl))
+
     // TODO find a better way to pass the archiveDir to a HaxeFlixel game
     (let [archiveDir
                 (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))
