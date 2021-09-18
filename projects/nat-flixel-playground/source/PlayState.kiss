@@ -28,7 +28,6 @@
     (when (and !textInput FlxG.keys.justPressed.ENTER)
         (typeCommand))
     (when (and textInput !textInput.alive)
-        (set textInput.callback null)
         (set textInput null))
 
     // Press ESCAPE to clear the UI and cancel any input
@@ -91,6 +90,7 @@
         ->:Void [text action]
             (case [text action]
                 ([text FlxInputText.ENTER_ACTION]
+                    (set textInput.callback null)
                     (hideUI textInput)
                     // This part is hacky...
                     (set lastUI textInputLabel)
