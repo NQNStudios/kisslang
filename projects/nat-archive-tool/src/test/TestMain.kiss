@@ -33,7 +33,6 @@
     (let [wikipedia (new MediaWikiSystem "https://en.wikipedia.org/w/api.php" null null 1)]
         ~(wikipedia.queryImageUrls (wikipedia.queryImageTitles ["Phoenix Wright"])))
 
-    // TODO make a dummy UI for this, instead of passing null
     (let [controller (new ArchiveController archive (new DummyUI))]
         // TODO test controller
         0))
