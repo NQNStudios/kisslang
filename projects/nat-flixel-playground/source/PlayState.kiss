@@ -30,6 +30,10 @@
     (when (and textInput !textInput.alive)
         (set textInput.callback null)
         (set textInput null))
+
+    // Press ESCAPE to clear the UI and cancel any input
+    (when FlxG.keys.justPressed.ESCAPE
+        (clearUI))
     
     // Scroll the UI with the mouse:
     (var UI_SCROLL_FACTOR 2)
