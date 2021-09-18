@@ -1,12 +1,14 @@
 (load "../Lib.kiss")
 
-(defNew [&prop :Array<String> extensions
-            :AttachmentProcessor processor] 
+(defNew [:Array<String> _extensions
+            :AttachmentProcessor processor]
+    [:Array<String> extensions (for extension _extensions (extension.toLowerCase))]    
+    
     (super
         ->[archive e]
             {
                 (doFor file e.files
-                    (when !(= -1 (extensions.indexOf (file.extension)))
+                    (when !(= -1 (extensions.indexOf (.toLowerCase (file.extension))))
                         (return true)))
                 false
             }
