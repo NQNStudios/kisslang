@@ -36,14 +36,34 @@
     (+= uiCamera.y (* FlxG.mouse.wheel UI_SCROLL_FACTOR))
     // TODO allow changing the a scroll factor
 
-    // And with the up/down keys:
+    // Control the UI camera with the arrow keys, and the playground camera with wasd:
     (var KEYBOARD_SCROLL_SPEED 200)
+    (method cameraKeyControl [:FlxCamera camera :Void->Bool leftKey :Void->Bool rightKey :Void->Bool upKey :Void->Bool downKey]
+        (let [scrollPerSec (/ KEYBOARD_SCROLL_SPEED 60)
+                &mut :FlxVector movement (new FlxPoint)]
+            (when (leftKey) (-= movement.x 1))
+            (when (rightKey) (+= movement.x 1))
+            (when (upKey) (-= movement.y 1))
+            (when (downKey) (+= movement.y 1))
+            (when (< 0 movement.length)
+                (set movement (movement.normalize)))
+            (movement.scale scrollPerSec)
+            (+= camera.scroll.x movement.x)
+            (+= camera.scroll.y movement.y)))
+
+    // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
     (when (> uiGroup.length 0)
-        (when FlxG.keys.pressed.DOWN
-            (-= uiCamera.y (/ KEYBOARD_SCROLL_SPEED 60)))
-        
-        (when FlxG.keys.pressed.UP
-            (+= uiCamera.y (/ KEYBOARD_SCROLL_SPEED 60)))))
+        (cameraKeyControl uiCamera
+            ->{FlxG.keys.pressed.LEFT}
+            ->{FlxG.keys.pressed.RIGHT}
+            ->{FlxG.keys.pressed.UP}
+            ->{FlxG.keys.pressed.DOWN}))
+            
+    (cameraKeyControl FlxG.camera
+        ->{FlxG.keys.pressed.A}
+        ->{FlxG.keys.pressed.D}
+        ->{FlxG.keys.pressed.W}
+        ->{FlxG.keys.pressed.S}))
 
 (method :Void typeCommand []
     (enterText
