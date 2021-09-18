@@ -1,0 +1,11 @@
+(loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+
+(defNew [:String positionKey
+            &prop :Archive archive
+            &prop :Entry e]
+    (let [images (readComponent archive e Images)]
+        (case (dictGet (readComponent archive e Positions) positionKey)
+            ((object x x y y z z)
+                (super x y)))
+        (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
+            ->bitmapData (loadGraphic bitmapData))))

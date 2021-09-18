@@ -1,15 +1,27 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
+// TODO store a map of Entry IDs -> EntrySprites.
+// TODO handleChanges() will need to kill every changed Entry's sprite and make a new one
+// TODO make the EntrySprite constructor assign the entry a serialized position component
+    // maybe by writing a Map<String, Point> positions component so there can be multiple?
+
 (method &override :Void create []
     (super.create)
     // TODO find a better way to pass the archiveDir to a HaxeFlixel game
-    (let [archiveDir (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))]
+    (let [archiveDir
+                (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))
+            archive
+                (new Archive archiveDir)]
+        (set this.archive archive)
         (new ArchiveController
-            (new Archive archiveDir)
+            archive
             this))
 
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
+
+    (prop :FlxGroup entryGroup (new FlxGroup))
+    (add entryGroup)
 
     (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
@@ -18,7 +30,15 @@
     (set uiGroup.cameras [uiCamera])
 
     // TODO make a button that can be clicked to run typeCommand()        
-    // TODO make sprites for entries that have images
+
+    // make interactible sprites for entries that have images
+
+    // TODO allow configuring the tags at runtime and erasing/re-creating sprites later
+    // TODO allow using other position keys and erasing/re-creating sprites later
+    (let [entrySpriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this)]
+        (archive.addSystem entrySpriteSystem)
+        (entrySpriteSystem.process archive))
+    
     )
 
 (method &override :Void update [:Float elapsed]
@@ -75,8 +95,10 @@
         Math.POSITIVE_INFINITY))
 
 (prop &mut :ArchiveController controller)
+(prop &mut :Archive archive)
 
-(method :Void setController [controller] (set this.controller controller))
+(method :Void setController [controller]
+    (set this.controller controller))
 
 (prop &mut :FlxText textInputLabel null)
 (prop &mut :FlxInputText textInput null)
