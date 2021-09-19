@@ -157,8 +157,9 @@
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
         (when (spriteSystem.entries.exists e.id)
-            (spriteSystem.onRemoveEntry e)
-            (spriteSystem.processEntry e))))
+            (when (spriteSystem.sprites.exists e.id)
+                (spriteSystem.onRemoveEntry archive e))
+            (spriteSystem.processEntry archive e))))
 
 (prop &mut :Int uiY 0)
 
