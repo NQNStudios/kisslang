@@ -19,10 +19,18 @@ then
         haxelib install hxcpp
     fi
 
-    echo "Building $KISS_PROJECT for html5"
-    (cd projects/$KISS_PROJECT && haxelib run lime build html5)
-    echo "Building $KISS_PROJECT for cpp"
-    (cd projects/$KISS_PROJECT && haxelib run lime build cpp)
+    # if "desktop-" is in the project name, only test for C++
+    if [[ $KISS_PROJECT == *desktop-* ]]
+    then
+        (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for cpp" && haxelib run lime build cpp)
+    # if "web-" is in the project name, only test for HTML5
+    elif [[ $KISS_PROJECT == *web-* ]]
+        (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for html5" && haxelib run lime build html5)
+    # Otherwise require both to succeed
+    else
+        (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for html5" && haxelib run lime build html5) && \
+        (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for cpp" && haxelib run lime build cpp)
+    fi
 # Test other projects with their test.sh file
 else
     (cd projects/$KISS_PROJECT && haxelib install all --always)
