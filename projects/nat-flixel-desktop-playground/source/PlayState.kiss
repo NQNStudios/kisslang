@@ -16,9 +16,10 @@
             archive
                 (new Archive archiveDir)]
         (set this.archive archive)
-        (new ArchiveController
-            archive
-            this))
+        (set controller
+            (new ArchiveController
+                archive
+                this)))
 
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
@@ -39,7 +40,7 @@
     // TODO allow configuring the tags at runtime and erasing/re-creating sprites later
     // TODO allow using other position keys and erasing/re-creating sprites later
     (prop &mut :EntrySpriteSystem spriteSystem)
-    (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this))
+    (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
     (archive.addSystem spriteSystem)
     (spriteSystem.process archive))
 
@@ -114,16 +115,18 @@
     (set textInput.hasFocus true)
     (set textInput.callback
         ->:Void [text action]
-            (case [text action]
-                ([text FlxInputText.ENTER_ACTION]
-                    (set textInput.callback null)
-                    (hideUI textInput)
-                    // This part is hacky...
-                    (set lastUI textInputLabel)
-                    (hideUI textInputLabel)
-                    (resolve text))
-                //([_ FlxInputText.])
-                (otherwise {})))
+            // Super weird that this check is necessary
+            (when textInput
+                (case [text action]
+                    ([text FlxInputText.ENTER_ACTION]
+                        (set textInput.callback null)
+                        (hideUI textInput)
+                        // This part is hacky...
+                        (set lastUI textInputLabel)
+                        (hideUI textInputLabel)
+                        (resolve text))
+                    //([_ FlxInputText.])
+                    (otherwise {}))))
     (showUI textInput))
     
 (method :Void enterNumber [prompt resolve min max &opt inStepsOf]

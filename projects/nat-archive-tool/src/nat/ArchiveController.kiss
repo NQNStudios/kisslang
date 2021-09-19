@@ -166,6 +166,10 @@
     (defCommand SelectEntry [e OneEntry]
         (set selectedEntries [e]) [])
 
+    (defCommand ToggleEntrySelection [e OneEntry]
+        (unless (selectedEntries.remove e)
+            (selectedEntries.push e)) [])
+
     (defCommand SelectEntries [entries (Entries null null)]
         (set selectedEntries entries) [])
 

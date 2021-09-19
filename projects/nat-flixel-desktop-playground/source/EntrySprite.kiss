@@ -2,7 +2,10 @@
 
 (defNew [:String positionKey
             &prop :Archive archive
-            &prop :Entry e]
+            &prop :Entry e
+            &prop :ArchiveController controller]
+    [&mut :Bool selected false]
+
     (let [images (readComponent archive e Images)]
         (case (dictGet (readComponent archive e Positions) positionKey)
             ((object x x y y z z)
@@ -13,6 +16,20 @@
                 (enableMouseClicks false)
                 (enableMouseDrag)
              }))
+    
+    (set mousePressedCallback
+        ->[self _x _y]
+            {
+                (controller.ToggleEntrySelection e)
+                (set selected !selected)
+                (if selected
+                        {
+                            (set color FlxColor.BLUE)
+                        }
+                    {
+                        (set color FlxColor.WHITE)
+                    })
+            })
     (set mouseStopDragCallback
         ->[self _dx _dy]
             (withWritableComponents archive e [positions Positions]

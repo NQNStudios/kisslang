@@ -4,6 +4,7 @@ import kiss.Prelude;
 import kiss.List;
 import nat.System;
 import nat.BoolExpInterp;
+import nat.ArchiveController;
 import nat.components.Positions;
 
 @:build(kiss.Kiss.build())

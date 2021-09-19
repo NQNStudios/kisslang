@@ -2,7 +2,10 @@
 
 (prop :Map<String,EntrySprite> sprites (new Map))
 
-(defNew [:String tagFilterString :String positionKey :PlayState playState]
+(defNew [:String tagFilterString
+            :String positionKey
+            :PlayState playState
+            &prop :ArchiveController controller]
     (super
         ->[archive e]
             ?(and (tagsMatch archive e tagFilterString) (hasComponent e Images))
@@ -14,7 +17,7 @@
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists positionKey)
                         (dictSet positions positionKey (object x 0.0 y 0.0 z 0.0))))
-                (let [sprite (new EntrySprite positionKey archive e)]
+                (let [sprite (new EntrySprite positionKey archive e controller)]
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite))
             })

@@ -6,6 +6,7 @@ import flash.display.BitmapData;
 import flixel.addons.display.FlxExtendedSprite;
 import nat.Entry;
 import nat.Archive;
+import nat.ArchiveController;
 import nat.BoolExpInterp;
 import nat.components.Images;
 import nat.components.Positions;
