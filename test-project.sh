@@ -25,6 +25,7 @@ then
         (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for cpp" && haxelib run lime build cpp)
     # if "web-" is in the project name, only test for HTML5
     elif [[ $KISS_PROJECT == *web-* ]]
+    then
         (cd projects/$KISS_PROJECT && echo "Building $KISS_PROJECT for html5" && haxelib run lime build html5)
     # Otherwise require both to succeed
     else
