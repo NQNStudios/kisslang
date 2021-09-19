@@ -29,8 +29,10 @@
         (refreshEntry e)
         e))
 
-// After modifying an entry, this must be called. If you are writing in a createEntry initializer or a system's processEntry function, this will happen automatically.
-// Otherwise, you can guarantee it happens automatically by using the (withWritableEntry) macro in Lib.kiss
+// After modifying an entry, this must be called. If you are writing in a createEntry
+// initializer or a system's processEntry function, this will happen automatically.
+// Otherwise, you can guarantee it happens automatically by using the (withWritableEntry)
+// and (withWritableComponents) macros in Lib.kiss
 (method refreshEntry [:Entry e]
     (_saveEntry e)
     (doFor system systems

@@ -9,9 +9,13 @@
             &prop :EntryProcessor processEntry]
     [])
 
+(prop &mut :Null<EntryProcessor> onRemoveEntry)
+
 (method :Void checkEntryInOrOut [:Archive archive :Entry e]
     (if (canProcessEntry archive e)
             (dictSet entries e.id e)
-        (entries.remove e.id)))
+        (when (entries.exists e.id)
+            (entries.remove e.id)
+            (when onRemoveEntry (onRemoveEntry archive e)))))
 
 // TODO systems may need access to a UI

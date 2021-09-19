@@ -1,9 +1,11 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
+(prop :Map<String,EntrySprite> sprites (new Map))
+
 (defNew [:String tagFilterString :String positionKey :PlayState playState]
     (super
         ->[archive e]
-            (and (tagsMatch archive e tagFilterString) (hasComponent e Images))
+            ?(and (tagsMatch archive e tagFilterString) (hasComponent e Images))
         ->[archive e]
             {
                 (when !(hasComponent e Positions)
@@ -12,5 +14,14 @@
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists positionKey)
                         (dictSet positions positionKey (object x 0.0 y 0.0 z 0.0))))
-                (playState.entryGroup.add (new EntrySprite positionKey archive e))
+                (let [sprite (new EntrySprite positionKey archive e)]
+                    (playState.entryGroup.add sprite)
+                    (dictSet sprites e.id sprite))
+            })
+    
+    (set onRemoveEntry
+        ->[archive e]
+            {
+                (.kill (dictGet sprites e.id))
+                (sprites.remove e.id)
             }))
