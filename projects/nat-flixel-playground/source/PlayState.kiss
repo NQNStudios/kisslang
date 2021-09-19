@@ -64,17 +64,19 @@
     // Control the UI camera with the arrow keys, and the playground camera with wasd:
     (var KEYBOARD_SCROLL_SPEED 200)
     (method cameraKeyControl [:FlxCamera camera :Void->Bool leftKey :Void->Bool rightKey :Void->Bool upKey :Void->Bool downKey]
-        (let [scrollPerSec (/ KEYBOARD_SCROLL_SPEED 60)
-                &mut :FlxVector movement (new FlxPoint)]
-            (when (leftKey) (-= movement.x 1))
-            (when (rightKey) (+= movement.x 1))
-            (when (upKey) (-= movement.y 1))
-            (when (downKey) (+= movement.y 1))
-            (when (< 0 movement.length)
-                (set movement (movement.normalize)))
-            (movement.scale scrollPerSec)
-            (+= camera.scroll.x movement.x)
-            (+= camera.scroll.y movement.y)))
+        // but not when textInput is focused
+        (unless (and textInput textInput.hasFocus)
+            (let [scrollPerSec (/ KEYBOARD_SCROLL_SPEED 60)
+                    &mut :FlxVector movement (new FlxPoint)]
+                (when (leftKey) (-= movement.x 1))
+                (when (rightKey) (+= movement.x 1))
+                (when (upKey) (-= movement.y 1))
+                (when (downKey) (+= movement.y 1))
+                (when (< 0 movement.length)
+                    (set movement (movement.normalize)))
+                (movement.scale scrollPerSec)
+                (+= camera.scroll.x movement.x)
+                (+= camera.scroll.y movement.y))))
 
     // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
     (when (> uiGroup.length 0)
