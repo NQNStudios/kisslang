@@ -225,7 +225,7 @@
         (doFor e entries
             (if (hasComponent e Images)
                     (withWritableComponents archive e [images Images]
-                        (set images.pinnedImageIndex (max 0 (min images.imageFiles.length (+ increment images.pinnedImageIndex)))))
+                        (set images.pinnedImageIndex (max 0 (min (- images.imageFiles.length 1) (+ increment images.pinnedImageIndex)))))
                 (ui.reportError "Entry $e has no Images component")))
         entries)
 
