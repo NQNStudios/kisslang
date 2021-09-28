@@ -31,8 +31,9 @@
 
 // After modifying an entry, this must be called. If you are writing in a createEntry
 // initializer or a system's processEntry function, this will happen automatically.
-// Otherwise, you can guarantee it happens automatically by using the (withWritableEntry)
-// and (withWritableComponents) macros in Lib.kiss
+// Also most functions that only affect the Entry, not its components' contents,
+// will call this automatically though (withWritableEntry).
+// When changing components, use the (withWritableComponents) macro in Lib.kiss
 (method refreshEntry [:Entry e]
     (_saveEntry e)
     (doFor system systems
@@ -43,7 +44,7 @@
         (joinPath archiveDir "entries" (e.id.withExtension "json"))
         (Json.stringify e)))
 
-(method componentData [:Entry e :String componentType]
+(method :Dynamic componentData [:Entry e :String componentType]
     (haxe.Json.parse (File.getContent (joinPath archiveDir "components" "$(dictGet e.components componentType).json"))))
 
 (method fullData [:Entry e]

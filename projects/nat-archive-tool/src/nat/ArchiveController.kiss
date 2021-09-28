@@ -184,7 +184,7 @@
     
     (defCommand PrintComponent [entries (SelectedEntries null null)
                                     componentType (Text null)]
-        (doFor e entries (ui.displayMessage (archive.componentData e componentType))) [])
+        (doFor e entries (ui.displayMessage (Std.string (archive.componentData e componentType)))) [])
         
     (defCommand CreateEntry [name (Text null)]
         [(archive.createEntry ->e
