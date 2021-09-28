@@ -130,7 +130,15 @@
     (showUI textInput))
     
 (method :Void enterNumber [prompt resolve min max &opt inStepsOf]
-    (resolve 0))
+    (enterText prompt 
+        ->:Void [numberStr]
+            (let [number
+                        (try (Std.parseFloat numberStr)
+                            (catch [e]
+                                (reportError "Not a number: $numberStr")
+                                (return)))]
+                (resolve number))
+        Math.POSITIVE_INFINITY))
 
 (method :Void chooseEntry [prompt :Archive archive resolve]
     (resolve null))
