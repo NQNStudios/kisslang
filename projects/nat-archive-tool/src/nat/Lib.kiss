@@ -19,10 +19,12 @@
 // Components have to be saved individually after writing because the Entity only knows their ids,
 // not the data they contain. This is more ergonomically done by using (withWritableComponents...)
 (defMacro writeComponent [archive e componentType c]
-    `(sys.io.File.saveContent
-        (_componentPath ,archive ,e ,componentType)
-        (tink.Json.stringify
-            (the nat.components ,componentType ,c))))
+    `{
+        (print (+ "saving " (the nat.components ,componentType ,c) " as " ,(symbolName componentType) " for " .id ,e))
+        (sys.io.File.saveContent
+            (_componentPath ,archive ,e ,componentType)
+            (tink.Json.stringify
+                (the nat.components ,componentType ,c)))})
 
 // TODO check not overwriting a component
 (defMacro addComponent [archive e componentType c]
