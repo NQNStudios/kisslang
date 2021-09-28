@@ -13,6 +13,7 @@
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
             ->bitmapData {
                 (loadGraphic bitmapData)
+                (updateColor)
                 (when (hasComponent e Scale)
                     (let [:Float scale (readComponent archive e Scale)]
                         (this.scale.set scale scale)
@@ -21,20 +22,23 @@
                 (enableMouseDrag)
              }))
     
+    // TODO add onEntrySelected(), onEntryDeselected() callback to ArchiveUI and use these to change color if SelectByName or SelectByTags are used on an Entry that has a sprite in the entryspritesystem's dictionary
     (set mousePressedCallback
         ->[self _x _y]
             {
                 (controller.ToggleEntrySelection e)
-                (set selected !selected)
-                (if selected
-                        {
-                            (set color FlxColor.BLUE)
-                        }
-                    {
-                        (set color FlxColor.WHITE)
-                    })
+                (updateColor)
             })
     (set mouseStopDragCallback
         ->[self _dx _dy]
             (withWritableComponents archive e [positions Positions]
                 (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0)))))
+
+(method updateColor []
+    (if !(= -1 (controller.selectedEntries.indexOf e))
+            {
+                (set color FlxColor.BLUE)
+            }
+        {
+            (set color FlxColor.WHITE)
+        }))

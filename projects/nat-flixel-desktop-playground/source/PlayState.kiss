@@ -167,10 +167,10 @@
         
 (method handleChanges [:Archive archive :ChangeSet changeSet]
     (doFor e changeSet
-        // refresh the sprites for entries that changed data.
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
         (when (spriteSystem.entries.exists e.id)
+            // refresh the sprites for entries that changed data but still should have sprites
             (when (spriteSystem.sprites.exists e.id)
                 (spriteSystem.onRemoveEntry archive e))
             (spriteSystem.processEntry archive e))))
