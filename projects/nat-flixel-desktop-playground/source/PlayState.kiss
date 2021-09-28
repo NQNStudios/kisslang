@@ -9,6 +9,7 @@
     (super.create)
 
 	(FlxG.plugins.add (new FlxMouseControl))
+    (set FlxG.sound.muteKeys null)
 
     // TODO find a better way to pass the archiveDir to a HaxeFlixel game
     (let [archiveDir
