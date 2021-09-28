@@ -10,6 +10,7 @@ import nat.ArchiveController;
 import nat.BoolExpInterp;
 import nat.components.Images;
 import nat.components.Positions;
+import nat.components.Scale;
 
 @:build(kiss.Kiss.build())
 class EntrySprite extends FlxExtendedSprite {}

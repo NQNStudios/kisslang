@@ -13,6 +13,10 @@
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
             ->bitmapData {
                 (loadGraphic bitmapData)
+                (when (hasComponent e Scale)
+                    (let [:Float scale (readComponent archive e Scale)]
+                        (this.scale.set scale scale)
+                        (updateHitbox)))
                 (enableMouseClicks false)
                 (enableMouseDrag)
              }))

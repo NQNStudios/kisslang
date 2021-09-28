@@ -235,5 +235,13 @@
     (defCommand PinPreviousImage [entries (SelectedEntries 1 null)]
         (adjustImagePins entries -1))
 
+    (defCommand SetScale [entries (SelectedEntries 1 null) scale (Number 0 null null)]
+        (doFor e entries
+            (if (hasComponent e Scale)
+                    (withWritableComponents archive e [scaleComponent Scale]
+                        (set scaleComponent scale))
+                (addComponent archive e Scale scale)))
+        entries)
+
     (defCommand SelectByName [name (Text null)]
         (SelectEntries (nameSystem.getEntries name)) []))
