@@ -12,8 +12,7 @@
         ->[archive e]
             {
                 (when !(hasComponent e Positions)
-                    (withWritableEntry archive e
-                        (addComponent archive e Positions (new Map))))
+                    (addComponent archive e Positions (new Map)))
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists positionKey)
                         (dictSet positions positionKey (object x 0.0 y 0.0 z 0.0))))
