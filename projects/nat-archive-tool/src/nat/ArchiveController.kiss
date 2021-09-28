@@ -3,16 +3,16 @@
 (method :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
     (case arg.type
         (SelectedEntry
-            (if (= 1 selectedEntries.length)
-                    (continuation (first selectedEntries))
-                (ui.reportError "The requested command expects 1 entry to be selected. You have selected: $selectedEntries.length")))
+            (if (= 1 _selectedEntries.length)
+                    (continuation (first _selectedEntries))
+                (ui.reportError "The requested command expects 1 entry to be selected. You have selected: $_selectedEntries.length")))
         ((SelectedEntries min max)
             (unless min (set min 0))
             // TODO might want to optimize this O(n) count operation by pre-calculating it 
             (unless max (set max (count archive.entries)))
-            (if !(<= min selectedEntries.length max)
-                    (ui.reportError "The requested command expects between $min and $max entries to be selected. You have selected: $selectedEntries.length")
-                (continuation selectedEntries)))
+            (if !(<= min _selectedEntries.length max)
+                    (ui.reportError "The requested command expects between $min and $max entries to be selected. You have selected: $_selectedEntries.length")
+                (continuation _selectedEntries)))
         ((Text maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
             (ui.enterText
@@ -113,14 +113,12 @@
             (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
         (lastCollector)))
 
+
 (defMacro defCommand [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)
             methodArgs
                 (for [name type] argPairs
-                    // TODO write an exprCase macro that simplifies this terrible mess,
-                    // and maybe adds back precise pattern matching instead of relying
-                    // on partial string matching
                     (exprCase type
                         ((exprOr SelectedEntry OneEntry) `:nat.Entry ,name)
                         ((exprOr (SelectedEntries _ _) (Entries _ _)) `:Array<nat.Entry> ,name)
@@ -139,10 +137,12 @@
 
 (var :Array<String> commandNames [])
 
+(method isSelected [:Entry e]
+    !(= -1 (_selectedEntries.indexOf e)))
 
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]
-    [&mut :Array<Entry> selectedEntries []
+    [&mut :Array<Entry> _selectedEntries []
         &mut :ChangeSet lastChangeSet []
         :Map<String,Command> commands (new Map)
         :NameSystem nameSystem (new NameSystem)]
@@ -163,21 +163,28 @@
             (+ "Available commands:\n"
                 (commandNames.join "\n"))) [])
 
+    (method selectionCommand [entries]
+        (let [lastSelectedEntries _selectedEntries]
+            (set _selectedEntries entries)
+            (ui.onSelectionChanged entries lastSelectedEntries)) [])
+
     (defCommand SelectEntry [e OneEntry]
-        (set selectedEntries [e]) [])
+        (selectionCommand [e]))
 
     (defCommand ToggleEntrySelection [e OneEntry]
-        (unless (selectedEntries.remove e)
-            (selectedEntries.push e)) [])
+        (let [newSelection (_selectedEntries.copy)]
+            (unless (newSelection.remove e)
+                (newSelection.push e))
+            (selectionCommand newSelection)))
 
     (defCommand SelectEntries [entries (Entries null null)]
-        (set selectedEntries entries) [])
+        (selectionCommand entries) [])
 
     (defCommand SelectAllEntries []
-        (set selectedEntries (for =>id e archive.entries e)) [])
+        (selectionCommand (for =>id e archive.entries e)))
 
     (defCommand SelectLastChangeSet []
-        (set selectedEntries lastChangeSet) [])
+        (selectionCommand lastChangeSet))
 
     (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])

@@ -208,3 +208,8 @@
     (let [text (new FlxText 0 0 0 (error.replace "\n" "|"))]
         (text.setFormat null 8 FlxColor.RED)
         (showUI text)))
+
+(method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries]
+    (doFor e (selectedEntries.concat lastSelectedEntries)
+        (whenLet [sprite (dictGet spriteSystem.sprites e.id)]
+            (sprite.updateColor))))

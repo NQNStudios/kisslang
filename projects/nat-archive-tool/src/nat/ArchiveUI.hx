@@ -42,4 +42,9 @@ interface ArchiveUI {
      * Tell the user that something is wrong
      */
     function reportError(error:String):Void;
+
+    /**
+     * Update UI to show that the set of selected entries has changed
+     */
+    function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>):Void;
 }

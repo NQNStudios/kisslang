@@ -22,12 +22,10 @@
                 (enableMouseDrag)
              }))
     
-    // TODO add onEntrySelected(), onEntryDeselected() callback to ArchiveUI and use these to change color if SelectByName or SelectByTags are used on an Entry that has a sprite in the entryspritesystem's dictionary
     (set mousePressedCallback
         ->[self _x _y]
             {
                 (controller.ToggleEntrySelection e)
-                (updateColor)
             })
     (set mouseStopDragCallback
         ->[self _dx _dy]
@@ -35,7 +33,7 @@
                 (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0)))))
 
 (method updateColor []
-    (if !(= -1 (controller.selectedEntries.indexOf e))
+    (if (controller.isSelected e)
             {
                 (set color FlxColor.BLUE)
             }

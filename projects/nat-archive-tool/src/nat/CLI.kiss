@@ -90,3 +90,7 @@
 
 (method :Void reportError [error] 
     (print error))
+
+(method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> _]
+    (print "Selected:")
+    (controller.PrintSelectedEntries selectedEntries))
