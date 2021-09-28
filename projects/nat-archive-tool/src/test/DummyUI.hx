@@ -37,4 +37,6 @@ class DummyUI implements ArchiveUI {
     public function displayMessage(message:String) {}
 
     public function reportError(error:String) {}
+
+    public function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>) {}
 }
