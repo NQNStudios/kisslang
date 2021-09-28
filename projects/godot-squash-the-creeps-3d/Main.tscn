@@ -31,3 +31,5 @@ transform = Transform( 1, 0, 0, 0, 0.704176, 0.710026, 0, -0.710026, 0.704176, 0
 
 [node name="Camera" type="Camera" parent="CameraPivot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.0482 )
+projection = 1
+size = 19.0
