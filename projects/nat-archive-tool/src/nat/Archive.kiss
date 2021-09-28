@@ -2,6 +2,7 @@
 
     [:Array<System> systems
             []
+        // Parse all entries into a dictionary of id => entry
         :Map<String,Entry> entries
             (let [entryDir (joinPath archiveDir "entries")
                     componentDir (joinPath archiveDir "components")
@@ -10,7 +11,9 @@
                 (FileSystem.createDirectory componentDir)
                 (FileSystem.createDirectory filesDir)
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
-                    (for file entryFiles =>(file.withoutExtension) (the Entry (Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))])
+                    (for file entryFiles
+                        =>(file.withoutExtension)
+                        (the Entry (Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))])
 
 (method addSystem [:System system]
     // Assign entries to the Systems that care about them
