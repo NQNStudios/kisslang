@@ -114,6 +114,8 @@
         (lastCollector)))
 
 
+// TODO SelectedEntry and SelectedEntries functions should be stateful and use the actual
+// selected entries automatically
 (defMacro defCommand [name args &body body]
     (let [argPairs
                 (groups (expList args) 2)

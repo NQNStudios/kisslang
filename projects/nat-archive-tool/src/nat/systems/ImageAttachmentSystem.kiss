@@ -5,8 +5,7 @@
         ["jpg" "jpeg" "png"]
         ->[archive e imageFiles]
             (unless (hasComponent e Images)
-                (withWritableEntry archive e
-                    (addComponent archive e Images
-                        (object
-                            imageFiles imageFiles
-                            pinnedImageIndex 0))))))
+                (addComponent archive e Images
+                    (object
+                        imageFiles imageFiles
+                        pinnedImageIndex 0)))))
