@@ -169,7 +169,8 @@
         
 (method handleChanges [:Archive archive :ChangeSet changeSet]
     (doFor e changeSet
-        // TODO process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
+        // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
+        (archive.processSystems)
 
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
