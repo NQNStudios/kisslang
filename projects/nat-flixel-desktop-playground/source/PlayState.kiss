@@ -22,6 +22,7 @@
                 archive
                 this)))
 
+
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
 
@@ -34,7 +35,8 @@
 
     (set uiGroup.cameras [uiCamera])
 
-    // TODO make a button that can be clicked to run typeCommand()        
+    // make text-only sprites for entries that have no images:
+    (archive.addSystem (new TextSpriteSystem))
 
     // make interactible sprites for entries that have images
 
@@ -43,7 +45,7 @@
     (prop &mut :EntrySpriteSystem spriteSystem)
     (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
     (archive.addSystem spriteSystem)
-    (spriteSystem.process archive))
+    (archive.processSystems))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
@@ -167,6 +169,8 @@
         
 (method handleChanges [:Archive archive :ChangeSet changeSet]
     (doFor e changeSet
+        // TODO process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
+
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
         (when (spriteSystem.entries.exists e.id)
