@@ -20,6 +20,11 @@
         (print (+ "adding " (the nat.components ,componentType ,c) " as " ,(symbolName componentType) " for " .id ,e))
         (dictSet .components ,e ,(symbolName componentType) (tink.Json.stringify (the nat.components ,componentType ,c)))))
 
+(defMacro removeComponent [archive e componentType]
+    `(withWritableEntry ,archive ,e
+        (print (+ "removing " ,(symbolName componentType) " component from " .id ,e))
+        (.remove .components ,e ,(symbolName componentType))))
+
 // Retrieve multiple components from an Entity with mutable access.
 // All components will be serialized after the block is done.
 (defMacro withWritableComponents [archive e bindings &body body]

@@ -21,7 +21,10 @@
                                     (.urlDecode (url.withoutDirectory))
                                     // Some symbols shouldn't be decoded because they're invalid in file systems!
                                     "\"" "%22"))]
+                    // TODO do this with ui.displayMessage
                     (print url "downloading")
                     (assertProcess "curl" ["--output" filePath url])
                     filePath)))
+        // Trigger the creation of a new Images component including the wikipedia images
+        (removeComponent archive e Images)
         (addTags archive e ["wikipediaProcessed"])))
