@@ -6,8 +6,8 @@
             &prop :ArchiveController controller]
     [&mut :Bool selected false]
 
-    (let [images (readComponent archive e Images)]
-        (case (dictGet (readComponent archive e Positions) positionKey)
+    (let [images (readComponent e Images)]
+        (case (dictGet (readComponent e Positions) positionKey)
             ((object x x y y z z)
                 (super x y)))
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
@@ -15,7 +15,7 @@
                 (loadGraphic bitmapData)
                 (updateColor)
                 (when (hasComponent e Scale)
-                    (let [:Float scale (readComponent archive e Scale)]
+                    (let [:Float scale (readComponent e Scale)]
                         (this.scale.set scale scale)
                         (updateHitbox)))
                 (enableMouseClicks false)

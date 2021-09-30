@@ -10,7 +10,7 @@
 // named method in case a user will want to run it on selectedEntries instead of on media entries
 (method scrapeForImages [archive e]
     (let [:String title
-                (readComponent archive e Name)
+                (readComponent e Name)
             :Array<String> wikipediaImageUrls
                 (queryImageUrls (queryImageTitles [title]))]
         (addFiles archive e
