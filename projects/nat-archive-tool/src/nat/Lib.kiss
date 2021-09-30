@@ -56,9 +56,11 @@
                 (= ,value (readComponent e ,componentType))))
         ,process))
 
-(function tagList [archive e]
-    (let [t (readComponent e Tags)]
-        (collect (t.keys))))
+(function :Array<String> tagList [archive :nat.Entry e]
+    (if (hasComponent e Tags)
+            (let [t (readComponent e Tags)]
+                (collect (t.keys)))
+        []))
 
 (function tagsMatch [archive e tagsBoolExp]
     (BoolExpInterp.eval tagsBoolExp (tagList archive e)))
