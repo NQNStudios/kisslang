@@ -2,8 +2,7 @@
 
 (method :Void process [:Archive archive]
     (doFor e (entries.iterator)
-        (processEntry archive e)
-        (archive.refreshEntry e)))
+        (processEntry archive e)))
 
 (defNew [&prop :EntryChecker canProcessEntry
             &prop :EntryProcessor processEntry]
@@ -18,4 +17,4 @@
             (entries.remove e.id)
             (when onRemoveEntry (onRemoveEntry archive e)))))
 
-// TODO systems may need access to a UI
+// TODO systems may need access to a UI or ArchiveController

@@ -107,7 +107,7 @@
             &mut lastCollector
                 (lambda []
                     (set lastChangeSet (the ChangeSet (Reflect.callMethod null command.handler collectedArgs)))
-                    (ui.handleChanges archive lastChangeSet))]
+                    (when lastChangeSet (ui.handleChanges archive lastChangeSet)))]
         // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
         (doFor arg (reversed command.args)
             (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
