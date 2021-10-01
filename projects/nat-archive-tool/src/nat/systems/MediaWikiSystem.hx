@@ -4,6 +4,7 @@ import kiss.Prelude;
 import kiss.List;
 import nat.System;
 import haxe.Json;
+import haxe.ds.Option;
 
 /**
  * Base System that processes Entries using the HTTP API for any wiki built with MediaWiki

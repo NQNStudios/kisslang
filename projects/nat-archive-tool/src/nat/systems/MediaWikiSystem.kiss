@@ -12,7 +12,7 @@
 // TODO make this an externMethod --
 // but mediaWikiUrl, headers, and maxLag will still have to be specified, not as args
 // unless all vars and props are passed to externmethods by default
-(method :Dynamic query [:Map<String,Array<String>> params]
+(method :Option<Dynamic> query [:Map<String,Array<String>> params]
     (let [data
             (Json.parse
                 (#extern String python
@@ -39,23 +39,27 @@
                         (assert response.ok "MediaWiki query failed")
                         (print "call finished: ${response.text}")
                         response.text)))]
-        (assert data.query "MediaWiki response data doesn't contain a query field: $data")
-        data.query))
+        (if data.query
+                (Some data.query)
+            None)))
 
 (method :Array<String> queryImageTitles [:Array<String> pageTitles]
-    (flatten
-        (for =>_id page (the haxe.DynamicAccess<Dynamic> .pages (query [=>"titles" pageTitles =>"prop" ["images"]]))
-            (if page.images
-                    (page.images.map ->image image.title)
-                []))))
+    (ifLet [(Some queryResult) (query [=>"titles" pageTitles =>"prop" ["images"]])]
+            (flatten
+                (for =>_id page (the haxe.DynamicAccess<Dynamic> queryResult.pages)
+                    (if page.images
+                            (page.images.map ->image image.title)
+                        [])))
+        []))
 
 (method :Array<String> queryImageUrls [:Array<String> imageTitles]
-    (flatten
-        (for =>_id image
-                (the haxe.DynamicAccess<Dynamic>
-                    .pages (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]]))
-            (if image.imageinfo
-                    (image.imageinfo.map ->image image.url)
-                []))))
+    (ifLet [(Some queryResult) (query [=>"titles" imageTitles =>"prop" ["imageinfo"] =>"iiprop" ["url"]])]
+            (flatten
+                (for =>_id image
+                        (the haxe.DynamicAccess<Dynamic> queryResult.pages)
+                    (if image.imageinfo
+                            (image.imageinfo.map ->image image.url)
+                        [])))
+        []))
 
 (var headers [=>"User-Agent" "NatArchiveTool/0.0.0 (https://github.com/NQNStudios/kisslang/tree/main/projects/nat-archive-tool; natquaylenelson@gmail.com) Requests/2.26.0"])
