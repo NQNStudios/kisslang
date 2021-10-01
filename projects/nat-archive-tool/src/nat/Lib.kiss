@@ -78,8 +78,10 @@
         (doFor file files
             (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
                 (unless !(= -1 (e.files.indexOf pathWithoutDir))
-                    ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
-                        file (joinPath archive.archiveDir "files" pathWithoutDir))
+                    (let [pathInArchive (joinPath archive.archiveDir "files" pathWithoutDir)]
+                        (unless (sys.FileSystem.exists pathInArchive)
+                            ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)
+                                file pathInArchive)))
                     (e.files.push pathWithoutDir))))))
 
 (function addTags [:nat.Archive archive :nat.Entry e :Array<String> tagsToAdd]
