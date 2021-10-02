@@ -24,6 +24,8 @@ typedef CompilationArgs = {
     ?importHxFile:String,
     // path to a file with hxml args in it (SHOULD NOT specify target or main class)
     ?hxmlFile:String,
+    // whether to skip haxelib install all --always
+    ?skipHaxelibInstall:Bool,
     // path to a package.json, requirements.txt, or setup.py file
     ?langProjectFile:String,
     // path to a haxe file defining the Main class
