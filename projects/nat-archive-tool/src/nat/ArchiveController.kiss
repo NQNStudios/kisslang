@@ -153,6 +153,7 @@
 
     // Add systems!
     (archive.addSystem nameSystem)
+    (archive.addSystem (new RemarkableAPISystem))
     (archive.addSystem (new WikipediaImageSystem))
     (archive.addSystem (new ImageAttachmentSystem))
     // Just for testing:

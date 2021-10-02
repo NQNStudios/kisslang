@@ -1,0 +1,23 @@
+{
+  "name": "nat-archive-tool-js-externs",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "dts2hx --all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NQNStudios/kisslang.git"
+  },
+  "author": "NQNStudios",
+  "license": "LGPL2",
+  "bugs": {
+    "url": "https://github.com/NQNStudios/kisslang/issues"
+  },
+  "homepage": "https://github.com/NQNStudios/kisslang#readme",
+  "devDependencies": {
+    "dts2hx": "^0.16.1",
+    "remarkable-typescript": "^1.1.3"
+  }
+}

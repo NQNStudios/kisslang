@@ -1,0 +1,16 @@
+(load "../Lib.kiss")
+
+(defNew [] 
+    (super
+        ->[archive e] false
+        ->[archive e] null)
+        
+    ~(#extern String js
+        (object
+            hxmlFile "extern-files/js/args.hxml"
+            skipHaxelibInstall true
+            importHxFile "extern-files/js/import.hx"
+            langProjectFile "extern-files/js/package.json")
+        []
+        (print "extern hello world!")))
+
