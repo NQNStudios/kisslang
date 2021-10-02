@@ -78,6 +78,7 @@ class Kiss {
                 "assertProcess" => Symbol("Prelude.assertProcess"),
                 "random" => Symbol("Std.random"),
                 "walkDirectory" => Symbol("Prelude.walkDirectory"),
+                "purgeDirectory" => Symbol("Prelude.purgeDirectory"),
                 "getTarget" => Symbol("Prelude.getTarget"),
                 // These work with (apply) because they are added as "opAliases" in Macros.kiss:
                 "min" => Symbol("Prelude.min"),

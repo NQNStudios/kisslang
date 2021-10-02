@@ -409,17 +409,28 @@ class Prelude {
             switch (fileOrFolder) {
                 case folder if (FileSystem.isDirectory(joinPath(basePath, directory, folder))):
                     var subdirectory = joinPath(directory, folder);
-                    if (processFolderBefore != null)
+                    if (processFolderBefore != null) {
                         processFolderBefore(subdirectory);
+                    }
                     walkDirectory(basePath, subdirectory, processFile, processFolderBefore, processFolderAfter);
-                    if (processFolderAfter != null)
+                    if (processFolderAfter != null) {
                         processFolderAfter(subdirectory);
+                    }
                 case file:
                     processFile(joinPath(directory, file));
             }
         }
         #else
         throw "Can't walk a directory on this target.";
+        #end
+    }
+
+    public static function purgeDirectory(directory) {
+        #if (sys || hxnodejs)
+        walkDirectory("", directory, FileSystem.deleteFile, null, FileSystem.deleteDirectory);
+        FileSystem.deleteDirectory(directory);
+        #else
+        throw "Can't delete files/folders on this target.";
         #end
     }
 
