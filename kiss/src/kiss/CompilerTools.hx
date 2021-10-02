@@ -103,6 +103,10 @@ class CompilerTools {
             }
         }
 
+        var haxelibSetupOutput = Prelude.assertProcess("haxelib", ["setup"], [""]);
+        var messageBeforePath = "haxelib repository is now ";
+        var haxelibRepositoryPath = haxelibSetupOutput.substr(haxelibSetupOutput.indexOf(messageBeforePath)).replace(messageBeforePath, "");
+
         // If a main haxe file was given, use it.
         // Otherwise use the default
         var mainHxFile = "ScriptMain.hx";
@@ -138,19 +142,7 @@ class CompilerTools {
         var buildHxmlFile = Path.join([args.outputFolder, 'build.hxml']);
         File.saveContent(buildHxmlFile, buildHxmlContent);
 
-        // run haxelib install on given hxml and generated hxml
-        var hxmlFiles = [buildHxmlFile];
-        Prelude.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
-        if (args.hxmlFile != null) {
-            hxmlFiles.push(args.hxmlFile);
-            Prelude.assertProcess("haxelib", ["install", "--always", Path.join([haxelibPath, args.hxmlFile])]);
-        }
-
-        // Compile the script
-        Prelude.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
-
-        // TODO install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
-
+        // install language-specific dependencies from langProjectFile (which might be tricky because we can't set the working directory)
         var command = "";
         var scriptExt = "";
         switch (lang) {
@@ -181,6 +173,16 @@ class CompilerTools {
                     FileSystem.deleteFile("package.json");
                     move("node_modules", Prelude.joinPath(args.outputFolder, "node_modules"));
                     move("package-lock.json", Prelude.joinPath(args.outputFolder, "package-lock.json"));
+                    // Special handling for dts2hx bindings:
+                    if (FileSystem.exists(".haxelib")) {
+                        for (externLib in FileSystem.readDirectory(".haxelib")) {
+                            if (FileSystem.exists(Prelude.joinPath(haxelibRepositoryPath, externLib))) {
+                                Prelude.purgeDirectory(Prelude.joinPath(haxelibRepositoryPath, externLib));
+                            }
+                            move(Prelude.joinPath(".haxelib", externLib), Prelude.joinPath(haxelibRepositoryPath, externLib));
+                        }
+                        Prelude.purgeDirectory(".haxelib");
+                    }
 
                     move("package.json.temp", "package.json");
                     move("package-lock.json.temp", "package-lock.json");
@@ -211,6 +213,19 @@ class CompilerTools {
                     }
                 }
         }
+
+        // run haxelib install on given hxml and generated hxml
+        var hxmlFiles = [buildHxmlFile];
+        Prelude.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
+        if (args.hxmlFile != null) {
+            if (args.skipHaxelibInstall == null || !args.skipHaxelibInstall) {
+                Prelude.assertProcess("haxelib", ["install", "--always", Path.join([haxelibPath, args.hxmlFile])]);
+            }
+            hxmlFiles.push(args.hxmlFile);
+        }
+
+        // Compile the script
+        Prelude.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
 
         // return an expression for a lambda that calls new Process() that runs the target-specific file
         var callingCode = 'function (?inputLines:Array<String>) { if (inputLines == null) inputLines = []; return kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])].concat(inputLines)); }';
