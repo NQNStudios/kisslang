@@ -30,8 +30,7 @@
 	<set name="BUILD_DIR" value="export" />
 	<classpath name="source" />
 	<assets path="assets" />
-	<assets path="bin" />
-
+	<prebuild command="mkdir bin" />
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
