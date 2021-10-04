@@ -194,7 +194,10 @@
     
     (defCommand PrintComponent [entries (SelectedEntries null null)
                                     componentType (Text null)]
-        (doFor e entries (ui.displayMessage (dictGet e.components componentType))) [])
+        (doFor e entries
+            (if (e.components.exists componentType)
+                    (ui.displayMessage (dictGet e.components componentType))
+                (ui.displayMessage "Entry ${e.id} has no $componentType component"))) [])
         
     (defCommand CreateEntry [name (Text null)]
         [(archive.createEntry ->e
