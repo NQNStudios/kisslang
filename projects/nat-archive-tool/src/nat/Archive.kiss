@@ -52,6 +52,6 @@
 
 (function :Entry _newEntry []
     (object
-        id ((#if neko Uuid.v1 Uuid.v4)) // Work around https://github.com/flashultra/uuid/issues/3 on Neko
+        id (Uuid.v4)
         components (new Map)
         files []))
