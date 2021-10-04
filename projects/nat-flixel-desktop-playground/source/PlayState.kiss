@@ -203,6 +203,8 @@
         (showUI messageText)))
 
 (method :Void clearUI []
+    (when textInput
+        (set textInput.callback null))
     (uiGroup.kill)
     (set uiGroup (new FlxGroup))
     (set uiGroup.cameras [uiCamera])
