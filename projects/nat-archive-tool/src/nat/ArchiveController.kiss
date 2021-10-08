@@ -166,28 +166,7 @@
             (+ "Available commands:\n"
                 (commandNames.join "\n"))) [])
 
-    (method selectionCommand [entries]
-        (let [lastSelectedEntries _selectedEntries]
-            (set _selectedEntries entries)
-            (ui.onSelectionChanged entries lastSelectedEntries)) [])
-
-    (defCommand SelectEntry [e OneEntry]
-        (selectionCommand [e]))
-
-    (defCommand ToggleEntrySelection [e OneEntry]
-        (let [newSelection (_selectedEntries.copy)]
-            (unless (newSelection.remove e)
-                (newSelection.push e))
-            (selectionCommand newSelection)))
-
-    (defCommand SelectEntries [entries (Entries null null)]
-        (selectionCommand entries) [])
-
-    (defCommand SelectAllEntries []
-        (selectionCommand (for =>id e archive.entries e)))
-
-    (defCommand SelectLastChangeSet []
-        (selectionCommand lastChangeSet))
+    (load "SelectionCommands.kiss")
 
     (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
@@ -220,12 +199,7 @@
             (removeTags archive e tagsToRemove))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
-    (defCommand SelectByTags [tagsBoolExp (Text null)]
-        (SelectEntries (filter archive.entries ->e (tagsMatch archive e tagsBoolExp))))
-        
-    (defCommand SelectByComponents [componentsBoolExp (Text null)]
-        (SelectEntries (filter archive.entries ->e (componentsMatch e componentsBoolExp))))
-        
+       
     (defCommand AddFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
         // TODO make tkinter file browser externs and use tkinter as the file picking mechanism for CLI
@@ -254,7 +228,4 @@
                     (withWritableComponents archive e [scaleComponent Scale]
                         (set scaleComponent scale))
                 (addComponent archive e Scale scale)))
-        entries)
-
-    (defCommand SelectByName [name (Text null)]
-        (SelectEntries (nameSystem.getEntries name)) []))
+        entries))

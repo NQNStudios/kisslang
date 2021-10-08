@@ -25,7 +25,7 @@
     (set mousePressedCallback
         ->[self _x _y]
             {
-                (controller.ToggleEntrySelection e)
+                (controller.ToggleSelectEntry e)
             })
     (set mouseStopDragCallback
         ->[self _dx _dy]

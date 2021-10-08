@@ -1,0 +1,71 @@
+// Every command that can select entries has variants that can toggleSelect,
+// addSelect or deSelect instead of setting the selection directly
+
+// TODO The three varations of selection are all O(n) when they would't need to be if _selectedEntries was a Map
+// TODO these commands could avoid calling onSelectionChanged if they don't actually modify the selection
+
+(method selectionCommand [:Array<Entry> entries]
+    (let [lastSelectedEntries _selectedEntries]
+        (set _selectedEntries entries)
+        (ui.onSelectionChanged entries lastSelectedEntries)) [])
+
+(method addSelectionCommand [:Array<Entry> entries]
+    (let [lastSelectedEntries (_selectedEntries.copy)]
+        (doFor e entries
+            (unless (_selectedEntries.contains e)
+                (_selectedEntries.push e)))
+        (ui.onSelectionChanged _selectedEntries lastSelectedEntries)) [])
+
+(method deSelectionCommand [:Array<Entry> entries]
+    (let [lastSelectedEntries (_selectedEntries.copy)]
+        (doFor e entries
+            (_selectedEntries.remove e))
+        (ui.onSelectionChanged _selectedEntries lastSelectedEntries)) [])
+
+(method toggleSelectionCommand [:Array<Entry> entries]
+    (let [lastSelectedEntries (_selectedEntries.copy)]
+        (doFor e entries
+            (unless (_selectedEntries.remove e)
+                (_selectedEntries.push e)))
+        (ui.onSelectionChanged _selectedEntries lastSelectedEntries)) [])
+
+// Define all 4 variants of the command that selects according to the behavior in body
+(defMacro defSelectCommand [name args &body body]
+    (let [nameStr (symbolNameValue name)
+            addName (symbol "Add$nameStr")
+            deSelectName (symbol "De$nameStr")
+            toggleName (symbol "Toggle$nameStr")]
+    `{
+        (defCommand ,name ,args
+            (selectionCommand {,@body}))
+
+        (defCommand ,addName ,args
+            (addSelectionCommand {,@body}))
+
+        (defCommand ,deSelectName ,args
+            (deSelectionCommand {,@body}))
+
+        (defCommand ,toggleName ,args
+            (toggleSelectionCommand {,@body}))
+    }))
+
+(defSelectCommand SelectEntry [e OneEntry]
+    [e])
+
+(defSelectCommand SelectEntries [entries (Entries null null)]
+    entries)
+
+(defSelectCommand SelectAllEntries []
+    (for =>id e archive.entries e))
+
+(defSelectCommand SelectLastChangeSet []
+    lastChangeSet)
+
+(defSelectCommand SelectByTags [tagsBoolExp (Text null)]
+    (filter archive.entries ->e (tagsMatch archive e tagsBoolExp)))
+        
+(defSelectCommand SelectByComponents [componentsBoolExp (Text null)]
+    (filter archive.entries ->e (componentsMatch e componentsBoolExp)))
+
+(defSelectCommand SelectByName [name (Text null)]
+    (nameSystem.getEntries name))
