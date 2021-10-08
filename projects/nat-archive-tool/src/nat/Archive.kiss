@@ -7,6 +7,8 @@
             (let [entryDir (joinPath archiveDir "entries")
                     componentDir (joinPath archiveDir "components")
                     filesDir (joinPath archiveDir "files")]
+                (assert (FileSystem.exists archiveDir) "Archive directory $archiveDir does not exist")
+                (assert (FileSystem.isDirectory archiveDir) "$archiveDir is not a directory")
                 (FileSystem.createDirectory entryDir)
                 (FileSystem.createDirectory componentDir)
                 (FileSystem.createDirectory filesDir)
