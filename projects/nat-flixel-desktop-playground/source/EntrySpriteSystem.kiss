@@ -25,4 +25,6 @@
             {
                 (.kill (dictGet sprites e.id))
                 (sprites.remove e.id)
+                // When an Entry is hidden, we can bet the user doesn't want it selected anymore
+                (controller.DeSelectEntry e)
             }))
