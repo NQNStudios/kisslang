@@ -1,5 +1,6 @@
 package kiss;
 
+import hscript.Parser;
 import hscript.Interp;
 import kiss.Prelude;
 
@@ -12,6 +13,7 @@ import kiss.Prelude;
  */
 class KissInterp extends Interp {
     var nullForUnknownVar:Bool;
+    var parser = new Parser();
 
     // TODO standardize this with KissConfig.prepareInterp
     public function new(nullForUnknownVar = false) {
@@ -30,6 +32,11 @@ class KissInterp extends Interp {
         variables.set("kiss", {});
     }
 
+    public function evalKiss(kissStr:String):Dynamic {
+        return execute(parser.parseString(Prelude.convertToHScript(kissStr)));
+    }
+
+    // In some contexts, undefined variables should just return "null" as a falsy value
     override function resolve(id:String):Dynamic {
         if (nullForUnknownVar) {
             return try {

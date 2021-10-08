@@ -1,7 +1,6 @@
 package nat;
 
 import kiss.KissInterp;
-import hscript.Parser;
 import kiss.Prelude;
 
 @:build(kiss.Kiss.build())
