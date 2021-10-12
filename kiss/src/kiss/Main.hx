@@ -37,7 +37,7 @@ class Main {
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
                 var theInterface = args.shift();
-                var pArgs = ["build-scripts/common-args.hxml", "-lib", "kiss"];
+                var pArgs = ["-D", "null-extern", "build-scripts/common-args.hxml", "-lib", "kiss"];
                 // pass --lib and the lib containing the interface as specified
                 if (args.length > 0) {
                     pArgs = pArgs.concat(["-lib", args.shift()]);
@@ -175,10 +175,29 @@ class Main {
         #end
     }
 
+    // edge cases for this:
+    // TODO interfaces that extend other interfaces
+    // TODO generic interfaces
+    // TODO this could be useful for typedefs as well
+    // TODO merging a generated implementation with a Kiss file that already has some functions implemented
     static function implement(theInterface:String) {
+        // This runs in a subprocess whose stdout output can only be read all at once,
+        // so re-implement trace to write to a file:
+        haxe.Log.trace = (v, ?infos) -> {
+            File.saveContent("implementLog.txt", "");
+            File.saveContent("implementLog.txt", File.getContent("implementLog.txt") + "\n" + Std.string(v));
+            v;
+        }
         #if macro
         var type = Context.resolveType(Helpers.parseComplexType(theInterface), Context.currentPos());
-        trace(type);
+        switch (type) {
+            case TInst(classTypeRef, params):
+                var classType = classTypeRef.get();
+                var fields = classType.fields.get();
+                trace(fields);
+            default:
+                throw 'Unexpected result from resolveType of $theInterface';
+        }
         #end
     }
 }

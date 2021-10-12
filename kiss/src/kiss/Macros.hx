@@ -792,6 +792,13 @@ class Macros {
         // Maybe the NEW wildest code in Kiss?
         macros["#extern"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(4, null, "(#extern <BodyType> <lang> <?compileArgs object> [<typed bindings...>] <body...>)");
+            var b = wholeExp.expBuilder();
+
+            // Skip all extern code generation if -D null-extern is provided to the compiler
+            if (Context.defined("null-extern")) {
+                return b.symbol("null");
+            }
+
 
             var bodyType = exps.shift();
             var langExp = exps.shift();
@@ -834,9 +841,6 @@ class Macros {
                 {};
             }
 
-            var b = wholeExp.expBuilder();
-
-            // TODO generate tink_json writers and parsers for this
             var bindingList = bindingListExp.bindingList("#extern", true);
 
             var idx = 0;
