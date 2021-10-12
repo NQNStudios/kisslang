@@ -3,6 +3,7 @@ package kiss;
 import sys.io.Process;
 #if macro
 import haxe.macro.Expr;
+import haxe.macro.Context;
 import kiss.Kiss;
 import kiss.Reader;
 import kiss.Stream;
@@ -27,13 +28,28 @@ class Main {
     static macro function macroMain():Expr {
         var args = Sys.args();
 
-        // TODO `kiss run` subcommand with optional target option. With no target specified, keep trying targets until one exits with status 0 (side-effect danger)
-
         switch (args.shift()) {
             case "convert":
                 convert(args);
             case "new-project":
                 newProject(args);
+            case "implement":
+                // kiss implement [type] [fromLib]
+                var _pwd = args.pop();
+                var theInterface = args.shift();
+                var pArgs = ["build-scripts/common-args.hxml", "-lib", "kiss"];
+                // pass --lib and the lib containing the interface as specified
+                if (args.length > 0) {
+                    pArgs = pArgs.concat(["-lib", args.shift()]);
+                }
+                pArgs = pArgs.concat(["--run", "kiss.Main", "_implement", theInterface]);
+                var p = new Process("haxe", pArgs);
+                var exitCode = p.exitCode(true);
+                Sys.print(p.stdout.readAll().toString());
+                Sys.print(p.stderr.readAll().toString());
+                Sys.exit(exitCode);
+            case "_implement":
+                implement(args[0]);
             case other:
                 // TODO show a helpful list of subcommands
                 Sys.println('$other is not a kiss subcommand');
@@ -112,7 +128,6 @@ class Main {
         // with --all, it reads everything from stdin at once (for piping). Without --all, it acts as a repl,
         // where \ at the end of a line signals that the expression is not complete
         // TODO write tests for this
-        // TODO use this to implement runAtRuntime() for sys targets by running a haxe subprocess
         #if macro
         var k = Kiss.defaultKissState();
         k.wrapListExps = false;
@@ -157,6 +172,13 @@ class Main {
                 }
             } catch (e:haxe.io.Eof) {}
         }
+        #end
+    }
+
+    static function implement(theInterface:String) {
+        #if macro
+        var type = Context.resolveType(Helpers.parseComplexType(theInterface), Context.currentPos());
+        trace(type);
         #end
     }
 }
