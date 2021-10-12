@@ -105,9 +105,6 @@
 (prop &mut :ArchiveController controller)
 (prop &mut :Archive archive)
 
-(method :Void setController [controller]
-    (set this.controller controller))
-
 (prop &mut :FlxText textInputLabel null)
 (prop &mut :FlxInputText textInput null)
 

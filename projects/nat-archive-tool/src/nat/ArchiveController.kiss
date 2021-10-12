@@ -149,7 +149,7 @@
         :Map<String,Command> commands (new Map)
         :NameSystem nameSystem (new NameSystem)]
 
-    (ui.setController this)
+    (set ui.controller this)
 
     // Add systems!
     (archive.addSystem nameSystem)

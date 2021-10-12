@@ -14,8 +14,6 @@
 
 (prop &mut :ArchiveController controller)
 
-(method :Void setController [controller] (set this.controller controller))
-
 (defNew [])
 
 (method :Void enterText [prompt resolve maxLength]

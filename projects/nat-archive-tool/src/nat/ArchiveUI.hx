@@ -4,9 +4,9 @@ import nat.ArchiveController;
 
 interface ArchiveUI {
     /**
-     * Accept and store a reference to the controller
+     * Reference to the ArchiveController
      */
-    function setController(controller:ArchiveController):Void;
+    var controller(default, default):ArchiveController;
 
     /**
      * Prompt the user to enter text

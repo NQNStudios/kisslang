@@ -4,13 +4,9 @@ import nat.*;
 import nat.ArchiveController.ChangeSet;
 
 class DummyUI implements ArchiveUI {
-    var controller:ArchiveController = null;
+    public var controller:ArchiveController = null;
 
     public function new() {}
-
-    public function setController(controller:ArchiveController) {
-        this.controller = controller;
-    }
 
     public function enterText(prompt:String, resolve:(String) -> Void, maxLength:Float) {
         // TODO for proper testing, this will need to resolve with specific pre-coded strings
