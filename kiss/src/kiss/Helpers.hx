@@ -46,24 +46,45 @@ class Helpers {
         return s.charAt(0) == s.charAt(0).toUpperCase();
     }
 
-    public static function parseTypePath(path:String, from:ReaderExp):TypePath {
+    public static function parseTypePath(path:String, ?from:ReaderExp):TypePath {
         return switch (parseComplexType(path, from)) {
             case TPath(path):
                 path;
             default:
-                throw CompileError.fromExp(from, 'Haxe could not parse a type path from $path');
+                var errorMessage = 'Haxe could not parse a type path from $path';
+                if (from == null) {
+                    throw errorMessage;
+                } else {
+                    throw CompileError.fromExp(from, errorMessage);
+                }
         };
     }
 
-    public static function parseComplexType(path:String, from:ReaderExp):ComplexType {
+    public static function parseComplexType(path:String, ?from:ReaderExp):ComplexType {
         // Trick Haxe into parsing it for us:
-        var typeCheckExpr = Context.parse('(thing : $path)', Context.currentPos());
-        return switch (typeCheckExpr.expr) {
-            case EParenthesis({pos: _, expr: ECheckType(_, complexType)}):
-                complexType;
-            default:
-                throw CompileError.fromExp(from, 'Haxe could not parse a complex type from $path, parsed ${typeCheckExpr.expr}');
-        };
+        var typeCheckStr = '(thing : $path)';
+        var errorMessage = 'Haxe could not parse a complex type from `$path` in `${typeCheckStr}`';
+        
+        function throwError() {
+            if (from == null) {
+                throw errorMessage;
+            } else {
+                throw CompileError.fromExp(from, errorMessage);
+            };
+        }
+        try {
+            var typeCheckExpr = Context.parse(typeCheckStr, Context.currentPos());
+            return switch (typeCheckExpr.expr) {
+                case EParenthesis({pos: _, expr: ECheckType(_, complexType)}):
+                    complexType;
+                default:
+                    throwError();
+                    return null;
+            };
+        } catch (err) {
+            throwError();
+            return null;
+        }
     }
 
     public static function explicitType(nameExp:ReaderExp):ComplexType {
