@@ -37,7 +37,7 @@ class Main {
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
                 var theInterface = args.shift();
-                var pArgs = ["-D", "null-extern", "build-scripts/common-args.hxml", "-lib", "kiss"];
+                var pArgs = ["-D", "no-extern", "build-scripts/common-args.hxml", "-lib", "kiss"];
                 // pass --lib and the lib containing the interface as specified
                 if (args.length > 0) {
                     pArgs = pArgs.concat(["-lib", args.shift()]);

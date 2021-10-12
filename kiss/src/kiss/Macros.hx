@@ -794,11 +794,10 @@ class Macros {
             wholeExp.checkNumArgs(4, null, "(#extern <BodyType> <lang> <?compileArgs object> [<typed bindings...>] <body...>)");
             var b = wholeExp.expBuilder();
 
-            // Skip all extern code generation if -D null-extern is provided to the compiler
-            if (Context.defined("null-extern")) {
-                return b.symbol("null");
+            // Skip all extern code generation if -D no-extern is provided to the compiler
+            if (Context.defined("no-extern")) {
+                return b.callSymbol("throw", [b.str("tried to call #extern code when -D no-extern was provided during compilation")]);
             }
-
 
             var bodyType = exps.shift();
             var langExp = exps.shift();
