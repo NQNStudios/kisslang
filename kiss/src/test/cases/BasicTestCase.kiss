@@ -378,7 +378,12 @@
         ((Some (as inner (Some v)))
             (Assert.equals 5 v)
             (Assert.isTrue (Type.enumEq (Some 5) inner)))
-        (otherwise (Assert.fail))))
+        (otherwise (Assert.fail)))
+    
+    // Otherwise blocks should allow multiple expressions, too:
+    (case 5
+        (otherwise
+            6 5)))
 
 (function _testMaps []
     (localVar :Map<String,String> myMap [=>"hey" "you"

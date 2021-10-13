@@ -273,10 +273,11 @@ class SpecialForms {
             // Therefore only one case is required in a case statement, because one case could be enough
             // to cover all patterns.
             wholeExp.checkNumArgs(2, null, '(case [expression] [cases...] [optional: (otherwise [default])])');
+            var b = wholeExp.expBuilder();
             var defaultExpr = switch (args[-1].def) {
-                case CallExp({pos: _, def: Symbol("otherwise")}, [otherwiseExp]):
+                case CallExp({pos: _, def: Symbol("otherwise")}, otherwiseExps):
                     args.pop();
-                    k.convert(otherwiseExp);
+                    k.convert(b.begin(otherwiseExps));
                 default:
                     null;
             };
