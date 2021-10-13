@@ -33,7 +33,11 @@ class KissInterp extends Interp {
     }
 
     public function evalKiss(kissStr:String):Dynamic {
-        return execute(parser.parseString(Prelude.convertToHScript(kissStr)));
+        return evalHaxe(Prelude.convertToHScript(kissStr));
+    }
+
+    public function evalHaxe(hscriptStr:String):Dynamic {
+        return execute(parser.parseString(hscriptStr));
     }
 
     // In some contexts, undefined variables should just return "null" as a falsy value
