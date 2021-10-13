@@ -49,3 +49,25 @@
 (undefMacro and)
 (function and [a b] (+ a b))
 (function andValue [] (and 5 6))
+
+(defMacro listOfExp [exp times]
+    (let [times (eval times)]
+        (_listOfExp exp times)))
+
+(defMacroFunction _listOfExp [exp times]
+    (case times
+        (1 `[,exp])
+        (otherwise `(.concat ,(_listOfExp exp 1) ,(_listOfExp exp (- times 1))))))
+
+(function _testRecursiveMacroFunction []
+    (Assert.equals (Std.string [10 10 10 10 10 10 10 10 10 10]) (Std.string (listOfExp 10 10))))
+
+(defMacroFunction printAtMacroTime []
+    ~"Print at macro time should work just fine"
+    `null)
+
+(defMacro _testPrintAtMacroTimeMacro []
+    (printAtMacroTime))
+
+(function testPrintAtMacroTime []
+    (_testPrintAtMacroTimeMacro))

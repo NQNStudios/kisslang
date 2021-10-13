@@ -32,4 +32,12 @@ class MacroTestCase extends Test {
     function testUndefMacro() {
         Assert.equals(11, andValue());
     }
+
+    function testRecursiveMacroFunction() {
+        _testRecursiveMacroFunction();
+    }
+
+    function testPrintAtMacroTime() {
+        _testPrintAtMacroTime();
+    }
 }
