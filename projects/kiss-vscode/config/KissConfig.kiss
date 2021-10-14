@@ -49,7 +49,7 @@
             (e.insert pos text))))
 
 (function insert [text]
-    (insertAt activeTextEditor.selection.active text)))
+    (insertAt activeTextEditor.selection.active text))
 
 /**
  * State
@@ -87,7 +87,8 @@
 (function :Void _runCommand [&opt command inputText]
     (unless inputText (set inputText (selectedText)))
     (if command
-            {(set lastCommand command) ((dictGet commands command) inputText)}
+            {(set lastCommand command) (try ((dictGet commands command) inputText)
+                                            (catch [error] (errorMessage "error from ${command}: $error") (return)))}
         (let [commandList
                     (for description (commands.keys)
                         (object
@@ -99,7 +100,8 @@
             (awaitLet [chosenCommand (quickPick commandList)]
                 (when chosenCommand
                     (set lastCommand chosenCommand.label)
-                    ((dictGet commands chosenCommand.label) inputText))))))
+                    (try ((dictGet commands chosenCommand.label) inputText)
+                        (catch [error] (errorMessage "error from ${chosenCommand.label}: $error") (return))))))))
 
 (function :Void runLastCommand [&opt _]
     (if lastCommand

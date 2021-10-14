@@ -1,0 +1,50 @@
+// Kiss-VSCode command functions for authoring ktxt2 files.
+// ktxt2 files contain an original "SOURCE" file and a translated "OUTPUT" file
+// which is authored semi-automatically with the help of these commands.
+// A file called README.md.html.ktxt2 would be for converting README.md to README.html.
+
+(var blockStartEnd "|||")
+(var outputStarts ["|>|" "|!|"])
+
+// Return [sourceFile outputFile]
+(function :Array<String> splitFileContents []
+    (infoMessage (activeTextEditor.document.getText)) [])
+/*
+    (let [fileText (activeTextEditor.document.getText)
+            fileStream (kiss.Stream.fromString fileText)
+            &mut sourceText ""
+            &mut outputText ""]
+        (infoMessage fileText)
+        (loop
+            (case (fileStream.takeUntilAndDrop blockStartEnd)
+                ((Some _)
+                    (let [sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
+                                            ->(fileStream.takeUntilOneOf outputStarts))]
+                        (+= sourceText "${sourceBlock}\n"))
+                    (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
+                    (fileStream.dropChars .length (first outputStarts))
+                    (let [outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
+                                            ->(fileStream.takeUntilAndDrop blockStartEnd))]
+                        (+= outputText "${outputBlock}\n")))
+                (None
+                    (break))))
+        [sourceText outputText]))
+        */
+
+(function exportKtxt2Files [&opt _]
+    (unless activeTextEditor
+        (infoMessage "FUQQQQ"))
+(infoMessage activeTextEditor.document.fileName)
+(infoMessage (activeTextEditor.document.getText))
+    (splitFileContents))
+    /*
+    (let [[sourceText outputText] (splitFileContents)]
+        (infoMessage sourceText)
+        (infoMessage outputText)))/*
+            ktxt2Filename (haxe.io.Path.withoutDirectory activeTextEditor.document.fileName)
+            [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
+            sourceFilename "${baseFilename}.${sourceExt}"
+            outputFilename "${baseFilename}.${outputExt}"]
+        (infoMessage "${sourceFilename}: $sourceText")
+        (infoMessage "${outputFilename}: $outputText")))
+        */
