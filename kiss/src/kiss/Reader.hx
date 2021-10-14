@@ -134,10 +134,9 @@ class Reader {
             var token = nextToken(stream, "a symbol name");
             // Process dot-access on alias identifiers
             return if (token.indexOf(".") != -1) {
-                try {
-                    Std.parseFloat(token);
+                if (!Math.isNaN(Std.parseFloat(token))) {
                     Symbol(token);
-                } catch (err) {
+                } else {
                     var tokenParts = token.split(".");
                     var fieldExp = Symbol(tokenParts.shift());
                     while (tokenParts.length > 0) {
