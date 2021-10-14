@@ -44,14 +44,12 @@
 // TODO make an async annotation that throws an error if the promise is not wrapped in awaitLet or awaitBegin or returned by an async function?
 // but in some cases it doesn't matter and there are so many edge cases.
 (function insertAt [:vscode.Position pos text]
-    (.edit activeTextEditor
+    (activeTextEditor.edit
         (lambda [e]
             (e.insert pos text))))
 
 (function insert [text]
-    // TODO this let is because identifier alias dot access is broken:
-    (let [editor activeTextEditor]
-        (insertAt editor.selection.active text)))
+    (insertAt activeTextEditor.selection.active text)))
 
 /**
  * State

@@ -540,3 +540,10 @@
                 (Assert.fail)}
         (catch [:String e]
             (Assert.equals "the error we want" e))))
+
+// Test dot-access on identifiers aliases
+(var objWithField (object field 5))
+(var float 0.5) // This should still read as a float, not a dot access on a variable called 0
+(defAlias &ident owf objWithField)
+(function _testDotAccessOnAlias []
+    (Assert.equals 5 owf.field))

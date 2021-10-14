@@ -309,6 +309,10 @@ class BasicTestCase extends Test {
     function testLetThrow() {
         _testLetThrow();
     }
+
+    function testDotAccessOnAlias() {
+        _testDotAccessOnAlias();
+    }
 }
 
 class BasicObject {
