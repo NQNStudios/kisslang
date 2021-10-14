@@ -182,11 +182,16 @@ class Stream {
         return takeChars(firstIndex);
     }
 
-    public function takeUntilAndDrop(s:String):Option<String> {
+    public function takeUntilAndDrop(s:String, allowEOF:Bool = false):Option<String> {
         var idx = content.indexOf(s);
 
-        if (idx < 0)
-            return None;
+        if (idx < 0) {
+            return if (allowEOF) {
+                Some(takeRest());
+            } else {
+                None;
+            }
+        }
 
         var toReturn = content.substr(0, idx);
         dropChars(toReturn.length + s.length);

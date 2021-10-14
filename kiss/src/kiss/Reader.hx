@@ -49,19 +49,19 @@ class Reader {
         forceSymbol("#case");
         forceSymbol("#extern");
 
-        readTable["/*"] = (stream, k) -> {
+        readTable["/*"] = (stream:Stream, k) -> {
             stream.takeUntilAndDrop("*/");
             null;
         };
-        readTable["//"] = (stream, k) -> {
+        readTable["//"] = (stream:Stream, k) -> {
             stream.takeUntilAndDrop("\n");
             null;
         };
-        readTable["#|"] = (stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
+        readTable["#|"] = (stream:Stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
 
-        readTable[":"] = (stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));
+        readTable[":"] = (stream:Stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));
 
-        readTable["&"] = (stream, k) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, k));
+        readTable["&"] = (stream:Stream, k) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, k));
 
         readTable["!"] = (stream:Stream, k) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, k)]);
 
@@ -72,30 +72,30 @@ class Reader {
         readTable["?"] = (stream:Stream, k) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, k)]);
 
         // Lets you dot-access a function result without binding it to a name
-        readTable["."] = (stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k));
+        readTable["."] = (stream:Stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k));
 
         // Lets you construct key-value pairs for map literals or for-loops
-        readTable["=>"] = (stream, k) -> KeyValueExp(assertRead(stream, k), assertRead(stream, k));
+        readTable["=>"] = (stream:Stream, k) -> KeyValueExp(assertRead(stream, k), assertRead(stream, k));
 
-        readTable[")"] = (stream, k) -> {
+        readTable[")"] = (stream:Stream, k) -> {
             stream.putBackString(")");
             throw new UnmatchedBracketSignal(")", stream.position());
         };
-        readTable["]"] = (stream, k) -> {
+        readTable["]"] = (stream:Stream, k) -> {
             stream.putBackString("]");
             throw new UnmatchedBracketSignal("]", stream.position());
         };
 
-        readTable["`"] = (stream, k) -> Quasiquote(assertRead(stream, k));
-        readTable[","] = (stream, k) -> Unquote(assertRead(stream, k));
-        readTable[",@"] = (stream, k) -> UnquoteList(assertRead(stream, k));
+        readTable["`"] = (stream:Stream, k) -> Quasiquote(assertRead(stream, k));
+        readTable[","] = (stream:Stream, k) -> Unquote(assertRead(stream, k));
+        readTable[",@"] = (stream:Stream, k) -> UnquoteList(assertRead(stream, k));
 
         // Lambda arrow syntaxes:
         //     ->[args] body
         //     ->arg body
         //     ->{body}
         // or any of those with the first expression after -> prefixed by :Void
-        readTable["->"] = (stream, k) -> {
+        readTable["->"] = (stream:Stream, k) -> {
             var firstExp = assertRead(stream, k);
             var b = firstExp.expBuilder();
 
@@ -129,7 +129,7 @@ class Reader {
         };
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
-        readTable[""] = (stream, k) -> Symbol(nextToken(stream, "a symbol name"));
+        readTable[""] = (stream:Stream, k) -> Symbol(nextToken(stream, "a symbol name"));
 
         return readTable;
     }
