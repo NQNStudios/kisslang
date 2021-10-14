@@ -9,89 +9,96 @@
 (var &mut builtinConfigDir "")
 (var &mut :KissConfig config null)
 
+// This has to be a macro so it can return from tryLoadConfig
+(defMacro trySpawnSync [command args options onError]
+    `(let [command ,command
+            args ,args
+            result (ChildProcess.spawnSync command args ,options)]
+        (if result.error
+                (throw "Error $result.error from $command $args: $result.stdout $result.stderr")
+            (case result.status 
+                (0 null)
+                (errCode
+                    (,onError "Error code $errCode from $command $args: $result.stdout $result.stderr")
+                    (return))))))
+
 (function :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
-
-    // If a backup exists, delete it
-    (when (FileSystem.exists lastConfigDir)
-        (FileSystem.deleteDirectory lastConfigDir))
-    // Backup currently active config
-    // TODO maybe also expose that backup to the user via a "rollback .kiss" command so they can rollback their config without using Git?
-    (when (FileSystem.exists activeConfigDir)
-        (FileSystem.rename activeConfigDir lastConfigDir))
-    // Choose where to find the custom config
-    (let [customConfigDir
-                (#if test
-                        // When running unit tests, build the example config
-                        (joinPath builtinConfigDir "example")
-                    // When running for real, try the user's config directory
-                    (if (FileSystem.exists (userConfigDir))
-                            (userConfigDir)
-                        // Supply the default (empty) config if the user doesn't have one
-                        (joinPath builtinConfigDir "default")))]
-        (FileSystem.createDirectory activeConfigDir)
-        // Copy the boilerplate config files to the active config directory
-        (doFor file (FileSystem.readDirectory builtinConfigDir)
-            (unless (FileSystem.isDirectory (joinPath builtinConfigDir file))
-                (File.copy
-                    (joinPath builtinConfigDir file)
-                    (joinPath activeConfigDir file))))
-        // Recursively copy the user's custom config files to the active config directory
-        (walkDirectory customConfigDir null
-            ->file
-                (File.copy
-                    (joinPath customConfigDir file)
-                    (joinPath activeConfigDir file))
-            ->folder
-                (FileSystem.createDirectory
-                    (joinPath activeConfigDir folder)))
-        // install all Haxe dependencies:
-        (assert (= 0 .status (ChildProcess.spawnSync "haxelib" ["install" "all"] (object cwd activeConfigDir))))
-        // install all Node dependencies:
-        (when (FileSystem.exists (joinPath activeConfigDir "package.json"))
-            (assert (= 0 .status (if (= "Windows" (Sys.systemName))
-                                            (ChildProcess.spawnSync "cmd.exe" ["/c" "npm" "install"] (object cwd activeConfigDir))
-                                        (ChildProcess.spawnSync "npm" ["install"] (object cwd activeConfigDir))))))
-        // Run the haxe compiler:
-        (let [buildResult
-                    (ChildProcess.spawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir))]
-            (if (and !buildResult.error (= 0 buildResult.status))
-                    // Successful compilation!
-                    (#if test
-                            // When testing:
-                            (print "Example config compiled successfully")
-                        // When running the extension:
-                        // Require the config.js package that was generated.
-                        // But since Node.require() caches modules by filename,
-                        // copy it to a unique path first so hot-reloading works properly.
-                        (let [activeConfigFile (joinPath activeConfigDir "config.js")
-                                uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
-                            (File.copy activeConfigFile uniqueConfigFile)
-                            (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
-                            // (FileSystem.deleteFile uniqueConfigFile)
-                            (config.registerBuiltins)
-                            (config.registerCommand "[r]eload Kiss config" tryLoadConfig)
-                            (config.prepareInterp)
-                            // User-defined init:
-                            (config.init)
-                            (Vscode.window.showInformationMessage "Config loaded successfully!")))
-                // Failed compilation!
-                (begin
+    (let [handleConfigFailure
+                ->errorMessage {
                     (FileSystem.deleteDirectory activeConfigDir)
                     (when (FileSystem.exists lastConfigDir)
                         (FileSystem.rename lastConfigDir activeConfigDir))
-                        (let [errorMessage
-                                    (+ "Config failed to compile: "
-                                        (if buildResult.error 
-                                                #| "" + buildResult.error|#
-                                            #| "" + buildResult.stderr |#))]
-                            (#if test
-                                    // If there's a build error when testing, throw a test failure
-                                    (throw errorMessage)
-                                // If there's a build error at runtime, tell the user
-                                (Vscode.window.showErrorMessage errorMessage))))))))
+                    (#if test
+                            // If there's a build error when testing, throw a test failure
+                            (throw errorMessage)
+                        // If there's a build error at runtime, tell the user
+                        (Vscode.window.showErrorMessage errorMessage))
+                }]
+        // If a backup exists, delete it
+        (when (FileSystem.exists lastConfigDir)
+            (FileSystem.deleteDirectory lastConfigDir))
+        // Backup currently active config
+        // TODO maybe also expose that backup to the user via a "rollback .kiss" command so they can rollback their config without using Git?
+        (when (FileSystem.exists activeConfigDir)
+            (FileSystem.rename activeConfigDir lastConfigDir))
+        // Choose where to find the custom config
+        (let [customConfigDir
+                    (#if test
+                            // When running unit tests, build the example config
+                            (joinPath builtinConfigDir "example")
+                        // When running for real, try the user's config directory
+                        (if (FileSystem.exists (userConfigDir))
+                                (userConfigDir)
+                            // Supply the default (empty) config if the user doesn't have one
+                            (joinPath builtinConfigDir "default")))]
+            (FileSystem.createDirectory activeConfigDir)
+            // Copy the boilerplate config files to the active config directory
+            (doFor file (FileSystem.readDirectory builtinConfigDir)
+                (unless (FileSystem.isDirectory (joinPath builtinConfigDir file))
+                    (File.copy
+                        (joinPath builtinConfigDir file)
+                        (joinPath activeConfigDir file))))
+            // Recursively copy the user's custom config files to the active config directory
+            (walkDirectory customConfigDir null
+                ->file
+                    (File.copy
+                        (joinPath customConfigDir file)
+                        (joinPath activeConfigDir file))
+                ->folder
+                    (FileSystem.createDirectory
+                        (joinPath activeConfigDir folder)))
+            // install all Haxe dependencies:
+            (trySpawnSync "haxelib" ["install" "all" "--always"] (object cwd activeConfigDir) handleConfigFailure)
+            // install all Node dependencies:
+            (when (FileSystem.exists (joinPath activeConfigDir "package.json"))
+                (if (= "Windows" (Sys.systemName))
+                        (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (object cwd activeConfigDir) handleConfigFailure)
+                    (trySpawnSync "npm" ["install"] (object cwd activeConfigDir) handleConfigFailure)))
+            // Run the haxe compiler:
+            (trySpawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir) handleConfigFailure)
 
-(#unless test
+            // Successful compilation!
+            (#if test
+                    // When testing:
+                    (print "Example config compiled successfully")
+                // When running the extension:
+                // Require the config.js package that was generated.
+                // But since Node.require() caches modules by filename,
+                // copy it to a unique path first so hot-reloading works properly.
+                (let [activeConfigFile (joinPath activeConfigDir "config.js")
+                        uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
+                    (File.copy activeConfigFile uniqueConfigFile)
+                    (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
+                    // (FileSystem.deleteFile uniqueConfigFile)
+                    (config.registerBuiltins)
+                    (config.registerCommand "[r]eload Kiss config" tryLoadConfig)
+                    (config.prepareInterp)
+                    // User-defined init:
+                    (config.init)
+                    (Vscode.window.showInformationMessage "Config loaded successfully!"))))))
+
+    (#unless test
     (function _activate [:ExtensionContext context]
         (context.subscriptions.push
             (Vscode.commands.registerCommand

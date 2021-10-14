@@ -5,19 +5,27 @@
 // TODO pass these aliases to the KissState of "eval kiss expression"
 
 // output 
-(defalias &call infoMessage Vscode.window.showInformationMessage)
-(defalias &call warningMessage Vscode.window.showWarningMessage)
-(defalias &call errorMessage Vscode.window.showErrorMessage)
+(defAlias &call infoMessage Vscode.window.showInformationMessage)
+(defAlias &call warningMessage Vscode.window.showWarningMessage)
+(defAlias &call errorMessage Vscode.window.showErrorMessage)
 
 // input
-(defalias &call inputBox Vscode.window.showInputBox)
-(defalias &call quickPick Vscode.window.showQuickPick)
+(defAlias &call inputBox Vscode.window.showInputBox)
+(defAlias &call quickPick Vscode.window.showQuickPick)
 
 // commands
-(defalias &call executeCommand Vscode.commands.executeCommand)
+(defAlias &call executeCommand Vscode.commands.executeCommand)
+(function repeatCommand [command times]
+    (let [iteration
+                ->[&opt _] (executeCommand command)
+            &mut promise
+                (iteration)]
+        (doFor i (range (- times 1))
+            (set promise (promise.then iteration)))
+        promise))
 
 // ui
-(defalias &ident activeTextEditor Vscode.window.activeTextEditor)
+(defAlias &ident activeTextEditor Vscode.window.activeTextEditor)
 
 /**
  * Helper functions
