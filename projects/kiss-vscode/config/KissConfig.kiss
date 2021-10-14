@@ -137,16 +137,20 @@
     // The keyListener handler needs to have access to the Disposible object to dispose itself, hence this let/set
     (let [&mut keyListener null]
         (set keyListener (shortcutPanel.webview.onDidReceiveMessage
-                                ->key (if (prefixMap.exists key)
-                                            {(keyListener.dispose)
+                                ->:Void key
+                                    (if (prefixMap.exists key)
+                                            {
+                                                (keyListener.dispose)
                                                 (case (dictGet prefixMap key)
                                                     ((Prefix innerMap)
                                                         (showShortcutPanel innerMap))
                                                     ((Final command)
                                                         (shortcutPanel.dispose)
-                                                        (Vscode.window.showTextDocument documentBeforeShortcut)
-                                                        (_runCommand command selectedTextBeforeShortcut)))}
-                                        {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
+                                                        (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
+                                                            (_runCommand command selectedTextBeforeShortcut))))
+                                            }
+                                        
+                                        (warningMessage "$key is not mapped to a shortcut in this context")))))
     (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
     (shortcutPanel.webview.postMessage (object command "focus")))
 

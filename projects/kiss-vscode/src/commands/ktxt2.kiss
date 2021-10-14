@@ -8,13 +8,10 @@
 
 // Return [sourceFile outputFile]
 (function :Array<String> splitFileContents []
-    (infoMessage (activeTextEditor.document.getText)) [])
-/*
     (let [fileText (activeTextEditor.document.getText)
             fileStream (kiss.Stream.fromString fileText)
             &mut sourceText ""
             &mut outputText ""]
-        (infoMessage fileText)
         (loop
             (case (fileStream.takeUntilAndDrop blockStartEnd)
                 ((Some _)
@@ -29,22 +26,13 @@
                 (None
                     (break))))
         [sourceText outputText]))
-        */
 
 (function exportKtxt2Files [&opt _]
-    (unless activeTextEditor
-        (infoMessage "FUQQQQ"))
-(infoMessage activeTextEditor.document.fileName)
-(infoMessage (activeTextEditor.document.getText))
-    (splitFileContents))
-    /*
-    (let [[sourceText outputText] (splitFileContents)]
-        (infoMessage sourceText)
-        (infoMessage outputText)))/*
+(infoMessage _)
+    (let [[sourceText outputText] (splitFileContents)
             ktxt2Filename (haxe.io.Path.withoutDirectory activeTextEditor.document.fileName)
             [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
             sourceFilename "${baseFilename}.${sourceExt}"
             outputFilename "${baseFilename}.${outputExt}"]
         (infoMessage "${sourceFilename}: $sourceText")
         (infoMessage "${outputFilename}: $outputText")))
-        */
