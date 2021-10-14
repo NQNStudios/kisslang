@@ -71,3 +71,12 @@
 
 (function testPrintAtMacroTime []
     (_testPrintAtMacroTimeMacro))
+
+(defMacroVar count 0)
+(defMacro _testSetMacroVarMacro []
+    (set count (+ count 1))
+    (ReaderExp.StrExp (Std.string count)))
+
+(function _testSetMacroVar []
+    (Assert.equals 1 (_testSetMacroVarMacro))
+    (Assert.equals 2 (_testSetMacroVarMacro)))

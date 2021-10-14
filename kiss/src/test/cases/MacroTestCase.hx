@@ -40,4 +40,8 @@ class MacroTestCase extends Test {
     function testPrintAtMacroTime() {
         _testPrintAtMacroTime();
     }
+
+    function testSetMacroVar() {
+        _testSetMacroVar();
+    }
 }
