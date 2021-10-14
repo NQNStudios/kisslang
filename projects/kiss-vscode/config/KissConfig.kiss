@@ -140,7 +140,6 @@
                                                             (_runCommand command inputText)))}
                                             {(warningMessage "$key is not mapped to a shortcut in this context")(return)}))))
         (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
-        (infoMessage "posting message")
         (shortcutPanel.webview.postMessage (object command "focus"))))
 
 (function shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
