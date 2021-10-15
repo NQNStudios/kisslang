@@ -274,7 +274,7 @@
 (function :Void newKissClass [&opt _]
     (awaitLet [className (inputBox)]
         (let [currentFile
-                    .fileName .document activeTextEditor
+                    activeTextEditor.document.fileName
                 currentFileDirectory
                     (Path.directory currentFile)
                 haxeFile
