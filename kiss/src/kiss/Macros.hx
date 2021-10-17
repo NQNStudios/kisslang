@@ -627,7 +627,8 @@ class Macros {
         };
 
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(2, null, "(awaitLet [<promise bindings...>] <body...>)");
+            wholeExp.checkNumArgs(2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");
+            
             var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
@@ -635,28 +636,35 @@ class Macros {
 
             var firstNameStr = firstName.symbolNameValue();
             var error = b.callSymbol("+", [b.str('awaitLet $firstNameStr rejected promise: '), b.symbol("reason")]);
+            var rejectionHandler = switch (exps[1].def) {
+                case CallExp({pos: _, def: Symbol("catch")}, args):
+                    exps.splice(1,1);
+                    b.callSymbol("lambda", args);
+                default:
+                    b.callSymbol("lambda", [
+                        b.list([b.symbol("reason")]),
+                        b.callSymbol("#when", [
+                            b.symbol("vscode"),
+                            b.callSymbol("errorMessage", [error]),
+                        ]),
+                        // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
+                        b.callSymbol("throw", [
+                            error
+                        ])
+                    ]);
+            }
 
             return b.call(b.field("then", firstValue), [
-                b.call(b.symbol("lambda"), [
+                b.callSymbol("lambda", [
                     b.list([firstName]),
                     if (bindingList.length == 0) {
-                        b.call(b.symbol("begin"), exps.slice(1));
+                        b.begin(exps.slice(1));
                     } else {
                         awaitLet(wholeExp, [b.list(bindingList)].concat(exps.slice(1)), k);
                     }
                 ]),
                 // Handle rejections:
-                b.call(b.symbol("lambda"), [
-                    b.list([b.symbol("reason")]),
-                    b.callSymbol("#when", [
-                        b.symbol("vscode"),
-                        b.callSymbol("errorMessage", [error]),
-                    ]),
-                    // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
-                    b.callSymbol("throw", [
-                        error
-                    ])
-                ])
+                rejectionHandler
             ]);
         }
 
