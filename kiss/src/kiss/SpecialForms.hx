@@ -286,7 +286,7 @@ class SpecialForms {
 
         // Type check syntax:
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, '(the [optional: package] [type] [value])');
+            wholeExp.checkNumArgs(2, 3, '(the <?package> <type> <value>)');
             var pkg = "";
             var whichArg = "first";
             if (args.length == 3) {

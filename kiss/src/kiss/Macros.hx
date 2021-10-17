@@ -626,13 +626,15 @@ class Macros {
             ]);
         };
 
-        // TODO test this
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(2, null, "(awaitLet [[promise bindings...]] [body...])");
+            wholeExp.checkNumArgs(2, null, "(awaitLet [<promise bindings...>] <body...>)");
             var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
             var b = wholeExp.expBuilder();
+
+            var firstNameStr = firstName.symbolNameValue();
+            var error = b.callSymbol("+", [b.str('awaitLet $firstNameStr rejected promise: '), b.symbol("reason")]);
 
             return b.call(b.field("then", firstValue), [
                 b.call(b.symbol("lambda"), [
@@ -646,10 +648,13 @@ class Macros {
                 // Handle rejections:
                 b.call(b.symbol("lambda"), [
                     b.list([b.symbol("reason")]),
-                    b.call(b.symbol("throw"), [
-                        // TODO generalize CompileError to KissError which will also handle runtime errors
-                        // with the same source position format
-                        b.str("rejected promise")
+                    b.callSymbol("#when", [
+                        b.symbol("vscode"),
+                        b.callSymbol("errorMessage", [error]),
+                    ]),
+                    // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
+                    b.callSymbol("throw", [
+                        error
                     ])
                 ])
             ]);
