@@ -1,0 +1,22 @@
+(function _testMultipleBindings [:Async async]
+    (#if js
+            {
+                (awaitLet [a (Promise.resolve 1)
+                            b (Promise.resolve 2)
+                            c (Promise.resolve 3)]
+                    (Assert.equals 6 (+ a b c))
+                    (async.done))
+            }
+        (Assert.pass)))
+
+(function _testRejectedPromise [:Async async]
+    (#if js
+            {
+                (awaitLet [result (Promise.reject "async error")]
+                        (catch [reason]
+                            (Assert.pass)
+                            (async.done))
+                    (Assert.fail)
+                    (async.done))
+            }
+        (Assert.pass)))
