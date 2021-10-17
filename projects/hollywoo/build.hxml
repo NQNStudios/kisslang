@@ -1,0 +1,4 @@
+-lib kiss
+-cp src
+--main hollywoo.Main
+--interp

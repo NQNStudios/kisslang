@@ -1,0 +1,17 @@
+{
+	"main": "hollywoo.Main",
+	"name": "hollywoo",
+	"description": "produce Fountain screenplays as visual novels",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
