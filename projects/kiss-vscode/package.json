@@ -71,6 +71,18 @@
 					"kiss"
 				]
 			}
+		],
+		"customEditors": [
+			{
+				"viewType": "ktxt2.splitView",
+				"displayName": "KTxt2 Split View",
+				"selector": [
+					{
+						"filenamePattern": "*.*.*.ktxt2"
+					}
+				],
+				"priority": "default"
+			}
 		]
 	},
 	"engines": {

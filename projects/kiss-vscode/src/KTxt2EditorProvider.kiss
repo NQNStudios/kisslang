@@ -1,0 +1,11 @@
+(function register [context]
+    (let [provider (new KTxt2EditorProvider context)]
+        (Vscode.window.registerCustomEditorProvider "ktxt2.splitView" provider)))
+
+(defNew [&prop :ExtensionContext context])
+
+(method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
+    (set webviewPanel.webview.options (object enableScripts true))
+    (set webviewPanel.webview.html "hello editor")
+    null
+    )
