@@ -32,7 +32,7 @@ typedef Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor> = {
  * Model of a Hollywoo film
  */
 @:build(kiss.Kiss.build())
-class Stage<Set, StagePosition, StageFacing, ScreenPosition, Actor> extends kiss.EmbeddedScript {
+class Stage<Set, StagePosition, StageFacing, ScreenPosition, Actor> extends kiss.AsyncEmbeddedScript {
     // Mostly immutable, reusable resources:
     var sets:Map<String, Set> = [];
     var actors:Map<String, Actor> = [];

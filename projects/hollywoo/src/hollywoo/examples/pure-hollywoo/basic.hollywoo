@@ -1,1 +1,2 @@
-(director.showSet (object name "Cabin" description "A cool cabin") FirstAppearance ->:Void {})
+(director.showSet (object name "Cabin" description "A cool cabin") FirstAppearance cc)
+(director.showCharacter (object stagePosition OnStage stageFacing "" actor (object name "Nat" description "scruffy transfemme")) FirstAppearance cc)
