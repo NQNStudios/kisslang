@@ -4,7 +4,9 @@
 // A file called README.md.html.ktxt2 would be for converting README.md to README.html.
 
 (var blockStartEnd "|||")
-(var outputStarts ["|>|" "|!|"])
+(var unlockedStart "|>|")
+(var lockedStart "|!|")
+(var outputStarts [unlockedStart lockedStart])
 
 // Return [sourceFile outputFile]
 (function :Array<String> splitFileContents []
@@ -61,3 +63,32 @@
                         saveOutputSuccess
                             (outputDocument.save)]
                 (assert (and saveSourceSuccess saveOutputSuccess))))))
+
+(function :Array<Dynamic> splitFileBlocks []
+    (let [fileText (activeTextEditor.document.getText)
+            fileStream (kiss.Stream.fromString fileText)
+            blocks []]
+        (loop
+            (let [block (object source "" output "" outputLocked false)]
+                (case (fileStream.takeUntilAndDrop blockStartEnd)
+                    ((Some _)
+                        (let [sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
+                                                ->(fileStream.takeUntilOneOf outputStarts))]
+                            (set block.source sourceBlock))
+                        (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
+                        (set block.outputLocked
+                            (case (fileStream.expect "One of $outputStarts" ->(fileStream.takeChars .length (first outputStarts)))
+                                (lockedStart true)
+                                (unlockedStart false)
+                                (otherwise
+                                    (throw "Expected one of $outputStarts"))))
+                        (let [outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
+                                                ->(fileStream.takeUntilAndDrop blockStartEnd))]
+                            (set block.output outputBlock)))
+                    (None
+                        (break)))
+                (blocks.push block)))
+            blocks))
+
+(function splitBlocks [&opt _]
+    (let [blocks (splitFileBlocks)] (print blocks)))
