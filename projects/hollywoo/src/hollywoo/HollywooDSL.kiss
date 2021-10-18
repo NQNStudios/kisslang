@@ -1,0 +1,1 @@
+(defNew [director] (super director))

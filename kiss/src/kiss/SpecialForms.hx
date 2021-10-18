@@ -306,8 +306,9 @@ class SpecialForms {
         };
 
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(try [thing] [catches...])");
+            wholeExp.checkNumArgs(1, null, "(try <thing> <catches...>)");
             var tryKissExp = args[0];
+
             var catchKissExps = args.slice(1);
             ETry(k.convert(tryKissExp), [
                 for (catchKissExp in catchKissExps) {

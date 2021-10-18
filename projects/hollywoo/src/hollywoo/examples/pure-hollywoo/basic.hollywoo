@@ -1,0 +1,1 @@
+(director.showSet (object name "Cabin" description "A cool cabin") FirstAppearance ->:Void {})

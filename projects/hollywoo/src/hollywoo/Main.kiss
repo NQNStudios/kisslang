@@ -1,1 +1,4 @@
-(print "Hello world!")
+(defMacro runTextExample [exampleClass]
+    `(.run (new ,exampleClass (new TextDirector))))
+
+(runTextExample BasicHollywoo)

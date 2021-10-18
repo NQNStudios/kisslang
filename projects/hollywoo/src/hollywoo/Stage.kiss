@@ -1,0 +1,2 @@
+// "View" in the Model-View-Controller architecture:
+(defNew [&prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor> director] (super))
