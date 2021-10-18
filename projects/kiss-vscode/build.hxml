@@ -1,3 +1,7 @@
+-cp src
+-js bin/ktxt2editor.js
+--main KTxt2Editor
+--next
 -lib vscode
 -lib hxnodejs
 -lib kiss

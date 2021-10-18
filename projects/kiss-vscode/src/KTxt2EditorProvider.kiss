@@ -6,6 +6,21 @@
 
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
     (set webviewPanel.webview.options (object enableScripts true))
-    (set webviewPanel.webview.html "hello editor")
+    (set webviewPanel.webview.html (htmlForWebview webviewPanel.webview))
     null
     )
+
+(method :String htmlForWebview [:Webview webview]
+    (let [scriptUri
+                (webview.asWebviewUri (Uri.joinPath (Uri.parse this.context.extensionUri) "bin" "ktxt2editor.js"))]
+        "<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset=\"UTF-8\">
+				<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+				<title>KTxt2</title>
+			</head>
+			<body>
+				<script src=\"${scriptUri}\"></script>
+			</body>
+			</html>"))
