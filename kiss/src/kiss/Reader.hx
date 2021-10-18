@@ -129,7 +129,7 @@ class Reader {
         };
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
-        readTable[""] = (stream:Stream, k) -> {
+        readTable[""] = (stream:Stream, k:KissState) -> {
             var position = stream.position();
             var token = nextToken(stream, "a symbol name");
             // Process dot-access on alias identifiers
@@ -138,11 +138,16 @@ class Reader {
                     Symbol(token);
                 } else {
                     var tokenParts = token.split(".");
-                    var fieldExp = Symbol(tokenParts.shift());
-                    while (tokenParts.length > 0) {
-                        fieldExp = FieldExp(tokenParts.shift(), fieldExp.withPos(position));
+                    var fieldExpVal = tokenParts.shift();
+                    var fieldExp = Symbol(fieldExpVal);
+                    if (k.identAliases.exists(fieldExpVal)) {
+                        while (tokenParts.length > 0) {
+                            fieldExp = FieldExp(tokenParts.shift(), fieldExp.withPos(position));
+                        }
+                        fieldExp;
+                    } else {
+                        Symbol(token);
                     }
-                    fieldExp;
                 }
             } else {
                 Symbol(token);
