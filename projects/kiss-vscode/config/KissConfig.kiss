@@ -149,8 +149,8 @@
                                                         (shortcutPanel.dispose)
                                                         (if documentBeforeShortcut
                                                                 (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
-                                                                    (_runCommand command selectedTextBeforeShortcut)))
-                                                            (_runCommand command selectedTextBeforeShortcut)))
+                                                                    (_runCommand command selectedTextBeforeShortcut))
+                                                            (_runCommand command selectedTextBeforeShortcut))))
                                             }
                                         
                                         (warningMessage "$key is not mapped to a shortcut in this context")))))
