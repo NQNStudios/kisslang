@@ -31,12 +31,11 @@
  * Helper functions
  */
 (function selectedText []
-    (if (and activeTextEditor .selection activeTextEditor)
+    (if (and activeTextEditor activeTextEditor.selection)
             (let [document
-                        // TODO should be able to use activeTextEditor.document and have the alias still work
-                        .document activeTextEditor
+                        activeTextEditor.document
                     selection
-                        .selection activeTextEditor
+                        activeTextEditor.selection
                     range (new Range selection.start selection.end)]
                 (document.getText range))
         ""))
@@ -118,7 +117,9 @@
 (function :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
     // Preserve the selected text and focused document before opening the webview:
     (whenLet [text (selectedText)] (set selectedTextBeforeShortcut text))
-    (when activeTextEditor (set documentBeforeShortcut activeTextEditor.document))
+    (if activeTextEditor
+            (set documentBeforeShortcut activeTextEditor.document)
+        (set documentBeforeShortcut null))
 
     // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
     (unless prefixMap 
@@ -146,8 +147,10 @@
                                                         (showShortcutPanel innerMap))
                                                     ((Final command)
                                                         (shortcutPanel.dispose)
-                                                        (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
-                                                            (_runCommand command selectedTextBeforeShortcut))))
+                                                        (if documentBeforeShortcut
+                                                                (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
+                                                                    (_runCommand command selectedTextBeforeShortcut)))
+                                                            (_runCommand command selectedTextBeforeShortcut)))
                                             }
                                         
                                         (warningMessage "$key is not mapped to a shortcut in this context")))))
