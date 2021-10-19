@@ -1,0 +1,13 @@
+// This has to be a macro so it can return from tryLoadConfig
+(defMacro trySpawnSync [command args options onError]
+    `(let [command ,command
+            args ,args
+            options ,options
+            result (ChildProcess.spawnSync command args options)]
+        (if result.error
+                (throw "Error $result.error from $command ${args}: $result.stdout $result.stderr")
+            (case result.status 
+                (0 null)
+                (errCode
+                    (,onError "Error code $errCode from $command ${args}: $result.stdout $result.stderr")
+                    (return))))))

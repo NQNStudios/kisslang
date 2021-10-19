@@ -1,3 +1,5 @@
+(load "Util.kiss")
+
 (function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
 (function userConfigDir []
     (joinPath
@@ -8,19 +10,6 @@
 (var &mut lastConfigDir "")
 (var &mut builtinConfigDir "")
 (var &mut :KissConfig config null)
-
-// This has to be a macro so it can return from tryLoadConfig
-(defMacro trySpawnSync [command args options onError]
-    `(let [command ,command
-            args ,args
-            result (ChildProcess.spawnSync command args ,options)]
-        (if result.error
-                (throw "Error $result.error from $command $args: $result.stdout $result.stderr")
-            (case result.status 
-                (0 null)
-                (errCode
-                    (,onError "Error code $errCode from $command $args: $result.stdout $result.stderr")
-                    (return))))))
 
 (function :Void tryLoadConfig [&opt :String text]
     // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object

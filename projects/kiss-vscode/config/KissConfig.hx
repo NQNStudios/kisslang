@@ -5,13 +5,16 @@ import kiss.Prelude;
 import kiss.Stream;
 import vscode.*;
 import js.lib.Promise;
+import js.node.ChildProcess;
 import hscript.Parser;
 import hscript.Interp;
 import hscript.Expr;
 import haxe.io.Path;
 import sys.io.File;
+import sys.FileSystem;
 
 using haxe.io.Path;
+using StringTools;
 
 typedef Command = (String) -> Void;
 
