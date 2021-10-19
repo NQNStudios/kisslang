@@ -92,7 +92,7 @@
                     (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
                     // (FileSystem.deleteFile uniqueConfigFile)
                     (config.registerBuiltins)
-                    (config.registerCommand "[r]eload Kiss config" tryLoadConfig)
+                    (config.registerCommand "[K]iss: [r]eload Kiss config" tryLoadConfig)
                     (config.prepareInterp)
                     // User-defined init:
                     (config.init)

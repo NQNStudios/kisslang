@@ -40,8 +40,12 @@
                 (document.getText range))
         ""))
 
-// TODO make an async annotation that throws an error if the promise is not wrapped in awaitLet or awaitBegin or returned by an async function?
-// but in some cases it doesn't matter and there are so many edge cases.
+(defMacro withValueOrInputBox [v &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (inputBox)]
+            ,@body)))
+
 (function insertAt [:vscode.Position pos text]
     (activeTextEditor.edit
         (lambda [e]
@@ -73,13 +77,6 @@
         (catch [e]
             (errorMessage "Error `${e}` from $kissStr")
             null)))
-
-(function :Void evalAndPrint [&opt :String selectedText]
-    (if selectedText
-            (infoMessage (Std.string (evalString selectedText))))
-        
-        (awaitLet [kissStr (inputBox)]
-            (infoMessage (Std.string (evalString kissStr)))))
 
 (function :Void runCommand [&opt command] (_runCommand command))
 
@@ -241,13 +238,17 @@
 (function registerExistingCommand [description command]
     (registerCommand description (lambda :Void [&opt _] (executeCommand command))))
 
+(loadFrom "kiss-vscode" "src/commands/KissTools.kiss")
+
 (function :Void registerBuiltins []
     (set Prelude.printStr ->:Void s (infoMessage s))
-    (registerCommand "Run a [k]iss command" runCommand)
-    (registerCommand "Rerun last command" runLastCommand)
-    (registerCommand "Run a keyboard shortcut command" runKeyboardShortcut)
-    (registerCommand "[e]valuate and print a Kiss expression" evalAndPrint)
-    (registerCommand "[n]ew kiss class" newKissClass))
+    // In this file:
+    (registerCommand "[K]iss: Run a Kiss-VSCode [c]ommand" runCommand)
+    (registerCommand "[K]iss: Re-run [l]ast Kiss-VSCode command" runLastCommand)
+    (registerCommand "[K]iss: Run a keyboard [s]hortcut command" runKeyboardShortcut)
+    // KissTools.kiss:
+    (registerCommand "[K]iss: [e]valuate and print an expression" evalAndPrint)
+    (registerCommand "[K]iss: create [n]ew kiss class" newKissClass))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []
@@ -267,42 +268,3 @@
             string Std.string
             random Std.random
             int Std.int)))
-
-(defMacro withValueOrInputBox [v &body body]
-    `(if ,v
-            {,@body}
-        (awaitLet [,v (inputBox)]
-            ,@body)))
-
-(function :Void newKissClass [&opt _]
-    (awaitLet [className (inputBox)]
-        (let [currentFile
-                    activeTextEditor.document.fileName
-                currentFileDirectory
-                    (Path.directory currentFile)
-                haxeFile
-                    (joinPath currentFileDirectory "${className}.hx")
-                kissFile
-                    (joinPath currentFileDirectory "${className}.kiss")
-                // Try to use the same package statement from the first line of the
-                // currently open Kiss class's .hx file
-                pkg
-                    (or
-                        (try
-                                (let [currentHaxeFile
-                                            (currentFile.withExtension "hx")]
-                                    (first (.split (File.getContent currentHaxeFile) "\n")))
-                            (catch [e] ""))
-                        // Default to no specific package declaration
-                        "package;")]
-            (File.saveContent haxeFile
-"${pkg}
-
-import kiss.Prelude;
-import kiss.List;
-
-@:build(kiss.Kiss.build())
-class ${className} {}
-")
-            (File.saveContent kissFile "")
-            (Vscode.window.showTextDocument (Uri.file kissFile)))))

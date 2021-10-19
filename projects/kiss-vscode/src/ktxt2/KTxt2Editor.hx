@@ -1,4 +1,4 @@
-import EditorExterns;
+package ktxt2;
 
 class KTxt2Editor {
     public static function main() {

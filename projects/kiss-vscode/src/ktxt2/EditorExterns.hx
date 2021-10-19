@@ -1,3 +1,5 @@
+package ktxt2;
+
 import js.html.Window;
 
 typedef VSCodeAPI = {

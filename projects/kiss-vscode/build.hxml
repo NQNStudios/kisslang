@@ -1,7 +1,3 @@
--cp src
--js bin/ktxt2editor.js
---main KTxt2Editor
---next
 -lib vscode
 -lib hxnodejs
 -lib kiss
@@ -14,3 +10,7 @@
 -D js-es=6
 -debug
 --main Main
+--next
+-cp src
+-js bin/ktxt2editor.js
+--main ktxt2.KTxt2Editor

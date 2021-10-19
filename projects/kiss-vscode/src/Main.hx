@@ -1,5 +1,6 @@
 #if !test
 import vscode.*;
+import ktxt2.*;
 #end
 import Sys;
 import sys.io.File;

@@ -1,0 +1,37 @@
+(function :Void evalAndPrint [&opt :String selectedText]
+    (withValueOrInputBox selectedText
+        (infoMessage (Std.string (evalString selectedText)))))
+
+(function :Void newKissClass [&opt _]
+    (awaitLet [className (inputBox)]
+        (when className
+            (let [currentFile
+                        activeTextEditor.document.fileName
+                    currentFileDirectory
+                        (Path.directory currentFile)
+                    haxeFile
+                        (joinPath currentFileDirectory "${className}.hx")
+                    kissFile
+                        (joinPath currentFileDirectory "${className}.kiss")
+                    // Try to use the same package statement from the first line of the
+                    // currently open Kiss class's .hx file
+                    pkg
+                        (or
+                            (try
+                                    (let [currentHaxeFile
+                                                (currentFile.withExtension "hx")]
+                                        (first (.split (File.getContent currentHaxeFile) "\n")))
+                                (catch [e] ""))
+                            // Default to no specific package declaration
+                            "package;")]
+                (File.saveContent haxeFile
+"${pkg}
+
+import kiss.Prelude;
+import kiss.List;
+
+@:build(kiss.Kiss.build())
+class ${className} {}
+")
+                (File.saveContent kissFile "")
+                (Vscode.window.showTextDocument (Uri.file kissFile))))))
