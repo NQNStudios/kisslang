@@ -64,17 +64,26 @@
                             (outputDocument.save)]
                 (assert (and saveSourceSuccess saveOutputSuccess))))))
 
+(function streamPosToVscodePos [pos]
+    (new vscode.Position pos.line (- pos.column 1)))
+
+(function rangeFromStartEnd [start end]
+    (new Range (streamPosToVscodePos start) (streamPosToVscodePos end)))
+
 (function :Array<Dynamic> splitFileBlocks []
     (let [fileText (activeTextEditor.document.getText)
             fileStream (kiss.Stream.fromString fileText)
             blocks []]
         (loop
-            (let [block (object source "" output "" outputLocked false)]
+            (let [block (object source "" sourceRange null output "" outputRange null outputLocked false)]
                 (case (fileStream.takeUntilAndDrop blockStartEnd)
                     ((Some _)
-                        (let [sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
-                                                ->(fileStream.takeUntilOneOf outputStarts))]
-                            (set block.source sourceBlock))
+                        (let [sourceStartPosition (fileStream.position)
+                                sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
+                                                ->(fileStream.takeUntilOneOf outputStarts))
+                                sourceEndPosition (fileStream.position)]
+                            (set block.source sourceBlock)
+                            (set block.sourceRange (rangeFromStartEnd sourceStartPosition sourceEndPosition)))
                         (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
                         (set block.outputLocked
                             (case (fileStream.expect "One of $outputStarts" ->(fileStream.takeChars .length (first outputStarts)))
@@ -82,9 +91,13 @@
                                 (unlockedStart false)
                                 (otherwise
                                     (throw "Expected one of $outputStarts"))))
-                        (let [outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
-                                                ->(fileStream.takeUntilAndDrop blockStartEnd))]
-                            (set block.output outputBlock)))
+                        (let [outputStartPosition (fileStream.position)
+                                outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
+                                                ->(fileStream.takeUntilOneOf [blockStartEnd]))
+                                outputEndPosition (fileStream.position)]
+                            (fileStream.dropChars blockStartEnd.length)
+                            (set block.output outputBlock)
+                            (set block.outputRange (rangeFromStartEnd outputStartPosition outputEndPosition))))
                     (None
                         (break)))
                 (blocks.push block)))
