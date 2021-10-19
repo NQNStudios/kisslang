@@ -564,6 +564,6 @@ class Helpers {
 
     // Get the path to a haxelib the user has installed
     public static function libPath(haxelibName:String) {
-        return Prelude.assertProcess("haxelib", ["libpath", haxelibName]);
+        return Prelude.assertProcess("haxelib", ["libpath", haxelibName]).trim();
     }
 }
