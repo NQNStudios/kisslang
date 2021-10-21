@@ -1,0 +1,76 @@
+// Functions for parsing and modifying ktxt2 files.
+
+// ktxt2 files contain an original "SOURCE" file and a translated "OUTPUT" file
+// which is authored semi-automatically with the help of a custom VSCode editor.
+// A file called README.md.html.ktxt2 would be for converting README.md -> README.html.
+
+(var blockStartEnd "|||")
+(var unlockedStart "|>|")
+(var lockedStart "|!|")
+(var outputStarts [unlockedStart lockedStart])
+
+// Return [sourceFile outputFile]
+(function :Array<String> splitFileContents [file]
+    (let [fileStream (kiss.Stream.fromFile file)
+            &mut sourceText ""
+            &mut outputText ""]
+        (loop
+            (case (fileStream.takeUntilAndDrop blockStartEnd)
+                ((Some _)
+                    (let [sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
+                                            ->(fileStream.takeUntilOneOf outputStarts))]
+                        (+= sourceText "${sourceBlock}\n"))
+                    (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
+                    (fileStream.dropChars .length (first outputStarts))
+                    (let [outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
+                                            ->(fileStream.takeUntilAndDrop blockStartEnd))]
+                        (+= outputText "${outputBlock}\n")))
+                (None
+                    (break))))
+        [sourceText outputText]))
+
+(function :Array<KTxt2Element> splitFileElements [file]
+    (let [fileStream (kiss.Stream.fromFile file)
+            elements []]
+        (loop
+            (let [block
+                        (object
+                            source ""
+                            sourceStart null
+                            sourceEnd null
+                            output ""
+                            outputStart null 
+                            outputEnd null
+                            outputLocked false)]
+                // Look for the start of a KTxt2 block
+                (case (fileStream.takeUntilAndDrop blockStartEnd)
+                    ((Some comment)
+                        // Anything before the start of the block is a comment
+                        (when comment
+                            (elements.push (Comment comment)))
+                        (let [sourceStartPosition (fileStream.position)
+                                sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
+                                                ->(fileStream.takeUntilOneOf outputStarts))
+                                sourceEndPosition (fileStream.position)]
+                            (set block.source sourceBlock)
+                            (set block.sourceStart sourceStartPosition)
+                            (set block.sourceEnd sourceEndPosition))
+                        (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
+                        (set block.outputLocked
+                            (case (fileStream.expect "One of $outputStarts" ->(fileStream.takeChars .length (first outputStarts)))
+                                (lockedStart true)
+                                (unlockedStart false)
+                                (otherwise
+                                    (throw "Expected one of $outputStarts"))))
+                        (let [outputStartPosition (fileStream.position)
+                                outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
+                                                ->(fileStream.takeUntilOneOf [blockStartEnd]))
+                                outputEndPosition (fileStream.position)]
+                            (fileStream.dropChars blockStartEnd.length)
+                            (set block.output outputBlock)
+                            (set block.outputStart outputStartPosition)
+                            (set block.outputEnd outputEndPosition)))
+                    (None
+                        (break)))
+                (elements.push (Block block))))
+            elements))

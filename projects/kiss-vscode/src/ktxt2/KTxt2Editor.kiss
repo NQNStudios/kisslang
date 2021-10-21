@@ -1,0 +1,45 @@
+(function exportSourceAndOutputFiles [document]
+    (let [[sourceText outputText] (splitFileContents document.fileName)
+            ktxt2FullFilename document.fileName
+            ktxt2Directory (haxe.io.Path.directory ktxt2FullFilename)
+            ktxt2Filename (haxe.io.Path.withoutDirectory ktxt2FullFilename)
+            [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
+            sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
+            outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
+        // Use editors instead of File.saveContent for this, so the user can undo the export if
+        // it overwrites something!
+        (defMacro overwriteDocument [document content]
+            `(let [document ,document content ,content]
+                (awaitLet [editor (Vscode.window.showTextDocument document)]
+                    (editor.edit
+                        ->e (e.replace (new Range (document.positionAt 0) (document.positionAt .length (document.getText))) content)))))
+        (function uriFor [filename]
+            (let [uri (Uri.file filename)]
+                (if (sys.FileSystem.exists filename)
+                        uri
+                    (uri.with (object scheme "untitled")))))
+        (awaitLet [sourceDocument
+                        (Vscode.workspace.openTextDocument (uriFor sourceFilename))
+                    sourceEditSuccess
+                        (overwriteDocument sourceDocument sourceText)
+                    outputDocument
+                        (Vscode.workspace.openTextDocument (uriFor outputFilename))
+                    outputEditSuccess
+                        (overwriteDocument outputDocument outputText)]
+            (assert (and sourceEditSuccess outputEditSuccess))
+            (awaitLet [saveSourceSuccess
+                            (sourceDocument.save)
+                        saveOutputSuccess
+                            (outputDocument.save)]
+                (assert (and saveSourceSuccess saveOutputSuccess))))))
+
+(function streamPosToVscodePos [pos]
+    (new vscode.Position pos.line (- pos.column 1)))
+
+(function rangeFromStartEnd [start end]
+    (new Range (streamPosToVscodePos start) (streamPosToVscodePos end)))
+
+
+
+(function splitBlocks [&opt _]
+    (let [blocks (splitFileBlocks)] (print blocks)))

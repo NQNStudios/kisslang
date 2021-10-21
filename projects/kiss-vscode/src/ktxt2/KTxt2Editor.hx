@@ -1,5 +1,6 @@
 package ktxt2;
 
+@:build(kiss.Kiss.build())
 class KTxt2Editor {
     public static function main() {
         var vscode = EditorExterns.acquireVsCodeApi();
