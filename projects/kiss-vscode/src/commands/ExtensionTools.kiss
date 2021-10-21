@@ -1,0 +1,25 @@
+(loadFrom "kiss-vscode" "src/Util.kiss")
+
+(function kvLibpath [] (.trim (assertProcess "haxelib" ["libpath" "kiss-vscode"])))
+(function :ChildProcessSpawnSyncOptions options [] (object cwd (let [path (kvLibpath)] (path.substr 0 (- path.length 1)))))
+
+(function handleUpdateFailure [error]
+    (errorMessage "Error updating Kiss-VSCode: $error")
+    (throw error))
+
+(function :Void updateKissVscode [&opt _]
+    (trySpawnSync "haxe" ["build.hxml"] (options) handleUpdateFailure)
+    (if (= "Windows" (Sys.systemName))
+            (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) handleUpdateFailure)
+        (trySpawnSync "vsce" ["package"] (options) handleUpdateFailure))
+    (awaitLet [_ (executeCommand 
+                        "workbench.extensions.command.installFromVSIX"
+                        (Uri.file (joinPath (kvLibpath) (last (filter (FileSystem.readDirectory (kvLibpath)) ->file (file.endsWith ".vsix"))))))]
+            (catch [error]
+                (handleUpdateFailure error)))
+        
+        {})
+
+(function testAndUpdateKissVscode [&opt _]
+    (trySpawnSync "test.sh" [] (options) handleUpdateFailure)
+    (updateKissVscode))
