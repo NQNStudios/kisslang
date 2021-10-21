@@ -11,6 +11,8 @@
 -debug
 --main Main
 --next
+-lib kiss
+-lib kiss-vscode
 -cp src
 -js bin/ktxt2editor.js
 --main ktxt2.KTxt2Editor

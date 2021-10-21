@@ -1,13 +1,11 @@
 package ktxt2;
 
-@:build(kiss.Kiss.build())
-class KTxt2Editor {
-    public static function main() {
-        var vscode = EditorExterns.acquireVsCodeApi();
+import js.html.Document;
+import js.html.Window;
+import ktxt2.EditorExterns;
+import ktxt2.KTxt2;
+import kiss.Prelude;
+import kiss.Stream;
 
-        var document = EditorExterns.window.document;
-        var pElement = document.createElement("p");
-        pElement.innerHTML = "helly eah";
-        document.body.appendChild(pElement);
-    }
-}
+@:build(kiss.Kiss.build())
+class KTxt2Editor {}

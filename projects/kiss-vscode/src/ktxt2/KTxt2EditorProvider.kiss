@@ -1,3 +1,5 @@
+// Based on https://github.com/microsoft/vscode-extension-samples/blob/main/custom-editor-sample/src/catScratchEditor.ts
+
 (function register [context]
     (let [provider (new KTxt2EditorProvider context)]
         (Vscode.window.registerCustomEditorProvider "ktxt2.splitView" provider)))
@@ -7,8 +9,15 @@
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
     (set webviewPanel.webview.options (object enableScripts true))
     (set webviewPanel.webview.html (htmlForWebview webviewPanel.webview))
-    null
-    )
+    (let [updateWebview
+				->(webviewPanel.webview.postMessage (object type "update" text (document.getText)))
+			changeDocumentSubscription
+				(Vscode.workspace.onDidChangeTextDocument
+					->e (when (= (e.document.uri.toString) (document.uri.toString))
+								(updateWebview)))]
+		(webviewPanel.onDidDispose ->e (changeDocumentSubscription.dispose))
+		(updateWebview))
+	null)
 
 (method :String htmlForWebview [:Webview webview]
     (let [scriptUri

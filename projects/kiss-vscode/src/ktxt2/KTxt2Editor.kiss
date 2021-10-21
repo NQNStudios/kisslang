@@ -1,4 +1,35 @@
-(function exportSourceAndOutputFiles [document]
+(var &mut :VSCodeAPI vscode)
+(var &mut :Window window)
+(var &mut :Document document)
+(var &mut :Array<KTxt2Element> ktxt2Elements)
+
+(function main []
+    (set vscode (EditorExterns.acquireVsCodeApi))
+    (set window EditorExterns.window)
+    (set document window.document)
+
+    (window.addEventListener "message"
+        ->:Void event
+            (case event.data.type
+                ("update"
+                    (updateContent event.data.text))
+                (otherType (throw "bad message type $otherType for KTxt2Editor")))))
+
+(function pElement [text]
+    (let [p (document.createElement "p")]
+        (set p.innerHTML text)
+        (document.body.appendChild p)))
+
+(function :Void updateContent [text]
+    (set document.body.innerHTML "")
+    (doFor [idx element] (enumerate (KTxt2.splitFileElements (Stream.fromString text)))
+        (case element
+            ((Comment comment)
+                (pElement comment))
+            ((Block block)
+                0))))
+
+/*(function exportSourceAndOutputFiles [document]
     (let [[sourceText outputText] (splitFileContents document.fileName)
             ktxt2FullFilename document.fileName
             ktxt2Directory (haxe.io.Path.directory ktxt2FullFilename)
@@ -39,7 +70,6 @@
 (function rangeFromStartEnd [start end]
     (new Range (streamPosToVscodePos start) (streamPosToVscodePos end)))
 
-
-
 (function splitBlocks [&opt _]
     (let [blocks (splitFileBlocks)] (print blocks)))
+*/

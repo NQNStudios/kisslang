@@ -10,9 +10,8 @@
 (var outputStarts [unlockedStart lockedStart])
 
 // Return [sourceFile outputFile]
-(function :Array<String> splitFileContents [file]
-    (let [fileStream (kiss.Stream.fromFile file)
-            &mut sourceText ""
+(function :Array<String> splitFileContents [:Stream fileStream]
+    (let [&mut sourceText ""
             &mut outputText ""]
         (loop
             (case (fileStream.takeUntilAndDrop blockStartEnd)
@@ -29,9 +28,8 @@
                     (break))))
         [sourceText outputText]))
 
-(function :Array<KTxt2Element> splitFileElements [file]
-    (let [fileStream (kiss.Stream.fromFile file)
-            elements []]
+(function :Array<KTxt2Element> splitFileElements [:Stream fileStream]
+    (let [elements []]
         (loop
             (let [block
                         (object
@@ -43,11 +41,12 @@
                             outputEnd null
                             outputLocked false)]
                 // Look for the start of a KTxt2 block
-                (case (fileStream.takeUntilAndDrop blockStartEnd)
+                (case (fileStream.takeUntilAndDrop blockStartEnd true)
                     ((Some comment)
                         // Anything before the start of the block is a comment
                         (when comment
                             (elements.push (Comment comment)))
+                        (when (fileStream.isEmpty) (break))
                         (let [sourceStartPosition (fileStream.position)
                                 sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
                                                 ->(fileStream.takeUntilOneOf outputStarts))
