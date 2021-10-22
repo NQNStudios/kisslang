@@ -16,6 +16,7 @@
 					->e (when (= (e.document.uri.toString) (document.uri.toString)) 
 							(updateWebview)))
 			streamPosToDocumentPos ->pos (document.positionAt pos.absoluteChar)
+			streamPosToOffsetDocumentPos ->[pos offset] (document.positionAt (+ offset pos.absoluteChar))
 			rangeFromStartEnd ->[start end] (new Range (streamPosToDocumentPos start) (streamPosToDocumentPos end))
 			makeEdit
 				->[:WorkspaceEdit->Void builder]
@@ -36,6 +37,9 @@
 					((object type "insert" text text position position)
 						(makeEdit
 							->edit (edit.insert document.uri (streamPosToDocumentPos position) text)))
+					((object type "deleteBlock" start start end end)
+						(makeEdit
+							->edit (edit.delete document.uri (new Range (streamPosToOffsetDocumentPos start -KTxt2.blockStartEnd.length) (streamPosToOffsetDocumentPos end KTxt2.blockStartEnd.length)))))
 					(otherwise
 						(Vscode.window.showErrorMessage "bad message $e from KTxt2Editor"))))
 

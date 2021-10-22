@@ -76,7 +76,7 @@
 (function insertBlockBeforeComment [element]
     (case element
         ((Comment (object start position))
-            (vscode.postMessage (object type "insert" text "${KTxt2.emptyBlock}\n" position position)))
+            (vscode.postMessage (object type "insert" text "\n${KTxt2.emptyBlock}" position position)))
         (otherwise (throw "element $element is not a comment"))))
 
 (function insertBlockAfterComment [element]
@@ -97,11 +97,18 @@
             (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
+(function deleteEntireBlock [element]
+    (case element
+        ((Block (object source text sourceStart start outputEnd end))
+            (vscode.postMessage (object type "deleteBlock" start start end end)))
+        (otherwise (throw "element $element is not a block"))))
+
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
             sourceDiv (document.createElement "div")
             outputDiv (document.createElement "div")
-            lockDiv (document.createElement "div")]
+            lockDiv (document.createElement "div")
+            xLink (document.createElement "a")]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
         (sourceDiv.setAttribute "style" "width: 50%; white-space: pre;")
@@ -121,6 +128,13 @@
                 (set lockDiv.innerHTML "!")
             // TODO add a "generate" button and "lock" button
             )
+        // Link that will delete the whole block:
+        (set xLink.innerHTML "x")
+        (xLink.addEventListener "click"
+            ->(deleteEntireBlock (nth ktxt2Elements idx)))
+        
+        (unless locked
+            (outerDiv.appendChild xLink))
         (outerDiv.appendChild sourceDiv)
         (outerDiv.appendChild lockDiv)
         (outerDiv.appendChild outputDiv)
