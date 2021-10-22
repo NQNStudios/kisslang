@@ -14,8 +14,14 @@ typedef KTxt2Block = {
     outputEnd:Position
 };
 
+typedef KTxt2Comment = {
+    text:String,
+    start:Position,
+    end:Position
+};
+
 enum KTxt2Element {
-    Comment(content:String);
+    Comment(comment:KTxt2Comment);
     Block(block:KTxt2Block);
 }
 

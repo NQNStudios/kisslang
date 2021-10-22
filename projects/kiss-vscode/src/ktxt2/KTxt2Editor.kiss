@@ -1,6 +1,7 @@
 (var &mut :VSCodeAPI vscode)
 (var &mut :Window window)
 (var &mut :Document document)
+(var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
 
 (function main []
@@ -8,26 +9,115 @@
     (set window EditorExterns.window)
     (set document window.document)
 
+    (set Prelude.printStr ->[message]
+        (vscode.postMessage (object type "print" text message)))
+
     (window.addEventListener "message"
         ->:Void event
-            (case event.data.type
-                ("update"
-                    (updateContent event.data.text))
-                (otherType (throw "bad message type $otherType for KTxt2Editor")))))
+            (case (the MessageToEditor event.data)
+                ((object type "update" text text)
+                    (updateContent text)
+                    (vscode.setState (object text text)))
+                (otherType (throw "bad message $event for KTxt2Editor"))))
+    
+    (whenLet [state (the Dynamic (vscode.getState))]
+        (updateContent state.text)))
 
-(function pElement [text]
+(var &mut :Map<Int,Int> editTimeoutHandles (new Map))
+(var EDIT_TIMEOUT_MILLI 1000)
+(function :Void addEditTimeout [idx :Void->Void handler]
+    (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
+        (window.clearTimeout activeTimeoutForIndex))
+    (dictSet editTimeoutHandles
+        idx
+        (window.setTimeout
+            ->{
+                (editTimeoutHandles.remove idx)
+                (handler)
+            }
+            EDIT_TIMEOUT_MILLI)))
+
+(function pElement [text idx]
     (let [p (document.createElement "p")]
         (set p.innerHTML text)
-        (document.body.appendChild p)))
+        (p.setAttribute "style" "white-space: pre;")
+        (p.setAttribute "contenteditable" "true")
+        (p.addEventListener "input"
+            ->(addEditTimeout idx ->(replaceComment (nth ktxt2Elements idx) p.innerHTML)))
+        (content.appendChild p)))
+
+(function toPlaintext [:String text]
+    (.htmlUnescape
+        (.replace
+            (.replace
+                (text.replace "<div>" "\n")
+                "</div>" "")
+            "<br>" "\n")))
+
+(function replaceComment [element newText]
+    (case element
+        ((Comment (object text text start start end end))
+            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+        (otherwise (throw "element $element is not a comment"))))
+
+(function replaceSourceBlock [element newText]
+    (case element
+        ((Block (object source text sourceStart start sourceEnd end))
+            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+        (otherwise (throw "element $element is not a block"))))
+
+(function replaceOutputBlock [element newText]
+    (case element
+        ((Block (object output text outputStart start outputEnd end))
+            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+        (otherwise (throw "element $element is not a block"))))
+
+(function blockElements [source output locked idx]
+    (let [outerDiv (document.createElement "div")
+            sourceDiv (document.createElement "div")
+            outputDiv (document.createElement "div")
+            lockDiv (document.createElement "div")]
+        (outerDiv.setAttribute "class" "container")
+        (outerDiv.setAttribute "style" "display: flex;")
+        (sourceDiv.setAttribute "style" "width: 50%; white-space: pre;")
+        (sourceDiv.setAttribute "class" "block")
+        (sourceDiv.setAttribute "contenteditable" "true")
+        (sourceDiv.addEventListener "input"
+            ->(addEditTimeout idx ->(replaceSourceBlock (nth ktxt2Elements idx) sourceDiv.innerHTML)))
+        (set sourceDiv.innerHTML source)
+        (outputDiv.setAttribute "style" "flex-grow: 1; white-space: pre;")
+        (outputDiv.setAttribute "class" "block")
+        (outputDiv.setAttribute "contenteditable" "true")
+        (outputDiv.addEventListener "input"
+            ->(addEditTimeout idx ->(replaceOutputBlock (nth ktxt2Elements idx) outputDiv.innerHTML)))
+        (set outputDiv.innerHTML output)
+        (lockDiv.setAttribute "style" "width: 1ch")
+        (if locked
+                (set lockDiv.innerHTML "!")
+            // TODO add a "generate" button and "lock" button
+            )
+        (outerDiv.appendChild sourceDiv)
+        (outerDiv.appendChild lockDiv)
+        (outerDiv.appendChild outputDiv)
+        (content.appendChild outerDiv)))
 
 (function :Void updateContent [text]
-    (set document.body.innerHTML "")
-    (doFor [idx element] (enumerate (KTxt2.splitFileElements (Stream.fromString text)))
-        (case element
-            ((Comment comment)
-                (pElement comment))
-            ((Block block)
-                0))))
+    (try
+            {
+                (when content
+                    (document.body.removeChild content))
+                (set content (document.createElement "div"))
+                (document.body.appendChild content)
+                (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text)))
+                (doFor [idx element] (enumerate ktxt2Elements)
+                    (case element
+                        // TODO make an objectWith macro for case that duplicates parameter names with the match expressions:
+                        ((Comment (object text text))
+                            (pElement text idx))
+                        ((Block (object source source output output outputLocked outputLocked))
+                            (blockElements source output outputLocked idx))))
+            }
+        (catch [error] (print "Error updating ktxt2 editor: ${error}"))))
 
 /*(function exportSourceAndOutputFiles [document]
     (let [[sourceText outputText] (splitFileContents document.fileName)
@@ -63,12 +153,6 @@
                         saveOutputSuccess
                             (outputDocument.save)]
                 (assert (and saveSourceSuccess saveOutputSuccess))))))
-
-(function streamPosToVscodePos [pos]
-    (new vscode.Position pos.line (- pos.column 1)))
-
-(function rangeFromStartEnd [start end]
-    (new Range (streamPosToVscodePos start) (streamPosToVscodePos end)))
 
 (function splitBlocks [&opt _]
     (let [blocks (splitFileBlocks)] (print blocks)))

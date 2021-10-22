@@ -5,5 +5,12 @@ import kiss.List;
 import vscode.*;
 import js.lib.Promise;
 
+typedef MessageFromEditor = {
+    type:String,
+    ?text:String,
+    ?start:kiss.Stream.Position,
+    ?end:kiss.Stream.Position
+};
+
 @:build(kiss.Kiss.build())
 class KTxt2EditorProvider {}

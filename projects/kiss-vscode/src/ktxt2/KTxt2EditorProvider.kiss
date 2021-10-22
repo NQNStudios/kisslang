@@ -13,9 +13,29 @@
 				->(webviewPanel.webview.postMessage (object type "update" text (document.getText)))
 			changeDocumentSubscription
 				(Vscode.workspace.onDidChangeTextDocument
-					->e (when (= (e.document.uri.toString) (document.uri.toString))
-								(updateWebview)))]
-		(webviewPanel.onDidDispose ->e (changeDocumentSubscription.dispose))
+					->e (when (= (e.document.uri.toString) (document.uri.toString)) 
+							(updateWebview)))
+			streamPosToDocumentPos ->pos (document.positionAt pos.absoluteChar)
+			rangeFromStartEnd ->[start end] (new Range (streamPosToDocumentPos start) (streamPosToDocumentPos end))
+			makeEdit
+				->[:WorkspaceEdit->Void builder]
+					(let [edit (new WorkspaceEdit)]
+						(builder edit)
+						(Vscode.workspace.applyEdit edit))]
+		(webviewPanel.onDidDispose
+			->e (changeDocumentSubscription.dispose))
+		
+		(webviewPanel.webview.onDidReceiveMessage
+			->:Void [e]
+				(case (the MessageFromEditor e)
+					((object type "print" text message)
+						(Vscode.window.showInformationMessage message))
+					((object type "replace" text text start start end end)
+						(makeEdit
+							->edit (edit.replace document.uri (rangeFromStartEnd start end) text)))
+					(otherwise
+						(Vscode.window.showErrorMessage "bad message $e from KTxt2Editor"))))
+
 		(updateWebview))
 	null)
 
@@ -28,8 +48,13 @@
 				<meta charset=\"UTF-8\">
 				<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
 				<title>KTxt2</title>
+				<style>
+					.block {
+						border: 1px solid white;
+					}
+				</style>
 			</head>
-			<body>
+			<body>	
 				<script src=\"${scriptUri}\"></script>
 			</body>
 			</html>"))

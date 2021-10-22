@@ -31,7 +31,9 @@
 (function :Array<KTxt2Element> splitFileElements [:Stream fileStream]
     (let [elements []]
         (loop
-            (let [block
+            (let [start
+                        (fileStream.position)
+                    block
                         (object
                             source ""
                             sourceStart null
@@ -41,11 +43,13 @@
                             outputEnd null
                             outputLocked false)]
                 // Look for the start of a KTxt2 block
-                (case (fileStream.takeUntilAndDrop blockStartEnd true)
+                (case (fileStream.takeUntilOneOf [blockStartEnd] true)
                     ((Some comment)
                         // Anything before the start of the block is a comment
                         (when comment
-                            (elements.push (Comment comment)))
+                            (let [end (fileStream.position)]
+                                (elements.push (Comment (object text comment start start end end)))))
+                        (fileStream.dropChars blockStartEnd.length)
                         (when (fileStream.isEmpty) (break))
                         (let [sourceStartPosition (fileStream.position)
                                 sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
