@@ -1,3 +1,50 @@
+/**
+ * Aliases
+ */
+
+
+// output 
+(defAlias &call infoMessage Vscode.window.showInformationMessage)
+(defAlias &call warningMessage Vscode.window.showWarningMessage)
+(defAlias &call errorMessage Vscode.window.showErrorMessage)
+
+// input
+(defAlias &call inputBox Vscode.window.showInputBox)
+(defAlias &call _quickPick Vscode.window.showQuickPick)
+
+(function quickPickItem [label &opt description]
+    (object
+        label label
+        description description
+        detail null
+        picked null
+        alwaysShow null))
+
+(function quickPick [:Array<String> strings]
+    (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
+        chosenItem.label))
+
+(function quickPickMap [:Map<String,Dynamic> stringMap]
+    (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
+        (dictGet stringMap chosenItem.label)))
+
+// commands
+(defAlias &call executeCommand Vscode.commands.executeCommand)
+(function repeatCommand [command times]
+    (let [iteration
+                ->[&opt _] (executeCommand command)
+            &mut promise
+                (iteration)]
+        (doFor i (range (- times 1))
+            (set promise (promise.then iteration)))
+        promise))
+
+(defMacro withValueOrInputBox [v &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (inputBox)]
+            ,@body)))
+
 // This has to be a macro so it can return from tryLoadConfig
 (defMacro trySpawnSync [command args options onError]
     `(let [command ,command

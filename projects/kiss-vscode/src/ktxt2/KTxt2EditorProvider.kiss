@@ -1,3 +1,5 @@
+(load "../Util.kiss")
+
 // Based on https://github.com/microsoft/vscode-extension-samples/blob/main/custom-editor-sample/src/catScratchEditor.ts
 
 (function register [context]

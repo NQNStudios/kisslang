@@ -1,28 +1,4 @@
-/**
- * Aliases
- */
-
-// TODO pass these aliases to the KissState of "eval kiss expression"
-
-// output 
-(defAlias &call infoMessage Vscode.window.showInformationMessage)
-(defAlias &call warningMessage Vscode.window.showWarningMessage)
-(defAlias &call errorMessage Vscode.window.showErrorMessage)
-
-// input
-(defAlias &call inputBox Vscode.window.showInputBox)
-(defAlias &call quickPick Vscode.window.showQuickPick)
-
-// commands
-(defAlias &call executeCommand Vscode.commands.executeCommand)
-(function repeatCommand [command times]
-    (let [iteration
-                ->[&opt _] (executeCommand command)
-            &mut promise
-                (iteration)]
-        (doFor i (range (- times 1))
-            (set promise (promise.then iteration)))
-        promise))
+(loadFrom "kiss-vscode" "src/Util.kiss")
 
 // ui
 (defAlias &ident activeTextEditor Vscode.window.activeTextEditor)
@@ -39,12 +15,6 @@
                     range (new Range selection.start selection.end)]
                 (document.getText range))
         ""))
-
-(defMacro withValueOrInputBox [v &body body]
-    `(if ,v
-            {,@body}
-        (awaitLet [,v (inputBox)]
-            ,@body)))
 
 (function insertAt [:vscode.Position pos text]
     (activeTextEditor.edit
@@ -69,6 +39,7 @@
  * Functionality
  */
 
+// TODO pass macros and aliases from Util.kiss to the KissState of "eval kiss expression"
 (function :Dynamic evalString [:String kissStr]
     (try
             (interp.execute
@@ -90,17 +61,9 @@
     (unless inputText (set inputText (selectedText)))
     (if command
             (_runCommandFunc command)
-        (let [commandList
-                    (for description (commands.keys)
-                        (object
-                            label description
-                            description null
-                            detail null
-                            picked null
-                            alwaysShow null))]
-            (awaitLet [chosenCommand (quickPick commandList)]
+            (awaitLet [chosenCommand (quickPick (collect (commands.keys)))]
                 (when chosenCommand
-                    (_runCommandFunc chosenCommand.label))))))
+                    (_runCommandFunc chosenCommand)))))
 
 (function :Void runLastCommand [&opt _]
     (if lastCommand
