@@ -103,12 +103,19 @@
             (vscode.postMessage (object type "deleteBlock" start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
+(function changeLockStatus [element newStatus]
+    (case element
+        ((Block (object sourceEnd start outputStart end))
+            (vscode.postMessage (object type "replace" text (if newStatus KTxt2.lockedStart KTxt2.unlockedStart) start start end end)))
+        (otherwise (throw "element $element is not a block"))))
+
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
             sourceDiv (document.createElement "div")
             outputDiv (document.createElement "div")
             lockDiv (document.createElement "div")
-            xLink (document.createElement "a")]
+            xLink (document.createElement "a")
+            lockLink (document.createElement "a")]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
         (sourceDiv.setAttribute "style" "width: 50%; white-space: pre;")
@@ -128,16 +135,23 @@
                 (set lockDiv.innerHTML "!")
             // TODO add a "generate" button and "lock" button
             )
+
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
         (xLink.addEventListener "click"
             ->(deleteEntireBlock (nth ktxt2Elements idx)))
-        
         (unless locked
             (outerDiv.appendChild xLink))
+
         (outerDiv.appendChild sourceDiv)
         (outerDiv.appendChild lockDiv)
         (outerDiv.appendChild outputDiv)
+
+        (set lockLink.innerHTML (if locked "unlock" "lock"))
+        (lockLink.addEventListener "click"
+            ->(changeLockStatus (nth ktxt2Elements idx) !locked))
+        (outerDiv.appendChild lockLink)
+
         (content.appendChild outerDiv)))
 
 (function :Void updateContent [text]
