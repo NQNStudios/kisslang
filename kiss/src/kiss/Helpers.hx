@@ -561,9 +561,4 @@ class Helpers {
                 throw CompileError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
         };
     }
-
-    // Get the path to a haxelib the user has installed
-    public static function libPath(haxelibName:String) {
-        return Prelude.assertProcess("haxelib", ["libpath", haxelibName]).trim();
-    }
 }

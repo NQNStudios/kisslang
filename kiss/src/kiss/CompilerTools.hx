@@ -76,7 +76,7 @@ class CompilerTools {
         var classPathFolders = classPath.split("/");
         while (classPathFolders.length > 0) {
             try {
-                Helpers.libPath(classPathFolders[classPathFolders.length - 1]);
+                Prelude.libPath(classPathFolders[classPathFolders.length - 1]);
                 break;
             } catch (e) {
                 classPathFolders.pop();
@@ -116,7 +116,7 @@ class CompilerTools {
             mainHxFile = args.mainHxFile;
             copyToFolder(mainHxFile);
         } else {
-            copyToFolder(mainHxFile, Path.join([Helpers.libPath("kiss"), "src", "kiss"]));
+            copyToFolder(mainHxFile, Path.join([Prelude.libPath("kiss"), "src", "kiss"]));
         }
 
         var mainClassName = mainHxFile.withoutDirectory().withoutExtension();

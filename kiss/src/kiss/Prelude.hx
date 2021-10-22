@@ -581,6 +581,11 @@ class Prelude {
         #end
     }
 
+    // Get the path to a haxelib the user has installed
+    public static function libPath(haxelibName:String) {
+        return assertProcess("haxelib", ["libpath", haxelibName]).trim();
+    }
+
     public static function filter<T>(l:Iterable<T>, ?p:(T) -> Bool):kiss.List<T> {
         if (p == null)
             p = Prelude.truthy;

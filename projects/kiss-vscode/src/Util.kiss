@@ -5,6 +5,8 @@
             options ,options
             result (ChildProcess.spawnSync command args options)]
         (if result.error
+                // TODO i can't remember if this needs to be a throw for some reason,
+                // but it seems like it's supposed to be (,onError ...)(return) like below
                 (throw "Error $result.error from $command ${args}: $result.stdout $result.stderr")
             (case result.status 
                 (0 null)

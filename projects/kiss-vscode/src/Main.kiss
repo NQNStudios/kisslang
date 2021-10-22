@@ -12,7 +12,6 @@
 (var &mut :KissConfig config null)
 
 (function :Void tryLoadConfig [&opt :String text]
-    // TODO if a config object is active and a shortcut panel is open, dispose the panel before we lose the handle in the current config object
     (let [handleConfigFailure
                 ->errorMessage {
                     (FileSystem.deleteDirectory activeConfigDir)

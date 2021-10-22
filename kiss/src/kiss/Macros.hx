@@ -49,7 +49,7 @@ class Macros {
 
             var libPath = switch (args[0].def) {
                 case StrExp(libName):
-                    Helpers.libPath(libName);
+                    Prelude.libPath(libName);
                 default:
                     throw CompileError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
             };
