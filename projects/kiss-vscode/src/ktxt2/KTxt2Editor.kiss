@@ -164,10 +164,9 @@
                 (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text)))
                 (doFor [idx element] (enumerate ktxt2Elements)
                     (case element
-                        // TODO make an objectWith macro for case that duplicates parameter names with the match expressions:
-                        ((Comment (object text text))
+                        ((Comment (objectWith text))
                             (commentElements text idx))
-                        ((Block (object source source output output outputLocked outputLocked))
+                        ((Block (objectWith source output outputLocked))
                             (blockElements source output outputLocked idx))))
             }
         (catch [error] (print "Error updating ktxt2 editor: ${error}"))))

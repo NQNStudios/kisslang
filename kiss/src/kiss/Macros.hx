@@ -771,9 +771,33 @@ class Macros {
         // their original call stacks. This is more convenient for debugging than trying to
         // comment out the "try" and its catches, and re-balance parens
         macros["letThrow"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(letThrow [thing] [catches...])");
+            wholeExp.checkNumArgs(1, null, "(letThrow <thing> <catches...>)");
             exps[0];
         };
+
+        macros["objectWith"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, null, "(objectWith <?[bindings...]> <fieldNames...>)");
+            var objectExps = try {
+                var l = Helpers.bindingList(exps[0], "field bindings for objectWith", true);
+                exps.shift();
+                l;
+            } catch (_notABindingList) {
+                [];
+            }
+
+            for (exp in exps) {
+                switch (exp.def) {
+                    case Symbol(_):
+                        objectExps.push(exp);
+                        objectExps.push(exp);
+                    default:
+                        throw CompileError.fromExp(exp, "invalid expression in (objectWith)");
+                }
+            }
+
+            var b = wholeExp.expBuilder();
+            b.callSymbol("object", objectExps);
+        }
 
         // The wildest code in Kiss to date
         // TODO test exprCase!!
