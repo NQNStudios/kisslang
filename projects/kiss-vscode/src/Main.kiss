@@ -120,7 +120,12 @@
         (context.subscriptions.push
             (KTxt2EditorProvider.register context))
 
-        (set builtinConfigDir (joinPath context.extensionPath "config"))
+        (set builtinConfigDir
+            (joinPath
+                (try
+                        (Prelude.libPath "kiss-vscode")
+                    (catch [e] context.extensionPath))
+                "config"))
         (set activeConfigDir (joinPath (userHome) ".kiss-vscode" "activeConfig"))
         (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
 
