@@ -22,11 +22,11 @@
 
 (function quickPick [:Array<String> strings]
     (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
-        chosenItem.label))
+        (when chosenItem chosenItem.label)))
 
 (function quickPickMap [:Map<String,Dynamic> stringMap]
     (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
-        (dictGet stringMap chosenItem.label)))
+        (when chosenItem (dictGet stringMap chosenItem.label))))
 
 // commands
 (defAlias &call executeCommand Vscode.commands.executeCommand)
@@ -43,6 +43,18 @@
     `(if ,v
             {,@body}
         (awaitLet [,v (inputBox)]
+            ,@body)))
+
+(defMacro withValueOrQuickPick [v options &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (quickPick ,options)]
+            ,@body)))
+
+(defMacro withValueOrQuickPickMap [v options &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (quickPickMap ,options)]
             ,@body)))
 
 // This has to be a macro so it can return from tryLoadConfig
