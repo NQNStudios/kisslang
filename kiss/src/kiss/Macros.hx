@@ -645,7 +645,7 @@ class Macros {
                         b.list([b.symbol("reason")]),
                         b.callSymbol("#when", [
                             b.symbol("vscode"),
-                            b.callSymbol("errorMessage", [error]),
+                            b.callSymbol("Vscode.window.showErrorMessage", [error]),
                         ]),
                         // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
                         b.callSymbol("throw", [
