@@ -10,7 +10,11 @@ typedef MessageFromEditor = {
     ?text:String,
     ?start:kiss.Stream.Position,
     ?end:kiss.Stream.Position,
-    ?position:kiss.Stream.Position
+    ?position:kiss.Stream.Position,
+    ?source:String,
+    ?output:String,
+    ?outputStart:kiss.Stream.Position,
+    ?outputEnd:kiss.Stream.Position
 };
 
 @:build(kiss.Kiss.build())

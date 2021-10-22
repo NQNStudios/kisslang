@@ -32,18 +32,31 @@
 			->:Void [e]
 				(case (the MessageFromEditor e)
 					((object type "print" text message)
-						(Vscode.window.showInformationMessage message))
-					((object type "replace" text text start start end end)
+						(infoMessage message))
+					((objectWith [type "replace"] text start end)
 						(makeEdit
 							->edit (edit.replace document.uri (rangeFromStartEnd start end) text)))
-					((object type "insert" text text position position)
+					((objectWith [type "insert"] text position)
 						(makeEdit
 							->edit (edit.insert document.uri (streamPosToDocumentPos position) text)))
-					((object type "deleteBlock" start start end end)
+					((objectWith [type "deleteBlock"] start end)
 						(makeEdit
 							->edit (edit.delete document.uri (new Range (streamPosToOffsetDocumentPos start -KTxt2.blockStartEnd.length) (streamPosToOffsetDocumentPos end KTxt2.blockStartEnd.length)))))
+					((objectWith [type "tryAutoConvert"] source output outputStart outputEnd)
+						(let [[base sourceExt outputExt _] (document.fileName.split ".")
+								conversions
+									(KTxt2.validConversions "${base}.${sourceExt}" "${base}.${outputExt}" source)]
+							(if (> 0 (Lambda.count conversions))
+									(let [overwrite (if output "" "Overwrite")
+											chosenConversion (if (= 1 (Lambda.count conversions)) (first (collect (conversions.iterator))) null)]
+										(withValueOrQuickPick overwrite ["Overwrite" "Cancel"]
+											(when (= "Overwrite" overwrite)
+												(withValueOrQuickPickMap chosenConversion conversions
+													(makeEdit
+														->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) (chosenConversion.convert source)))))))
+								(errorMessage "No automatic conversions are valid for the chosen block."))))
 					(otherwise
-						(Vscode.window.showErrorMessage "bad message $e from KTxt2Editor"))))
+						(errorMessage "bad message $e from KTxt2Editor"))))
 
 		(updateWebview))
 	null)

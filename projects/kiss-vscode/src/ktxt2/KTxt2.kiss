@@ -78,3 +78,20 @@
                         (break)))
                 (elements.push (Block block))))
             elements))
+
+(var :Array<KTxt2Conversion> conversions [])
+
+(function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion))
+
+(function :Map<String,KTxt2Conversion> validConversions [sourceFile outputFile source]
+    (let [validMap (new Map)]
+        (doFor c conversions
+            (case c
+                ((when (and
+                            (= sourceType (sourceFile.extension))
+                            (= outputType (outputFile.extension))
+                            (canConvert source))
+                        (objectWith sourceType outputType canConvert name))
+                    (dictSet validMap name c))
+                (otherwise {})))
+        validMap))
