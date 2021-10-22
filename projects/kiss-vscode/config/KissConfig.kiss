@@ -136,23 +136,25 @@
     (let [&mut keyListener null]
         (set keyListener (shortcutPanel.webview.onDidReceiveMessage
                                 ->:Void key
-                                    (if (prefixMap.exists key)
-                                            {
-                                                (keyListener.dispose)
-                                                (case (dictGet prefixMap key)
-                                                    ((Prefix innerMap)
-                                                        (showShortcutPanel innerMap))
-                                                    ((Final command)
-                                                        // TODO dispose() for some reason doesn't take effect until
-                                                        // the awaitLet below finishes its work...
-                                                        (shortcutPanel.dispose)
-                                                        (if documentBeforeShortcut
-                                                                (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
-                                                                    (_runCommand command selectedTextBeforeShortcut))
-                                                            (_runCommand command selectedTextBeforeShortcut))))
-                                            }
-                                        
-                                        (warningMessage "$key is not mapped to a shortcut in this context")))))
+                                    (case (the String key)
+                                        ((when (prefixMap.exists key) key)
+                                            (keyListener.dispose)
+                                            (case (dictGet prefixMap key)
+                                                ((Prefix innerMap)
+                                                    (showShortcutPanel innerMap))
+                                                ((Final command)
+                                                    // TODO dispose() for some reason doesn't take effect until
+                                                    // the awaitLet below finishes its work...
+                                                    (shortcutPanel.dispose)
+                                                    (if documentBeforeShortcut
+                                                            (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
+                                                                (_runCommand command selectedTextBeforeShortcut))
+                                                        (_runCommand command selectedTextBeforeShortcut)))))
+
+                                    ("Escape"
+                                        (shortcutPanel.dispose))    
+
+                                    (otherwise (warningMessage "$key is not mapped to a shortcut in this context"))))))
     (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
     (shortcutPanel.webview.postMessage (object command "focus")))
 
