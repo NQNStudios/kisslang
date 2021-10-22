@@ -143,6 +143,8 @@
                                                     ((Prefix innerMap)
                                                         (showShortcutPanel innerMap))
                                                     ((Final command)
+                                                        // TODO dispose() for some reason doesn't take effect until
+                                                        // the awaitLet below finishes its work...
                                                         (shortcutPanel.dispose)
                                                         (if documentBeforeShortcut
                                                                 (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
