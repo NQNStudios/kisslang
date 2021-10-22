@@ -8,6 +8,7 @@
 (var unlockedStart "|>|")
 (var lockedStart "|!|")
 (var outputStarts [unlockedStart lockedStart])
+(var emptyBlock "${blockStartEnd}${unlockedStart}${blockStartEnd}")
 
 // Return [sourceFile outputFile]
 (function :Array<String> splitFileContents [:Stream fileStream]

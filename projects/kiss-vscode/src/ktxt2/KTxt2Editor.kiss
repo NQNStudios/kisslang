@@ -37,14 +37,27 @@
             }
             EDIT_TIMEOUT_MILLI)))
 
-(function pElement [text idx]
-    (let [p (document.createElement "p")]
+(function commentElements [text idx]
+    (let [p (document.createElement "p")
+            blockLinkBefore (document.createElement "a")
+            blockLinkAfter (document.createElement "a")]
+        // Links that allow inserting a block between existing blocks:
+        (set blockLinkBefore.innerHTML "+")
+        (blockLinkBefore.addEventListener "click"
+            ->(insertBlockBeforeComment (nth ktxt2Elements idx)))
+        (set blockLinkAfter.innerHTML "+")
+        (blockLinkAfter.addEventListener "click"
+            ->(insertBlockAfterComment (nth ktxt2Elements idx)))
+
+        // Paragraph displaying and allowing editing the comment
         (set p.innerHTML text)
         (p.setAttribute "style" "white-space: pre;")
         (p.setAttribute "contenteditable" "true")
         (p.addEventListener "input"
             ->(addEditTimeout idx ->(replaceComment (nth ktxt2Elements idx) p.innerHTML)))
-        (content.appendChild p)))
+        (content.appendChild blockLinkBefore)
+        (content.appendChild p)
+        (content.appendChild blockLinkAfter)))
 
 (function toPlaintext [:String text]
     (.htmlUnescape
@@ -58,6 +71,18 @@
     (case element
         ((Comment (object text text start start end end))
             (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+        (otherwise (throw "element $element is not a comment"))))
+
+(function insertBlockBeforeComment [element]
+    (case element
+        ((Comment (object start position))
+            (vscode.postMessage (object type "insert" text "${KTxt2.emptyBlock}\n" position position)))
+        (otherwise (throw "element $element is not a comment"))))
+
+(function insertBlockAfterComment [element]
+    (case element
+        ((Comment (object end position))
+            (vscode.postMessage (object type "insert" text "${KTxt2.emptyBlock}\n" position position)))
         (otherwise (throw "element $element is not a comment"))))
 
 (function replaceSourceBlock [element newText]
@@ -113,7 +138,7 @@
                     (case element
                         // TODO make an objectWith macro for case that duplicates parameter names with the match expressions:
                         ((Comment (object text text))
-                            (pElement text idx))
+                            (commentElements text idx))
                         ((Block (object source source output output outputLocked outputLocked))
                             (blockElements source output outputLocked idx))))
             }

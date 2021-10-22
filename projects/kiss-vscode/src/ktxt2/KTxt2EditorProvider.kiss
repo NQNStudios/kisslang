@@ -33,6 +33,9 @@
 					((object type "replace" text text start start end end)
 						(makeEdit
 							->edit (edit.replace document.uri (rangeFromStartEnd start end) text)))
+					((object type "insert" text text position position)
+						(makeEdit
+							->edit (edit.insert document.uri (streamPosToDocumentPos position) text)))
 					(otherwise
 						(Vscode.window.showErrorMessage "bad message $e from KTxt2Editor"))))
 
