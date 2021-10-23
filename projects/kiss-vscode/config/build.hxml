@@ -2,5 +2,6 @@ args.hxml
 -lib hxnodejs
 -lib vscode
 -lib kiss
+-lib kiss-vscode
 KissConfig
 -js config.js

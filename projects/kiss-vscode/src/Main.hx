@@ -1,6 +1,7 @@
 #if !test
 import vscode.*;
 import ktxt2.*;
+import ktxt2.KTxt2.KTxt2Conversion;
 #end
 import Sys;
 import sys.io.File;
@@ -23,6 +24,9 @@ typedef KissConfig = {
     runCommand:Command,
     runLastCommand:Command,
     runKeyboardShortcut:Command,
+    #if !test
+    conversions:Array<KTxt2Conversion>,
+    #end
     init:() -> Void
 };
 

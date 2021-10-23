@@ -2,7 +2,6 @@
  * Aliases
  */
 
-
 // output 
 (defAlias &call infoMessage Vscode.window.showInformationMessage)
 (defAlias &call warningMessage Vscode.window.showWarningMessage)

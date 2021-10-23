@@ -239,3 +239,8 @@
             string Std.string
             random Std.random
             int Std.int)))
+
+(#unless test
+    (var :Array<KTxt2Conversion> conversions [])
+
+    (function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion)))

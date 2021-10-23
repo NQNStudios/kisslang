@@ -45,8 +45,8 @@
 					((objectWith [type "tryAutoConvert"] source output outputStart outputEnd)
 						(let [[base sourceExt outputExt _] (document.fileName.split ".")
 								conversions
-									(KTxt2.validConversions "${base}.${sourceExt}" "${base}.${outputExt}" source)]
-							(if (> 0 (Lambda.count conversions))
+									(KTxt2.validConversions Main.config.conversions "${base}.${sourceExt}" "${base}.${outputExt}" source)]
+							(if (> (Lambda.count conversions) 0)
 									(let [overwrite (if output "" "Overwrite")
 											chosenConversion (if (= 1 (Lambda.count conversions)) (first (collect (conversions.iterator))) null)]
 										(withValueOrQuickPick overwrite ["Overwrite" "Cancel"]

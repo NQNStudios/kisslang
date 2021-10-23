@@ -12,6 +12,7 @@ import hscript.Expr;
 import haxe.io.Path;
 import sys.io.File;
 import sys.FileSystem;
+import ktxt2.KTxt2;
 
 using haxe.io.Path;
 using StringTools;

@@ -79,11 +79,7 @@
                 (elements.push (Block block))))
             elements))
 
-(var :Array<KTxt2Conversion> conversions [])
-
-(function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion))
-
-(function :Map<String,KTxt2Conversion> validConversions [sourceFile outputFile source]
+(function :Map<String,KTxt2Conversion> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
     (let [validMap (new Map)]
         (doFor c conversions
             (case c
