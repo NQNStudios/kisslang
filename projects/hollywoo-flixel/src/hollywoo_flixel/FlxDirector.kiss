@@ -1,0 +1,7 @@
+(defNew [])
+
+(method :Void showSet [:FlxSetState set :Appearance appearance :Continuation cc]
+    (print "Shneezy"))
+
+(method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,FlxActorSprite> character :Appearance appearance :Continuation cc]
+    (print "Character shneezy"))

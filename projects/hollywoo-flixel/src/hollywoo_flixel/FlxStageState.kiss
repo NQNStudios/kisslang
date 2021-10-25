@@ -1,0 +1,11 @@
+(prop &mut :FlxDirector director)
+(prop &mut :FlxStage stage)
+
+(method &override :Void create []
+    (super.create)
+    (set director (new FlxDirector))
+    //(this.run)
+    )
+
+(method &override :Void update [:Float elapsed]
+    (super.update elapsed))

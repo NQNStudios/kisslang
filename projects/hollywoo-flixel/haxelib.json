@@ -1,0 +1,17 @@
+{
+	"name": "hollywoo-flixel",
+	"description": "",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": "",
+		"hollywoo": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
