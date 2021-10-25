@@ -53,7 +53,7 @@ class EmbeddedScript {
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         var loadingDirectory = Path.directory(classPath);
-        var classFields = Context.getBuildFields();
+        var classFields = []; // Kiss.build() will already include Context.getBuildFields()
 
         var commandList:Array<Expr> = [];
 
