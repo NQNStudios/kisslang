@@ -6,7 +6,14 @@
 
 (method &override :Void create []
     (super.create)
-    (add (.loadGraphic (new FlxSprite 0 0) set)))
+    (let [setSprite (new FlxSprite 0 0)]
+        (setSprite.loadGraphic set)
+        (when (> setSprite.width FlxG.width)
+            (setSprite.setGraphicSize FlxG.width))
+        (when (> setSprite.height FlxG.height)
+            (setSprite.setGraphicSize 0 FlxG.height))
+        (setSprite.screenCenter)
+        (add setSprite)))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed))

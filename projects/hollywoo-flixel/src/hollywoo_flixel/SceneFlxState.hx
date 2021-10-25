@@ -4,6 +4,7 @@ import kiss.Prelude;
 import kiss.List;
 import flixel.FlxState;
 import flixel.FlxSprite;
+import flixel.FlxG;
 import hollywoo.Scene;
 import hollywoo_flixel.FlxMovie;
 
