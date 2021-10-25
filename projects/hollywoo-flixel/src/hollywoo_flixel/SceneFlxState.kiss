@@ -1,0 +1,12 @@
+(defNew [&prop :String set &prop :SceneTime time &prop :ScenePerspective perspective]
+    [
+        :Map<String,Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new Map)
+    ]
+    (super))
+
+(method &override :Void create []
+    (super.create)
+    (add (.loadGraphic (new FlxSprite 0 0) set)))
+
+(method &override :Void update [:Float elapsed]
+    (super.update elapsed))

@@ -1,7 +1,10 @@
 package hollywoo_flixel;
 
 import flixel.FlxState;
-import hollywoo.Stage;
+import flixel.FlxSprite;
+import hollywoo.Movie;
+import hollywoo_flixel.ActorFlxSprite;
+import hollywoo_flixel.SceneFlxState;
 
 enum FlxStagePosition {
     Left;
@@ -22,7 +25,4 @@ enum FlxScreenPosition {
     UpperCenter;
 }
 
-typedef FlxStage = Stage<FlxSetState, FlxStagePosition, FlxStageFacing, FlxScreenPosition, FlxActorSprite>;
-
-@:build(kiss.Kiss.build())
-class FlxStageState extends FlxState {}
+class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite> {}

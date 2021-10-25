@@ -10,7 +10,6 @@ import haxe.io.Path;
 import kiss.Kiss;
 import kiss.cloner.Cloner;
 
-
 typedef Continuation = () -> Void;
 typedef AsyncCommand = (AsyncEmbeddedScript, Continuation) -> Void;
 

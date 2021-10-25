@@ -1,2 +1,6 @@
+// Mostly immutable, reusable resources:
+(prop :Map<String,Set> sets (new Map))
+(prop :Map<String,Actor> actors (new Map))
+    
 // "View" in the Model-View-Controller architecture:
 (defNew [&prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor> director] (super))

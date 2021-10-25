@@ -5,4 +5,4 @@ import kiss.List;
 import flixel.FlxSprite;
 
 @:build(kiss.Kiss.build())
-class FlxActorSprite extends FlxSprite {}
+class ActorFlxSprite extends FlxSprite {}

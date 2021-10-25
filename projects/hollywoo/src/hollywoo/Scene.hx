@@ -1,7 +1,5 @@
 package hollywoo;
 
-import kiss.EmbeddedScript;
-
 enum SceneTime {
     Morning;
     Day;
@@ -27,17 +25,3 @@ typedef Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor> = {
     time:SceneTime,
     perspective:ScenePerspective
 };
-
-/**
- * Model of a Hollywoo film
- */
-@:build(kiss.Kiss.build())
-class Stage<Set, StagePosition, StageFacing, ScreenPosition, Actor> extends kiss.AsyncEmbeddedScript {
-    // Mostly immutable, reusable resources:
-    var sets:Map<String, Set> = [];
-    var actors:Map<String, Actor> = [];
-
-    
-    // Mutable representation of frames in time:
-    var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
-}

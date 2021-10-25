@@ -1,7 +1,7 @@
 (defNew [])
 
-(method :Void showSet [:FlxSetState set :Appearance appearance :Continuation cc]
-    (print "Shneezy"))
+(method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
+    (FlxG.switchState (cast scene SceneFlxState)))
 
-(method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,FlxActorSprite> character :Appearance appearance :Continuation cc]
+(method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
     (print "Character shneezy"))

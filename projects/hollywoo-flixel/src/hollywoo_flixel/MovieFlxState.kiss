@@ -1,11 +1,10 @@
 (prop &mut :FlxDirector director)
-(prop &mut :FlxStage stage)
+(prop &mut :FlxMovie movie)
 
 (method &override :Void create []
     (super.create)
     (set director (new FlxDirector))
-    //(this.run)
-    )
+    (set movie (new FlxMovie director)))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed))
