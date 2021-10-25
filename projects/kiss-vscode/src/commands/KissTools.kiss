@@ -34,4 +34,19 @@ import kiss.List;
 class ${className} {}
 ")
                 (File.saveContent kissFile "")
-                (Vscode.window.showTextDocument (Uri.file kissFile))))))
+                (showTextDocument (Uri.file kissFile))))))
+
+(function correspondingFile [:String kissOrHxFile]
+    (let [base
+                (kissOrHxFile.withoutExtension)
+            ext
+                (kissOrHxFile.extension)
+            correspondingExt
+                (case ext
+                    ("hx" "kiss")
+                    ("kiss" "hx")
+                    (otherwise (throw "No corresponding file for ${kissOrHxFile}")))]
+        "${base}.${correspondingExt}"))
+
+(function showCorrespondingFile [&opt _]
+    (showTextDocument (Uri.file (correspondingFile activeTextEditor.document.fileName))))

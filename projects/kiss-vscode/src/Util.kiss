@@ -38,6 +38,12 @@
             (set promise (promise.then iteration)))
         promise))
 
+// Other
+
+(defAlias &call showTextDocument Vscode.window.showTextDocument)
+
+// Macros for implementing commands in Kiss
+
 (defMacro withValueOrInputBox [v &body body]
     `(if ,v
             {,@body}

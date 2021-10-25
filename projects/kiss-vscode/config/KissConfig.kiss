@@ -79,7 +79,7 @@
     (whenLet [text (selectedText)] (set selectedTextBeforeShortcut text))
     (if activeTextEditor
             (set documentBeforeShortcut activeTextEditor.document)
-        (set documentBeforeShortcut null))
+        (unless prefixMap (set documentBeforeShortcut null)))
 
     // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
     (unless prefixMap 
@@ -217,9 +217,10 @@
     // KissTools.kiss:
     (registerCommand "[K]iss: [e]valuate and print an expression" evalAndPrint)
     (registerCommand "[K]iss: create [n]ew kiss class" newKissClass)
+    (registerCommand "[K]iss: open corresponding .kiss/.hx [f]ile" showCorrespondingFile)
     // ExtensionTools.kiss:
     (registerCommand "[K]iss: [u]pdate Kiss-VSCode" updateKissVscode)
-    (registerCommand "[K]iss: [t]est and [u]pdate Kiss-VSCode" updateKissVscode))
+    (registerCommand "[K]iss: [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []
