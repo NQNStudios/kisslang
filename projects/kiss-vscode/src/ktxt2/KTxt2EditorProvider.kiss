@@ -55,6 +55,8 @@
 													(makeEdit
 														->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) (chosenConversion.convert source)))))))
 								(errorMessage "No automatic conversions are valid for the chosen block."))))
+					((object type "export")
+						(exportSourceAndOutputFiles document))
 					(otherwise
 						(errorMessage "bad message $e from KTxt2Editor"))))
 
@@ -80,3 +82,14 @@
 				<script src=\"${scriptUri}\"></script>
 			</body>
 			</html>"))
+
+(function exportSourceAndOutputFiles [document]
+    (let [:String ktxt2FullFilename document.fileName
+			[sourceText outputText] (KTxt2.extractFileContents (Stream.fromFile ktxt2FullFilename))
+            ktxt2Directory (ktxt2FullFilename.directory)
+            ktxt2Filename (ktxt2FullFilename.withoutDirectory)
+            [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
+            sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
+            outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
+        (File.saveContent sourceFilename sourceText)
+		(File.saveContent outputFilename outputText)))

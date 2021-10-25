@@ -2,8 +2,12 @@ package ktxt2;
 
 import kiss.Prelude;
 import kiss.List;
+import kiss.Stream;
 import vscode.*;
 import js.lib.Promise;
+import sys.io.File;
+
+using haxe.io.Path;
 
 typedef MessageFromEditor = {
     type:String,

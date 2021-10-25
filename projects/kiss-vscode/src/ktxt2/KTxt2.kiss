@@ -10,24 +10,7 @@
 (var outputStarts [unlockedStart lockedStart])
 (var emptyBlock "${blockStartEnd}${unlockedStart}${blockStartEnd}")
 
-// Return [sourceFile outputFile]
-(function :Array<String> splitFileContents [:Stream fileStream]
-    (let [&mut sourceText ""
-            &mut outputText ""]
-        (loop
-            (case (fileStream.takeUntilAndDrop blockStartEnd)
-                ((Some _)
-                    (let [sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
-                                            ->(fileStream.takeUntilOneOf outputStarts))]
-                        (+= sourceText "${sourceBlock}\n"))
-                    (assert (apply = (for outputStart outputStarts outputStart.length)) "all output starts must be the same length!")
-                    (fileStream.dropChars .length (first outputStarts))
-                    (let [outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
-                                            ->(fileStream.takeUntilAndDrop blockStartEnd))]
-                        (+= outputText "${outputBlock}\n")))
-                (None
-                    (break))))
-        [sourceText outputText]))
+
 
 (function :Array<KTxt2Element> splitFileElements [:Stream fileStream]
     (let [elements []]
@@ -78,6 +61,23 @@
                         (break)))
                 (elements.push (Block block))))
             elements))
+
+// Return [sourceFile outputFile]
+(function :Array<String> extractFileContents [:Stream fileStream]
+    (let [&mut sourceText ""
+            &mut outputText ""
+            interp (new KissInterp)]
+        (doFor ktxtElement (splitFileElements fileStream)
+            (case ktxtElement
+                ((Block (objectWith source output))
+                    (+= sourceText source)
+                    (dictSet interp.variables "source" source)
+                    (+= outputText
+                        (let [escapedOutput
+                                    (output.replace "\"" "\\\"")]
+                            (interp.evalKiss "\"${escapedOutput}\""))))
+                (otherwise)))
+        [sourceText outputText]))
 
 (function :Map<String,KTxt2Conversion> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
     (let [validMap (new Map)]

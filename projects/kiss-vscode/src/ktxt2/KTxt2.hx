@@ -2,8 +2,10 @@ package ktxt2;
 
 import kiss.Stream;
 import kiss.Prelude;
+import kiss.KissInterp;
 
 using haxe.io.Path;
+using StringTools;
 
 typedef KTxt2Block = {
     source:String,
