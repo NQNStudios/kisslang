@@ -144,6 +144,9 @@
             (convertLink.addEventListener "click"
                 ->(tryAutoConvert (nth ktxt2Elements idx)))
             (outerDiv.appendChild convertLink))
+        (when locked
+            (set sourceDiv.disabled true)
+            (set outputDiv.disabled true))
 
         (outerDiv.appendChild outputDiv)
 
