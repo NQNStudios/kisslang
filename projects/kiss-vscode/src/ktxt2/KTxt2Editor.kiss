@@ -38,7 +38,7 @@
             EDIT_TIMEOUT_MILLI)))
 
 (function commentElements [text idx]
-    (let [p (document.createElement "p")
+    (let [:TextAreaElement p (cast (document.createElement "textarea")) // keeping variable name the same, but it's a textarea not a <p> element
             blockLinkBefore (document.createElement "a")
             blockLinkAfter (document.createElement "a")]
         // Links that allow inserting a block between existing blocks:
@@ -50,22 +50,16 @@
             ->(insertBlockAfterComment (nth ktxt2Elements idx)))
 
         // Paragraph displaying and allowing editing the comment
-        (set p.innerHTML text)
-        (p.setAttribute "style" "white-space: pre;")
-        (p.setAttribute "contenteditable" "true")
+        (set p.value text)
         (p.addEventListener "input"
-            ->(addEditTimeout idx ->(replaceComment (nth ktxt2Elements idx) p.innerHTML)))
+            ->(addEditTimeout idx ->{(p.blur)(replaceComment (nth ktxt2Elements idx) p.value)}))
         (content.appendChild blockLinkBefore)
         (content.appendChild p)
         (content.appendChild blockLinkAfter)))
 
+// This used to turn HTML to plaintext, but with textareas it's no longer needed:
 (function toPlaintext [:String text]
-    (.htmlUnescape
-        (.replace
-            (.replace
-                (text.replace "<div>" "\n")
-                "</div>" "")
-            "<br>" "\n")))
+    text)
 
 (function replaceComment [element newText]
     (case element
@@ -117,8 +111,8 @@
 
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
-            sourceDiv (document.createElement "div")
-            outputDiv (document.createElement "div")
+            :TextAreaElement sourceDiv (cast (document.createElement "textarea")) // leaving variable names the same, but these are not divs
+            :TextAreaElement outputDiv (cast (document.createElement "textarea"))
             convertLink (document.createElement "a")
             xLink (document.createElement "a")
             lockLink (document.createElement "a")]
@@ -126,16 +120,14 @@
         (outerDiv.setAttribute "style" "display: flex;")
         (sourceDiv.setAttribute "style" "width: 50%; white-space: pre;")
         (sourceDiv.setAttribute "class" "block")
-        (sourceDiv.setAttribute "contenteditable" "true")
         (sourceDiv.addEventListener "input"
-            ->(addEditTimeout idx ->(replaceSourceBlock (nth ktxt2Elements idx) sourceDiv.innerHTML)))
-        (set sourceDiv.innerHTML source)
+            ->(addEditTimeout idx ->{(sourceDiv.blur)(replaceSourceBlock (nth ktxt2Elements idx) sourceDiv.value)}))
+        (set sourceDiv.value source)
         (outputDiv.setAttribute "style" "flex-grow: 1; white-space: pre;")
         (outputDiv.setAttribute "class" "block")
-        (outputDiv.setAttribute "contenteditable" "true")
         (outputDiv.addEventListener "input"
-            ->(addEditTimeout idx ->(replaceOutputBlock (nth ktxt2Elements idx) outputDiv.innerHTML)))
-        (set outputDiv.innerHTML output)
+            ->(addEditTimeout idx ->{(outputDiv.blur)(replaceOutputBlock (nth ktxt2Elements idx) outputDiv.value)}))
+        (set outputDiv.value output)
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")

@@ -3,6 +3,7 @@ package ktxt2;
 import js.html.Document;
 import js.html.Window;
 import js.html.Element;
+import js.html.TextAreaElement;
 import ktxt2.EditorExterns;
 import ktxt2.KTxt2;
 import kiss.Prelude;
