@@ -51,6 +51,9 @@
 
         // Paragraph displaying and allowing editing the comment
         (set p.value text)
+        (set p.rows .length (text.split "\n"))
+        (p.setAttribute "class" "block")
+        (p.setAttribute "style" "width: 90%;")
         (p.addEventListener "input"
             ->(addEditTimeout idx ->{(p.blur)(replaceComment (nth ktxt2Elements idx) p.value)}))
         (content.appendChild blockLinkBefore)
@@ -119,16 +122,18 @@
             exportLink (document.createElement "a")]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
-        (sourceDiv.setAttribute "style" "width: 50%; white-space: pre;")
+        (sourceDiv.setAttribute "style" "width: 50%;")
         (sourceDiv.setAttribute "class" "block")
         (sourceDiv.addEventListener "input"
             ->(addEditTimeout idx ->{(sourceDiv.blur)(replaceSourceBlock (nth ktxt2Elements idx) sourceDiv.value)}))
         (set sourceDiv.value source)
-        (outputDiv.setAttribute "style" "flex-grow: 1; white-space: pre;")
+        (set sourceDiv.rows .length (source.split "\n"))
+        (outputDiv.setAttribute "style" "flex-grow: 1;")
         (outputDiv.setAttribute "class" "block")
         (outputDiv.addEventListener "input"
             ->(addEditTimeout idx ->{(outputDiv.blur)(replaceOutputBlock (nth ktxt2Elements idx) outputDiv.value)}))
         (set outputDiv.value output)
+        (set outputDiv.rows .length (output.split "\n"))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")

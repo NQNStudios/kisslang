@@ -75,6 +75,8 @@
 				<style>
 					.block {
 						border: 1px solid white;
+						background-color: #222222;
+						color: #eeeeee;
 					}
 				</style>
 			</head>
