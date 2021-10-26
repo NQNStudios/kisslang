@@ -199,7 +199,12 @@ class Kiss {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
 
-        var fullPath = Path.join([loadingDirectory, kissFile]);
+        var fullPath = if (Path.isAbsolute(kissFile)) {
+            kissFile;
+        } else {
+            Path.join([loadingDirectory, kissFile]);
+        };
+
         if (k.loadedFiles.exists(fullPath)) {
             return k.loadedFiles[fullPath];
         }

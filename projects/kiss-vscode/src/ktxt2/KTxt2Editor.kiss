@@ -24,7 +24,7 @@
         (updateContent state.text)))
 
 (var &mut :Map<Int,Int> editTimeoutHandles (new Map))
-(var EDIT_TIMEOUT_MILLI 1000)
+(var EDIT_TIMEOUT_MILLI 2000)
 (function :Void addEditTimeout [idx :Void->Void handler]
     (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
         (window.clearTimeout activeTimeoutForIndex))

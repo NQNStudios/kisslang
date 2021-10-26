@@ -8,6 +8,7 @@ import sys.io.File;
 import haxe.io.Path;
 #end
 import kiss.Kiss;
+import kiss.Prelude;
 import kiss.cloner.Cloner;
 
 typedef Continuation = () -> Void;
@@ -40,7 +41,7 @@ class AsyncEmbeddedScript {
     public function new() {}
 
     #if macro
-    public static function build(dslFile:String, scriptFile:String):Array<Field> {
+    public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
         var k = Kiss.defaultKissState();
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
@@ -50,11 +51,15 @@ class AsyncEmbeddedScript {
 
         var commandList:Array<Expr> = [];
 
+        if (dslHaxelib.length > 0) {
+            dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]); 
+        }
+
         // This brings in the DSL's functions and global variables.
         // As a side-effect, it also fills the KissState with the macros and reader macros that make the DSL syntax
         classFields = classFields.concat(Kiss.build(dslFile, k));
-        scriptFile = Path.join([loadingDirectory, scriptFile]);
 
+        scriptFile = Path.join([loadingDirectory, scriptFile]);
         Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
             var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
