@@ -1,6 +1,47 @@
 // Mostly immutable, reusable resources:
 (prop :Map<String,Set> sets (new Map))
 (prop :Map<String,Actor> actors (new Map))
-    
-// "View" in the Model-View-Controller architecture:
-(defNew [&prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor> director] (super))
+
+// TODO for some reason this won't work when declared in Kiss syntax:
+// Mutable representation of frames in time:
+// var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
+(prop :Map<String,Bool> shownScenes (new Map))
+
+(defNew
+    [
+        // "View" in the Model-View-Controller architecture:
+        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor> director
+    ]
+
+    (super))
+
+(method newSet [name :Set set :Continuation cc]
+    (dictSet sets name set)
+    (cc))
+
+(method newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective :Continuation cc]
+    (dictSet scenes name (objectWith
+                                [
+                                    set
+                                        (dictGet sets setKey)
+                                    characters
+                                        (new Map)
+                                ]
+                                time
+                                perspective))
+    (cc))
+
+(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor> scene :Continuation cc]
+    (dictSet scenes name scene)
+    (cc))
+
+(method setScene [name :Continuation cc]
+    (director.showScene
+        (dictGet scenes name)
+        (if (dictGet shownScenes name)
+                ReAppearance
+            {
+                (dictSet shownScenes name true)
+                FirstAppearance
+            })
+        cc))

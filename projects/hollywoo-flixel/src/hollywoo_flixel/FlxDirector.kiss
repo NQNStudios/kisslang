@@ -33,3 +33,7 @@
             //}
         )
         )
+
+(method showDialog [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :String dialog :Continuation cc]
+    // TODO show the dialog
+    (cc))

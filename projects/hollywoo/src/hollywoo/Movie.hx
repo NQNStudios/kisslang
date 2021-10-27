@@ -1,6 +1,8 @@
 package hollywoo;
 
 import kiss.AsyncEmbeddedScript;
+import kiss.Prelude;
+import hollywoo.Scene;
 
 /**
  * Model/controller of a Hollywoo film, and main execution script

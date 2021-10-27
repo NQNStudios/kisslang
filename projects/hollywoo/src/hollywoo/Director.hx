@@ -13,4 +13,5 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor> {
     function showScene(scene:Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>, appearance:Appearance, cc:Continuation):Void;
     function showCharacter(character:Character<StagePosition, StageFacing, Actor>, appearance:Appearance, cc:Continuation):Void;
     function waitForInputOrDelay(delaySeconds:Float, cc:Continuation):Void;
+    function showDialog(character:Character<StagePosition, StageFacing, Actor>, dialog:String, cc:Continuation):Void;
 }
