@@ -29,3 +29,10 @@
     rassert b
     rassert fluffers
     (Assert.pass))
+
+(function _testCommentAtBlockEnd []
+    {
+        (+ 1 2)
+        // Comment
+    }
+    (Assert.pass))
