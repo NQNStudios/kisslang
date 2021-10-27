@@ -1,7 +1,35 @@
-(defNew [])
+(prop :FlxActionDigital continueAction) 
+(prop actionManager (new FlxActionManager))
+
+(defNew []
+    (set continueAction (new FlxActionDigital "Continue" onContinue))
+    // TODO allow configuring continue keys -- any key, specifically mapped keys, etc.
+    (continueAction.addKey SPACE JUST_PRESSED)
+    (continueAction.addMouse LEFT JUST_PRESSED)
+    (actionManager.addAction continueAction)
+    (FlxG.inputs.add actionManager)
+    (set actionManager.resetOnStateSwitch NONE))
 
 (method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
-    (FlxG.switchState (cast scene SceneFlxState)))
+    (FlxG.switchState (cast scene SceneFlxState))
+    (cc))
 
 (method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
-    (print "Character shneezy"))
+    (print "Character shneezy")
+    (cc))
+
+(prop &mut :Null<Continuation> nextCC)
+(method onContinue [:FlxActionDigital continueAction]
+    (whenLet [cc nextCC]
+        (set nextCC null)
+        (cc)))
+
+(method :Void waitForInputOrDelay [:Float delaySeconds :Continuation cc]
+    // TODO allow user to choose between automatic delays and continue checks
+    (if true
+            //{
+                (set nextCC cc)
+                // TODO show an indicator that input is needed
+            //}
+        )
+        )

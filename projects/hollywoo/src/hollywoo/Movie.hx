@@ -3,7 +3,7 @@ package hollywoo;
 import kiss.AsyncEmbeddedScript;
 
 /**
- * Model of a Hollywoo film
+ * Model/controller of a Hollywoo film, and main execution script
  */
 @:build(kiss.Kiss.build())
 class Movie<Set, StagePosition, StageFacing, ScreenPosition, Actor> extends AsyncEmbeddedScript {
