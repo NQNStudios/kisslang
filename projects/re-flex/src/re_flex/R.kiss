@@ -1,0 +1,29 @@
+(var anyChar ".")
+(var start "^")
+(var end "\$")
+
+(function :String _group [:Array<Dynamic> exprs]
+    (+ "(" (apply + exprs) ")"))
+
+(var group (Reflect.makeVarArgs _group))
+
+(function :String escape [:String str]
+    (group (EReg.escape str)))
+
+(function :String _oneOf [:Array<Dynamic> exprs]
+    (group (exprs.join "|")))
+
+(var oneOf (Reflect.makeVarArgs _oneOf))
+
+(function :String repeat [:String expr &opt :Int min :Int max]
+    (apply group
+        (concat
+            (for _ (range min) expr)
+            (cond
+                // unlimited repetitions after minimum if max is null:
+                (!max
+                    [(group expr) "*"])
+                ((= max min)
+                    [])
+                (true
+                    (for _ (range (- max min)) (oneOf expr "")))))))

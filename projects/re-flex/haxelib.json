@@ -1,0 +1,16 @@
+{
+	"main": "re_flex.Main",
+	"name": "re-flex",
+	"description": "",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": []
+}

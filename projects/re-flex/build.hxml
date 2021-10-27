@@ -1,0 +1,4 @@
+-lib kiss
+-cp src
+--main re_flex.Main
+--interp
