@@ -27,3 +27,32 @@
                     [])
                 (true
                     (for _ (range (- max min)) (oneOf expr "")))))))
+
+// TODO could memoize compiled regexes
+(function :Null<RMatch> match [:String regex :String textToSearch &opt :String flags]
+    (#if hxnodejs
+            (ifLet [:RegExpMatch match (.exec (new RegExp regex /* TODO use or for this once it's fixed */ (if flags flags "")) textToSearch)]
+                (object
+                    left
+                        (textToSearch.substr 0 match.index)
+                    match
+                        (first match)
+                    right
+                        (textToSearch.substr (+ match.index .length (first match)))
+                    group
+                        ->idx (nth match idx)
+                    groups
+                        match
+                    namedGroups
+                        match.groups))
+        (let [r (new EReg regex /*TODO use or for this once fixed */(if flags flags ""))]
+            (if (r.match textToSearch)
+                (object
+                    left
+                        (r.matchedLeft)
+                    match
+                        (r.matched 0)
+                    right
+                        (r.matchedRight)
+                    group
+                        ->idx (r.matched idx))))))

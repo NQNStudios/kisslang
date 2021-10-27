@@ -1,3 +1,3 @@
 #! /bin/bash
 
-haxe build.hxml
+haxe test-interp.hxml && haxe test-js.hxml

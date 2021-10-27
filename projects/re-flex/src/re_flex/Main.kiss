@@ -1,1 +1,7 @@
-(print "Hello world!")
+(let [match (R.match "a" "12abc")]
+    (case match
+        ((object
+            left "12"
+            match "a"
+            right "bc"))
+        (otherwise (throw "bad match result"))))
