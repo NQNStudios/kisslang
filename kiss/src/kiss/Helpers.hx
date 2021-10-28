@@ -21,6 +21,7 @@ using kiss.Reader;
 using kiss.Helpers;
 using kiss.Kiss;
 using StringTools;
+using haxe.macro.ExprTools;
 
 /**
  * Compile-time helper functions for Kiss. Don't import or reference these at runtime.
@@ -332,14 +333,58 @@ class Helpers {
     // When we ARE running at compiletime already, the pre-existing interp will be used
     static var interps:kiss.List<Interp> = [];
 
+    public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
+        var def = switch (exp.def) {
+            case Symbol(_) | StrExp(_) | RawHaxe(_) | Quasiquote(_):
+                exp.def;
+            case CallExp(func, callArgs):
+                CallExp(removeTypeAnnotations(func), callArgs.map(removeTypeAnnotations));
+            case ListExp(elements):
+                ListExp(elements.map(removeTypeAnnotations));
+            case TypedExp(type, innerExp):
+                innerExp.def;
+            case MetaExp(meta, innerExp):
+                MetaExp(meta, removeTypeAnnotations(innerExp));
+            case FieldExp(field, innerExp):
+                FieldExp(field, removeTypeAnnotations(innerExp));
+            case KeyValueExp(keyExp, valueExp):
+                KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
+            default:
+                throw CompileError.fromExp(exp, 'cannot remove type annotations');
+        };
+        return def.withPosOf(exp);
+    }
+    // hscript.Interp is very finicky about some edge cases.
+    // This function handles them
+    private static function mapForInterp(expr:Expr):Expr {
+        return expr.map(subExp -> {
+            switch (subExp.expr) {
+                case ETry(e, catches):
+                    catches = [for (c in catches) {
+                        // hscript.Parser expects :Dynamic after the catch varname
+                        {
+                            type: Helpers.parseComplexType("Dynamic"),
+                            name: c.name,
+                            expr: c.expr
+                        };
+                    }];
+                    {
+                        pos: subExp.pos,
+                        expr: ETry(e, catches)
+                    };
+                default: subExp;
+            }
+        });
+    }
+
     public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
-        var code = k.forHScript().convert(exp).toString(); // tink_macro to the rescue
+        var hscriptExp = mapForInterp(k.forHScript().convert(exp));
+        var code = hscriptExp.toString(); // tink_macro to the rescue
         #if macrotest
         Prelude.print("Compile-time hscript: " + code);
         #end
         // Need parser external to the KissInterp to wrap parsing in an informative try-catch
         var parser = new Parser();
-        parser.allowTypes = true;
         if (interps.length == 0) {
             var interp = new KissInterp();
             interp.variables.set("read", Reader.assertRead.bind(_, k));

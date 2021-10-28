@@ -198,7 +198,7 @@ class Macros {
                 #if test
                 Prelude.print("#case hscript: " + hscriptStr);
                 #end
-                return caseInterp.evalHaxe(caseStr);
+                return caseInterp.evalHaxe(hscriptStr);
             } catch (e) {
                 throw CompileError.fromExp(caseExp, '#case evaluation threw error $e');
             }

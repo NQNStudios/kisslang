@@ -90,3 +90,9 @@
 
 (function _testIfLetDisabled []
     (_testIfLetDisabledMacro))
+
+(defMacro _testTryCatchWithoutDynamicMacro []
+    (try (throw "intended") (catch [e] (ReaderExp.StrExp e))))
+
+(function _testTryCatchWithoutDynamic []
+    (Assert.equals "intended" (_testTryCatchWithoutDynamicMacro)))

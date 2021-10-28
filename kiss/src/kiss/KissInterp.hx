@@ -2,7 +2,10 @@ package kiss;
 
 import hscript.Parser;
 import hscript.Interp;
+import hscript.Expr;
 import kiss.Prelude;
+
+using  hscript.Tools;
 
 /**
  * Specialized hscript interpreter for hscript generated from Kiss expressions.
@@ -18,8 +21,6 @@ class KissInterp extends Interp {
     // TODO standardize this with KissConfig.prepareInterp
     public function new(nullForUnknownVar = false) {
         super();
-
-        parser.allowTypes = true;
 
         this.nullForUnknownVar = nullForUnknownVar;
 
