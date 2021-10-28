@@ -28,6 +28,16 @@ class KissInterp extends Interp {
         variables.set("Keep", ExtraElementHandling.Keep);
         variables.set("Drop", ExtraElementHandling.Drop);
         variables.set("Throw", ExtraElementHandling.Throw);
+        variables.set("Math", Math);
+        variables.set("Json", haxe.Json);
+        variables.set("StringTools", StringTools);
+        #if (sys || hxnodejs)
+        variables.set("Sys", Sys);
+        #end
+        #if sys
+        variables.set("Http", sys.Http);
+        #end
+
         // Might eventually need to simulate types in the namespace:
         variables.set("kiss", {});
     }
