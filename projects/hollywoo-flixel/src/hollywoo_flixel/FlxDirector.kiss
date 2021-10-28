@@ -11,11 +11,24 @@
     (set actionManager.resetOnStateSwitch NONE))
 
 (method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
+    // TODO on the first appearance, give a super (for some scenes but probably not others... hm....)
     (FlxG.switchState (cast scene SceneFlxState))
     (cc))
 
+(var STAGE_LEFT_X 40)
+(var STAGE_RIGHT_X 1240)
+(var ACTOR_Y 500)
+
 (method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
-    (print "Character shneezy")
+    // TODO on the first appearance, show name and description (maybe? also probably not for all?)
+    // TODO flip sprite if facing left, and also allow for manually defined flipped frames so text doesn't mirror
+    (set character.actor.x (case character.stagePosition
+        (Left
+            STAGE_LEFT_X)
+        (Right
+            STAGE_RIGHT_X)))
+    (set character.actor.y ACTOR_Y)
+    (FlxG.state.add character.actor)
     (cc))
 
 (prop &mut :Null<Continuation> nextCC)

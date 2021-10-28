@@ -6,6 +6,17 @@
 // Mutable representation of frames in time:
 // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
 (prop :Map<String,Bool> shownScenes (new Map))
+(prop :Map<String,Bool> shownCharacters (new Map))
+(function :Appearance appearanceFlag [:Map<String,Bool> map :String key]
+    (if (dictGet map key)
+            ReAppearance
+        {
+            (dictSet map key true)
+            FirstAppearance
+        }))
+
+(prop &mut :String sceneKey "")
+(method _currentScene [] (dictGet scenes sceneKey))
 
 (defNew
     [
@@ -36,16 +47,30 @@
     (cc))
 
 (method setScene [name :Continuation cc]
+    (set sceneKey name)
     (director.showScene
         (dictGet scenes name)
-        (if (dictGet shownScenes name)
-                ReAppearance
-            {
-                (dictSet shownScenes name true)
-                FirstAppearance
-            })
+        (appearanceFlag shownScenes name)
         cc))
 
 (method newActor [name :Actor actor :Continuation cc]
     (dictSet actors name actor)
     (cc))
+
+(method addCharacter [actorName :StagePosition position :StageFacing facing :Continuation cc]
+    (let [character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
+        (dictSet .characters (_currentScene) actorName character)
+        (director.showCharacter
+            character
+            (appearanceFlag shownCharacters actorName)
+            cc)
+        ))
+
+/* TODO
+(method removeCharacter [
+
+])
+*/
+
+// TODO moveCharacter remove them, add them to another scene
+// TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene

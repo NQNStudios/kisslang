@@ -1,7 +1,7 @@
-(defNew [:String assetPath &opt :Int frameWidth :Int frameHeight :Map<String,AnimationArgs> animations]
+(defNew [:String assetPath &opt frameWidth frameHeight :Map<String,AnimationArgs> animations]
     (super)
     (if (and frameWidth frameHeight)
-            (loadGraphic assetPath frameWidth frameHeight)
+            (loadGraphic assetPath true frameWidth frameHeight)
         (loadGraphic assetPath))
     (when animations
         (doFor =>name animationArgs animations
