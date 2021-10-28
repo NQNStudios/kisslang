@@ -283,7 +283,6 @@ class Kiss {
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
 
-
         var none = EBlock([]).withMacroPosOf(exp);
 
         var expr = switch (exp.def) {
