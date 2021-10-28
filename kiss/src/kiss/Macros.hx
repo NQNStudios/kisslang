@@ -314,9 +314,17 @@ class Macros {
             } else {
                 b.str(basicMessage);
             };
-            b.callSymbol("unless", [
-                expression,
-                b.callSymbol("throw", [messageExp])
+            var letVal = b.symbol();
+            b.callSymbol("let", [
+                b.list([
+                    letVal,
+                    expression
+                ]),
+                b.callSymbol("if", [
+                    letVal,
+                    letVal,
+                    b.callSymbol("throw", [messageExp])
+                ])
             ]);
         };
 

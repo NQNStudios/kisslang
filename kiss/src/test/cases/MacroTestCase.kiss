@@ -96,3 +96,6 @@
 
 (function _testTryCatchWithoutDynamic []
     (Assert.equals "intended" (_testTryCatchWithoutDynamicMacro)))
+
+(function _testAssertReturnsValue []
+    (Assert.equals true (assert true)))
