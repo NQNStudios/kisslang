@@ -79,8 +79,8 @@
                     (File.copy activeConfigFile uniqueConfigFile)
                     (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
                     // (FileSystem.deleteFile uniqueConfigFile)
-                    (config.registerBuiltins)
-                    (config.registerCommand "[K]iss: [r]eload Kiss config" tryLoadConfig)
+                    (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
+                    (set config.tryLoadConfig tryLoadConfig)
                     (config.prepareInterp)
                     // User-defined init:
                     (config.init)

@@ -1,4 +1,5 @@
 (function :Void init []
+    (registerBuiltins)
     (registerCommand "print a nice message"
         (lambda :Void [&opt selectedText]
             (infoMessage "Hello world!")

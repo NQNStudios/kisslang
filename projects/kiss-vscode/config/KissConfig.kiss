@@ -208,19 +208,25 @@
 (loadFrom "kiss-vscode" "src/commands/KissTools.kiss")
 (loadFrom "kiss-vscode" "src/commands/ExtensionTools.kiss")
 
-(function :Void registerBuiltins []
-    (set Prelude.printStr ->:Void s (infoMessage s))
-    // In this file:
-    (registerCommand "[K]iss: Run a Kiss-VSCode [c]ommand" runCommand)
-    (registerCommand "[K]iss: Re-run [l]ast Kiss-VSCode command" runLastCommand)
-    (registerCommand "[K]iss: Run a keyboard [s]hortcut command" runKeyboardShortcut)
-    // KissTools.kiss:
-    (registerCommand "[K]iss: [e]valuate and print an expression" evalAndPrint)
-    (registerCommand "[K]iss: create [n]ew kiss class" newKissClass)
-    (registerCommand "[K]iss: open corresponding .kiss/.hx [f]ile" showCorrespondingFile)
-    // ExtensionTools.kiss:
-    (registerCommand "[K]iss: [u]pdate Kiss-VSCode" updateKissVscode)
-    (registerCommand "[K]iss: [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode))
+// Provided from Main.kiss via (set):
+(var &mut :Command tryLoadConfig)
+
+(function :Void registerBuiltins [&opt leaderKeys]
+    (unless leaderKeys (set leaderKeys ""))
+    (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"]
+        // In Main.kiss:
+        (registerCommand "${prefix} [r]eload Config.kiss" tryLoadConfig)
+        // In this file:
+        (registerCommand "${prefix} [P]ick and run a command" runCommand)
+        (registerCommand "${prefix} Re-run [l]ast command" runLastCommand)
+        (registerCommand "${prefix} Run a keyboard [s]hortcut command" runKeyboardShortcut)
+        // KissTools.kiss:
+        (registerCommand "${prefix} [e]valuate and print an expression" evalAndPrint)
+        (registerCommand "${prefix} create [n]ew kiss class" newKissClass)
+        (registerCommand "${prefix} open corresponding .kiss/.hx [f]ile" showCorrespondingFile)
+        // ExtensionTools.kiss:
+        (registerCommand "${prefix} [u]pdate Kiss-VSCode" updateKissVscode)
+        (registerCommand "${prefix} [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode)))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []

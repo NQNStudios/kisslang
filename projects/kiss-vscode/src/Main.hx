@@ -24,6 +24,7 @@ typedef KissConfig = {
     runCommand:Command,
     runLastCommand:Command,
     runKeyboardShortcut:Command,
+    tryLoadConfig:Command,
     #if !test
     conversions:Array<KTxt2Conversion>,
     #end
