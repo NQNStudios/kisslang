@@ -1,0 +1,27 @@
+// This macro downloads an image from the Unsplash.com API and puts it in
+// your projects AssetPaths, returning the path for loadAsset().
+// USAGE: First, make an account on unsplash.com. Make a Demo app,
+// then put your access key and secret key in environment variables
+// UNSPLASH_ACCESS_KEY and UNSPLASH_SECRET_KEY
+(defMacro unsplashImage [searchQuery resultNumber]
+    (_unsplashImage (eval searchQuery) (eval resultNumber)))
+
+(defMacroFunction _unsplashImage [searchQuery resultNumber]
+    // TODO tryCatch
+    (letThrow
+            (let [apiUrl
+                        "https://api.unsplash.com"
+                    query
+                        "/search/photos"
+                    clientId
+                        (let [id (Sys.getEnv "UNSPLASH_ACCESS_KEY")]
+                            (if id id (throw "UNSPLASH_ACCESS_KEY not defined")))
+                    perPage
+                        10 // this many will be downloaded in one go
+                    page
+                        (Math.ceil (/ resultNumber perPage))
+                    result
+                        (Json.parse
+                            (Http.requestUrl ~"${apiUrl}${query}?client_id=${clientId}&query=$(StringTools.urlEncode searchQuery)&per_page=${perPage}&page=${page}"))]
+                (throw result))
+        (catch [error] (throw "Error from unsplash query $searchQuery ${resultNumber}: $error"))))
