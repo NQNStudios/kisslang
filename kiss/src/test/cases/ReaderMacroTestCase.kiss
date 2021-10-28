@@ -30,7 +30,11 @@
     rassert fluffers
     (Assert.pass))
 
-(function _testCommentAtBlockEnd []
+(function _testCommentAtBlockOrArrayEnd []
+    [
+        (+ 1 2)
+        // Comment
+    ]
     {
         (+ 1 2)
         // Comment

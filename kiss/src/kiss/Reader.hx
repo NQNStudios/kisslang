@@ -77,14 +77,16 @@ class Reader {
         // Lets you construct key-value pairs for map literals or for-loops
         readTable["=>"] = (stream:Stream, k) -> KeyValueExp(assertRead(stream, k), assertRead(stream, k));
 
-        readTable[")"] = (stream:Stream, k) -> {
-            stream.putBackString(")");
-            throw new UnmatchedBracketSignal(")", stream.position());
-        };
-        readTable["]"] = (stream:Stream, k) -> {
-            stream.putBackString("]");
-            throw new UnmatchedBracketSignal("]", stream.position());
-        };
+        function unmatchedBracket(b:String) {
+            readTable[b] = (stream:Stream, k) -> {
+                stream.putBackString(b);
+                throw new UnmatchedBracketSignal(b, stream.position());
+            };
+        }
+
+        unmatchedBracket(")");
+        unmatchedBracket("]");
+        unmatchedBracket("}");
 
         readTable["`"] = (stream:Stream, k) -> Quasiquote(assertRead(stream, k));
         readTable[","] = (stream:Stream, k) -> Unquote(assertRead(stream, k));
