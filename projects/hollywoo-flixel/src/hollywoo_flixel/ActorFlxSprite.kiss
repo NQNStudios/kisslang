@@ -1,0 +1,14 @@
+(defNew [:String assetPath &opt :Int frameWidth :Int frameHeight :Map<String,AnimationArgs> animations]
+    (super)
+    (if (and frameWidth frameHeight)
+            (loadGraphic assetPath frameWidth frameHeight)
+        (loadGraphic assetPath))
+    (when animations
+        (doFor =>name animationArgs animations
+            (animation.add
+                name
+                animationArgs.frames
+                (or animationArgs.frameRate 30)
+                (or animationArgs.looped true)
+                ?animationArgs.flipX
+                ?animationArgs.flipY))))

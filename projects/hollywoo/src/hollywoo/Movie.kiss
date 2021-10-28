@@ -45,3 +45,7 @@
                 FirstAppearance
             })
         cc))
+
+(method newActor [name :Actor actor :Continuation cc]
+    (dictSet actors name actor)
+    (cc))
