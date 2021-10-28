@@ -4,6 +4,9 @@
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
 
+// Free-wheeling without externs for now:
+(var &mut :Dynamic monaco)
+
 (function main []
     (set vscode (EditorExterns.acquireVsCodeApi))
     (set window EditorExterns.window)

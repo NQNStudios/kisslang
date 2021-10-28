@@ -2,3 +2,4 @@ bin
 *.vsix
 _activeConfig/
 _lastActiveConfig/
+node_modules/

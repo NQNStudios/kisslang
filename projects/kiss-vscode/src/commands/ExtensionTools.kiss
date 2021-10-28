@@ -10,8 +10,14 @@
 (function :Void updateKissVscode [&opt _]
     (trySpawnSync "haxe" ["build.hxml"] (options) handleUpdateFailure)
     (if (= "Windows" (Sys.systemName))
-            (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) handleUpdateFailure)
-        (trySpawnSync "vsce" ["package"] (options) handleUpdateFailure))
+            {
+                (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) handleUpdateFailure)
+                (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) handleUpdateFailure)
+            }
+        {
+            (trySpawnSync "npm" ["install"] (options) handleUpdateFailure)
+            (trySpawnSync "vsce" ["package"] (options) handleUpdateFailure)
+        })
     (awaitLet [_ (executeCommand 
                         "workbench.extensions.command.installFromVSIX"
                         (Uri.file (joinPath (kvLibpath) (last (filter (FileSystem.readDirectory (kvLibpath)) ->file (file.endsWith ".vsix"))))))]

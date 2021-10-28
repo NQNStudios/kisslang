@@ -96,5 +96,8 @@
 		"onCommand:kiss.runKeyboardShortcut",
 		"onCommand:kiss.reloadConfig"
 	],
-	"displayName": "kiss-vscode"
+	"displayName": "kiss-vscode",
+	"dependencies": {
+		"monaco-editor": "^0.29.1"
+	}
 }
