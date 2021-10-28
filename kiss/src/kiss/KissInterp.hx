@@ -19,6 +19,8 @@ class KissInterp extends Interp {
     public function new(nullForUnknownVar = false) {
         super();
 
+        parser.allowTypes = true;
+
         this.nullForUnknownVar = nullForUnknownVar;
 
         variables.set("Reflect", Reflect);

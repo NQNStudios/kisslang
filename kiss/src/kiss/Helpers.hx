@@ -337,7 +337,9 @@ class Helpers {
         #if macrotest
         Prelude.print("Compile-time hscript: " + code);
         #end
+        // Need parser external to the KissInterp to wrap parsing in an informative try-catch
         var parser = new Parser();
+        parser.allowTypes = true;
         if (interps.length == 0) {
             var interp = new KissInterp();
             interp.variables.set("read", Reader.assertRead.bind(_, k));
@@ -480,28 +482,6 @@ class Helpers {
                 MetaExp(meta, evalUnquotes(innerExp, k, args));
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
-        };
-        return def.withPosOf(exp);
-    }
-
-    public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
-        var def = switch (exp.def) {
-            case Symbol(_) | StrExp(_) | RawHaxe(_) | Quasiquote(_):
-                exp.def;
-            case CallExp(func, callArgs):
-                CallExp(removeTypeAnnotations(func), callArgs.map(removeTypeAnnotations));
-            case ListExp(elements):
-                ListExp(elements.map(removeTypeAnnotations));
-            case TypedExp(type, innerExp):
-                innerExp.def;
-            case MetaExp(meta, innerExp):
-                MetaExp(meta, removeTypeAnnotations(innerExp));
-            case FieldExp(field, innerExp):
-                FieldExp(field, removeTypeAnnotations(innerExp));
-            case KeyValueExp(keyExp, valueExp):
-                KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
-            default:
-                throw CompileError.fromExp(exp, 'cannot remove type annotations');
         };
         return def.withPosOf(exp);
     }

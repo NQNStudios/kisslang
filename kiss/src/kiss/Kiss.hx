@@ -283,8 +283,6 @@ class Kiss {
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
 
-        if (k.hscript)
-            exp = Helpers.removeTypeAnnotations(exp);
 
         var none = EBlock([]).withMacroPosOf(exp);
 
