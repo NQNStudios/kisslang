@@ -80,3 +80,13 @@
 (function _testSetMacroVar []
     (Assert.equals 1 (_testSetMacroVarMacro))
     (Assert.equals 2 (_testSetMacroVarMacro)))
+
+// ifLet and its derivatives should be disabled in defMacro bodies:
+(defMacro _testIfLetDisabledMacro []
+    (assertThrows (ifLet [a "b"] a))
+    (assertThrows (whenLet [a "b"] a))
+    (assertThrows (unlessLet [a "b"] a))
+    `null)
+
+(function _testIfLetDisabled []
+    (_testIfLetDisabledMacro))

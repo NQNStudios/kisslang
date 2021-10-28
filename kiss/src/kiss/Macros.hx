@@ -320,6 +320,26 @@ class Macros {
             ]);
         };
 
+        macros["assertThrows"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 2, "(assertThrows [expression] [message])");
+            var b = wholeExp.expBuilder();
+            var expression = exps[0];
+            var basicMessage = '${expression.def.toString()} should have thrown an error';
+            var messageExp = if (exps.length > 1) {
+                b.callSymbol("+", [b.str(basicMessage + ": "), exps[1]]);
+            } else {
+                b.str(basicMessage);
+            };
+
+            b.callSymbol("try", [
+                b.begin([expression, b.callSymbol("throw", [messageExp])]),
+                b.callSymbol("catch", [b.list([b.typed("Dynamic", b.symbol("error"))]),
+                    b.callSymbol("if", [b.callSymbol("=", [b.symbol("error"), messageExp]),
+                            b.callSymbol("throw", [messageExp]),
+                        b.symbol("true")])])
+            ]);
+        };
+
         function stringsThatMatch(exp:ReaderExp, formName:String) {
             return switch (exp.def) {
                 case StrExp(s):

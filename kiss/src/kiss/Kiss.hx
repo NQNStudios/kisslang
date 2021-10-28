@@ -362,6 +362,19 @@ class Kiss {
     public static function forHScript(k:KissState):KissState {
         var copy = new Cloner().clone(k);
         copy.hscript = true;
+
+        // Also disallow macros that will error when run in hscript:
+        function disableMacro(m:String, reason:String) {
+            copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
+                var b = wholeExp.expBuilder();
+                b.callSymbol("throw", [b.str('$m is unavailable in macros because $reason')]);
+            };
+        }
+
+        disableMacro("ifLet", "hscript doesn't support pattern-matching");
+        disableMacro("whenLet", "hscript doesn't support pattern-matching");
+        disableMacro("unlessLet", "hscript doesn't support pattern-matching");
+
         return copy;
     }
 
