@@ -1,4 +1,4 @@
 re-flex
 -------
 
-Utilities for regex construction adapted from Software Design for Flexibility.
+Utilities for Haxe regex construction inspired by Software Design for Flexibility.

@@ -12,5 +12,6 @@
 	],
 	"version": "0.0.0",
 	"releasenote": "",
-	"tags": []
+	"tags": [],
+	"license": "LGPL"
 }

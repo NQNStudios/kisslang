@@ -3,5 +3,6 @@ args.hxml
 -lib vscode
 -lib kiss
 -lib kiss-vscode
+-lib re-flex
 KissConfig
 -js config.js
