@@ -78,7 +78,7 @@
 				(webview.asWebviewUri (Uri.joinPath monacoDir "editor" "editor.main.js"))
 			ktxt2EditorScriptUri
                 (webview.asWebviewUri (Uri.joinPath (Uri.parse this.context.extensionUri) "bin" "ktxt2editor.js"))]
-        ~"<!DOCTYPE html>
+        "<!DOCTYPE html>
 			<html>
 			<head>
 				<meta charset=\"UTF-8\">

@@ -4,9 +4,6 @@
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
 
-// Free-wheeling without externs for now.
-// This value is provided by other <script> tags in the editor's HTML skeleton.
-(var &mut :Dynamic monaco)
 
 (function main []
     (set vscode (EditorExterns.acquireVsCodeApi))
@@ -20,13 +17,19 @@
         ->:Void event
             (case (the MessageToEditor event.data)
                 ((object type "update" text text)
-                    (updateContent text)
+                    (whenMonacoIsAvailable ->(updateContent text))
                     (vscode.setState (object text text)))
                 (otherType (throw "bad message $event for KTxt2Editor"))))
     
     (whenLet [state (the Dynamic (vscode.getState))]
         // Wait to set up the UI until monaco is loaded from the other scripts:
-        (window.addEventListener "load" ->(updateContent state.text))))
+        (whenMonacoIsAvailable ->(updateContent state.text))))
+
+(var MONACO_CHECK_MILLI 100)
+(function :Void whenMonacoIsAvailable [:Void->Void doThis]
+    (if Lib.global.monaco
+            (doThis)
+        (window.setTimeout ->(whenMonacoIsAvailable doThis) MONACO_CHECK_MILLI)))
 
 (var &mut :Map<Int,Int> editTimeoutHandles (new Map))
 (var EDIT_TIMEOUT_MILLI 2000)
@@ -42,8 +45,30 @@
             }
             EDIT_TIMEOUT_MILLI)))
 
+(function monacoEditor [div style content language readOnly :Dynamic->Void onChange]
+    (let [:Dynamic e
+                (Lib.global.monaco.editor.create div
+                    (objectWith
+                        [
+                            value content
+                            lineNumbers "on"
+                            scrollBeyondLastLine false
+                            theme "vs-dark"
+                        ]
+                        language
+                        readOnly))
+            updateSize
+                ->[&opt _] {
+                    (div.setAttribute "style" "${style} height: $(e.getContentHeight)px;")
+                    (e.layout)
+                }]
+        (updateSize)
+        (e.onDidContentSizeChange updateSize)
+        (e.onDidChangeModelContent ->[&opt _] (onChange e))
+        e))
+
 (function commentElements [text idx]
-    (let [:TextAreaElement p (cast (document.createElement "textarea")) // keeping variable name the same, but it's a textarea not a <p> element
+    (let [p (document.createElement "div") // keeping variable name the same, but it's a div not a <p> element
             blockLinkBefore (document.createElement "a")
             blockLinkAfter (document.createElement "a")]
         // Links that allow inserting a block between existing blocks:
@@ -55,15 +80,18 @@
             ->(insertBlockAfterComment (nth ktxt2Elements idx)))
 
         // Paragraph displaying and allowing editing the comment
-        (set p.value text)
-        (set p.rows .length (text.split "\n"))
-        (p.setAttribute "class" "block")
-        (p.setAttribute "style" "width: 90%;")
-        (p.addEventListener "input"
-            ->(addEditTimeout idx ->{(p.blur)(replaceComment (nth ktxt2Elements idx) p.value)}))
+        //(set p.value text)
+        //(set p.rows .length (text.split "\n"))
+        //(p.setAttribute "class" "block")
         (content.appendChild blockLinkBefore)
         (content.appendChild p)
-        (content.appendChild blockLinkAfter)))
+        (content.appendChild blockLinkAfter)
+        (monacoEditor p "width: 90%;" text "txt" false
+            ->editor (addEditTimeout idx ->{
+                                            /*(p.blur)*/
+                                            (replaceComment (nth ktxt2Elements idx) (editor.getValue))
+                                        }))))
+        
 
 // This used to turn HTML to plaintext, but with textareas it's no longer needed:
 (function toPlaintext [:String text]
