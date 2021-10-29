@@ -54,6 +54,7 @@
                             lineNumbers "on"
                             scrollBeyondLastLine false
                             theme "vs-dark"
+                            minimap (object enabled false)
                         ]
                         language
                         readOnly))
@@ -68,39 +69,30 @@
         e))
 
 (function commentElements [text idx]
-    (let [p (document.createElement "div") // keeping variable name the same, but it's a div not a <p> element
+    (let [//p (document.createElement "div") // keeping variable name the same, but it's a div not a <p> element
             blockLinkBefore (document.createElement "a")
-            blockLinkAfter (document.createElement "a")]
+            /*blockLinkAfter (document.createElement "a")*/]
         // Links that allow inserting a block between existing blocks:
         (set blockLinkBefore.innerHTML "+")
         (blockLinkBefore.addEventListener "click"
             ->(insertBlockBeforeComment (nth ktxt2Elements idx)))
-        (set blockLinkAfter.innerHTML "+")
+        /*(set blockLinkAfter.innerHTML "+")
         (blockLinkAfter.addEventListener "click"
-            ->(insertBlockAfterComment (nth ktxt2Elements idx)))
+            ->(insertBlockAfterComment (nth ktxt2Elements idx)))*/
 
-        // Paragraph displaying and allowing editing the comment
-        //(set p.value text)
-        //(set p.rows .length (text.split "\n"))
-        //(p.setAttribute "class" "block")
         (content.appendChild blockLinkBefore)
-        (content.appendChild p)
-        (content.appendChild blockLinkAfter)
-        (monacoEditor p "width: 90%;" text "txt" false
+        //(content.appendChild p)
+        //(content.appendChild blockLinkAfter)
+        /*(monacoEditor p "width: 90%;" text "txt" false
             ->editor (addEditTimeout idx ->{
-                                            /*(p.blur)*/
-                                            (replaceComment (nth ktxt2Elements idx) (editor.getValue))
-                                        }))))
+                                                (replaceComment (nth ktxt2Elements idx) (editor.getValue))
+                                            }))*/))
         
-
-// This used to turn HTML to plaintext, but with textareas it's no longer needed:
-(function toPlaintext [:String text]
-    text)
 
 (function replaceComment [element newText]
     (case element
         ((Comment (object text text start start end end))
-            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+            (vscode.postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a comment"))))
 
 (function insertBlockBeforeComment [element]
@@ -118,13 +110,13 @@
 (function replaceSourceBlock [element newText]
     (case element
         ((Block (object source text sourceStart start sourceEnd end))
-            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+            (vscode.postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function replaceOutputBlock [element newText]
     (case element
         ((Block (object output text outputStart start outputEnd end))
-            (vscode.postMessage (object type "replace" text (toPlaintext newText) start start end end)))
+            (vscode.postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function deleteEntireBlock [element]
@@ -147,26 +139,24 @@
 
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
-            :TextAreaElement sourceDiv (cast (document.createElement "textarea")) // leaving variable names the same, but these are not divs
-            :TextAreaElement outputDiv (cast (document.createElement "textarea"))
+            :js.html.Element sourceDiv (cast (document.createElement "div"))
+            :js.html.Element outputDiv (cast (document.createElement "div"))
             convertLink (document.createElement "a")
             xLink (document.createElement "a")
             lockLink (document.createElement "a")
             exportLink (document.createElement "a")]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
-        (sourceDiv.setAttribute "style" "width: 50%;")
-        (sourceDiv.setAttribute "class" "block")
-        (sourceDiv.addEventListener "input"
-            ->(addEditTimeout idx ->{(sourceDiv.blur)(replaceSourceBlock (nth ktxt2Elements idx) sourceDiv.value)}))
-        (set sourceDiv.value source)
-        (set sourceDiv.rows .length (source.split "\n"))
-        (outputDiv.setAttribute "style" "flex-grow: 1;")
-        (outputDiv.setAttribute "class" "block")
-        (outputDiv.addEventListener "input"
-            ->(addEditTimeout idx ->{(outputDiv.blur)(replaceOutputBlock (nth ktxt2Elements idx) outputDiv.value)}))
-        (set outputDiv.value output)
-        (set outputDiv.rows .length (output.split "\n"))
+
+        (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
+            ->editor (addEditTimeout idx ->{
+                                            (replaceSourceBlock (nth ktxt2Elements idx) (editor.getValue))
+                                        }))
+
+        (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
+            ->editor (addEditTimeout idx ->{
+                                            (replaceOutputBlock (nth ktxt2Elements idx) (editor.getValue))
+                                        }))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
@@ -180,12 +170,10 @@
         // Link that attempts automatic conversion of the source in a block:
         (unless locked
             (set convertLink.innerHTML "->")
+            (convertLink.setAttribute "style" "width: 2ch;")
             (convertLink.addEventListener "click"
                 ->(tryAutoConvert (nth ktxt2Elements idx)))
             (outerDiv.appendChild convertLink))
-        (when locked
-            (set sourceDiv.disabled true)
-            (set outputDiv.disabled true))
 
         (outerDiv.appendChild outputDiv)
 

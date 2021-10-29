@@ -87,14 +87,6 @@
 					rel=\"stylesheet\"
 					data-name=\"vs/editor/editor.main\"
 					href=\"${cssUri}\" />
-				<title>KTxt2</title>
-				<style>
-					.block {
-						border: 1px solid white;
-						background-color: #222222;
-						color: #eeeeee;
-					}
-				</style>
 			</head>
 			<body>	
 				<script src=\"${ktxt2EditorScriptUri}\"></script>
