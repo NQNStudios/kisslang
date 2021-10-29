@@ -71,9 +71,12 @@
                     (+= sourceText source)
                     (dictSet interp.variables "source" source)
                     (+= outputText
-                        (let [escapedOutput
-                                    (output.replace "\"" "\\\"")]
-                            (interp.evalKiss "\"${escapedOutput}\""))))
+                        // Don't run the expensive "evalKiss" if there is no interpolation in the block!
+                        (if (= -1 (output.indexOf "\$"))
+                                output
+                            (let [escapedOutput
+                                        (output.replace "\"" "\\\"")]
+                                (interp.evalKiss "\"${escapedOutput}\"")))))
                 (otherwise)))
         [sourceText outputText]))
 
