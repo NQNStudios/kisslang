@@ -1,0 +1,9 @@
+(defNew [&prop &mut :String name
+            &prop &mut :String sourceType
+            &prop &mut :String outputType
+            :String regex
+            :String blockTemplate]
+    [
+        &mut :String->Bool canConvert ->block ?(R.match regex block)
+        &mut :String->String convert ->_ "\$(let [groups .namedGroups (R.match \"${regex}\" source) group ->g (dictGet groups g)] \"${blockTemplate}\")"
+    ])
