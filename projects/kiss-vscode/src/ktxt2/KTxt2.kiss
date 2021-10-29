@@ -61,7 +61,7 @@
             elements))
 
 // Return [sourceFile outputFile]
-(function :Array<String> extractFileContents [:Stream fileStream]
+(function :Array<String> extractFileContents [:Stream fileStream :String->Dynamic reportError]
     (let [&mut sourceText ""
             &mut outputText ""
             interp (new KissInterp)]
@@ -70,13 +70,13 @@
                 ((Block (objectWith source output))
                     (+= sourceText source)
                     (dictSet interp.variables "source" source)
+                    (dictSet interp.variables "R" re_flex.R)
                     (+= outputText
                         // Don't run the expensive "evalKiss" if there is no interpolation in the block!
                         (if (= -1 (output.indexOf "\$"))
                                 output
-                            (let [escapedOutput
-                                        (output.replace "\"" "\\\"")]
-                                (interp.evalKiss "\"${escapedOutput}\"")))))
+                            (try (interp.evalKiss "\"${output}\"")
+                                (catch [error] (reportError "Export templating error $error") (throw error))))))
                 (otherwise)))
         [sourceText outputText]))
 
