@@ -4,6 +4,10 @@
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
 
+// Because monaco editors are expensive, the editor can't have an infinite number open at a time
+(var PAGE_SIZE 24)
+(var SCROLL_AMOUNT 18)
+(var &mut elementScrollY 0)
 
 (function main []
     (set vscode (EditorExterns.acquireVsCodeApi))
@@ -20,8 +24,8 @@
                     (whenMonacoIsAvailable ->(updateContent text))
                     (vscode.setState (object text text)))
                 (otherType (throw "bad message $event for KTxt2Editor"))))
-    
-    (whenLet [state (the Dynamic (vscode.getState))]
+
+   (whenLet [state (the Dynamic (vscode.getState))]
         // Wait to set up the UI until monaco is loaded from the other scripts:
         (whenMonacoIsAvailable ->(updateContent state.text))))
 
@@ -68,26 +72,7 @@
         (e.onDidChangeModelContent ->[&opt _] (onChange e))
         e))
 
-(function commentElements [text idx]
-    (let [//p (document.createElement "div") // keeping variable name the same, but it's a div not a <p> element
-            blockLinkBefore (document.createElement "a")
-            /*blockLinkAfter (document.createElement "a")*/]
-        // Links that allow inserting a block between existing blocks:
-        (set blockLinkBefore.innerHTML "+")
-        (blockLinkBefore.addEventListener "click"
-            ->(insertBlockBeforeComment (nth ktxt2Elements idx)))
-        /*(set blockLinkAfter.innerHTML "+")
-        (blockLinkAfter.addEventListener "click"
-            ->(insertBlockAfterComment (nth ktxt2Elements idx)))*/
-
-        (content.appendChild blockLinkBefore)
-        //(content.appendChild p)
-        //(content.appendChild blockLinkAfter)
-        /*(monacoEditor p "width: 90%;" text "txt" false
-            ->editor (addEditTimeout idx ->{
-                                                (replaceComment (nth ktxt2Elements idx) (editor.getValue))
-                                            }))*/))
-        
+    
 
 (function replaceComment [element newText]
     (case element
@@ -95,17 +80,17 @@
             (vscode.postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a comment"))))
 
-(function insertBlockBeforeComment [element]
+(function insertBlockBeforeBlock [element]
     (case element
-        ((Comment (object start position))
-            (vscode.postMessage (object type "insert" text "\n${KTxt2.emptyBlock}" position position)))
-        (otherwise (throw "element $element is not a comment"))))
+        ((Block (object sourceStart position))
+            (vscode.postMessage (object type "insertBefore" text "\n${KTxt2.emptyBlock}" position position)))
+        (otherwise (throw "element $element is not a block"))))
 
-(function insertBlockAfterComment [element]
+(function insertBlockAfterBlock [element]
     (case element
-        ((Comment (object end position))
-            (vscode.postMessage (object type "insert" text "${KTxt2.emptyBlock}\n" position position)))
-        (otherwise (throw "element $element is not a comment"))))
+        ((Block (object outputEnd position))
+            (vscode.postMessage (object type "insertAfter" text "${KTxt2.emptyBlock}\n" position position)))
+        (otherwise (throw "element $element is not a block"))))
 
 (function replaceSourceBlock [element newText]
     (case element
@@ -144,9 +129,21 @@
             convertLink (document.createElement "a")
             xLink (document.createElement "a")
             lockLink (document.createElement "a")
-            exportLink (document.createElement "a")]
+            exportLink (document.createElement "a")
+            blockLinkBefore (document.createElement "a")
+            blockLinkAfter (document.createElement "a") ]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
+
+        (set blockLinkBefore.innerHTML "+")
+        (blockLinkBefore.addEventListener "click"
+            ->(insertBlockBeforeBlock (nth ktxt2Elements idx)))
+        (set blockLinkAfter.innerHTML "+")
+        (blockLinkAfter.addEventListener "click"
+            ->(insertBlockAfterBlock (nth ktxt2Elements idx)))
+
+        (content.appendChild blockLinkBefore)
+        (content.appendChild (document.createElement "br"))
 
         (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
             ->editor (addEditTimeout idx ->{
@@ -169,7 +166,7 @@
 
         // Link that attempts automatic conversion of the source in a block:
         (unless locked
-            (set convertLink.innerHTML "->")
+            (set convertLink.innerHTML ">")
             (convertLink.setAttribute "style" "width: 2ch;")
             (convertLink.addEventListener "click"
                 ->(tryAutoConvert (nth ktxt2Elements idx)))
@@ -185,23 +182,49 @@
         (exportLink.addEventListener "click"
             ->(vscode.postMessage (object type "export")))
         (outerDiv.appendChild exportLink)
+        (content.appendChild outerDiv)
+        (content.appendChild (document.createElement "br"))
+        (content.appendChild blockLinkAfter)
 
-        (content.appendChild outerDiv)))
+        ))
 
-(function :Void updateContent [text]
+
+(var &mut updatingContent false)
+
+(function :Void updateContent [&opt text]
     (try
             {
+                (set updatingContent true)
                 (when content
                     (document.body.removeChild content))
                 (set content (document.createElement "div"))
                 (document.body.appendChild content)
-                (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text)))
-                (doFor [idx element] (enumerate ktxt2Elements)
+                (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
+                (when (< 0 elementScrollY)
+                    (let [upLink (document.createElement "a")]
+                        (set upLink.innerHTML "^")
+                        (upLink.addEventListener "click"
+                            ->{
+                                (-= elementScrollY SCROLL_AMOUNT)
+                                (updateContent)
+                            })
+                        (content.appendChild upLink)))
+                (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
                     (case element
                         ((Comment (objectWith text))
-                            (commentElements text idx))
+                            (throw "comments are no longer a feature!"))
                         ((Block (objectWith source output outputLocked))
                             (blockElements source output outputLocked idx))))
+                (when (> (- ktxt2Elements.length 1) (+ elementScrollY SCROLL_AMOUNT))
+                    (let [downLink (document.createElement "a")]
+                        (set downLink.innerHTML "v")
+                        (downLink.addEventListener "click"
+                            ->{
+                                (+= elementScrollY SCROLL_AMOUNT)
+                                (updateContent)
+                            })
+                        (content.appendChild downLink)))
+                (set updatingContent false)
             }
         (catch [error] (print "Error updating ktxt2 editor: ${error}"))))
 

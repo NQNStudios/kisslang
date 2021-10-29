@@ -10,8 +10,6 @@
 (var outputStarts [unlockedStart lockedStart])
 (var emptyBlock "${blockStartEnd}${unlockedStart}${blockStartEnd}")
 
-
-
 (function :Array<KTxt2Element> splitFileElements [:Stream fileStream]
     (let [elements []]
         (loop
@@ -29,10 +27,10 @@
                 // Look for the start of a KTxt2 block
                 (case (fileStream.takeUntilOneOf [blockStartEnd] true)
                     ((Some comment)
-                        // Anything before the start of the block is a comment
-                        (when comment
+                        // Anything before the start of the block used to be considered a comment
+                        /*(when comment
                             (let [end (fileStream.position)]
-                                (elements.push (Comment (object text comment start start end end)))))
+                                (elements.push (Comment (object text comment start start end end)))))*/
                         (fileStream.dropChars blockStartEnd.length)
                         (when (fileStream.isEmpty) (break))
                         (let [sourceStartPosition (fileStream.position)
