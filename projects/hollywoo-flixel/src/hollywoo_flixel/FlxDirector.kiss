@@ -63,7 +63,9 @@
 (var &mut :FlxSprite dialogBox)
 (var &mut :FlxText dialog)
 
-(method showDialog [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :String text :Continuation cc]
+(method showDialog [:SpeechType<FlxStagePosition,FlxStageFacing,ActorFlxSprite> type :String wryly :String text :Continuation cc]
+    // TODO handle text messages, wrylies, off-screen, from-phone, etc. via (case type)
+    // TODO attribute on-screen dialogue to the character's stageposition
     // Make a dialog box
     (unless dialogBox
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))

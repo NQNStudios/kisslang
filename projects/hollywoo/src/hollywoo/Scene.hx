@@ -19,6 +19,14 @@ typedef Character<StagePosition, StageFacing, Actor> = {
     actor:Actor
 };
 
+enum SpeechType<StagePosition, StageFacing, Actor> {
+    OffScreen(actor:Actor);
+    TextMessage(actor:Actor);
+    FromPhone(actor:Actor);
+    OnScreen(character:Character<StagePosition, StageFacing, Actor>);
+    Custom(type:String, actor:Actor, args:Dynamic);
+}
+
 typedef Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor> = {
     set:Set,
     characters:Map<String, Character<StagePosition, StageFacing, Actor>>,

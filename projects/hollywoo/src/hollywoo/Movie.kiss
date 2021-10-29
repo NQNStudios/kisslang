@@ -75,5 +75,10 @@
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
 
-(method doDialog [actorName text cc]
-    (director.showDialog (dictGet .characters (_currentScene) actorName) text cc))
+(method normalSpeech [actorName wryly text cc]
+    (director.showDialog (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
+
+(method onPhoneSpeech [actorName wryly text cc]
+    (director.showDialog (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
+                                    (OnScreen charOnScreen)
+                                (FromPhone (dictGet actors actorName))) wryly text cc))
