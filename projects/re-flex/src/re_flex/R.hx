@@ -13,7 +13,7 @@ typedef RMatch = {
     right:String,
     #if hxnodejs
     groups:Array<String>,
-    namedGroups:DynamicAccess<String,String>,
+    namedGroups:DynamicAccess<String>,
     #end
     group:Int->String
 };

@@ -3,9 +3,16 @@
 (var end "\$")
 
 (function :String _group [:Array<Dynamic> exprs]
-    (+ "(" (apply + exprs) ")"))
+    (+ "(" (apply + (assert exprs)) ")"))
 
 (var group (Reflect.makeVarArgs _group))
+
+(#when hxnodejs
+    (function :String _namedGroup [:Array<Dynamic> exprs]
+        (let [groupName (assert (exprs.shift))]
+            (_group (concat ["?<${groupName}>"] exprs))))
+    
+    (var namedGroup (Reflect.makeVarArgs _namedGroup)))
 
 (function :String escape [:String str]
     (group (EReg.escape str)))
@@ -31,7 +38,7 @@
 // TODO could memoize compiled regexes
 (function :Null<RMatch> match [:String regex :String textToSearch &opt :String flags]
     (#if hxnodejs
-            (ifLet [:RegExpMatch match (.exec (new RegExp regex /* TODO use or for this once it's fixed */ (if flags flags "")) textToSearch)]
+            (ifLet [match (the RegExpMatch (.exec (new RegExp regex /* TODO use or for this once it's fixed */ (if flags flags "")) textToSearch))]
                 (object
                     left
                         (textToSearch.substr 0 match.index)
