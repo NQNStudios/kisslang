@@ -547,3 +547,11 @@
 (defAlias &ident owf objWithField)
 (function _testDotAccessOnAlias []
     (Assert.equals 5 owf.field))
+
+(function _testClamp []
+    (let [&mut bigValue 12
+            &mut smallValue 3]
+        (Assert.equals 10 (clamp bigValue 5 10))
+        (Assert.equals 10 bigValue)
+        (Assert.equals 5 (clamp smallValue 5 10))
+        (Assert.equals 5 smallValue)))

@@ -313,6 +313,10 @@ class BasicTestCase extends Test {
     function testDotAccessOnAlias() {
         _testDotAccessOnAlias();
     }
+
+    function testClamp() {
+        _testClamp();
+    }
 }
 
 class BasicObject {

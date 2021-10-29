@@ -827,6 +827,31 @@ class Macros {
             b.callSymbol("object", objectExps);
         }
 
+        macros["clamp"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 3, "(clamp <expr> <min or null> <?max or null>)");
+            var b = wholeExp.expBuilder();
+            var maxExp = if (exps.length == 3) exps.pop() else b.symbol("null");
+            var expToSet = exps.shift();
+            var minExp = exps.shift();
+            var min = b.symbol("minVal");
+            var max = b.symbol("maxVal");
+            b.callSymbol("let", [
+                b.list([
+                    min, minExp,
+                    max, maxExp
+                ]),
+                b.callSymbol("when", [
+                    min,
+                    b.callSymbol("set", [expToSet, b.callSymbol("max", [min, expToSet])])
+                ]),
+                b.callSymbol("when", [
+                    max,
+                    b.callSymbol("set", [expToSet, b.callSymbol("min", [max, expToSet])])
+                ]),
+                expToSet
+            ]);
+        };
+
         // The wildest code in Kiss to date
         // TODO test exprCase!!
         macros["exprCase"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
