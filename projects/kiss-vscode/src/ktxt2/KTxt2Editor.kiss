@@ -4,7 +4,8 @@
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
 
-// Free-wheeling without externs for now:
+// Free-wheeling without externs for now.
+// This value is provided by other <script> tags in the editor's HTML skeleton.
 (var &mut :Dynamic monaco)
 
 (function main []
@@ -24,7 +25,8 @@
                 (otherType (throw "bad message $event for KTxt2Editor"))))
     
     (whenLet [state (the Dynamic (vscode.getState))]
-        (updateContent state.text)))
+        // Wait to set up the UI until monaco is loaded from the other scripts:
+        (window.addEventListener "load" ->(updateContent state.text))))
 
 (var &mut :Map<Int,Int> editTimeoutHandles (new Map))
 (var EDIT_TIMEOUT_MILLI 2000)

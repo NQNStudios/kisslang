@@ -76,8 +76,8 @@
 				(webview.asWebviewUri (Uri.joinPath monacoDir "editor" "editor.main.nls.js"))
 			monacoEditorUri
 				(webview.asWebviewUri (Uri.joinPath monacoDir "editor" "editor.main.js"))
-			scriptContent
-                (File.getContent .fsPath (Uri.joinPath (Uri.parse this.context.extensionUri) "bin" "ktxt2editor.js"))]
+			ktxt2EditorScriptUri
+                (webview.asWebviewUri (Uri.joinPath (Uri.parse this.context.extensionUri) "bin" "ktxt2editor.js"))]
         ~"<!DOCTYPE html>
 			<html>
 			<head>
@@ -97,29 +97,13 @@
 				</style>
 			</head>
 			<body>	
-				<div id=\"container\" style=\"width:800px;height:200px;border:1px solid grey\"></div>
+				<script src=\"${ktxt2EditorScriptUri}\"></script>
 				<script>
 					var require = { paths: { vs: \"${requireConfigDir}\" } };
 				</script>
 				<script src=\"${monacoLoaderUri}\"></script>
 				<script src=\"${monacoEditorNlsUri}\"></script>
 				<script src=\"${monacoEditorUri}\"></script>
-				<script>
-						var p = document.createElement(\"p\");
-						p.innerHTML = \"shtuff\";
-						document.body.appendChild(p);
-				</script>
-				<script>
-						var p = document.createElement(\"p\");
-						p.innerHTML = \"shtuff\";
-						document.body.appendChild(p);
-						if (monaco !== undefined) {
-						var p = document.createElement(\"p\");
-						p.innerHTML = \"shtuff\";
-						document.body.appendChild(p);
-						}
-						
-				</script>
 			</body>
 			</html>"))
 
