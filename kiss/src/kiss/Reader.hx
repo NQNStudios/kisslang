@@ -304,9 +304,10 @@ class Reader {
                         stream.dropChars(1);
                     }
                     var interpExpression = assertRead(stream, k);
-                    interpExpression = CallExp(Symbol("Std.string").withPos(pos), [interpExpression]).withPos(pos);
+                    var b = interpExpression.expBuilder();
+                    interpExpression = b.callSymbol("Std.string", [interpExpression]);
                     if (wrapInIf) {
-                        interpExpression = CallExp(Symbol("if").withPos(pos), [interpExpression, interpExpression, StrExp("").withPos(pos)]).withPos(pos);
+                        interpExpression = b.callSymbol("if", [interpExpression, interpExpression, b.str("")]);
                     }
                     stringParts.push(interpExpression);
                 case '\\':
@@ -333,7 +334,8 @@ class Reader {
                     return if (stringParts.length == 1) {
                         stringParts[0].def;
                     } else {
-                        CallExp(Symbol("+").withPos(pos), stringParts);
+                        var b = stringParts[0].expBuilder();
+                        b.the(b.symbol("String"), b.callSymbol("+", stringParts)).def;
                     };
                 default:
                     currentStringPart += next;
