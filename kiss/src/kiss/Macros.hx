@@ -729,10 +729,16 @@ class Macros {
                 var b = arg.expBuilder();
                 switch (arg.def) {
                     case MetaExp("prop", propExp):
+                        // TODO allow the reverse order (&mut &prop)
+                        var propDeclExp = propExp;
+                        switch (propExp.def) {
+                            case MetaExp("mut", innerExp):
+                                propExp = innerExp;
+                            default:
+                        }
                         argList.push(propExp);
                         propertyDefs.push(
-                            b.call(b.symbol("prop"), [propExp]));
-                        // TODO allow &prop &mut or &mut &prop
+                            b.call(b.symbol("prop"), [propDeclExp]));
                         switch (propExp.def) {
                             case TypedExp(_, {pos: _, def: Symbol(name)}):
                                 propertySetExps.push(
