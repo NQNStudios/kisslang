@@ -10,6 +10,8 @@ import flixel.input.mouse.FlxMouseButton;
 import hollywoo.Scene;
 import hollywoo.Director;
 import hollywoo_flixel.FlxMovie;
+import flixel.util.FlxColor;
+import flixel.text.FlxText;
 
 @:build(kiss.Kiss.build())
 class FlxDirector implements Director<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite> {}

@@ -74,3 +74,6 @@
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
+
+(method doDialog [actorName text cc]
+    (director.showDialog (dictGet .characters (_currentScene) actorName) text cc))
