@@ -1,0 +1,20 @@
+(var wryly
+    (R.namedGroup "wryly"
+        (R.optional
+            (R.group
+                (R.escape "(")
+                (R.repeat R.anyChar 1)
+                (R.escape ")\n")))))
+
+// KTxt2 Conversions for Fountain files
+(registerConversion
+    (new ktxt2.RegexConversion "On Phone Speech" "fountain" "hollywoo"
+        (R.group
+            R.start
+            (R.namedGroup "name" (R.repeat R.capitalLetter 1))
+            (R.escape " (O.P.)\n")
+            wryly
+            (R.namedGroup "line" (R.repeat R.anyChar 1))
+            R.end)
+        #"(onPhoneSpeech \"$(group "name")\" \"$(let [w (group "wryly")] (if w (w.substr 1 (- w.length 3)) ""))\" \"$(group "line")\" cc)"#
+        "m"))
