@@ -35,17 +35,17 @@ class Macros {
         }
 
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(load "[file]")');
+            wholeExp.checkNumArgs(1, 1, '(load "<file.kiss>")');
             switch (args[0].def) {
                 case StrExp(otherKissFile):
-                    return Kiss.load(otherKissFile, k);
+                    Kiss.load(otherKissFile, k);
                 default:
                     throw CompileError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
-            }
+            };
         };
 
         macros["loadFrom"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, '(loadFrom "[haxelib name]" "[file]")');
+            wholeExp.checkNumArgs(2, 2, '(loadFrom "<haxelib name>" "<file.kiss>")');
 
             var libPath = switch (args[0].def) {
                 case StrExp(libName):
@@ -58,8 +58,7 @@ class Macros {
                     Kiss.load(otherKissFile, k, libPath);
                 default:
                     throw CompileError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
-            }
-            null;
+            };
         };
 
         function destructiveVersion(op:String, assignOp:String) {

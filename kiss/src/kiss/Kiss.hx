@@ -217,6 +217,7 @@ class Kiss {
             #end
 
             // readerExpToHaxeExpr must be called to process readermacro, alias, and macro definitions
+            macroUsed = false;
             var expr = readerExpToHaxeExpr(nextExp, k);
 
             // exps in the loaded file that actually become haxe expressions can be inserted into the
@@ -242,7 +243,11 @@ class Kiss {
                 loadedExps.push(nextExp);
             } else if (!isEmpty(expr)) {
                 // don't double-compile macros:
-                loadedExps.push(RawHaxe(expr.toString()).withPosOf(nextExp));
+                if (macroUsed) {
+                    loadedExps.push(RawHaxe(expr.toString()).withPosOf(nextExp));
+                } else {
+                    loadedExps.push(nextExp);
+                }
             }
         });
 
@@ -276,6 +281,8 @@ class Kiss {
         return k.fieldList;
     }
 
+    static var macroUsed = false;
+
     public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
         var macros = k.macros;
         var fieldForms = k.fieldForms;
@@ -307,6 +314,7 @@ class Kiss {
                 k.fieldDict[field.name] = field;
                 none; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
+                macroUsed = true;
                 var expanded = macros[mac](exp, args, k);
                 if (expanded != null) {
                     convert(expanded);
