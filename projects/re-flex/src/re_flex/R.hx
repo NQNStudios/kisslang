@@ -1,5 +1,6 @@
 package re_flex;
 
+import haxe.Constraints.Function;
 import kiss.Prelude;
 import kiss.List;
 #if hxnodejs

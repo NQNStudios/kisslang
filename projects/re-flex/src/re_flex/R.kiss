@@ -2,17 +2,22 @@
 (var start "^")
 (var end "\$")
 
+// TODO these are very anglocentric:
+(var capitalLetter "[A-Z]")
+(var smallLetter "[a-z]")
+(var anyLetter "[A-Za-z]")
+
 (function :String _group [:Array<Dynamic> exprs]
     (+ "(" (apply + (assert exprs)) ")"))
 
-(var group (Reflect.makeVarArgs _group))
+(var :Function group (Reflect.makeVarArgs _group))
 
 (#when hxnodejs
     (function :String _namedGroup [:Array<Dynamic> exprs]
         (let [groupName (assert (exprs.shift))]
             (_group (concat ["?<${groupName}>"] exprs))))
     
-    (var namedGroup (Reflect.makeVarArgs _namedGroup)))
+    (var :Function namedGroup (Reflect.makeVarArgs _namedGroup)))
 
 (function :String escape [:String str]
     (group (EReg.escape str)))
@@ -20,7 +25,7 @@
 (function :String _oneOf [:Array<Dynamic> exprs]
     (group (exprs.join "|")))
 
-(var oneOf (Reflect.makeVarArgs _oneOf))
+(var :Function oneOf (Reflect.makeVarArgs _oneOf))
 
 (function :String repeat [:String expr &opt :Int min :Int max]
     (apply group

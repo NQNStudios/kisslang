@@ -2,8 +2,13 @@
             &prop &mut :String sourceType
             &prop &mut :String outputType
             :String regex
-            :String blockTemplate]
+            :String blockTemplate
+            &opt :String flags]
     [
-        &mut :String->Bool canConvert ->block ?(R.match regex block)
-        &mut :String->String convert ->_ "\$(let [groups .namedGroups (R.match \"${regex}\" source) group ->g (dictGet groups g)] \"${blockTemplate}\")"
+        &mut :String->Bool canConvert ->block ?(R.match regex block /*TODO use or for this */(if flags flags ""))
+        &mut :String->String convert ->_ "\$(let [groups .namedGroups (R.match #\"$(escapeRegex regex)\"# source \"$(if flags flags "")\") group ->g (dictGet groups g)] \"${blockTemplate}\")"
     ])
+
+// This may turn out to be an unsolvable rabbit hole...
+(function escapeRegex [:String regex]
+    (regex.replace "\\" "\\\\"))
