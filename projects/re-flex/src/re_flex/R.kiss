@@ -40,6 +40,9 @@
                 (true
                     (for _ (range (- max min)) (oneOf expr "")))))))
 
+(function :String optional [:String expr]
+    (repeat expr 0 1))
+
 // TODO could memoize compiled regexes
 (function :Null<RMatch> match [:String regex :String textToSearch &opt :String flags]
     (#if hxnodejs
