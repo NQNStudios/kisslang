@@ -16,5 +16,5 @@
             wryly
             (R.namedGroup "line" (R.repeat R.anyChar 1))
             R.end)
-        #"(onPhoneSpeech \"$(group "name")\" \"$(let [w (group "wryly")] (if w (w.substr 1 (- w.length 3)) ""))\" \"$(group "line")\" cc)"#
+        #####"(onPhoneSpeech \"$(group "name")\" \"$(let [w (group "wryly")] (if w (w.substr 1 (- w.length 3)) ""))\" ##\"$(group "line")\"## cc)"#####
         "m"))
