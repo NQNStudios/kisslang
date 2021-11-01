@@ -101,3 +101,11 @@
             (dialogBox.kill)
             (cc)
         }))
+
+(method :Void playSound [:FlxSound sound :Float volumeMod :Continuation cc]
+    // TODO preserve its original volume
+    (set sound.volume volumeMod)
+    (sound.play)
+    // TODO wait for its duration
+    (cc)
+    )

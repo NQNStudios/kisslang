@@ -2,6 +2,7 @@ package hollywoo_flixel;
 
 import flixel.FlxState;
 import flixel.FlxSprite;
+import flixel.system.FlxSound;
 import hollywoo.Movie;
 import hollywoo_flixel.ActorFlxSprite;
 import hollywoo_flixel.SceneFlxState;
@@ -28,4 +29,4 @@ enum FlxScreenPosition {
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
-class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite> {}
+class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound> {}

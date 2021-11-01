@@ -9,9 +9,10 @@ enum Appearance {
 
 typedef Continuation = Void -> Void;
 
-interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor> {
+interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound> {
     function showScene(scene:Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>, appearance:Appearance, cc:Continuation):Void;
     function showCharacter(character:Character<StagePosition, StageFacing, Actor>, appearance:Appearance, cc:Continuation):Void;
+    function playSound(sound:Sound, volumeMod:Float, cc:Continuation):Void;
     function waitForInputOrDelay(delaySeconds:Float, cc:Continuation):Void;
     function showDialog(speakerName:String, type:SpeechType<StagePosition, StageFacing, Actor>, wryly:String, dialog:String, cc:Continuation):Void;
 }
