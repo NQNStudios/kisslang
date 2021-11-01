@@ -1,0 +1,9 @@
+(loadFrom "hollywoo" "src/hollywoo/HollywooDSL.kiss")
+
+(method newFlxSound [name path &opt :Float volume]
+    (set volume (or volume 1))
+    (assert (<= 0 volume 1))
+    (let [s (FlxG.sound.load path)]
+        (set s.volume volume)
+        (set s.persist true)
+        (newSound name s)))
