@@ -39,7 +39,8 @@ typedef KissState = {
     fieldDict:Map<String, Field>,
     loadingDirectory:String,
     hscript:Bool,
-    macroVars:Map<String, Dynamic>
+    macroVars:Map<String, Dynamic>,
+    collectedBlocks:Map<String, Array<ReaderExp>>
 };
 
 class Kiss {
@@ -111,7 +112,8 @@ class Kiss {
             fieldDict: new Map(),
             loadingDirectory: "",
             hscript: false,
-            macroVars: new Map()
+            macroVars: new Map(),
+            collectedBlocks: new Map()
         };
 
         return k;
@@ -154,6 +156,7 @@ class Kiss {
         if (kissFile == null) {
             kissFile = classPath.withoutDirectory().withoutExtension().withExtension("kiss");
         }
+        //trace('kiss build $kissFile');
 
         return _try(() -> {
             if (k == null)

@@ -839,6 +839,37 @@ class Macros {
             b.callSymbol("object", objectExps);
         }
 
+        // Macro for triggering collection of expressions throughout a Kiss file, to inject them later with collectedBlocks
+        macros["collectBlocks"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 2, "(collectBlocks <block symbol> <?expression to inline instead of the blocks>)");
+            var blockName = try {
+                exps[0].symbolNameValue();
+            } catch (notSymbolError:String) {
+                throw CompileError.fromExp(wholeExp, notSymbolError);
+            }
+            k.collectedBlocks[blockName] = [];
+            // TODO some assertion that the coder hasn't defined over another macro (also should apply to defMacro)
+            macros[blockName] = (wholeExp:ReaderExp, innerExps:Array<ReaderExp>, k:KissState) -> {
+                k.collectedBlocks[blockName] = k.collectedBlocks[blockName].concat(innerExps);
+                if (exps.length > 1) exps[1] else null;
+            };
+            null;
+        };
+
+        macros["collectedBlocks"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, "(collectedBlocks <block symbol>)");
+            var blockName = try {
+                exps[0].symbolNameValue();
+            } catch (notSymbolError:String) {
+                throw CompileError.fromExp(wholeExp, notSymbolError);
+            }
+            var b = wholeExp.expBuilder();
+            if (!k.collectedBlocks.exists(blockName)) {
+                throw CompileError.fromExp(wholeExp, 'no blocks for $blockName were collected. Try adding (collectBlocks ${blockName}) at the start of the file.');
+            }
+            b.begin(k.collectedBlocks[blockName]);
+        };
+
         macros["clamp"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, 3, "(clamp <expr> <min or null> <?max or null>)");
             var b = wholeExp.expBuilder();
