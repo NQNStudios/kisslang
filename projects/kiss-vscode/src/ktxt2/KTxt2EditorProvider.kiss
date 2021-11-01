@@ -3,6 +3,7 @@
 // Based on https://github.com/microsoft/vscode-extension-samples/blob/main/custom-editor-sample/src/catScratchEditor.ts
 
 (function register [context]
+	(set Prelude.printStr ->s (infoMessage s))
     (let [provider (new KTxt2EditorProvider context)]
         (Vscode.window.registerCustomEditorProvider "ktxt2.splitView" provider)))
 
@@ -111,4 +112,5 @@
             sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
             outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
         (File.saveContent sourceFilename sourceText)
-		(File.saveContent outputFilename outputText)))
+		(File.saveContent outputFilename outputText)
+		(print "Export for $(document.fileName.withoutDirectory) succeeded.")))
