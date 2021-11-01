@@ -62,7 +62,12 @@ class AsyncEmbeddedScript {
         scriptFile = Path.join([loadingDirectory, scriptFile]);
         k.fieldList = [];
         Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
+            var exprString = Reader.toString(nextExp.def);
             var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
+
+            #if debug
+            expr = macro { trace($v{exprString}); $expr; };
+            #end
 
             if (expr != null) {
                 commandList.push(macro function(self, cc) {
