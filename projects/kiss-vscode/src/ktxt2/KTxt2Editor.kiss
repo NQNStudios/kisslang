@@ -59,6 +59,7 @@
                             scrollBeyondLastLine false
                             theme "vs-dark"
                             minimap (object enabled false)
+                            wordWrap true
                         ]
                         language
                         readOnly))
