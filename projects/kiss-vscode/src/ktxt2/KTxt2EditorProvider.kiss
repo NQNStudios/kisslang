@@ -9,6 +9,11 @@
 
 (defNew [&prop :ExtensionContext context])
 
+(method :String insertSpecialChars [:String text]
+	(if (text.endsWith "\n\n")
+			(+ (text.substr 0 (- text.length 2)) "¶")
+		text))
+
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
     (set webviewPanel.webview.options (object enableScripts true))
     (set webviewPanel.webview.html (htmlForWebview webviewPanel.webview))
@@ -36,7 +41,7 @@
 						(infoMessage message))
 					((objectWith [type "replace"] text start end)
 						(makeEdit
-							->edit (edit.replace document.uri (rangeFromStartEnd start end) text)))
+							->edit (edit.replace document.uri (rangeFromStartEnd start end) (insertSpecialChars text))))
 					((objectWith [type "insertBefore"] text position)
 						(makeEdit
 							->edit (edit.insert document.uri (streamPosToOffsetDocumentPos position -KTxt2.blockStartEnd.length) text)))

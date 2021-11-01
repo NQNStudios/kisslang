@@ -8,6 +8,7 @@ import js.lib.Promise;
 import sys.io.File;
 
 using haxe.io.Path;
+using StringTools;
 
 typedef MessageFromEditor = {
     type:String,

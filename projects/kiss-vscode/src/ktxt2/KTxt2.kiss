@@ -60,6 +60,10 @@
                 (elements.push (Block block))))
             elements))
 
+// To save window space after each block editor, ¶ can be used in place of \n\n
+(function :String applySpecialChars [:String text]
+    (text.replace "¶" "\n\n"))
+
 // Return [sourceFile outputFile]
 (function :Array<String> extractFileContents [:Stream fileStream :String->Dynamic reportError]
     (let [&mut sourceText ""
@@ -78,7 +82,7 @@
                             (try (interp.evalKiss "\"${output}\"")
                                 (catch [error] (reportError "Export templating error $error") (throw error))))))
                 (otherwise)))
-        [sourceText outputText]))
+        (.map [sourceText outputText] applySpecialChars)))
 
 (function :Map<String,KTxt2Conversion> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
     (let [validMap (new Map)]
