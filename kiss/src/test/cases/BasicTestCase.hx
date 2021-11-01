@@ -167,7 +167,7 @@ class BasicTestCase extends Test {
     }
 
     function testOr() {
-        Assert.equals(5, BasicTestCase.myOr1);
+        _testOr();
     }
 
     function testAnd() {

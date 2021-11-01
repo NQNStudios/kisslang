@@ -233,23 +233,30 @@ class Macros {
             var b = wholeExp.expBuilder();
 
             var uniqueVarSymbol = b.symbol();
+            var lastValue = args.pop();
 
             b.begin([
                 b.call(b.symbol("localVar"), [
                     b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
                     b.symbol("null")
                 ]),
-                b.call(b.symbol("cond"), [
-                    for (arg in args) {
+                b.call(
+                    b.symbol("cond"), [
+                        for (arg in args) {
+                            b.call(
+                                b.call(b.symbol("set"), [
+                                    uniqueVarSymbol,
+                                    arg
+                                ]), [
+                                    uniqueVarSymbol
+                                ]);
+                        }
+                    ].concat([
                         b.call(
-                            b.call(b.symbol("set"), [
-                                uniqueVarSymbol,
-                                arg
-                            ]), [
-                                uniqueVarSymbol
-                            ]);
-                    }
-                ])
+                            b.symbol("true"), [
+                                lastValue
+                            ])
+                    ]))
             ]);
         };
 

@@ -172,7 +172,13 @@
 (var myCondFallthrough (cond
     (false "not this")))
 
-(var myOr1 (or null 5))
+(function _testOr []
+    (Assert.equals 5 (or null 5))
+    // If the last value is falsy it can still be returned without breaking
+    // the expected behavior of or -- which also allows for the (or <optional arg> <default value>)
+    // idiom for empty arrays and strings
+    (Assert.equals (.toString []) (.toString (or null [])))
+    (Assert.equals "" (or null [] "")))
 
 (var myAnd1 (and 5 6))
 (var myAnd2 (and false 5 6))
