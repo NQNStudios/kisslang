@@ -42,12 +42,12 @@ class AsyncEmbeddedScript {
 
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
+        //trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
         var k = Kiss.defaultKissState();
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         var loadingDirectory = Path.directory(classPath);
         var classFields = []; // Kiss.build() will already include Context.getBuildFields()
-
 
         var commandList:Array<Expr> = [];
 
@@ -73,10 +73,6 @@ class AsyncEmbeddedScript {
             // This return is essential for type unification of concat() and push() above... ugh.
             return;
         });
-
-        for (command in commandList) {
-            Sys.println(command.toString());
-        }
 
         classFields = classFields.concat(k.fieldList);
 

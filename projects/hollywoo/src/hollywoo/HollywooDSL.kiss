@@ -1,1 +1,8 @@
-(defNew [director] (super director))
+(collectBlocks preload (cc))
+
+(defMacro end []
+    `(method doPreload [:Void->Void cc]
+        (set isLoading true)
+        (collectedBlocks preload)
+        (set isLoading false)
+        (cc)))

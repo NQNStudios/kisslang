@@ -1,12 +1,17 @@
 // Mostly immutable, reusable resources:
 (prop :Map<String,Set> sets (new Map))
 (prop :Map<String,Actor> actors (new Map))
+(prop :Map<String,Sound> sounds (new Map))
 
 // TODO for some reason this won't work when declared in Kiss syntax:
 // Mutable representation of frames in time:
 // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
 (prop :Map<String,Bool> shownScenes (new Map))
 (prop :Map<String,Bool> shownCharacters (new Map))
+
+// This is set and unset by doPreload defined in HollywooDSL.kiss
+(prop &mut isLoading false)
+
 (function :Appearance appearanceFlag [:Map<String,Bool> map :String key]
     (if (dictGet map key)
             ReAppearance
@@ -21,16 +26,17 @@
 (defNew
     [
         // "View" in the Model-View-Controller architecture:
-        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor> director
+        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound> director
     ]
 
     (super))
 
-(method newSet [name :Set set :Continuation cc]
-    (dictSet sets name set)
-    (cc))
+(method newSet [name :Set set]
+    (assert isLoading)
+    (dictSet sets name set))
 
-(method newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective :Continuation cc]
+(method newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective]
+    (assert isLoading)
     (dictSet scenes name (objectWith
                                 [
                                     set
@@ -39,12 +45,11 @@
                                         (new Map)
                                 ]
                                 time
-                                perspective))
-    (cc))
+                                perspective)))
 
-(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor> scene :Continuation cc]
-    (dictSet scenes name scene)
-    (cc))
+(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor> scene]
+    (assert isLoading)
+    (dictSet scenes name scene))
 
 (method setScene [name :Continuation cc]
     (set sceneKey name)
@@ -53,9 +58,18 @@
         (appearanceFlag shownScenes name)
         cc))
 
-(method newActor [name :Actor actor :Continuation cc]
-    (dictSet actors name actor)
-    (cc))
+(method newSound [name :Sound s]
+    (assert isLoading)
+    (dictSet sounds name s))
+
+(method playSound [name :Continuation cc &opt :Float volumeMod]
+    (set volumeMod (or volumeMod 1))
+    (assert (<= 0 volumeMod 1))
+    (director.playSound (dictGet sounds name) volumeMod cc))
+
+(method newActor [name :Actor actor]
+    (assert isLoading)
+    (dictSet actors name actor))
 
 (method addCharacter [actorName :StagePosition position :StageFacing facing :Continuation cc]
     (let [character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
@@ -74,6 +88,8 @@
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
+
+// Dialogue:
 
 (method normalSpeech [actorName wryly text cc]
     (director.showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
