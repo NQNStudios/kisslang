@@ -60,6 +60,7 @@ class AsyncEmbeddedScript {
         classFields = classFields.concat(Kiss.build(dslFile, k));
 
         scriptFile = Path.join([loadingDirectory, scriptFile]);
+        k.fieldList = [];
         Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
             var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
@@ -72,6 +73,12 @@ class AsyncEmbeddedScript {
             // This return is essential for type unification of concat() and push() above... ugh.
             return;
         });
+
+        for (command in commandList) {
+            Sys.println(command.toString());
+        }
+
+        classFields = classFields.concat(k.fieldList);
 
         classFields.push({
             pos: PositionTools.make({
