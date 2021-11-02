@@ -18,5 +18,11 @@ typedef MessageToEditor = {
     ?text:String
 };
 
+typedef EditorState = {
+    text:String,
+    scrollY:Float
+    // TODO active editor, selection & range etc
+};
+
 @:build(kiss.Kiss.build())
 class KTxt2Editor {}

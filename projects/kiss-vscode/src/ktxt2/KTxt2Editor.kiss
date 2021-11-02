@@ -9,6 +9,14 @@
 (var SCROLL_AMOUNT 18)
 (var &mut elementScrollY 0)
 
+(function :EditorState getState []
+    (ifLet [s (the EditorState (vscode.getState))]
+            s
+        (object scrollY 0 text "")))
+
+(function :Void setState [:EditorState state]
+    (vscode.setState state))
+
 (function main []
     (set vscode (EditorExterns.acquireVsCodeApi))
     (set window EditorExterns.window)
@@ -22,12 +30,26 @@
             (case (the MessageToEditor event.data)
                 ((object type "update" text text)
                     (whenMonacoIsAvailable ->(updateContent text))
-                    (vscode.setState (object text text)))
-                (otherType (throw "bad message $event for KTxt2Editor"))))
 
-   (whenLet [state (the Dynamic (vscode.getState))]
+                    // Either create the first EditorState, or get the last one
+                    (let [newState (getState)]
+                        (set newState.text text)
+                        (setState newState)))
+                (otherType (throw "bad message $event for KTxt2Editor"))))
+    
+    (window.addEventListener "scroll"
+        ->(let [s (getState)]
+            (set s.scrollY window.scrollY)
+            (setState s)))
+
+    // Don't use getState helper here because we don't want to force updateContent with blank text
+   (whenLet [state (the EditorState (vscode.getState))]
+        // Reload the editor after it has been hidden:
         // Wait to set up the UI until monaco is loaded from the other scripts:
-        (whenMonacoIsAvailable ->(updateContent state.text))))
+        (whenMonacoIsAvailable ->{
+            (updateContent state.text)
+            (setScrollY state.scrollY)
+        })))
 
 (var MONACO_CHECK_MILLI 100)
 (function :Void whenMonacoIsAvailable [:Void->Void doThis]
