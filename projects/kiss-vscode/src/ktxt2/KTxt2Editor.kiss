@@ -202,14 +202,22 @@
                 (document.body.appendChild content)
                 (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
                 (when (< 0 elementScrollY)
-                    (let [upLink (document.createElement "a")]
-                        (set upLink.innerHTML "^")
+                    (let [upLink (document.createElement "a")
+                            topLink (document.createElement "a")]
+                        (set upLink.innerHTML "^ ")
+                        (set topLink.innerHTML "^^^")
                         (upLink.addEventListener "click"
                             ->{
                                 (-= elementScrollY SCROLL_AMOUNT)
                                 (updateContent)
                             })
-                        (content.appendChild upLink)))
+                        (topLink.addEventListener "click"
+                            ->{
+                                (set elementScrollY 0)
+                                (updateContent)
+                            })
+                        (content.appendChild upLink)
+                        (content.appendChild topLink)))
                 (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
                     (case element
                         ((Comment (objectWith text))
@@ -217,14 +225,22 @@
                         ((Block (objectWith source output outputLocked))
                             (blockElements source output outputLocked idx))))
                 (when (> (- ktxt2Elements.length 1) (+ elementScrollY SCROLL_AMOUNT))
-                    (let [downLink (document.createElement "a")]
-                        (set downLink.innerHTML "v")
+                    (let [downLink (document.createElement "a")
+                            bottomLink (document.createElement "a")]
+                        (set downLink.innerHTML "v ")
+                        (set bottomLink.innerHTML "vvv")
                         (downLink.addEventListener "click"
                             ->{
                                 (+= elementScrollY SCROLL_AMOUNT)
                                 (updateContent)
                             })
-                        (content.appendChild downLink)))
+                        (bottomLink.addEventListener "click"
+                            ->{
+                                (set elementScrollY (- ktxt2Elements.length PAGE_SIZE))
+                                (updateContent)
+                            })
+                        (content.appendChild downLink)
+                        (content.appendChild bottomLink)))
                 (set updatingContent false)
             }
         (catch [error] (print "Error updating ktxt2 editor: ${error}"))))
