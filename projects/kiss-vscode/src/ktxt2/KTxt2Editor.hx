@@ -20,7 +20,8 @@ typedef MessageToEditor = {
 
 typedef EditorState = {
     text:String,
-    scrollY:Float
+    scrollY:Float,
+    elementScrollY:Int
     // TODO active editor, selection & range etc
 };
 

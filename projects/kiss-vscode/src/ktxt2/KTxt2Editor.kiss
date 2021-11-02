@@ -12,7 +12,7 @@
 (function :EditorState getState []
     (ifLet [s (the EditorState (vscode.getState))]
             s
-        (object scrollY 0 text "")))
+        (object scrollY 0 elementScrollY 0 text "")))
 
 (function :Void setState [:EditorState state]
     (vscode.setState state))
@@ -42,11 +42,24 @@
             (set s.scrollY window.scrollY)
             (setState s)))
 
+    (window.addEventListener "keydown" ->:Void e
+        (unless activeEditor
+            (case e.key
+                ("g" (pageTop))
+                ("v" (pageBottom))
+                ("ArrowUp" (pageUp))
+                ("ArrowDown" (pageDown))
+                ("ArrowLeft" (scrollToPageTop))
+                ("ArrowRight" (scrollToPageBottom))
+                ("s" (export))
+                (otherwise))))
+
     // Don't use getState helper here because we don't want to force updateContent with blank text
-   (whenLet [state (the EditorState (vscode.getState))]
+    (whenLet [state (the EditorState (vscode.getState))]
         // Reload the editor after it has been hidden:
         // Wait to set up the UI until monaco is loaded from the other scripts:
         (whenMonacoIsAvailable ->{
+            (set elementScrollY state.elementScrollY)
             (updateContent state.text)
             (setScrollY state.scrollY)
         })))
@@ -71,6 +84,7 @@
             }
             EDIT_TIMEOUT_MILLI)))
 
+(var &mut :Dynamic activeEditor)
 (function monacoEditor [div style content language readOnly :Dynamic->Void onChange]
     (let [:Dynamic e
                 (Lib.global.monaco.editor.create div
@@ -91,11 +105,11 @@
                     (e.layout)
                 }]
         (updateSize)
+        (e.onDidFocusEditorText ->(set activeEditor e))
+        (e.onDidBlurEditorText ->(when (= activeEditor e) (set activeEditor null)))
         (e.onDidContentSizeChange updateSize)
         (e.onDidChangeModelContent ->[&opt _] (onChange e))
         e))
-
-    
 
 (function replaceComment [element newText]
     (case element
@@ -202,8 +216,7 @@
             ->(changeLockStatus (nth ktxt2Elements idx) !locked))
         (outerDiv.appendChild lockLink)
         (set exportLink.innerHTML "export")
-        (exportLink.addEventListener "click"
-            ->(vscode.postMessage (object type "export")))
+        (exportLink.addEventListener "click" export)
         (outerDiv.appendChild exportLink)
         (content.appendChild outerDiv)
         (content.appendChild (document.createElement "br"))
@@ -221,6 +234,14 @@
             top y
             behavior INSTANT)))
 
+(function :Void changeElementScrollY [:Void->Void changeFunc]
+    (changeFunc)
+    (clamp elementScrollY 0 (- ktxt2Elements.length PAGE_SIZE))
+    (let [s (getState)]
+        (set s.elementScrollY elementScrollY)
+        (setState s))
+    (updateContent))
+
 (function :Void updateContent [&opt text]
     (try
             {
@@ -235,18 +256,8 @@
                             topLink (document.createElement "a")]
                         (set upLink.innerHTML "^ ")
                         (set topLink.innerHTML "^^^")
-                        (upLink.addEventListener "click"
-                            ->{
-                                (-= elementScrollY SCROLL_AMOUNT)
-                                (updateContent)
-                                (setScrollY (- document.body.scrollHeight document.documentElement.clientHeight))
-                            })
-                        (topLink.addEventListener "click"
-                            ->{
-                                (set elementScrollY 0)
-                                (updateContent)
-                                (setScrollY 0)
-                            })
+                        (upLink.addEventListener "click" pageUp)
+                        (topLink.addEventListener "click" pageTop)
                         (content.appendChild upLink)
                         (content.appendChild topLink)))
                 (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
@@ -260,21 +271,35 @@
                             bottomLink (document.createElement "a")]
                         (set downLink.innerHTML "v ")
                         (set bottomLink.innerHTML "vvv")
-                        (downLink.addEventListener "click"
-                            ->{
-                                (+= elementScrollY SCROLL_AMOUNT)
-                                (updateContent)
-                                (setScrollY 0)
-                            })
-                        (bottomLink.addEventListener "click"
-                            ->{
-                                (set elementScrollY (- ktxt2Elements.length PAGE_SIZE))
-                                (updateContent)
-                                (setScrollY (- document.body.scrollHeight document.documentElement.clientHeight))
-                            })
+                        (downLink.addEventListener "click" pageDown)
+                        (bottomLink.addEventListener "click" pageBottom)
                         (content.appendChild downLink)
                         (content.appendChild bottomLink)))
                 (set updatingContent false)
             }
         (catch [error] (print "Error updating ktxt2 editor: ${error}"))))
 
+(function scrollToPageTop []
+    (setScrollY 0))
+
+(function scrollToPageBottom []
+    (setScrollY (- document.body.scrollHeight document.documentElement.clientHeight)))
+
+(function pageDown []
+    (changeElementScrollY ->(+= elementScrollY SCROLL_AMOUNT))
+    (scrollToPageTop))
+
+(function pageBottom []
+    (changeElementScrollY ->(set elementScrollY (- ktxt2Elements.length PAGE_SIZE)))
+    (scrollToPageBottom))
+
+(function pageUp []
+    (changeElementScrollY ->(-= elementScrollY SCROLL_AMOUNT))
+    (scrollToPageBottom))
+
+(function pageTop []
+    (changeElementScrollY ->(set elementScrollY 0))
+    (scrollToPageTop))
+
+(function export []
+    (vscode.postMessage (object type "export")))
