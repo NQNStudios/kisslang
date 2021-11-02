@@ -3,6 +3,7 @@ package hollywoo_flixel;
 import kiss.Prelude;
 import kiss.List;
 import flixel.FlxSprite;
+import hollywoo_flixel.FlxMovie;
 
 typedef AnimationArgs = {
     name:String,

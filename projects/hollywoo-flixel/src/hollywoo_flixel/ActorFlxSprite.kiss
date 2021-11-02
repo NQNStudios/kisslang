@@ -1,5 +1,10 @@
-(defNew [:String assetPath &opt frameWidth frameHeight :Map<String,AnimationArgs> animations]
+(prop :FlxStageFacing defaultFacing)
+
+(defNew [:String assetPath &opt frameWidth frameHeight :FlxStageFacing defaultFacing :Map<String,AnimationArgs> animations]
     (super)
+
+    (set this.defaultFacing (or defaultFacing Right))
+
     (if (and frameWidth frameHeight)
             (loadGraphic assetPath true frameWidth frameHeight)
         (loadGraphic assetPath))

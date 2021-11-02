@@ -22,7 +22,8 @@
 
 (method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
     // TODO on the first appearance, show name and description (maybe? also probably not for all?)
-    // TODO flip sprite if facing left, and also allow for manually defined flipped frames so text doesn't mirror
+    // TODO  also allow for manually defined flipped frames so text doesn't mirror
+    (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     (character.actor.setGraphicSize ACTOR_WIDTH)
     (set character.actor.x
         (- (case character.stagePosition
