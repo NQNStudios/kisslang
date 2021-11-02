@@ -175,7 +175,7 @@
 
         (outerDiv.appendChild outputDiv)
 
-        (set lockLink.innerHTML (if locked "unlock" "lock"))
+        (set lockLink.innerHTML (if locked "unlock " "lock "))
         (lockLink.addEventListener "click"
             ->(changeLockStatus (nth ktxt2Elements idx) !locked))
         (outerDiv.appendChild lockLink)
@@ -191,6 +191,13 @@
 
 
 (var &mut updatingContent false)
+
+(function :Void setScrollY [y]
+    (window.scroll
+        (object
+            left 0
+            top y
+            behavior INSTANT)))
 
 (function :Void updateContent [&opt text]
     (try
@@ -210,11 +217,13 @@
                             ->{
                                 (-= elementScrollY SCROLL_AMOUNT)
                                 (updateContent)
+                                (setScrollY (- document.body.scrollHeight document.documentElement.clientHeight))
                             })
                         (topLink.addEventListener "click"
                             ->{
                                 (set elementScrollY 0)
                                 (updateContent)
+                                (setScrollY 0)
                             })
                         (content.appendChild upLink)
                         (content.appendChild topLink)))
@@ -233,11 +242,13 @@
                             ->{
                                 (+= elementScrollY SCROLL_AMOUNT)
                                 (updateContent)
+                                (setScrollY 0)
                             })
                         (bottomLink.addEventListener "click"
                             ->{
                                 (set elementScrollY (- ktxt2Elements.length PAGE_SIZE))
                                 (updateContent)
+                                (setScrollY (- document.body.scrollHeight document.documentElement.clientHeight))
                             })
                         (content.appendChild downLink)
                         (content.appendChild bottomLink)))

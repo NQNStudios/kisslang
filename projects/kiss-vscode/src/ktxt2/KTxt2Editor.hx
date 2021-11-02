@@ -4,6 +4,7 @@ import js.html.Document;
 import js.html.Window;
 import js.html.Element;
 import js.html.TextAreaElement;
+import js.html.ScrollBehavior;
 import js.Lib;
 import ktxt2.EditorExterns;
 import ktxt2.KTxt2;
