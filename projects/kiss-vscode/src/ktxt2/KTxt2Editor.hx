@@ -21,8 +21,10 @@ typedef MessageToEditor = {
 typedef EditorState = {
     text:String,
     scrollY:Float,
-    elementScrollY:Int
-    // TODO active editor, selection & range etc
+    elementScrollY:Int,
+    activeEditorIdx:Int,
+    startCursorPos:Int,
+    endCursorPos:Int
 };
 
 @:build(kiss.Kiss.build())

@@ -12,7 +12,13 @@
 (function :EditorState getState []
     (ifLet [s (the EditorState (vscode.getState))]
             s
-        (object scrollY 0 elementScrollY 0 text "")))
+        (object
+            scrollY 0
+            elementScrollY 0
+            text ""
+            activeEditorIdx -1
+            startCursorPos -1
+            endCursorPos -1)))
 
 (function :Void setState [:EditorState state]
     (vscode.setState state))
@@ -62,12 +68,31 @@
             (set elementScrollY state.elementScrollY)
             (updateContent state.text)
             (setScrollY state.scrollY)
+            (when (<= 0 state.activeEditorIdx)
+                (let [e (nth editors state.activeEditorIdx)]
+                    (e.focus)
+                    (if (<= 0 state.endCursorPos)
+                            {
+                                (e.setSelection
+                                    (Range.fromPositions
+                                        (.getPositionAt (e.getModel) state.startCursorPos)
+                                        (.getPositionAt (e.getModel) state.endCursorPos)))
+                            }
+                        (if (<= 0 state.startCursorPos)
+                                {
+                                    (e.setPosition (.getPositionAt (e.getModel) state.startCursorPos))
+                                })))
+                ((activateEditor state.activeEditorIdx)))
+            
         })))
 
 (var MONACO_CHECK_MILLI 100)
 (function :Void whenMonacoIsAvailable [:Void->Void doThis]
     (if Lib.global.monaco
-            (doThis)
+            {
+                (set Range Lib.global.monaco.Range)
+                (doThis)
+            }
         (window.setTimeout ->(whenMonacoIsAvailable doThis) MONACO_CHECK_MILLI)))
 
 (var &mut :Map<Int,Int> editTimeoutHandles (new Map))
@@ -85,8 +110,11 @@
             EDIT_TIMEOUT_MILLI)))
 
 (var &mut :Dynamic activeEditor)
+(var :Array<Dynamic> editors [])
 (function monacoEditor [div style content language readOnly :Dynamic->Void onChange]
-    (let [:Dynamic e
+    (let [eIdx
+                editors.length
+            :Dynamic e
                 (Lib.global.monaco.editor.create div
                     (objectWith
                         [
@@ -105,11 +133,64 @@
                     (e.layout)
                 }]
         (updateSize)
-        (e.onDidFocusEditorText ->(set activeEditor e))
-        (e.onDidBlurEditorText ->(when (= activeEditor e) (set activeEditor null)))
+        (e.onDidFocusEditorText (activateEditor eIdx))
+        (e.onDidChangeCursorPosition
+            ->evt (when (Range.isEmpty (activeEditor.getSelection))
+                (let [s (getState)]
+                    (set s.startCursorPos (.getOffsetAt (e.getModel) evt.position))
+                    (set s.endCursorPos -1)
+                    (setState s))
+
+                // Delay updating the block
+                (when (dictGet editTimeoutHandles eIdx)
+                    (onChange e))))
+        (e.onDidChangeCursorSelection
+            ->evt {
+                (let [s (getState)]
+                    (set s.startCursorPos (.getOffsetAt (e.getModel) (evt.selection.getStartPosition)))
+                    (set s.endCursorPos (.getOffsetAt (e.getModel) (evt.selection.getEndPosition)))
+                    (setState s))
+                
+                // Delay updating the block
+                (when (dictGet editTimeoutHandles eIdx)
+                    (onChange e))
+            })
+        (e.onDidBlurEditorText (deactivateEditor eIdx))
         (e.onDidContentSizeChange updateSize)
         (e.onDidChangeModelContent ->[&opt _] (onChange e))
+        (editors.push e)
         e))
+
+(var &mut :Dynamic Range)
+
+(function activateEditor [eIdx]
+    ->{
+        (set activeEditor (nth editors eIdx))
+        (let [s (getState)]
+            (set s.activeEditorIdx eIdx)
+            (let [sel (activeEditor.getSelection)]
+                (if (Range.isEmpty sel)
+                        // set state's cursor position
+                        {
+                            (set s.startCursorPos (activeEditor.getOffsetAt (activeEditor.getPosition)))
+                            (set s.endCursorPos -1)
+                        }
+                    // set state's selection
+                    {
+                        (set s.startCursorPos (activeEditor.getOffsetAt (sel.getStartPosition)))
+                        (set s.endCursorPos (activeEditor.getOffsetAt (sel.getEndPosition)))
+                    }))
+            (setState s))
+    })
+
+(function deactivateEditor [eIdx]
+    ->(when (= activeEditor (nth editors eIdx))
+        (set activeEditor null)
+        (let [s (getState)]
+            (set s.activeEditorIdx -1)
+            (set s.startCursorPos -1)
+            (set s.endCursorPos -1)
+            (setState s))))
 
 (function replaceComment [element newText]
     (case element
@@ -220,10 +301,7 @@
         (outerDiv.appendChild exportLink)
         (content.appendChild outerDiv)
         (content.appendChild (document.createElement "br"))
-        (content.appendChild blockLinkAfter)
-
-        ))
-
+        (content.appendChild blockLinkAfter)))
 
 (var &mut updatingContent false)
 
