@@ -102,8 +102,27 @@
             (cc)
         }))
 
-(method :Void playSound [:FlxSound sound :Float volumeMod :Continuation cc]
-    // TODO preserve its original volume
-    (set sound.volume volumeMod)
-    (set sound.onComplete cc)
-    (sound.play))
+(method :Void playSound [:FlxSound sound :Float volumeMod :Bool waitForEnd :Continuation cc]
+    (let [originalVolume sound.volume
+            restoreOriginalVolume ->(set sound.volume originalVolume)]
+        (*= sound.volume volumeMod)
+        (set sound.onComplete 
+            (if waitForEnd
+                    ->{(restoreOriginalVolume) (cc)}
+                restoreOriginalVolume)))
+    (sound.play)
+    (unless waitForEnd (cc)))
+
+(prop &mut :FlxSound music)
+(prop MUSIC_FADE_SEC 1)
+(prop MUSIC_FADE_STEPS 10)
+(method :Void playSong [:String song :Float volumeMod :Bool loop :Bool waitForEnd :Continuation cc]
+    (set music (FlxG.sound.play song 0 loop null true (if waitForEnd cc ->{})))
+    (.start (new FlxTimer)
+        (/ MUSIC_FADE_SEC MUSIC_FADE_STEPS)
+        ->:Void _ (+= music.volume (/ volumeMod MUSIC_FADE_STEPS))
+        MUSIC_FADE_STEPS)
+    (set music.persist true)
+    (unless waitForEnd (cc)))
+
+(method :Void stopSong [] (when music (music.stop)))

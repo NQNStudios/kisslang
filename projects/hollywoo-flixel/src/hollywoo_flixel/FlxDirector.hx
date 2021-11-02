@@ -13,6 +13,7 @@ import hollywoo_flixel.FlxMovie;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.system.FlxSound;
+import flixel.util.FlxTimer;
 
 @:build(kiss.Kiss.build())
-class FlxDirector implements Director<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound> {}
+class FlxDirector implements Director<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String> {}

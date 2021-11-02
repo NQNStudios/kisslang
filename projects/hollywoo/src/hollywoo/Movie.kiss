@@ -2,6 +2,7 @@
 (prop :Map<String,Set> sets (new Map))
 (prop :Map<String,Actor> actors (new Map))
 (prop :Map<String,Sound> sounds (new Map))
+(prop :Map<String,Song> songs (new Map))
 
 // TODO for some reason this won't work when declared in Kiss syntax:
 // Mutable representation of frames in time:
@@ -26,7 +27,7 @@
 (defNew
     [
         // "View" in the Model-View-Controller architecture:
-        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound> director
+        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song> director
     ]
 
     (super))
@@ -62,10 +63,31 @@
     (assert isLoading)
     (dictSet sounds name s))
 
-(method playSound [name :Continuation cc &opt :Float volumeMod]
+(method playSound [name :Continuation cc &opt :Float volumeMod :Bool waitForEnd]
     (set volumeMod (or volumeMod 1))
     (assert (<= 0 volumeMod 1))
-    (director.playSound (dictGet sounds name) volumeMod cc))
+    (director.playSound (dictGet sounds name) volumeMod ?waitForEnd cc))
+
+(method awaitPlaySound [name :Continuation cc &opt :Float volumeMod]
+    (playSound name cc volumeMod true))
+
+(method newSong [name :Song song]
+    (assert isLoading)
+    (dictSet songs name song))
+
+(method playSong [name :Continuation cc &opt :Float volumeMod :Bool loop :Bool waitForEnd]
+    (set volumeMod (or volumeMod 1))
+    (assert (<= 0 volumeMod 1))
+    (director.playSong (dictGet songs name) volumeMod ?loop ?waitForEnd cc))
+
+(method awaitPlaySong [name :Continuation cc &opt :Float volumeMod]
+    (playSong name cc volumeMod false true))
+    
+(method loopSong [name :Continuation cc &opt :Float volumeMod]
+    (playSong name cc volumeMod true false))
+
+(method stopSong []
+    (director.stopSong))
 
 (method newActor [name :Actor actor]
     (assert isLoading)
