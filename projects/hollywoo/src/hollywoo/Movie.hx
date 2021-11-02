@@ -1,10 +1,17 @@
 package hollywoo;
 
 import haxe.Constraints.Function;
+import haxe.Timer;
 import kiss.AsyncEmbeddedScript;
 import kiss.Prelude;
 import hollywoo.Scene;
 import hollywoo.Director;
+
+enum DelayHandling {
+    Auto;
+    AutoWithSkip;
+    Manual;
+}
 
 /**
  * Model/controller of a Hollywoo film, and main execution script

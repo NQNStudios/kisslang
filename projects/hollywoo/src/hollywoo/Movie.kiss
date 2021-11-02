@@ -4,6 +4,8 @@
 (prop :Map<String,Sound> sounds (new Map))
 (prop :Map<String,Song> songs (new Map))
 
+(prop &mut :DelayHandling delayHandling AutoWithSkip)
+
 // TODO for some reason this won't work when declared in Kiss syntax:
 // Mutable representation of frames in time:
 // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
@@ -30,7 +32,28 @@
         &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song> director
     ]
 
+    (set director.movie this)
+
     (super))
+
+(method :Void delay [sec :Continuation cc]
+    (case delayHandling
+        (Auto
+            (Timer.delay cc (* 1000 sec)))
+        (AutoWithSkip
+            (director.startWaitForInput cc)
+            (Timer.delay
+                ->{
+                    (director.stopWaitForInput)
+                    (cc)
+                }
+                (* 1000 sec)))
+        (Manual
+            (director.startWaitForInput
+                ->{
+                    (director.stopWaitForInput)
+                    (cc)
+                }))))
 
 (method newSet [name :Set set]
     (assert isLoading)

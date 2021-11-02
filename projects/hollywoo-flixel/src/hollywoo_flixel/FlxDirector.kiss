@@ -1,5 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
+(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String> movie)
 
 (defNew []
     (set continueAction (new FlxActionDigital "Continue" onContinue))
@@ -44,15 +45,11 @@
         (set nextCC null)
         (cc)))
 
-(method :Void waitForInputOrDelay [:Float delaySeconds :Continuation cc]
-    // TODO allow user to choose between automatic delays and continue checks
-    (if true
-            //{
-                (set nextCC cc)
-                // TODO show an indicator that input is needed
-            //}
-        )
-        )
+(method :Void startWaitForInput [:Continuation cc]
+    (set nextCC cc))
+
+(method :Void stopWaitForInput []
+    (set nextCC null))
 
 (var DIALOG_X 300)
 (var DIALOG_WIDTH (- 1280 ACTOR_WIDTH ACTOR_WIDTH))
@@ -95,9 +92,10 @@
         (set dialogText.y DIALOG_Y))
     (dialogText.revive)
 
-    // wait for input 
-    // TODO customize the delay to the dialog length or voice-over length
-    (waitForInputOrDelay 5
+    // wait for input or delay
+    // TODO customize the delay in a more sophisticated way to the dialog length or voice-over length,
+    // or rely on FlxTypeText to add breathing room
+    (movie.delay .length (text.split " ")
         ->{
             (dialogText.kill)
             (speakerNameText.kill)
