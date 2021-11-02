@@ -10,9 +10,11 @@
     (FlxG.inputs.add actionManager)
     (set actionManager.resetOnStateSwitch NONE))
 
+(prop &mut :SceneFlxState currentState)
 (method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
     // TODO on the first appearance, give a super (for some scenes but probably not others... hm....)
-    (FlxG.switchState (cast scene SceneFlxState))
+    (set currentState (cast scene SceneFlxState))
+    (FlxG.switchState currentState)
     (cc))
 
 (var STAGE_LEFT_X 150)
@@ -33,7 +35,7 @@
                     STAGE_RIGHT_X))
             (/ character.actor.width 2)))
     (set character.actor.y ACTOR_Y)
-    (FlxG.state.add character.actor)
+    (currentState.add character.actor)
     (cc))
 
 (prop &mut :Null<Continuation> nextCC)
@@ -72,18 +74,18 @@
     (unless dialogBox
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))
         (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR)
-        (FlxG.state.add dialogBox))
+        (currentState.add dialogBox))
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
         // TODO use FlxTypeText to reveal dialog gradually
         (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE))
-        (FlxG.state.add dialogText))
+        (currentState.add dialogText))
     (set dialogText.text text)
     // show the speaker name
     (unless speakerNameText
         (set speakerNameText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE))
-        (FlxG.state.add speakerNameText))
+        (currentState.add speakerNameText))
     (if speakerName
             {
                 (set speakerNameText.text "${speakerName}:")

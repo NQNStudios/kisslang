@@ -1,5 +1,10 @@
 (loadFrom "hollywoo" "src/hollywoo/HollywooDSL.kiss")
 
+(method newFlxScene [name set time perspective]
+    (let [setSprite (new FlxSprite 0 0)]
+        (setSprite.loadGraphic (dictGet sets set))
+        (newScene name (cast (new SceneFlxState setSprite time perspective)))))
+
 (method newFlxSound [name path &opt :Float volume]
     (set volume (or volume 1))
     (assert (<= 0 volume 1))

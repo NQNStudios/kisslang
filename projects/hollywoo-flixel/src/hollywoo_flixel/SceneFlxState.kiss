@@ -1,19 +1,17 @@
-(defNew [&prop :String set &prop :SceneTime time &prop :ScenePerspective perspective]
+(defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
         :Map<String,Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new Map)
     ]
-    (super))
+    (super)
+    (add setSprite))
 
 (method &override :Void create []
     (super.create)
-    (let [setSprite (new FlxSprite 0 0)]
-        (setSprite.loadGraphic set)
-        (when (> setSprite.width FlxG.width)
-            (setSprite.setGraphicSize FlxG.width))
-        (when (> setSprite.height FlxG.height)
-            (setSprite.setGraphicSize 0 FlxG.height))
-        (setSprite.screenCenter)
-        (add setSprite)))
+    (when (> setSprite.width FlxG.width)
+        (setSprite.setGraphicSize FlxG.width))
+    (when (> setSprite.height FlxG.height)
+        (setSprite.setGraphicSize 0 FlxG.height))
+    (setSprite.screenCenter))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed))
