@@ -13,7 +13,7 @@
     (ifLet [s (the EditorState (vscode.getState))]
             s
         (object
-            scrollY 0
+            scrollY 0.0
             elementScrollY 0
             text ""
             activeEditorIdx -1
@@ -35,12 +35,15 @@
         ->:Void event
             (case (the MessageToEditor event.data)
                 ((object type "update" text text)
-                    (whenMonacoIsAvailable ->(updateContent text))
-
                     // Either create the first EditorState, or get the last one
                     (let [newState (getState)]
                         (set newState.text text)
-                        (setState newState)))
+                        (setState newState)
+                        (whenMonacoIsAvailable
+                            ->{
+                                (updateContent text)
+                                (activateFromState newState)
+                            })))
                 (otherType (throw "bad message $event for KTxt2Editor"))))
     
     (window.addEventListener "scroll"
@@ -68,23 +71,25 @@
             (set elementScrollY state.elementScrollY)
             (updateContent state.text)
             (setScrollY state.scrollY)
-            (when (<= 0 state.activeEditorIdx)
-                (let [e (nth editors state.activeEditorIdx)]
-                    (e.focus)
-                    (if (<= 0 state.endCursorPos)
-                            {
-                                (e.setSelection
-                                    (Range.fromPositions
-                                        (.getPositionAt (e.getModel) state.startCursorPos)
-                                        (.getPositionAt (e.getModel) state.endCursorPos)))
-                            }
-                        (if (<= 0 state.startCursorPos)
-                                {
-                                    (e.setPosition (.getPositionAt (e.getModel) state.startCursorPos))
-                                })))
-                ((activateEditor state.activeEditorIdx)))
-            
+            (activateFromState state)
         })))
+
+(function activateFromState [state]
+    (when (<= 0 state.activeEditorIdx)
+        (let [e (nth editors state.activeEditorIdx)]
+            (e.focus)
+            (if (<= 0 state.endCursorPos)
+                    {
+                        (e.setSelection
+                            (Range.fromPositions
+                                (.getPositionAt (e.getModel) state.startCursorPos)
+                                (.getPositionAt (e.getModel) state.endCursorPos)))
+                    }
+                (if (<= 0 state.startCursorPos)
+                        {
+                            (e.setPosition (.getPositionAt (e.getModel) state.startCursorPos))
+                        })))
+                ((activateEditor state.activeEditorIdx))))
 
 (var MONACO_CHECK_MILLI 100)
 (function :Void whenMonacoIsAvailable [:Void->Void doThis]
@@ -96,10 +101,14 @@
         (window.setTimeout ->(whenMonacoIsAvailable doThis) MONACO_CHECK_MILLI)))
 
 (var &mut :Map<Int,Int> editTimeoutHandles (new Map))
-(var EDIT_TIMEOUT_MILLI 2000)
+(var EDIT_TIMEOUT_MILLI 4000)
+(var EXPORT_TIMEOUT_MILLI 10000)
+(var &mut :Array<Int> exportTimeoutHandle [])
 (function :Void addEditTimeout [idx :Void->Void handler]
     (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
         (window.clearTimeout activeTimeoutForIndex))
+    (whenLet [[activeExportTimeout] exportTimeoutHandle]
+        (window.clearTimeout activeExportTimeout))
     (dictSet editTimeoutHandles
         idx
         (window.setTimeout
@@ -107,10 +116,18 @@
                 (editTimeoutHandles.remove idx)
                 (handler)
             }
-            EDIT_TIMEOUT_MILLI)))
+            EDIT_TIMEOUT_MILLI))
+    (set exportTimeoutHandle
+        [
+            (window.setTimeout ->{
+                (set exportTimeoutHandle [])
+                (export)
+            }
+            EXPORT_TIMEOUT_MILLI)
+        ]))
 
 (var &mut :Dynamic activeEditor)
-(var :Array<Dynamic> editors [])
+(var &mut :Array<Dynamic> editors [])
 (function monacoEditor [div style content language readOnly :Dynamic->Void onChange]
     (let [eIdx
                 editors.length
@@ -135,15 +152,16 @@
         (updateSize)
         (e.onDidFocusEditorText (activateEditor eIdx))
         (e.onDidChangeCursorPosition
-            ->evt (when (Range.isEmpty (activeEditor.getSelection))
-                (let [s (getState)]
-                    (set s.startCursorPos (.getOffsetAt (e.getModel) evt.position))
-                    (set s.endCursorPos -1)
-                    (setState s))
+            ->evt
+                (when (Range.isEmpty (activeEditor.getSelection))
+                    (let [s (getState)]
+                        (set s.startCursorPos (.getOffsetAt (e.getModel) evt.position))
+                        (set s.endCursorPos -1)
+                        (setState s))
 
-                // Delay updating the block
-                (when (dictGet editTimeoutHandles eIdx)
-                    (onChange e))))
+                    // Delay updating the block
+                    (when (dictGet editTimeoutHandles eIdx)
+                        (onChange e))))
         (e.onDidChangeCursorSelection
             ->evt {
                 (let [s (getState)]
@@ -157,7 +175,15 @@
             })
         (e.onDidBlurEditorText (deactivateEditor eIdx))
         (e.onDidContentSizeChange updateSize)
-        (e.onDidChangeModelContent ->[&opt _] (onChange e))
+        (e.onDidChangeModelContent
+            ->[&opt _] {
+                (let [s (getState)]
+                    (set s.activeEditorIdx eIdx)
+                    (set s.startCursorPos (.getOffsetAt (e.getModel) (e.getPosition)))
+                    (set s.endCursorPos -1)
+                    (setState s))
+                (onChange e)
+            })
         (editors.push e)
         e))
 
@@ -324,6 +350,7 @@
     (try
             {
                 (set updatingContent true)
+                (set editors [])
                 (when content
                     (document.body.removeChild content))
                 (set content (document.createElement "div"))
