@@ -69,6 +69,11 @@
 					(otherwise
 						(errorMessage "bad message $e from KTxt2Editor"))))
 
+		(webviewPanel.onDidChangeViewState
+			->e {
+				(unless e.webviewPanel.visible (exportSourceAndOutputFiles document))
+			})						
+
 		(updateWebview))
 	null)
 
