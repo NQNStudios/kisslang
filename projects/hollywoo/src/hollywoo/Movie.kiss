@@ -3,6 +3,7 @@
 (prop :Map<String,Actor> actors (new Map))
 (prop :Map<String,Sound> sounds (new Map))
 (prop :Map<String,Song> songs (new Map))
+(prop :Map<String,Prop> props (new Map))
 
 (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
@@ -29,7 +30,7 @@
 (defNew
     [
         // "View" in the Model-View-Controller architecture:
-        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song> director
+        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop> director
     ]
 
     (set director.movie this)
@@ -73,11 +74,13 @@
                                         (dictGet sets setKey)
                                     characters
                                         (new Map)
+                                    propsOnScreen
+                                        (new Map)
                                 ]
                                 time
                                 perspective)))
 
-(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor> scene]
+(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
     (assert isLoading)
     (dictSet scenes name scene))
 
@@ -139,6 +142,19 @@
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
+
+(method newProp [name :Prop prop]
+    (assert isLoading)
+    (dictSet props name prop))
+
+(method addPropToScreen [name :ScreenPosition position :Continuation cc]
+    (dictSet .propsOnScreen (_currentScene) name (dictGet props name))
+    (director.showPropOnScreen (dictGet props name) position cc))
+
+(method removePropFromScrene [name :Continuation cc]
+    (director.hideProp (dictGet props name) cc))
+
+// TODO removeProp
 
 // Dialogue:
 

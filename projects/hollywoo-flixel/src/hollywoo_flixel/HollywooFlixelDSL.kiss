@@ -13,3 +13,8 @@
         (set s.volume volume)
         (set s.persist true)
         (newSound name s)))
+
+(method newFlxProp [name path]
+    (let [propSprite (new FlxSprite 0 0)]
+        (propSprite.loadGraphic path)
+        (newProp name propSprite)))

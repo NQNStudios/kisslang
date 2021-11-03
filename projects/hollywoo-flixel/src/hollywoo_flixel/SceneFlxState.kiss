@@ -1,6 +1,7 @@
 (defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
         :Map<String,Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new Map)
+        :Map<FlxSprite,FlxScreenPosition> propsOnScreen (new Map)
     ]
     (super)
     (add setSprite))

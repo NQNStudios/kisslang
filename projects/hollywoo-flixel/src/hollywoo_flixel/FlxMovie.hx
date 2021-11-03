@@ -24,9 +24,10 @@ enum FlxScreenPosition {
     LowerRight;
     LowerCenter;
     UpperCenter;
+    Center;
 }
 
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
-class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String> {}
+class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite> {}

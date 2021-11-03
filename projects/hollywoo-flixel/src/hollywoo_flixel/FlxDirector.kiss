@@ -1,6 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String> movie)
+(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite> movie)
 
 (defNew []
     (set continueAction (new FlxActionDigital "Continue" onContinue))
@@ -12,7 +12,7 @@
     (set actionManager.resetOnStateSwitch NONE))
 
 (prop &mut :SceneFlxState currentState)
-(method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
+(method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSprite> scene :Appearance appearance :Continuation cc]
     // Close the last scene state
     (when currentState
         (currentState.close))
@@ -98,7 +98,7 @@
     // wait for input or delay
     // TODO customize the delay in a more sophisticated way to the dialog length or voice-over length,
     // or rely on FlxTypeText to add breathing room
-    (movie.delay .length (text.split " ")
+    (movie.delay (+ 5 (* 0.5 .length (text.split " ")))
         ->{
             (dialogText.kill)
             (speakerNameText.kill)
@@ -130,3 +130,24 @@
     (unless waitForEnd (cc)))
 
 (method :Void stopSong [] (when music (music.stop)))
+
+(var PROP_MIN_WIDTH 200)
+(var PROP_MAX_WIDTH 500)
+
+(method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
+    // TODO assign the other possible positions
+    (let [[x y]
+                (case position
+                    (Center [(/ 1280 2) (/ 720 2)])
+                    (otherwise (throw "not implemented")))]
+        (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
+            (prop.setGraphicSize width)
+            (set prop.x (- x (/ prop.width 2)))
+            (set prop.y (- y (/ (* prop.height prop.scale.y) 2)))
+            (currentState.add prop)))
+        // TODO give the prop reveal some time to land
+    (cc))
+
+(method :Void hideProp [prop cc]
+    (currentState.remove prop)
+    (cc))

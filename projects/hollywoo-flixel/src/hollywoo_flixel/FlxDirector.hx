@@ -17,4 +17,4 @@ import flixel.system.FlxSound;
 import flixel.util.FlxTimer;
 
 @:build(kiss.Kiss.build())
-class FlxDirector implements Director<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String> {}
+class FlxDirector implements Director<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite> {}
