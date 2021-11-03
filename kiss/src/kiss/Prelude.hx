@@ -5,6 +5,7 @@ using Std;
 import kiss.ReaderExp;
 import haxe.ds.Either;
 import haxe.Constraints;
+import haxe.DynamicAccess;
 #if (!macro && hxnodejs)
 import js.node.ChildProcess;
 import js.node.Buffer;
@@ -21,6 +22,7 @@ import python.Bytearray;
 #end
 import uuid.Uuid;
 import haxe.io.Path;
+import haxe.Json;
 
 using StringTools;
 using uuid.Uuid;
@@ -320,8 +322,12 @@ class Prelude {
     }
 
     // Based on: http://old.haxe.org/doc/snip/memoize
-    public static function memoize(func:Function, ?caller:Dynamic):Function {
-        var argMap = new Map<String, Dynamic>();
+    public static function memoize(func:Function, ?caller:Dynamic, ?jsonFile:String, ?jsonArgMap:Map<String, Dynamic>):Function {
+        var argMap = if (jsonArgMap != null) {
+            jsonArgMap;
+        } else {
+            new Map<String, Dynamic>();
+        }
         var f = (args:Array<Dynamic>) -> {
             var argString = args.join('|');
             return if (argMap.exists(argString)) {
@@ -329,12 +335,29 @@ class Prelude {
             } else {
                 var ret = Reflect.callMethod(caller, func, args);
                 argMap[argString] = ret;
+                #if (sys || hxnodejs)
+                if (jsonFile != null) {
+                    File.saveContent(jsonFile, Json.stringify(argMap));
+                }
+                #end
                 ret;
             };
         };
         f = Reflect.makeVarArgs(f);
         return f;
     }
+
+    #if (sys || hxnodejs)
+    public static function fsMemoize(func:Function, funcName:String, ?caller:Dynamic):Function {
+        var fileName = '${funcName}.memoized';
+        if (!FileSystem.exists(fileName))
+            File.saveContent(fileName, "{}");
+
+        var pastResults:DynamicAccess<Dynamic> = Json.parse(File.getContent(fileName));
+        var argMap:Map<String, Dynamic> = [for (key => value in pastResults) key => value];
+        return memoize(func, caller, fileName, argMap);
+    }
+    #end
 
     public static function _printStr(s:String) {
         #if (sys || hxnodejs)
