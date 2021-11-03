@@ -13,9 +13,12 @@
 
 (prop &mut :SceneFlxState currentState)
 (method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite> scene :Appearance appearance :Continuation cc]
+    // Close the last scene state
+    (when currentState
+        (currentState.close))
     // TODO on the first appearance, give a super (for some scenes but probably not others... hm....)
     (set currentState (cast scene SceneFlxState))
-    (FlxG.switchState currentState)
+    (FlxG.state.openSubState currentState)
     (cc))
 
 (var STAGE_LEFT_X 150)
@@ -70,14 +73,14 @@
     // Make a dialog box
     (unless dialogBox
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))
-        (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR)
-        (currentState.add dialogBox))
+        (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR))
+    (currentState.add dialogBox)
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
         // TODO use FlxTypeText to reveal dialog gradually
-        (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE))
-        (currentState.add dialogText))
+        (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
+    (currentState.add dialogText)
     (set dialogText.text text)
     // show the speaker name
     (unless speakerNameText
