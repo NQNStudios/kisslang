@@ -84,8 +84,8 @@
     (set dialogText.text text)
     // show the speaker name
     (unless speakerNameText
-        (set speakerNameText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE))
-        (currentState.add speakerNameText))
+        (set speakerNameText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
+    (currentState.add speakerNameText)
     (if speakerName
             {
                 (set speakerNameText.text "${speakerName}:")
