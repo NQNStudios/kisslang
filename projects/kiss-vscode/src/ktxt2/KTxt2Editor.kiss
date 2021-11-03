@@ -128,7 +128,7 @@
 
 (var &mut :Dynamic activeEditor)
 (var &mut :Array<Dynamic> editors [])
-(function monacoEditor [div style content language readOnly :Dynamic->Void onChange]
+(function monacoEditor [div style content language readOnly :Dynamic->Void updateBlock]
     (let [eIdx
                 editors.length
             :Dynamic e
@@ -148,9 +148,12 @@
                 ->[&opt _] {
                     (div.setAttribute "style" "${style} height: $(e.getContentHeight)px;")
                     (e.layout)
-                }]
+                }
+            onChange
+                ->editor (addEditTimeout eIdx ->(updateBlock editor))]
         (updateSize)
         (e.onDidFocusEditorText (activateEditor eIdx))
+        (e.onDidBlurEditorText ->(updateBlock e))
         (e.onDidChangeCursorPosition
             ->evt
                 (when (Range.isEmpty (activeEditor.getSelection))
@@ -290,14 +293,10 @@
         (content.appendChild (document.createElement "br"))
 
         (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
-            ->editor (addEditTimeout idx ->{
-                                            (replaceSourceBlock (nth ktxt2Elements idx) (editor.getValue))
-                                        }))
+            ->editor (replaceSourceBlock (nth ktxt2Elements idx) (editor.getValue)))
 
         (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
-            ->editor (addEditTimeout idx ->{
-                                            (replaceOutputBlock (nth ktxt2Elements idx) (editor.getValue))
-                                        }))
+            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (editor.getValue)))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
