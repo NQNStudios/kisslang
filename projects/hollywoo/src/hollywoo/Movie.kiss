@@ -41,13 +41,19 @@
         (Auto
             (Timer.delay cc (* 1000 sec)))
         (AutoWithSkip
-            (director.startWaitForInput cc)
-            (Timer.delay
-                ->{
-                    (director.stopWaitForInput)
-                    (cc)
-                }
-                (* 1000 sec)))
+            (let [autoDelay
+                        (Timer.delay
+                            ->{
+                                (director.stopWaitForInput)
+                                (cc)
+                            }
+                            (* 1000 sec))]
+                (director.startWaitForInput 
+                    ->{
+                        (director.stopWaitForInput)
+                        (autoDelay.stop)
+                        (cc)
+                    })))
         (Manual
             (director.startWaitForInput
                 ->{
