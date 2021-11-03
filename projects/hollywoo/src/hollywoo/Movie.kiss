@@ -142,6 +142,9 @@
 
 // Dialogue:
 
+(method superText [text cc]
+    (director.showDialog "" Super "" text cc))
+
 (method normalSpeech [actorName wryly text cc]
     (director.showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 

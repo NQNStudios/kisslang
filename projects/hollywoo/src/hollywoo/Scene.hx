@@ -20,6 +20,7 @@ typedef Character<StagePosition, StageFacing, Actor> = {
 };
 
 enum SpeechType<StagePosition, StageFacing, Actor> {
+    Super;
     OffScreen(actor:Actor);
     TextMessage(actor:Actor);
     FromPhone(actor:Actor);
