@@ -42,6 +42,10 @@
     (currentState.add character.actor)
     (cc))
 
+(method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
+    (currentState.remove character.actor)
+    (cc))
+
 (prop &mut :Null<Continuation> nextCC)
 (method onContinue [:FlxActionDigital continueAction]
     (whenLet [cc nextCC]

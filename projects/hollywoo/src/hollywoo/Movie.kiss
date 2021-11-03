@@ -134,11 +134,10 @@
             cc)
         ))
 
-/* TODO
-(method removeCharacter [
-
-])
-*/
+(method removeCharacter [actorName :Continuation cc]
+    (let [c (dictGet .characters (_currentScene) actorName)]
+        (.remove .characters (_currentScene) actorName)
+        (director.hideCharacter c cc)))
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
@@ -151,7 +150,7 @@
     (dictSet .propsOnScreen (_currentScene) name (dictGet props name))
     (director.showPropOnScreen (dictGet props name) position cc))
 
-(method removePropFromScrene [name :Continuation cc]
+(method removeProp [name :Continuation cc]
     (director.hideProp (dictGet props name) cc))
 
 // TODO removeProp
