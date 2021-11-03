@@ -34,8 +34,11 @@ class KissInterp extends Interp {
         variables.set("Math", Math);
         variables.set("Json", haxe.Json);
         variables.set("StringTools", StringTools);
+        variables.set("Path", haxe.io.Path);
         #if (sys || hxnodejs)
         variables.set("Sys", Sys);
+        variables.set("FileSystem", sys.FileSystem);
+        variables.set("File", sys.io.File);
         #end
         #if sys
         variables.set("Http", sys.Http);

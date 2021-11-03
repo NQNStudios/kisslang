@@ -1,3 +1,57 @@
+(defMacroVar ASSET_SOURCES_FILE "sources.tsv")
+
+(defMacroFunction appendToSources [query resultNumber apiName author apiQuery]
+    (unless (FileSystem.exists ASSET_SOURCES_FILE)
+        (File.saveContent ASSET_SOURCES_FILE ""))
+    (File.saveContent
+        ASSET_SOURCES_FILE
+        (+
+            (File.getContent ASSET_SOURCES_FILE)
+            "${query}\t${resultNumber}\t${apiName}\t${author}\t${apiQuery}\n")))
+
+(defMacroFunction downloadToImages [query resultNumber apiName url]
+    (let [ext
+                (Path.extension url)
+            file
+                "assets/images/$(StringTools.replace query " " "")-${apiName}-${resultNumber}.${ext}"]
+        (unless (FileSystem.exists file)
+            (assertProcess "curl" ["--output" file url]))
+        file))
+
+// This macro downloads an image from the Pixabay.com API and puts it in
+// your projects AssetPaths, returning the path for loadAsset().
+(defMacro pixabayImage [searchQuery resultNumber]
+    (_pixabayImage (eval searchQuery) (eval resultNumber)))
+
+(defMacroVar PIXABAY_PUBLIC_KEY "24159230-ce68ffe06827131f3f991f4f6")
+(defMacroFunction _pixabayImage [searchQuery resultNumber]
+    // TODO tryCatch
+    (letThrow
+            (let [apiUrl
+                        "https://pixabay.com/api/"
+                    perPage
+                        20 // this many will be queried for ID and memoized
+                    page
+                        (+ 1 (Math.ceil (/ resultNumber perPage)))
+                    _request
+                        ->url (Http.requestUrl url)
+                    request
+                        (fsMemoize _request "request")
+                    apiQuery
+                        "${apiUrl}?key=${PIXABAY_PUBLIC_KEY}&q=$(StringTools.urlEncode searchQuery)&per_page=${perPage}&page=${page}"
+                    result
+                        (Json.parse
+                            (request apiQuery))
+                    imageInfo
+                        (nth result.hits (% resultNumber perPage))]
+                // Document where the assets came from:
+                (appendToSources searchQuery resultNumber "Pixabay" "${imageInfo.user}:${imageInfo.user_id}" apiQuery)
+                (ReaderExp.StrExp (downloadToImages searchQuery resultNumber "Pixabay" imageInfo.largeImageURL)))
+        (catch [error] (throw "Error from pixabay query $searchQuery ${resultNumber}: $error"))))
+
+// DEPRECATED/INCOMPLETE: Unsplash asset macros, because Unsplash requires hotlinking, which is
+// incompatible with making offline-enabled HaxeFlixel games
+
 // This macro downloads an image from the Unsplash.com API and puts it in
 // your projects AssetPaths, returning the path for loadAsset().
 // USAGE: First, make an account on unsplash.com. Make a Demo app,
@@ -17,11 +71,17 @@
                         (let [id (Sys.getEnv "UNSPLASH_ACCESS_KEY")]
                             (if id id (throw "UNSPLASH_ACCESS_KEY not defined")))
                     perPage
-                        10 // this many will be downloaded in one go
+                        10 // this many will be queried for ID and memoized
                     page
                         (Math.ceil (/ resultNumber perPage))
+                    _request
+                        ->url (Http.requestUrl url)
+                    request
+                        (fsMemoize _request "request")
                     result
                         (Json.parse
-                            (Http.requestUrl ~"${apiUrl}${query}?client_id=${clientId}&query=$(StringTools.urlEncode searchQuery)&per_page=${perPage}&page=${page}"))]
-                (throw result))
+                            (request "${apiUrl}${query}?client_id=${clientId}&query=$(StringTools.urlEncode searchQuery)&per_page=${perPage}&page=${page}"))]
+                    imageResultId
+                        .id (nth result.results (% resultNumber perPage))
+                (ReaderExp.StrExp (Json.stringify result)))
         (catch [error] (throw "Error from unsplash query $searchQuery ${resultNumber}: $error"))))
