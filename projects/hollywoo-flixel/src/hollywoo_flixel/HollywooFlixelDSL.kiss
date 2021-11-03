@@ -1,4 +1,5 @@
 (loadFrom "hollywoo" "src/hollywoo/HollywooDSL.kiss")
+(loadFrom "hollywoo-flixel" "src/hollywoo_flixel/AssetMacros.kiss")
 
 (method newFlxScene [name set time perspective]
     (let [setSprite (new FlxSprite 0 0)]
