@@ -1,4 +1,4 @@
-(defMacroVar ASSET_SOURCES_FILE "sources.tsv")
+(defMacroVar ASSET_SOURCES_FILE "assets/sources.tsv")
 
 (defMacroFunction appendToSources [query resultNumber apiName author apiQuery]
     (unless (FileSystem.exists ASSET_SOURCES_FILE)
