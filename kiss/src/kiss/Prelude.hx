@@ -506,6 +506,10 @@ class Prelude {
         #end
     }
 
+    #if (sys || hxnodejs)
+    public static var cachedConvertToHScript:String->String = cast(fsMemoize(convertToHScript, "convertToHScript"));
+    #end
+
     public static function getTarget():KissTarget {
         return #if cpp
             Cpp;

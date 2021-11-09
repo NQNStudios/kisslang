@@ -69,6 +69,7 @@
     (let [&mut sourceText ""
             &mut outputText ""
             interp (new KissInterp)]
+        (set interp.cacheConvertedHScript true)
         (doFor ktxtElement (splitFileElements fileStream)
             (case ktxtElement
                 ((Block (objectWith source output))

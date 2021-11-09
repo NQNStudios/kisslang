@@ -48,8 +48,23 @@ class KissInterp extends Interp {
         variables.set("kiss", {});
     }
 
+    public var cacheConvertedHScript = false;
+
     public function evalKiss(kissStr:String):Dynamic {
-        return evalHaxe(Prelude.convertToHScript(kissStr));
+        #if !(sys || hxnodejs)
+        if (cacheConvertedHScript) {
+            throw "Cannot used cacheConvertedHScript on a non-sys target";
+        }
+        #end
+
+        var convert =
+            #if (sys || hxnodejs)
+            if (cacheConvertedHScript) {
+                Prelude.cachedConvertToHScript;
+            } else
+            #end
+                Prelude.convertToHScript;
+        return evalHaxe(convert(kissStr));
     }
 
     public function evalHaxe(hscriptStr:String):Dynamic {
