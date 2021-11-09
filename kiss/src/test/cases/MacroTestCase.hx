@@ -44,7 +44,6 @@ class MacroTestCase extends Test {
     function testSetMacroVar() {
         _testSetMacroVar();
     }
-    */
 
     function testTryCatchWithoutDynamic () {
         _testTryCatchWithoutDynamic();
