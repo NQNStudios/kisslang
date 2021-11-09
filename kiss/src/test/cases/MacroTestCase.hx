@@ -25,7 +25,8 @@ class MacroTestCase extends Test {
     }
 
     function testUndefAlias() {
-        Assert.equals(9, print);
+        Assert.equals(9, chooseRandom);
+        Assert.equals(6, print(5));
         Assert.equals(9, aliasValue());
     }
 

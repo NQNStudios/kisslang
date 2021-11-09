@@ -85,7 +85,7 @@ class KissInterp extends Interp {
     }
 
     override function exprReturn(e):Dynamic {
-        // the default exprReturn() contains a try-catch which, though it is important, hides very important macroexpansion callstacks sometimes
+        // the default exprReturn() contains a try-catch which, though it is important (break, continue, and return statements require it), hides very important macroexpansion callstacks sometimes
         #if macrotest
         return expr(e);
         #else
