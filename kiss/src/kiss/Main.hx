@@ -9,6 +9,7 @@ import kiss.Reader;
 import kiss.Stream;
 
 using tink.MacroApi;
+using kiss.Kiss;
 #end
 
 import haxe.Json;
@@ -132,7 +133,9 @@ class Main {
         var k = Kiss.defaultKissState();
         k.wrapListExps = false;
         var pretty = args.indexOf("--pretty") != -1;
-        k.hscript = args.indexOf("--hscript") != -1;
+
+        if (args.indexOf("--hscript") != -1)
+            k = k.forHScript();
 
         function print(s:String) {
             if (!pretty)

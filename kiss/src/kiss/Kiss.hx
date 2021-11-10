@@ -14,6 +14,7 @@ import kiss.Macros;
 import kiss.CompileError;
 import kiss.cloner.Cloner;
 
+using kiss.Kiss;
 using kiss.Helpers;
 using kiss.Reader;
 using tink.MacroApi;
@@ -372,24 +373,34 @@ class Kiss {
         return expr;
     }
 
+    static function disableMacro(copy:KissState, m:String, reason:String) {
+        copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
+            var b = wholeExp.expBuilder();
+            b.callSymbol("throw", [b.str('$m is unavailable in macros because $reason')]);
+        };
+    }
+
     // Return an identical Kiss State, but without type annotations or wrapping list expressions as kiss.List constructor calls.
     public static function forHScript(k:KissState):KissState {
         var copy = new Cloner().clone(k);
         copy.hscript = true;
 
         // disallow macros that will error when run in hscript:
-        function disableMacro(m:String, reason:String) {
-            copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
-                var b = wholeExp.expBuilder();
-                b.callSymbol("throw", [b.str('$m is unavailable in macros because $reason')]);
-            };
-        }
+        disableMacro(copy, "ifLet", "hscript doesn't support pattern-matching");
+        disableMacro(copy, "whenLet", "hscript doesn't support pattern-matching");
+        disableMacro(copy, "unlessLet", "hscript doesn't support pattern-matching");
 
-        disableMacro("set", "you don't want your macros to be stateful");
-        disableMacro("ifLet", "hscript doesn't support pattern-matching");
-        disableMacro("whenLet", "hscript doesn't support pattern-matching");
-        disableMacro("unlessLet", "hscript doesn't support pattern-matching");
+        copy.macros["cast"] = (wholeExp:ReaderExp, exps, k) -> {
+            exps[0];
+        };
 
+        return copy;
+    }
+
+    public static function forMacroEval(k:KissState): KissState {
+        var copy = k.forHScript();
+        // Disable macros that will cause problems in macro evaluation:
+        disableMacro(copy, "set", "you don't want your macros to be stateful");
         return copy;
     }
 

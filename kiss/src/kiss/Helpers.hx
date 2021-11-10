@@ -374,7 +374,7 @@ class Helpers {
 
     static var parser = new Parser(); 
     static function compileTimeHScript(exp:ReaderExp, k:KissState) {
-        var hscriptExp = mapForInterp(k.forHScript().convert(exp));
+        var hscriptExp = mapForInterp(k.forMacroEval().convert(exp));
         var code = hscriptExp.toString(); // tink_macro to the rescue
         #if macrotest
         Prelude.print("Compile-time hscript: " + code);
