@@ -36,19 +36,6 @@
 (altDefun nameAndNumber [name String number Int]
     "$name $number")
 
-// If for whatever reason, you wanted to make a variable called print
-(undefAlias &call print)
-(var print 9)
-
-(defAlias &ident alias 5)
-(undefAlias &ident alias)
-(var alias 9)
-(function aliasValue [] alias)
-
-// If for whatever reason, you wanted to make a function called and
-(undefMacro and)
-(function and [a b] (+ a b))
-(function andValue [] (and 5 6))
 
 (defMacro listOfExp [exp times]
     (let [times (eval times)]
