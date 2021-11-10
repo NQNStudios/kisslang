@@ -7,7 +7,10 @@
                     (Assert.equals 6 (+ a b c))
                     (async.done))
             }
-        (Assert.pass)))
+        {
+            (Assert.pass)
+            (async.done)
+        }))
 
 (function _testRejectedPromise [:Async async]
     (#if js
@@ -19,4 +22,7 @@
                     (Assert.fail)
                     (async.done))
             }
-        (Assert.pass)))
+        {
+            (Assert.pass)
+            (async.done)
+        }))
