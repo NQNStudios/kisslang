@@ -803,6 +803,8 @@ class Macros {
             var lambdaExp = b.callSymbol("lambda", [exps[1]].concat(exps.slice(2)));
 
             k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
+            // Run the definition AGAIN so it can capture itself recursively:
+            k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
 
             return null;
         };
@@ -995,6 +997,7 @@ class Macros {
 
                 stringifyExpList.push(b.the(b.symbol("String"), b.callSymbol("tink.Json.stringify", [b.the(b.symbol(type), bindingList[idx + 1])])));
                 parseBindingList.push(bindingList[idx]);
+                // This will be called in the context where __args__ is Sys.args()
                 parseBindingList.push(b.callSymbol("tink.Json.parse", [b.callField("shift", b.symbol("__args__"), [])]));
                 idx += 2;
             }

@@ -360,7 +360,7 @@ class Kiss {
             case Quasiquote(innerExp):
                 // This statement actually turns into an HScript expression before running
                 macro {
-                    Helpers.evalUnquotes($v{innerExp}, k, __args__).def;
+                    Helpers.evalUnquotes($v{innerExp}).def;
                 };
             default:
                 throw CompileError.fromExp(exp, 'conversion not implemented');
@@ -377,7 +377,7 @@ class Kiss {
         var copy = new Cloner().clone(k);
         copy.hscript = true;
 
-        // Also disallow macros that will error when run in hscript:
+        // disallow macros that will error when run in hscript:
         function disableMacro(m:String, reason:String) {
             copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
                 var b = wholeExp.expBuilder();
@@ -385,6 +385,7 @@ class Kiss {
             };
         }
 
+        disableMacro("set", "you don't want your macros to be stateful");
         disableMacro("ifLet", "hscript doesn't support pattern-matching");
         disableMacro("whenLet", "hscript doesn't support pattern-matching");
         disableMacro("unlessLet", "hscript doesn't support pattern-matching");

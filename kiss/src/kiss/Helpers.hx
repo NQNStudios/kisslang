@@ -328,11 +328,6 @@ class Helpers {
         }
     }
 
-    // This stack will contain multiple references to the same interp--to count how many layers deep it is.
-    // This stack is like top in Inception. When empty, it proves that we're not running at compiletime yet.
-    // When we ARE running at compiletime already, the pre-existing interp will be used
-    static var interps:kiss.List<Interp> = [];
-
     public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
         var def = switch (exp.def) {
             case Symbol(_) | StrExp(_) | RawHaxe(_) | Quasiquote(_):
@@ -377,58 +372,67 @@ class Helpers {
         });
     }
 
-    public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
+    static var parser = new Parser(); 
+    static function compileTimeHScript(exp:ReaderExp, k:KissState) {
         var hscriptExp = mapForInterp(k.forHScript().convert(exp));
         var code = hscriptExp.toString(); // tink_macro to the rescue
         #if macrotest
         Prelude.print("Compile-time hscript: " + code);
         #end
         // Need parser external to the KissInterp to wrap parsing in an informative try-catch
-        var parser = new Parser();
-        if (interps.length == 0) {
-            var interp = new KissInterp();
-            interp.variables.set("read", Reader.assertRead.bind(_, k));
-            interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
-            interp.variables.set("ReaderExp", ReaderExpDef);
-            interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
-            interp.variables.set("printExp", printExp);
-            interp.variables.set("kiss", {
-                ReaderExp: {
-                    ReaderExpDef: ReaderExpDef
-                }
-            });
-            interp.variables.set("k", k.forHScript());
-            interp.variables.set("Helpers", Helpers);
-            interp.variables.set("Macros", Macros);
-            for (name => value in k.macroVars) {
-                interp.variables.set(name, value);
-            }
-            // This is kind of a big deal:
-            interp.variables.set("eval", Helpers.runAtCompileTimeDynamic.bind(_, k));
-            interp.variables.set("macroDepth", () -> interps.length);
-
-            interps.push(interp);
-        } else {
-            interps.push(new Cloner().clone(interps[-1]));
-        }
         var parsed = try {
             parser.parseString(code);
         } catch (e) {
             throw CompileError.fromExp(exp, 'macro-time hscript parsing failed with $e:\n$code');
+        };
+        return parsed;
+    }
+
+    public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
+        var parsed = compileTimeHScript(exp, k);
+        
+        var interp = new KissInterp();
+        interp.variables.set("read", Reader.assertRead.bind(_, k));
+        interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
+        interp.variables.set("ReaderExp", ReaderExpDef);
+        interp.variables.set("nextToken", Reader.nextToken.bind(_, "a token"));
+        interp.variables.set("printExp", printExp);
+        interp.variables.set("kiss", {
+            ReaderExp: {
+                ReaderExpDef: ReaderExpDef
+            }
+        });
+        interp.variables.set("Macros", Macros);
+        for (name => value in k.macroVars) {
+            interp.variables.set(name, value);
         }
 
-        interps[-1].variables.set("__args__", args); // trippy
+        function innerRunAtCompileTimeDynamic(innerExp:ReaderExp) {
+            // in case macroVars have changed
+            for (name => value in k.macroVars) {
+                interp.variables.set(name, value);
+            }
+            var value = interp.publicExprReturn(compileTimeHScript(innerExp, k));
+            if (value == null) {
+                throw CompileError.fromExp(exp, "compile-time evaluation returned null");
+            }
+            return value;
+        }
+        function innerRunAtCompileTime(exp:ReaderExp) {
+            return compileTimeValueToReaderExp(innerRunAtCompileTimeDynamic(exp), exp);
+        }
+
+        interp.variables.set("eval", innerRunAtCompileTimeDynamic);
+        interp.variables.set("Helpers", {
+            evalUnquotes: evalUnquotes.bind(_, innerRunAtCompileTime)
+        });
+
         if (args != null) {
             for (arg => value in args) {
-                interps[-1].variables.set(arg, value);
+                interp.variables.set(arg, value);
             }
         }
-        var value:Dynamic = if (interps.length == 1) {
-            interps[-1].execute(parsed);
-        } else {
-            interps[-1].expr(parsed);
-        };
-        interps.pop();
+        var value:Dynamic = interp.execute(parsed);
         if (value == null) {
             throw CompileError.fromExp(exp, "compile-time evaluation returned null");
         }
@@ -470,13 +474,13 @@ class Helpers {
         return e;
     }
 
-    static function evalUnquoteLists(l:Array<ReaderExp>, k:KissState, ?args:Map<String, Dynamic>):Array<ReaderExp> {
+    static function evalUnquoteLists(l:Array<ReaderExp>, innerRunAtCompileTime:(ReaderExp)->Dynamic):Array<ReaderExp> {
         var idx = 0;
         while (idx < l.length) {
             switch (l[idx].def) {
                 case UnquoteList(exp):
                     l.splice(idx, 1);
-                    var listToInsert:Dynamic = runAtCompileTime(exp, k, args);
+                    var listToInsert:Dynamic = innerRunAtCompileTime(exp);
                     // listToInsert could be either an array (from &rest) or a ListExp (from [list syntax])
                     var newElements:Array<ReaderExp> = if (Std.isOfType(listToInsert, Array)) {
                         listToInsert;
@@ -498,22 +502,23 @@ class Helpers {
         return l;
     }
 
-    public static function evalUnquotes(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):ReaderExp {
+    public static function evalUnquotes(exp:ReaderExp, innerRunAtCompileTime:(ReaderExp)->Dynamic):ReaderExp {
+        var recurse = evalUnquotes.bind(_, innerRunAtCompileTime);
         var def = switch (exp.def) {
             case Symbol(_) | StrExp(_) | RawHaxe(_):
                 exp.def;
             case CallExp(func, callArgs):
-                CallExp(evalUnquotes(func, k, args), evalUnquoteLists(callArgs, k, args).map(evalUnquotes.bind(_, k, args)));
+                CallExp(recurse(func), evalUnquoteLists(callArgs, innerRunAtCompileTime).map(recurse));
             case ListExp(elements):
-                ListExp(evalUnquoteLists(elements, k, args).map(evalUnquotes.bind(_, k, args)));
+                ListExp(evalUnquoteLists(elements, innerRunAtCompileTime).map(recurse));
             case TypedExp(type, innerExp):
-                TypedExp(type, evalUnquotes(innerExp, k, args));
+                TypedExp(type, recurse(innerExp));
             case FieldExp(field, innerExp):
-                FieldExp(field, evalUnquotes(innerExp, k, args));
+                FieldExp(field, recurse(innerExp));
             case KeyValueExp(keyExp, valueExp):
-                KeyValueExp(evalUnquotes(keyExp, k, args), evalUnquotes(valueExp, k, args));
+                KeyValueExp(recurse(keyExp), recurse(valueExp));
             case Unquote(innerExp):
-                var unquoteValue:Dynamic = runAtCompileTime(innerExp, k, args);
+                var unquoteValue:Dynamic = innerRunAtCompileTime(innerExp);
                 if (unquoteValue == null) {
                     throw CompileError.fromExp(innerExp, "unquote evaluated to null");
                 } else if (Std.isOfType(unquoteValue, ReaderExpDef)) {
@@ -524,7 +529,7 @@ class Helpers {
                     throw CompileError.fromExp(exp, "unquote didn't evaluate to a ReaderExp or ReaderExpDef");
                 };
             case MetaExp(meta, innerExp):
-                MetaExp(meta, evalUnquotes(innerExp, k, args));
+                MetaExp(meta, recurse(innerExp));
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
         };

@@ -56,17 +56,18 @@
 (defMacro _testPrintAtMacroTimeMacro []
     (printAtMacroTime))
 
-(function testPrintAtMacroTime []
-    (_testPrintAtMacroTimeMacro))
+(function _testPrintAtMacroTime []
+    (_testPrintAtMacroTimeMacro)
+    (Assert.pass))
 
 (defMacroVar count 0)
 (defMacro _testSetMacroVarMacro []
-    (set count (+ count 1))
+    (assertThrows (set count (+ count 1)))
     (ReaderExp.StrExp (Std.string count)))
 
 (function _testSetMacroVar []
-    (Assert.equals 1 (_testSetMacroVarMacro))
-    (Assert.equals 2 (_testSetMacroVarMacro)))
+    (_testSetMacroVarMacro)
+    (Assert.pass))
 
 // ifLet and its derivatives should be disabled in defMacro bodies:
 (defMacro _testIfLetDisabledMacro []
