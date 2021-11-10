@@ -46,6 +46,10 @@ class MacroTestCase extends Test {
         _testSetMacroVar();
     }
 
+    function testRedefineMacroVar() {
+        _testRedefineMacroVar();
+    }
+
     function testTryCatchWithoutDynamic () {
         _testTryCatchWithoutDynamic();
     }

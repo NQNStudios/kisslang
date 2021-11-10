@@ -44,6 +44,10 @@ class KissInterp extends Interp {
         variables.set("Http", sys.Http);
         #end
 
+        #if macro
+        variables.set("CompileError", kiss.CompileError);
+        #end
+
         // Might eventually need to simulate types in the namespace:
         variables.set("kiss", {});
     }

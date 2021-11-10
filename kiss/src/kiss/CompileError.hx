@@ -19,6 +19,15 @@ class CompileError {
         return new CompileError([exp], message);
     }
 
+    public static function fromExpStr(pos:Position, expStr:String, message:String) {
+        switch (Reader.read(Stream.fromString(expStr), Kiss.defaultKissState())) {
+            case Some(exp):
+                return fromExp({pos: pos, def: exp.def}, message);
+            default:
+                throw 'bad'; // TODO better message
+        }
+    }
+
     public static function fromArgs(exps:Array<ReaderExp>, message:String) {
         return new CompileError(exps, message);
     }

@@ -558,6 +558,21 @@ class Helpers {
         function list(exps:Array<ReaderExp>) {
             return ListExp(exps).withPosOf(posRef);
         }
+        function objectWith (bindings:Array<ReaderExp>, captures:Array<ReaderExp>) {
+            return callSymbol("objectWith", [list(bindings)].concat(captures));
+        }
+        function str(s:String) {
+            return StrExp(s).withPosOf(posRef);
+        }
+        function raw(code:String) {
+            return RawHaxe(code).withPosOf(posRef);
+        }
+        function int(v:Int) {
+            return _symbol(Std.string(v));
+        }
+        function float(v:Float) {
+            return _symbol(Std.string(v));
+        } 
         return {
             call: call,
             callSymbol: callSymbol,
@@ -565,15 +580,34 @@ class Helpers {
             print: (arg:ReaderExp) -> CallExp(Symbol("print").withPosOf(posRef), [arg]).withPosOf(posRef),
             the: (type:ReaderExp, value:ReaderExp) -> callSymbol("the", [type, value]),
             list: list,
-            str: (s:String) -> StrExp(s).withPosOf(posRef),
+            str: str,
             symbol: _symbol,
-            raw: (code:String) -> RawHaxe(code).withPosOf(posRef),
+            int: int,
+            float: float,
+            raw: raw,
             typed: (path:String, exp:ReaderExp) -> TypedExp(path, exp).withPosOf(posRef),
             meta: (m:String, exp:ReaderExp) -> MetaExp(m, exp).withPosOf(posRef),
             field: field,
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
             begin: (exps:Array<ReaderExp>) -> callSymbol("begin", exps),
             let: (bindings:Array<ReaderExp>, body:Array<ReaderExp>) -> callSymbol("let", [list(bindings)].concat(body)),
+            objectWith: objectWith,
+            throwCompileError: (reason:String) -> {
+                callSymbol("throw", [
+                    callSymbol("CompileError.fromExpStr", [
+                        // pos
+                        objectWith([
+                            _symbol("file"), str(posRef.pos.file),
+                            _symbol("line"), int(posRef.pos.line),
+                            _symbol("column"), int(posRef.pos.column),
+                            _symbol("absoluteChar"), int(posRef.pos.absoluteChar),
+                        ], []),
+                        // expStr
+                        str(Reader.toString(posRef.def)),
+                        str(reason)
+                    ])
+                ]);
+            },
             none: () -> None.withPosOf(posRef)
         };
     }

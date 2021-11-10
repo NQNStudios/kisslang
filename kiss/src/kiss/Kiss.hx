@@ -376,7 +376,8 @@ class Kiss {
     static function disableMacro(copy:KissState, m:String, reason:String) {
         copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
             var b = wholeExp.expBuilder();
-            b.callSymbol("throw", [b.str('$m is unavailable in macros because $reason')]);
+            // have this throw during macroEXPANSION, not before (so assertThrows will catch it)
+            b.throwCompileError('$m is unavailable in macros because $reason');
         };
     }
 
@@ -399,8 +400,18 @@ class Kiss {
 
     public static function forMacroEval(k:KissState): KissState {
         var copy = k.forHScript();
-        // Disable macros that will cause problems in macro evaluation:
-        disableMacro(copy, "set", "you don't want your macros to be stateful");
+        // Catch accidental misuse of (set) on macroVars
+        var setLocal = copy.specialForms["set"];
+        copy.specialForms["set"] = (wholeExp:ReaderExp, exps, k:KissState) -> {
+            switch (exps[0].def) {
+                case Symbol(varName) if (k.macroVars.exists(varName)):
+                    var b = wholeExp.expBuilder();
+                    // have this throw during macroEXPANSION, not before (so assertThrows will catch it)
+                    copy.convert(b.throwCompileError('If you intend to change macroVar $varName, use defMacroVar instead. If not, rename your local variable for clarity.'));
+                default:
+                    setLocal(wholeExp, exps, copy);
+            };
+        };
         return copy;
     }
 

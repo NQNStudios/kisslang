@@ -470,7 +470,9 @@ class Macros {
                 try {
                     // Return the macro expansion:
                     return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
-                } catch (error) {
+                } catch (error:CompileError) {
+                    throw error;
+                } catch (error:Dynamic) {
                     throw CompileError.fromExp(wholeExp, 'Macro expansion error: $error');
                 };
             };

@@ -60,6 +60,7 @@
     (_testPrintAtMacroTimeMacro)
     (Assert.pass))
 
+// Calling (set) on a macroVar is a faux-pas, but calling defMacroVar again is not
 (defMacroVar count 0)
 (defMacro _testSetMacroVarMacro []
     (assertThrows (set count (+ count 1)))
@@ -68,6 +69,15 @@
 (function _testSetMacroVar []
     (_testSetMacroVarMacro)
     (Assert.pass))
+
+(defMacro _testRedefineMacroVarMacro []
+    (defMacroVar count (+ count 1))
+    (symbol (Std.string count)))
+
+(function _testRedefineMacroVar []
+    (Assert.equals 1 (_testRedefineMacroVarMacro))
+    (Assert.equals 2 (_testRedefineMacroVarMacro)))
+
 
 // ifLet and its derivatives should be disabled in defMacro bodies:
 (defMacro _testIfLetDisabledMacro []
