@@ -412,7 +412,10 @@ class Helpers {
             for (name => value in k.macroVars) {
                 interp.variables.set(name, value);
             }
+            var locals = interp.getLocals();
+            interp.setLocals(new Cloner().clone(locals));
             var value = interp.publicExprReturn(compileTimeHScript(innerExp, k));
+            interp.setLocals(locals);
             if (value == null) {
                 throw CompileError.fromExp(exp, "compile-time evaluation returned null");
             }
@@ -452,6 +455,7 @@ class Helpers {
     // but it needs to be a ReaderExp for evalUnquotes()
     static function compileTimeValueToReaderExp(e:Dynamic, source:ReaderExp):ReaderExp {
         // TODO if it's a string, return a StrExp. That way, symbolNameValue() won't be required
+        // TODO if it's a number, return a Symbol(number.toString()).
         return if (Std.isOfType(e, Array)) {
             var arr:Array<Dynamic> = e;
             var listExps = arr.map(compileTimeValueToReaderExp.bind(_, source));

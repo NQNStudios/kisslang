@@ -1,7 +1,9 @@
 (defMacroVar maxInt 1000000000)
 (defMacroVar maxStringLength 20)
 (defMacroVar maxExps 4)
-(defMacroVar maxDepth 15)
+(defMacroVar maxDepth 14)
+
+(defAlias &ident nd (+ 1 macroDepth))
 
 (defMacroFunction _macroList [func length]
     (for _ (range length) (func)))
@@ -13,7 +15,10 @@
     (_macroList func (+ 2 (random (- maxExps 2)))))
 
 (defMacroFunction _randomLetterString []
-    (ReaderExp.StrExp (apply + (for _ (range (+ 1 (random (- maxStringLength 1)))) (chooseRandom (.split "abcdefghijklmnopqrstuvwxyz" ""))))))
+    (ReaderExp.StrExp
+        (apply +
+            (for _ (range (+ 1 (random (- maxStringLength 1))))
+                (chooseRandom (.split "abcdefghijklmnopqrstuvwxyz" ""))))))
 
 (defMacroFunction _randomInt []
     (symbol (Std.string (random maxInt))))
@@ -21,7 +26,7 @@
 (defMacroFunction _randomFloat []
     (symbol (Std.string (+ (random maxInt) (/ 1 (random maxInt))))))
 
-(defMacroFunction _randomFalsyExp []
+(defMacroFunction _randomFalsyExp [macroDepth]
     ((chooseRandom
         (concat
             [
@@ -30,19 +35,19 @@
                 ->{`""}
                 ->{`[]}
             ]
-            (if (< (macroDepth) maxDepth)
+            (if (< macroDepth maxDepth)
                     [
-                        ->{`(or ,@(_randomLengthMacroList _randomFalsyExp))}
+                        ->{`(or ,@(_randomLengthMacroList ->(_randomFalsyExp nd)))}
                         ->{`(and
-                                ,@(_randomLengthMacroList _randomUncertainExp)
-                                ,(_randomFalsyExp)
-                                ,@(_randomLengthMacroList _randomUncertainExp))}
+                                ,@(_randomLengthMacroList ->(_randomUncertainExp nd))
+                                ,(_randomFalsyExp nd)
+                                ,@(_randomLengthMacroList ->(_randomUncertainExp nd)))}
                     ]
                 [])))))
 (defMacro randomFalsyExp []
-    (printExp (_randomFalsyExp) "Falsy"))
+    (printExp (_randomFalsyExp 0) "Falsy"))
 
-(defMacroFunction _randomTruthyExp []
+(defMacroFunction _randomTruthyExp [macroDepth]
     ((chooseRandom
         (concat
             [
@@ -51,26 +56,26 @@
                 ->(_randomInt)
                 ->(_randomFloat)
             ]
-            (if (< (macroDepth) maxDepth)
+            (if (< macroDepth maxDepth)
                     [
                         ->{`[,@(_randomLengthMacroList _randomLetterString)]}
                         ->{`[,@(_randomLengthMacroList _randomInt)]}
                         ->{`[,@(_randomLengthMacroList _randomFloat)]}
-                        ->{`(and ,@(_randomLengthMacroList _randomTruthyExp))}
+                        ->{`(and ,@(_randomLengthMacroList ->(_randomTruthyExp nd)))}
                         ->{`(or 
-                                ,@(_randomLengthMacroList _randomUncertainExp)
-                                ,(_randomTruthyExp)
-                                ,@(_randomLengthMacroList _randomUncertainExp))}
+                                ,@(_randomLengthMacroList ->(_randomUncertainExp nd))
+                                ,(_randomTruthyExp nd)
+                                ,@(_randomLengthMacroList ->(_randomUncertainExp nd)))}
                     ]
                 [])))))
 (defMacro randomTruthyExp []
-    (printExp (_randomTruthyExp) "Truthy"))
+    (printExp (_randomTruthyExp 0) "Truthy"))
 
-(defMacroFunction _randomUncertainExp []
+(defMacroFunction _randomUncertainExp [macroDepth]
     ((chooseRandom
         [
-            ->(_randomFalsyExp)
-            ->(_randomTruthyExp)
+            ->(_randomFalsyExp macroDepth)
+            ->(_randomTruthyExp macroDepth)
         ])))
 
 (function _testTruthy []

@@ -118,8 +118,12 @@ class KissInterp extends Interp {
         return exprReturn(e);
     }
 
-    // For debugging:
     public function getLocals() {
         return locals;
     }
+
+    public function setLocals(l) {
+        locals = l;
+    }
+
 }
