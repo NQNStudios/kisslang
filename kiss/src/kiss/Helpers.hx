@@ -402,6 +402,7 @@ class Helpers {
                 ReaderExpDef: ReaderExpDef
             }
         });
+        interp.variables.set("k", k.forMacroEval());
         interp.variables.set("Macros", Macros);
         for (name => value in k.macroVars) {
             interp.variables.set(name, value);
@@ -431,8 +432,10 @@ class Helpers {
 
         interp.variables.set("eval", innerRunAtCompileTimeDynamic);
         interp.variables.set("Helpers", {
-            evalUnquotes: evalUnquotes.bind(_, innerRunAtCompileTime)
+            evalUnquotes: evalUnquotes.bind(_, innerRunAtCompileTime),
+            runAtCompileTime: innerRunAtCompileTime
         });
+        interp.variables.set("__interp__", interp);
 
         if (args != null) {
             for (arg => value in args) {

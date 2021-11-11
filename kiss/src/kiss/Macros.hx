@@ -473,6 +473,7 @@ class Macros {
                 } catch (error:CompileError) {
                     throw error;
                 } catch (error:Dynamic) {
+                    // TODO this could print the hscript, with some refactoring
                     throw CompileError.fromExp(wholeExp, 'Macro expansion error: $error');
                 };
             };
@@ -932,7 +933,7 @@ class Macros {
                 throw CompileError.fromExp(wholeExp, 'expression ${toMatch.def.toString()} matches no pattern in exprCase');
             };
 
-            return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("k")]);
+            return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("__interp__")]);
         };
 
         // Maybe the NEW wildest code in Kiss?
@@ -1043,8 +1044,8 @@ class Macros {
 
     static var exprCaseFunctions:Map<String, ReaderExp->ReaderExp> = [];
 
-    public static function exprCase(id:String, toMatchValue:ReaderExp, k:KissState):ReaderExp {
-        return Helpers.runAtCompileTime(exprCaseFunctions[id](toMatchValue), k);
+    public static function exprCase(id:String, toMatchValue:ReaderExp, i:KissInterp):ReaderExp {
+        return i.variables["Helpers"].runAtCompileTime(exprCaseFunctions[id](toMatchValue));
     }
 
     static function matchExpr(pattern:ReaderExp, instance:ReaderExp):Bool {
