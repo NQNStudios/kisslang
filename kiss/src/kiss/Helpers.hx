@@ -406,6 +406,10 @@ class Helpers {
         for (name => value in k.macroVars) {
             interp.variables.set(name, value);
         }
+        interp.variables.set("_setMacroVar", (name, value) -> {
+            k.macroVars[name] = value;
+            interp.variables.set(name, value);
+        });
 
         function innerRunAtCompileTimeDynamic(innerExp:ReaderExp) {
             // in case macroVars have changed

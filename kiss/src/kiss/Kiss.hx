@@ -407,7 +407,7 @@ class Kiss {
                 case Symbol(varName) if (k.macroVars.exists(varName)):
                     var b = wholeExp.expBuilder();
                     // have this throw during macroEXPANSION, not before (so assertThrows will catch it)
-                    copy.convert(b.throwCompileError('If you intend to change macroVar $varName, use defMacroVar instead. If not, rename your local variable for clarity.'));
+                    copy.convert(b.throwCompileError('If you intend to change macroVar $varName, use setMacroVar instead. If not, rename your local variable for clarity.'));
                 default:
                     setLocal(wholeExp, exps, copy);
             };

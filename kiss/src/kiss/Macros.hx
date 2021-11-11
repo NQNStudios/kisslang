@@ -798,6 +798,15 @@ class Macros {
             return null;
         };
 
+        macros["setMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, "(setMacroVar <name> <value>)");
+
+            var name = exps[0].symbolName().withPosOf(exps[0]);
+            var b = wholeExp.expBuilder();
+            
+            return b.callSymbol("_setMacroVar", [name, exps[1]]);
+        };
+
         macros["defMacroFunction"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(3, null, "(defMacroFunction <name> [<args>] <body...>)");
             var b = wholeExp.expBuilder();

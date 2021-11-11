@@ -60,7 +60,7 @@
     (_testPrintAtMacroTimeMacro)
     (Assert.pass))
 
-// Calling (set) on a macroVar is a faux-pas, but calling defMacroVar again is not
+// Calling (set) on a macroVar is a faux-pas, because (setMacroVar) is the right way
 (defMacroVar count 0)
 (defMacro _testSetMacroVarMacro []
     (assertThrows (set count (+ count 1)))
@@ -71,7 +71,7 @@
     (Assert.pass))
 
 (defMacro _testRedefineMacroVarMacro []
-    (defMacroVar count (+ count 1))
+    (setMacroVar count (+ count 1))
     (symbol (Std.string count)))
 
 (function _testRedefineMacroVar []
