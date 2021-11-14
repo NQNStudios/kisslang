@@ -30,7 +30,8 @@
     ((chooseRandom
         (concat
             [
-                ->{`null}
+                // null in conditionals is problematic in C#
+                (#if !cs ->{`null} ->{`false})
                 ->{`false}
                 ->{`""}
                 ->{`[]}
