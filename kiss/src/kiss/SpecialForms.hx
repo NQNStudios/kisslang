@@ -204,7 +204,7 @@ class SpecialForms {
         };
 
         map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(lambda [[argsNames...]] [body...])");
+            wholeExp.checkNumArgs(2, null, "(lambda [<argsNames...>] <body...>)");
             var returnsValue = switch (args[0].def) {
                 case TypedExp("Void", argNames):
                     args[0] = argNames;

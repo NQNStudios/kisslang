@@ -96,8 +96,17 @@ class Reader {
         //     ->[args] body
         //     ->arg body
         //     ->{body}
-        // or any of those with the first expression after -> prefixed by :Void
-        readTable["->"] = (stream:Stream, k) -> {
+        // OR, for countingLambda:
+        //     -+>countVar [args] body
+        //     -+>countVar arg body
+        //     -+>countVar {body}
+        // or any of those with the first expression after -> or -+> prefixed by :Void
+        function arrowSyntax(countingLambda:Bool, stream:Stream, k:KissState) {
+            var countVar = if (countingLambda) {
+                assertRead(stream, k);
+            } else {
+                null;
+            }
             var firstExp = assertRead(stream, k);
             var b = firstExp.expBuilder();
 
@@ -127,8 +136,15 @@ class Reader {
             if (!returnsValue) {
                 argsExp = TypedExp("Void", argsExp).withPosOf(argsExp);
             }
-            CallExp(b.symbol("lambda"), [argsExp, bodyExp]);
-        };
+            return if (countingLambda) {
+                CallExp(b.symbol("countingLambda"), [countVar, argsExp, bodyExp]);
+            } else {
+                CallExp(b.symbol("lambda"), [argsExp, bodyExp]);
+            };
+        }
+
+        readTable["->"] = arrowSyntax.bind(false);
+        readTable["-+>"] = arrowSyntax.bind(true);
 
         // Because macro keys are sorted by length and peekChars(0) returns "", this will be used as the default reader macro:
         readTable[""] = (stream:Stream, k:KissState) -> {

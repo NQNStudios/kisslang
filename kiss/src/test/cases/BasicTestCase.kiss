@@ -561,3 +561,13 @@
         (Assert.equals 10 bigValue)
         (Assert.equals 5 (clamp smallValue 5 10))
         (Assert.equals 5 smallValue)))
+
+(function _testCountingLambda []
+    (let [fullSyntax
+                (countingLambda a [] a)
+            arrowSyntax
+                -+>b {b}]
+        (Assert.equals 1 (fullSyntax))
+        (Assert.equals 2 (fullSyntax))
+        (Assert.equals 1 (arrowSyntax))
+        (Assert.equals 2 (arrowSyntax))))

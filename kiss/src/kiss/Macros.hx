@@ -1039,6 +1039,25 @@ class Macros {
                 ]));
         };
 
+        macros["countingLambda"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, null, "(countingLambda <countVar> [<argsNames...>] <body...>)");
+            var b = wholeExp.expBuilder();
+
+            var countVarSymbol = exps[0];
+            var args = exps[1];
+            var body = exps.slice(2);
+
+            return b.let([
+                b.meta("mut", countVarSymbol), b.int(0)
+            ], [b.callSymbol("lambda", [
+                args,
+                b.callSymbol("+=", [
+                    countVarSymbol,
+                    b.int(1)
+                ])
+            ].concat(body))]);
+        };
+
         return macros;
     }
 

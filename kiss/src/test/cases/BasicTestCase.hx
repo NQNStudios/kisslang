@@ -317,6 +317,10 @@ class BasicTestCase extends Test {
     function testClamp() {
         _testClamp();
     }
+
+    function testCountingLambda() {
+        _testCountingLambda();
+    }
 }
 
 class BasicObject {
