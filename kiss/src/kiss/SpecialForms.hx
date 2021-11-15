@@ -243,9 +243,21 @@ class SpecialForms {
         };
 
         map["loop"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, '(loop [body...])');
+            wholeExp.checkNumArgs(1, null, '(loop <body...>)');
             EWhile(macro true, k.convert(wholeExp.expBuilder().begin(args)), true).withMacroPosOf(wholeExp);
         };
+
+        function whileForm(invert:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
+            var funcName = if (invert) "until" else "while";
+            wholeExp.checkNumArgs(2, null, '($funcName <condition> <body...>)');
+            var b = wholeExp.expBuilder();
+            var cond = k.convert(b.callSymbol("Prelude.truthy", [args[0]]));
+            if (invert) cond = macro !$cond;
+            return EWhile(cond, k.convert(b.begin(args)), true).withMacroPosOf(wholeExp);
+        }
+
+        map["while"] = whileForm.bind(false);
+        map["until"] = whileForm.bind(true);
 
         map["return"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(0, 1, '(return [?value])');
