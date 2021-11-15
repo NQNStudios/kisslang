@@ -353,7 +353,11 @@ class Kiss {
                     arrayDecl;
                 };
             case RawHaxe(code):
-                Context.parse(code, exp.macroPos());
+                try {
+                    Context.parse(code, exp.macroPos());
+                } catch (err:Exception) {
+                    throw CompileError.fromExp(exp, 'Haxe parse error: $err');
+                };
             case FieldExp(field, innerExp):
                 EField(convert(innerExp), field).withMacroPosOf(exp);
             case KeyValueExp(keyExp, valueExp):
