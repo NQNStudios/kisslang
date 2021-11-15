@@ -1,4 +1,4 @@
-(var &mut :VSCodeAPI vscode)
+(var &mut :VSCodeAPI _vscode)
 (var &mut :Window window)
 (var &mut :Document document)
 (var &mut :Element content)
@@ -10,7 +10,7 @@
 (var &mut elementScrollY 0)
 
 (function :EditorState getState []
-    (ifLet [s (the EditorState (vscode.getState))]
+    (ifLet [s (the EditorState (_vscode.getState))]
             s
         (object
             scrollY 0.0
@@ -21,15 +21,15 @@
             endCursorPos -1)))
 
 (function :Void setState [:EditorState state]
-    (vscode.setState state))
+    (_vscode.setState state))
 
 (function main []
-    (set vscode (EditorExterns.acquireVsCodeApi))
+    (set _vscode (EditorExterns.acquireVsCodeApi))
     (set window EditorExterns.window)
     (set document window.document)
 
     (set Prelude.printStr ->[message]
-        (vscode.postMessage (object type "print" text message)))
+        (_vscode.postMessage (object type "print" text message)))
 
     (window.addEventListener "message"
         ->:Void event
@@ -41,7 +41,7 @@
                         (setState newState)
                         (whenMonacoIsAvailable
                             ->{
-                                (updateContent text)
+                                (updateContent "told by the provider" text)
                                 (activateFromState newState)
                             })))
                 (otherType (throw "bad message $event for KTxt2Editor"))))
@@ -64,12 +64,12 @@
                 (otherwise))))
 
     // Don't use getState helper here because we don't want to force updateContent with blank text
-    (whenLet [state (the EditorState (vscode.getState))]
+    (whenLet [state (the EditorState (_vscode.getState))]
         // Reload the editor after it has been hidden:
         // Wait to set up the UI until monaco is loaded from the other scripts:
         (whenMonacoIsAvailable ->{
             (set elementScrollY state.elementScrollY)
-            (updateContent state.text)
+            (updateContent "was hidden" state.text)
             (setScrollY state.scrollY)
             (activateFromState state)
         })))
@@ -125,9 +125,15 @@
             }
             EXPORT_TIMEOUT_MILLI)
         ]))
+(function :Void skipEditTimeout [idx :Void->Void handler]
+    (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
+        (window.clearTimeout activeTimeoutForIndex)
+        (editTimeoutHandles.remove idx)
+        (handler)))
 
 (var &mut :Dynamic activeEditor)
 (var &mut :Array<Dynamic> editors [])
+(var &mut :Array<Disposable> eventSubscriptions [])
 (function monacoEditor [div style content language readOnly :Dynamic->Void updateBlock]
     (let [eIdx
                 editors.length
@@ -152,9 +158,9 @@
             onChange
                 ->editor (addEditTimeout eIdx ->(updateBlock editor))]
         (updateSize)
-        (e.onDidFocusEditorText (activateEditor eIdx))
-        (e.onDidBlurEditorText ->(updateBlock e))
-        (e.onDidChangeCursorPosition
+        (eventSubscriptions.push (e.onDidFocusEditorText (activateEditor eIdx)))
+        (eventSubscriptions.push (e.onDidBlurEditorText ->(skipEditTimeout eIdx ->(updateBlock e))))
+        (eventSubscriptions.push (e.onDidChangeCursorPosition
             ->evt
                 (when (Range.isEmpty (activeEditor.getSelection))
                     (let [s (getState)]
@@ -164,8 +170,8 @@
 
                     // Delay updating the block
                     (when (dictGet editTimeoutHandles eIdx)
-                        (onChange e))))
-        (e.onDidChangeCursorSelection
+                        (onChange e)))))
+        (eventSubscriptions.push (e.onDidChangeCursorSelection
             ->evt {
                 (let [s (getState)]
                     (set s.startCursorPos (.getOffsetAt (e.getModel) (evt.selection.getStartPosition)))
@@ -175,10 +181,10 @@
                 // Delay updating the block
                 (when (dictGet editTimeoutHandles eIdx)
                     (onChange e))
-            })
-        (e.onDidBlurEditorText (deactivateEditor eIdx))
-        (e.onDidContentSizeChange updateSize)
-        (e.onDidChangeModelContent
+            }))
+        (eventSubscriptions.push (e.onDidBlurEditorText (deactivateEditor eIdx)))
+        (eventSubscriptions.push (e.onDidContentSizeChange updateSize))
+        (eventSubscriptions.push (e.onDidChangeModelContent
             ->[&opt _] {
                 (let [s (getState)]
                     (set s.activeEditorIdx eIdx)
@@ -186,7 +192,7 @@
                     (set s.endCursorPos -1)
                     (setState s))
                 (onChange e)
-            })
+            }))
         (editors.push e)
         e))
 
@@ -221,52 +227,56 @@
             (set s.endCursorPos -1)
             (setState s))))
 
+(function :Void postMessage [:Dynamic message]
+    // (print "posting $message")
+    (_vscode.postMessage message))
+
 (function replaceComment [element newText]
     (case element
         ((Comment (object text text start start end end))
-            (vscode.postMessage (object type "replace" text newText start start end end)))
+            (postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a comment"))))
 
 (function insertBlockBeforeBlock [element]
     (case element
         ((Block (object sourceStart position))
-            (vscode.postMessage (object type "insertBefore" text "\n${KTxt2.emptyBlock}" position position)))
+            (postMessage (object type "insertBefore" text "\n${KTxt2.emptyBlock}" position position)))
         (otherwise (throw "element $element is not a block"))))
 
 (function insertBlockAfterBlock [element]
     (case element
         ((Block (object outputEnd position))
-            (vscode.postMessage (object type "insertAfter" text "${KTxt2.emptyBlock}\n" position position)))
+            (postMessage (object type "insertAfter" text "${KTxt2.emptyBlock}\n" position position)))
         (otherwise (throw "element $element is not a block"))))
 
 (function replaceSourceBlock [element newText]
     (case element
         ((Block (object source text sourceStart start sourceEnd end))
-            (vscode.postMessage (object type "replace" text newText start start end end)))
+            (postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function replaceOutputBlock [element newText]
     (case element
         ((Block (object output text outputStart start outputEnd end))
-            (vscode.postMessage (object type "replace" text newText start start end end)))
+            (postMessage (object type "replace" text newText start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function deleteEntireBlock [element]
     (case element
         ((Block (object source text sourceStart start outputEnd end))
-            (vscode.postMessage (object type "deleteBlock" start start end end)))
+            (postMessage (object type "deleteBlock" start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function changeLockStatus [element newStatus]
     (case element
         ((Block (object sourceEnd start outputStart end))
-            (vscode.postMessage (object type "replace" text (if newStatus KTxt2.lockedStart KTxt2.unlockedStart) start start end end)))
+            (postMessage (object type "replace" text (if newStatus KTxt2.lockedStart KTxt2.unlockedStart) start start end end)))
         (otherwise (throw "element $element is not a block"))))
 
 (function tryAutoConvert [element]
     (case element
         ((Block (objectWith source output outputStart outputEnd))
-            (vscode.postMessage (objectWith [type "tryAutoConvert"] source output outputStart outputEnd)))
+            (postMessage (objectWith [type "tryAutoConvert"] source output outputStart outputEnd)))
         (otherwise (throw "element $element is not a block"))))
 
 (function blockElements [source output locked idx]
@@ -343,14 +353,17 @@
     (let [s (getState)]
         (set s.elementScrollY elementScrollY)
         (setState s))
-    (updateContent))
+    (updateContent "scrolling through elements"))
 
-(function :Void updateContent [&opt text]
+(function :Void updateContent [:String reason &opt text]
+    // (print "updating content because $reason")
     (try
             {
                 (set updatingContent true)
-                (set editors [])
                 (when content
+                    (set editors [])
+                    (doFor e eventSubscriptions (e.dispose))
+                    (set eventSubscriptions [])
                     (document.body.removeChild content))
                 (set content (document.createElement "div"))
                 (document.body.appendChild content)
@@ -406,4 +419,4 @@
     (scrollToPageTop))
 
 (function export []
-    (vscode.postMessage (object type "export")))
+    (postMessage (object type "export")))

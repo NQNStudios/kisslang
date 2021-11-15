@@ -27,5 +27,9 @@ typedef EditorState = {
     endCursorPos:Int
 };
 
+typedef Disposable = {
+    dispose:Void->Void
+};
+
 @:build(kiss.Kiss.build())
 class KTxt2Editor {}
