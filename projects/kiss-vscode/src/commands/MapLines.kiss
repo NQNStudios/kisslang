@@ -1,0 +1,25 @@
+(function _mapLinesSync [selectedText mapFunc]
+    (let [:String->String safeMapFunc
+                    ->[line]
+                        (ifLet [trimmedLine (StringTools.trim line)] (try (mapFunc trimmedLine) (catch [e] (Std.string e))) "")
+                mappedText 
+                    (.join
+                        (map
+                            (.split selectedText "\n")
+                            safeMapFunc)
+                        "\n")]
+            (.edit activeTextEditor
+                (lambda [e]
+                    (let [editor activeTextEditor]
+                        (e.delete editor.selection)
+                        (e.insert editor.selection.active mappedText))))))
+
+(function mapLinesSync [&opt selectedText]
+    (awaitLet [mapFuncStr (inputBox)]
+        (let [:String->String mapFunc (evalString mapFuncStr)]
+            (_mapLinesSync selectedText mapFunc))))
+                
+(function :Void registerMapLinesCommands [&opt leaderKeys]
+    (unless leaderKeys (set leaderKeys ""))
+    (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"]
+        (registerCommand "${prefix} [M]ap lines synchronously" mapLinesSync)))
