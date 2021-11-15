@@ -153,24 +153,26 @@
 
 (var myConstructedString (new String "sup"))
 
-(var myCond1 (cond 
-    ((= 5 6) "not this")
-    ((= 8 9) "not this either")
-    ((= 1 1) "this one")
-    (true "not the default")))
-
-(var myCond2 (cond 
-    ((= 5 6) "not this")
-    ((= 8 9) "not this either")
-    ((= 2 1) "not the third one")
-    (true "the default")))
-
-(var myCond3 (cond
-    ((= 5 5) "this")
-    (true "default")))
-
-(var myCondFallthrough (cond
-    (false "not this")))
+(function _testCond []
+    (Assert.equals "this one"
+        (cond 
+            ((= 5 6) "not this")
+            ((= 8 9) "not this either")
+            ((= 1 1) "this one")
+            (true "not the default")))
+    (Assert.equals "the default"
+        (cond 
+            ((= 5 6) "not this")
+            ((= 8 9) "not this either")
+            ((= 2 1) "not the third one")
+            (true "the default")))
+    (Assert.equals "this"
+        (cond
+            ((= 5 5) "this")
+            (true "default")))
+    (Assert.equals null
+        (cond
+            (false "not this"))))
 
 (function _testOr []
     (Assert.equals 5 (or null 5))

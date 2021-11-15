@@ -156,10 +156,7 @@ class BasicTestCase extends Test {
     }
 
     function testCond() {
-        Assert.equals("this one", BasicTestCase.myCond1);
-        Assert.equals("the default", BasicTestCase.myCond2);
-        Assert.equals("this", BasicTestCase.myCond3);
-        Assert.equals(null, BasicTestCase.myCondFallthrough);
+        _testCond();
     }
 
     function testSetAndDeflocal() {
