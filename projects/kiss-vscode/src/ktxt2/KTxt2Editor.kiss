@@ -297,10 +297,10 @@
         (content.appendChild (document.createElement "br"))
 
         (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
-            ->editor (replaceSourceBlock (nth ktxt2Elements idx) (editor.getValue)))
+            ->editor (replaceSourceBlock (nth ktxt2Elements idx) (.replace (editor.getValue) "\r" "")))
 
         (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
-            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (editor.getValue)))
+            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (.replace (editor.getValue) "\r" "")))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
