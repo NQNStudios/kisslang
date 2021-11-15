@@ -598,21 +598,26 @@ class Macros {
         renameAndDeprecate("undefalias", "undefAlias");
 
         // Macros that null-check and extract patterns from enums (inspired by Rust)
-        function ifLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(2, 3, "(ifLet [[enum bindings...]] [thenExp] [?elseExp])");
+        function ifLet(assertLet:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            var funcName = if (assertLet) "assertLet" else "ifLet";
+            var elseExpStr = if (assertLet) "" else " <?elseExp>";
+            var maxArgs = if (assertLet) 2 else 3;
+            wholeExp.checkNumArgs(2, maxArgs, '($funcName [<enum bindings...>] <thenExp>${elseExpStr})');
             var b = wholeExp.expBuilder();
+
+            var bindingList = exps[0].bindingList(funcName);
+            var firstPattern = bindingList.shift();
+            var firstValue = bindingList.shift();
+            var firstValueSymbol = b.symbol();
 
             var thenExp = exps[1];
             var elseExp = if (exps.length > 2) {
                 exps[2];
+            } else if (assertLet) {
+                b.callSymbol("throw", [b.str('Assertion binding ${firstValue.def.toString()} -> ${firstPattern.def.toString()} failed')]);
             } else {
                 b.symbol("null");
             };
-
-            var bindingList = exps[0].bindingList("ifLet");
-            var firstPattern = bindingList.shift();
-            var firstValue = bindingList.shift();
-            var firstValueSymbol = b.symbol();
 
             return b.callSymbol("let", [
                 b.list([firstValueSymbol, firstValue]),
@@ -626,7 +631,7 @@ class Macros {
                                     if (bindingList.length == 0) {
                                         exps[1];
                                     } else {
-                                        ifLet(wholeExp, [
+                                        ifLet(assertLet, wholeExp, [
                                             b.list(bindingList)
                                         ].concat(exps.slice(1)), k);
                                     }
@@ -641,7 +646,7 @@ class Macros {
             ]);
         }
 
-        macros["ifLet"] = ifLet;
+        macros["ifLet"] = ifLet.bind(false);
 
         macros["whenLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
@@ -662,6 +667,8 @@ class Macros {
                 b.begin(exps.slice(1))
             ]);
         };
+
+        macros["assertLet"] = ifLet.bind(true);
 
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             wholeExp.checkNumArgs(2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");

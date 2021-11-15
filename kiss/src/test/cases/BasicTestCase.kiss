@@ -498,7 +498,10 @@
         (let [&mut v 1]
             (unlessLet [2 (begin (+= v 1) v)]
                 (Assert.fail))
-            (Assert.equals 2 v))))
+            (Assert.equals 2 v))
+            
+        (assertThrows (assertLet [(Some thing) none] thing))
+        (Assert.equals 5 (assertLet [(Some thing) some5] thing))))
 
 (function _testRawString []
     (Assert.equals #| "\\" |# #"\"#)
