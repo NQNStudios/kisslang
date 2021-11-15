@@ -618,4 +618,6 @@ class Prelude {
             p = Prelude.truthy;
         return Lambda.filter(l, p);
     }
+
+    public static var newLine = "\n";
 }
