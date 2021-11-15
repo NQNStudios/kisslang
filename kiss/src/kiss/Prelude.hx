@@ -620,4 +620,5 @@ class Prelude {
     }
 
     public static var newLine = "\n";
+    public static var backSlash = "\\";
 }

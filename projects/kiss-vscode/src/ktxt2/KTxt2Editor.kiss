@@ -231,12 +231,6 @@
     // (print "posting $message")
     (_vscode.postMessage message))
 
-(function replaceComment [element newText]
-    (case element
-        ((Comment (object text text start start end end))
-            (postMessage (object type "replace" text newText start start end end)))
-        (otherwise (throw "element $element is not a comment"))))
-
 (function insertBlockBeforeBlock [element]
     (case element
         ((Block (object sourceStart position))

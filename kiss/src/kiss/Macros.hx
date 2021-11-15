@@ -600,9 +600,10 @@ class Macros {
         // Macros that null-check and extract patterns from enums (inspired by Rust)
         function ifLet(assertLet:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var funcName = if (assertLet) "assertLet" else "ifLet";
+            var thenExpStr = if (assertLet) "<body...>" else "<thenExp>";
             var elseExpStr = if (assertLet) "" else " <?elseExp>";
-            var maxArgs = if (assertLet) 2 else 3;
-            wholeExp.checkNumArgs(2, maxArgs, '($funcName [<enum bindings...>] <thenExp>${elseExpStr})');
+            var maxArgs = if (assertLet) null else 3;
+            wholeExp.checkNumArgs(2, maxArgs, '($funcName [<enum bindings...>] ${thenExpStr}${elseExpStr})');
             var b = wholeExp.expBuilder();
 
             var bindingList = exps[0].bindingList(funcName);
@@ -610,8 +611,8 @@ class Macros {
             var firstValue = bindingList.shift();
             var firstValueSymbol = b.symbol();
 
-            var thenExp = exps[1];
-            var elseExp = if (exps.length > 2) {
+            var thenExp = if (assertLet) b.begin(exps.slice(1)) else exps[1];
+            var elseExp = if (!assertLet && exps.length > 2) {
                 exps[2];
             } else if (assertLet) {
                 b.callSymbol("throw", [b.str('Assertion binding ${firstValue.def.toString()} -> ${firstPattern.def.toString()} failed')]);
@@ -629,7 +630,7 @@ class Macros {
                             b.call(
                                 firstPattern, [
                                     if (bindingList.length == 0) {
-                                        exps[1];
+                                        thenExp;
                                     } else {
                                         ifLet(assertLet, wholeExp, [
                                             b.list(bindingList)
