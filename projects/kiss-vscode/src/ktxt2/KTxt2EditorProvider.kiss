@@ -61,8 +61,11 @@
 										(withValueOrQuickPick overwrite ["Overwrite" "Cancel"]
 											(when (= "Overwrite" overwrite)
 												(withValueOrQuickPickMap chosenConversion conversions
-													(makeEdit
-														->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) (chosenConversion.convert source)))))))
+													(whenLet [converted
+																	(try (chosenConversion.convert source)
+																		(catch [e] (errorMessage "Conversion error: $e") null))]
+														(makeEdit
+															->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) converted)))))))
 								(errorMessage "No automatic conversions are valid for the chosen block."))))
 					((object type "export")
 						(exportSourceAndOutputFiles document))
