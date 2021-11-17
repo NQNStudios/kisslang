@@ -1076,6 +1076,19 @@ class Macros {
             ].concat(body))]);
         };
 
+        function indexOfMacro(last:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            var funcName = if (last) "lastIndexOf" else "indexOf";
+            wholeExp.checkNumArgs(2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');
+            var b = wholeExp.expBuilder();
+            return b.callSymbol("case", [
+                b.callField(funcName, exps.shift(), exps),
+                b.callSymbol("-1", [b.symbol("haxe.ds.Option.None")]),
+                b.callSymbol("other", [b.callSymbol("haxe.ds.Option.Some", [b.symbol("other")])])
+            ]);
+        }
+        macros["indexOf"] = indexOfMacro.bind(false);
+        macros["lastIndexOf"] = indexOfMacro.bind(true);
+
         return macros;
     }
 
