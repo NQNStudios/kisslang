@@ -34,7 +34,7 @@
     (window.addEventListener "message"
         ->:Void event
             (case (the MessageToEditor event.data)
-                ((object type "update" text text)
+                ((objectWith [type "update"] text)
                     // Either create the first EditorState, or get the last one
                     (let [newState (getState)]
                         (set newState.text text)
@@ -44,6 +44,8 @@
                                 (updateContent "told by the provider" text)
                                 (activateFromState newState)
                             })))
+                ((objectWith [type "find"] text)
+                    (_find text))
                 (otherType (throw "bad message $event for KTxt2Editor"))))
     
     (window.addEventListener "scroll"
@@ -52,16 +54,20 @@
             (setState s)))
 
     (window.addEventListener "keydown" ->:Void e
-        (unless activeEditor
-            (case e.key
-                ("g" (pageTop))
-                ("v" (pageBottom))
-                ("ArrowUp" (pageUp))
-                ("ArrowDown" (pageDown))
-                ("ArrowLeft" (scrollToPageTop))
-                ("ArrowRight" (scrollToPageBottom))
-                ("s" (export))
-                (otherwise))))
+        (if e.ctrlKey
+                (case e.key
+                    ("f" (find))
+                    (otherwise))
+            (unless activeEditor
+                (case e.key
+                    ("g" (pageTop))
+                    ("v" (pageBottom))
+                    ("ArrowUp" (pageUp))
+                    ("ArrowDown" (pageDown))
+                    ("ArrowLeft" (scrollToPageTop))
+                    ("ArrowRight" (scrollToPageBottom))
+                    ("s" (export))
+                    (otherwise)))))
 
     // Don't use getState helper here because we don't want to force updateContent with blank text
     (whenLet [state (the EditorState (_vscode.getState))]
@@ -444,3 +450,23 @@
 
 (function export []
     (postMessage (object type "export")))
+
+(function find []
+    (postMessage (object type "find")))
+
+(defMacro __find []
+    `(let [elem (nth ktxt2Elements idx)]
+        (assertLet [(Block block) elem]
+            (whenLet [(Some foundIdx) (indexOf "${block.source}${block.output}" text)]
+                (changeElementScrollY ->(set elementScrollY idx))
+                (return)))))
+
+(function :Void _find [text]
+    // TODO use (indexOf) to find the text in source/output of elements, then set elementScrollY to that element
+    (let [startIdx elementScrollY]
+        (doFor idx (range (+ 1 startIdx) ktxt2Elements.length)
+            (__find))
+        (doFor idx (range 0 (+ 1 startIdx))
+            (__find))
+            
+        (print "No occurances of `${text}` were found.")))

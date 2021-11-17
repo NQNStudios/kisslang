@@ -74,6 +74,9 @@
 								(errorMessage "No automatic conversions are valid for the chosen block."))))
 					((object type "export")
 						(exportSourceAndOutputFiles document))
+					((object type "find")
+						(awaitLet [str (inputBox)]
+							(webviewPanel.webview.postMessage (object type "find" text str))))
 					(otherwise
 						(errorMessage "bad message $e from KTxt2Editor"))))
 
