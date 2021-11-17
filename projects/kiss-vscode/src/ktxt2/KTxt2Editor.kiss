@@ -6,7 +6,7 @@
 
 // Because monaco editors are expensive, the editor can't have an infinite number open at a time
 (var PAGE_SIZE 24)
-(var SCROLL_AMOUNT 18)
+(var SCROLL_AMOUNT 22)
 (var &mut elementScrollY 0)
 
 (function :EditorState getState []
@@ -291,6 +291,7 @@
             xLink (document.createElement "a")
             lockLink (document.createElement "a")
             fullConvLink (document.createElement "a")
+            nextBlankLink (document.createElement "a")
             blockLinkBefore (document.createElement "a")
             blockLinkAfter (document.createElement "a")
             joinBlocksLink (document.createElement "a")]
@@ -339,7 +340,10 @@
         (lockLink.addEventListener "click"
             ->(changeLockStatus (nth ktxt2Elements idx) !locked))
         (outerDiv.appendChild lockLink)
-        (set fullConvLink.innerHTML "convertAll")
+        (set nextBlankLink.innerHTML "NextBlank")
+        (nextBlankLink.addEventListener "click" nextBlankOutput)
+        (outerDiv.appendChild nextBlankLink)
+        (set fullConvLink.innerHTML "ConvertAll")
         (fullConvLink.addEventListener "click" tryFullAutoConvert)
         (outerDiv.appendChild fullConvLink)
         (content.appendChild outerDiv)
@@ -415,6 +419,16 @@
 (function pageDown []
     (changeElementScrollY ->(+= elementScrollY SCROLL_AMOUNT))
     (scrollToPageTop))
+
+(function nextBlankOutput []
+    (doFor idx (range (+ 1 elementScrollY) ktxt2Elements.length)
+        (case (nth ktxt2Elements idx)
+            // TODO add unless guards to case
+            ((when !(output.trim) (Block (objectWith output)))
+                (changeElementScrollY ->(set elementScrollY idx))
+                (scrollToPageTop)
+                (break))
+            (otherwise))))
 
 (function pageBottom []
     (changeElementScrollY ->(set elementScrollY (- ktxt2Elements.length PAGE_SIZE)))
