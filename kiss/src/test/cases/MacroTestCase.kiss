@@ -62,9 +62,9 @@
 
 // Calling (set) on a macroVar is a faux-pas, because (setMacroVar) is the right way
 (defMacroVar count 0)
-(defMacro _testSetMacroVarMacro []
+(defMacro _testSetMacroVarMacro [&builder b]
     (assertThrows (set count (+ count 1)))
-    (ReaderExp.StrExp (Std.string count)))
+    (b.str (Std.string count)))
 
 (function _testSetMacroVar []
     (_testSetMacroVarMacro)

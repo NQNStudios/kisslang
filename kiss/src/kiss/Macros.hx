@@ -403,6 +403,7 @@ class Macros {
 
             var macroCallForm = '($name';
 
+            var builderName:String = null;
             for (arg in argList) {
                 if (restIndex != -1) {
                     throw CompileError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
@@ -417,6 +418,12 @@ class Macros {
                             macroCallForm += ' [?$name]';
                         }
                         ++maxArgs;
+                    case MetaExp("builder", {pos: _, def: Symbol(name)}):
+                        if (builderName == null) {
+                            builderName = name;
+                        } else {
+                            throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
+                        }
                     case MetaExp("opt", {pos: _, def: Symbol(name)}):
                         argNames.push(name);
                         macroCallForm += ' [?$name]';
@@ -453,6 +460,9 @@ class Macros {
                 var innerArgNames = argNames.copy();
 
                 var args:Map<String, Dynamic> = [];
+                if (builderName != null) {
+                    args[builderName] = b;
+                }
                 for (idx in 0...optIndex) {
                     args[innerArgNames.shift()] = innerExps[idx];
                 }
