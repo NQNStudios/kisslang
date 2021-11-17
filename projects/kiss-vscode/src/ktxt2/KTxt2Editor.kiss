@@ -273,6 +273,9 @@
             (postMessage (objectWith [type "tryAutoConvert"] source output outputStart outputEnd)))
         (otherwise (throw "element $element is not a block"))))
 
+(function tryFullAutoConvert []
+    (postMessage (object type "tryFullAutoConvert")))
+
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
             :js.html.Element sourceDiv (cast (document.createElement "div"))
@@ -280,7 +283,7 @@
             convertLink (document.createElement "a")
             xLink (document.createElement "a")
             lockLink (document.createElement "a")
-            exportLink (document.createElement "a")
+            fullConvLink (document.createElement "a")
             blockLinkBefore (document.createElement "a")
             blockLinkAfter (document.createElement "a") ]
         (outerDiv.setAttribute "class" "container")
@@ -325,9 +328,9 @@
         (lockLink.addEventListener "click"
             ->(changeLockStatus (nth ktxt2Elements idx) !locked))
         (outerDiv.appendChild lockLink)
-        (set exportLink.innerHTML "export")
-        (exportLink.addEventListener "click" export)
-        (outerDiv.appendChild exportLink)
+        (set fullConvLink.innerHTML "convertAll")
+        (fullConvLink.addEventListener "click" tryFullAutoConvert)
+        (outerDiv.appendChild fullConvLink)
         (content.appendChild outerDiv)
         (content.appendChild (document.createElement "br"))
         (content.appendChild blockLinkAfter)))

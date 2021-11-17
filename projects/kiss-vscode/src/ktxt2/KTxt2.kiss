@@ -63,7 +63,8 @@
 (function :String toString [:Array<KTxt2Element> elements]
     (apply +
         (for element elements
-            "${blockStartEnd}${element.source}$(if element.outputLocked lockedStart unlockedStart)${element.output}${blockStartEnd}")))
+            (assertLet [(Block (objectWith source outputLocked output)) element]
+                "${blockStartEnd}${source}$(if outputLocked lockedStart unlockedStart)${output}${blockStartEnd}"))))
 
 // To save window space after each block editor, ¶ can be used in place of \n\n
 (function :String applySpecialChars [:String text]
@@ -102,3 +103,16 @@
                     (dictSet validMap name c))
                 (otherwise {})))
         validMap))
+
+(#when (or sys hxnodejs)
+    (function :String tryFullAutoConvert [:String ktxt2File :Array<KTxt2Conversion> conversions]
+        (let [elements (splitFileElements (Stream.fromFile ktxt2File))
+                [base sourceExt outputExt _] (ktxt2File.split ".")]
+            (doFor element elements
+                (assertLet [(Block element) element]
+                    (unless element.outputLocked
+                        (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source)]
+                            (when (= 1 (count conversions))
+                                (let [onlyConversion (first (collect (conversions.iterator)))]
+                                    (set element.output (onlyConversion.convert element.source))))))))
+            (toString elements))))
