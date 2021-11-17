@@ -243,6 +243,13 @@
             (postMessage (object type "insertAfter" text "${KTxt2.emptyBlock}\n" position position)))
         (otherwise (throw "element $element is not a block"))))
 
+(function joinBlocks [element nextElement]
+    (assertLet [(Block (object sourceStart start source source1 output output1 outputLocked lock1)) element
+                    (Block (object outputEnd end source source2 output output2 outputLocked lock2)) nextElement
+                    text "${source1}${source2}${KTxt2.unlockedStart}${output1}${output2}"]
+        (unless (or lock1 lock2)
+            (postMessage (objectWith [type "replace"] start end text)))))
+
 (function replaceSourceBlock [element newText]
     (case element
         ((Block (object source text sourceStart start sourceEnd end))
@@ -285,7 +292,8 @@
             lockLink (document.createElement "a")
             fullConvLink (document.createElement "a")
             blockLinkBefore (document.createElement "a")
-            blockLinkAfter (document.createElement "a") ]
+            blockLinkAfter (document.createElement "a")
+            joinBlocksLink (document.createElement "a")]
         (outerDiv.setAttribute "class" "container")
         (outerDiv.setAttribute "style" "display: flex;")
 
@@ -295,6 +303,9 @@
         (set blockLinkAfter.innerHTML "+")
         (blockLinkAfter.addEventListener "click"
             ->(insertBlockAfterBlock (nth ktxt2Elements idx)))
+        (set joinBlocksLink.innerHTML "join")
+        (joinBlocksLink.addEventListener "click"
+            ->(joinBlocks (nth ktxt2Elements idx) (nth ktxt2Elements (+ 1 idx))))
 
         (content.appendChild blockLinkBefore)
         (content.appendChild (document.createElement "br"))
@@ -333,7 +344,9 @@
         (outerDiv.appendChild fullConvLink)
         (content.appendChild outerDiv)
         (content.appendChild (document.createElement "br"))
-        (content.appendChild blockLinkAfter)))
+        (content.appendChild blockLinkAfter)
+        (when (nth ktxt2Elements (+ idx 1))
+            (content.appendChild joinBlocksLink))))
 
 (var &mut updatingContent false)
 
