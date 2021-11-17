@@ -60,6 +60,11 @@
                 (elements.push (Block block))))
             elements))
 
+(function :String toString [:Array<KTxt2Element> elements]
+    (apply +
+        (for element elements
+            "${blockStartEnd}${element.source}$(if element.outputLocked lockedStart unlockedStart)${element.output}${blockStartEnd}")))
+
 // To save window space after each block editor, ¶ can be used in place of \n\n
 (function :String applySpecialChars [:String text]
     (text.replace "¶" "\n\n"))
