@@ -121,7 +121,7 @@ class Kiss {
         return k;
     }
 
-    static function _try<T>(operation:() -> T):Null<T> {
+    public static function _try<T>(operation:() -> T):Null<T> {
         #if !macrotest
         try {
         #end
