@@ -1,0 +1,33 @@
+// Before you use commands in this file:
+/* (loadFrom "kiss-vscode" "src/commands/Vscode.kiss") */
+
+(function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
+
+// Open any folder in a fresh VSCode instance.
+// Register this command as follows:
+/*
+(registerCommand "desired name with [a]ny [b]indings"
+                        (openFolder "$(userHome)/path/in/home/to/dir"))
+*/
+(function openFolder [folder]
+    ->[&opt _]
+        (executeCommand "vscode.openFolder" (Uri.file folder)))
+
+// Open any file in the current VSCode window.
+// Register this command as follows:
+/*
+(registerCommand "desired name with [a]ny [b]indings"
+                        (openFile "$(userHome)/path/in/home/to/file.txt"))
+*/
+(function openFile [file]
+    ->[&opt _]
+        (awaitLet [doc (Vscode.workspace.openTextDocument (Uri.file file))]
+            (Vscode.window.showTextDocument doc)))
+
+// Open your own Kiss-VSCode config file.
+// Register this command as follows:
+/*
+(registerCommand "desired name with [a]ny [b]indings" openKissConfig)
+*/
+(function openKissConfig [&opt _]
+    ((openFile "$(userHome)/.kiss/Config.kiss")))
