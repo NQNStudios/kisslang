@@ -314,8 +314,10 @@ class Reader {
         }
 
         do {
-            // TODO here, give the position of the start of the literal if expect fails
-            var next = stream.expect('closing "', () -> stream.takeChars(1));
+            var next = switch (stream.takeChars(1)) {
+                case Some(c): c;
+                default: throw new StreamError(pos, 'Unterminated string literal. Expected "');
+            }
 
             switch (next) {
                 case '$':
@@ -382,8 +384,15 @@ class Reader {
             }
         } while (true);
 
+        var startingPos = stream.position();
         // TODO here, give the position of the start of the literal if expect fails
-        return StrExp(stream.expect('closing $terminator', () -> stream.takeUntilAndDrop(terminator)));
+
+        return switch (stream.takeUntilAndDrop(terminator)) {
+            case Some(str):
+                StrExp(str);
+            default:
+                throw new StreamError(startingPos, 'Unterminated string literal. Expected $terminator');
+        };
     }
 
     public static function toString(exp:ReaderExpDef) {
