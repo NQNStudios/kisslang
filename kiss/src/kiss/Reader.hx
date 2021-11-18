@@ -244,11 +244,17 @@ class Reader {
 
     public static function readExpArray(stream:Stream, end:String, k:KissState):Array<ReaderExp> {
         var array = [];
+        var startingPos = stream.position();
         while (!stream.startsWith(end)) {
             stream.dropWhitespace();
             if (!stream.startsWith(end)) {
                 try {
-                    array.push(assertRead(stream, k));
+                    switch (read(stream, k)) {
+                        case Some(exp):
+                            array.push(exp);
+                        case None:
+                            throw new StreamError(startingPos, 'Ran out of expressions before $end was found.');
+                    }
                 } catch (s:UnmatchedBracketSignal) {
                     if (s.type == end)
                         break;
@@ -308,6 +314,7 @@ class Reader {
         }
 
         do {
+            // TODO here, give the position of the start of the literal if expect fails
             var next = stream.expect('closing "', () -> stream.takeChars(1));
 
             switch (next) {
@@ -374,6 +381,8 @@ class Reader {
                     return null;
             }
         } while (true);
+
+        // TODO here, give the position of the start of the literal if expect fails
         return StrExp(stream.expect('closing $terminator', () -> stream.takeUntilAndDrop(terminator)));
     }
 
