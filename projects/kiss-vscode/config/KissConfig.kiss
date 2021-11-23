@@ -230,6 +230,7 @@
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []
+    (set Prelude.printStr ->s (infoMessage s))
     (interp.variables.set "kiss" 
         (object
             Prelude
