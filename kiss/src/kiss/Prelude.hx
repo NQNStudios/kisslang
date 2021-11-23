@@ -596,10 +596,13 @@ class Prelude {
         var output = switch (p.status) {
             case 0:
                 var output:Buffer = p.stdout;
+                if (output == null) output = Buffer.alloc(0);
                 output.toString();
             default:
                 var output:Buffer = p.stdout;
+                if (output == null) output = Buffer.alloc(0);
                 var error:Buffer = p.stderr;
+                if (error == null) error = Buffer.alloc(0);
                 throw 'process $command $args failed:\n${output.toString() + error.toString()}';
         }
         return output;
