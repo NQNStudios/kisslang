@@ -318,6 +318,10 @@ class BasicTestCase extends Test {
     function testCountingLambda() {
         _testCountingLambda();
     }
+
+    function testExpComment() {
+        _testExpComment();
+    }
 }
 
 class BasicObject {

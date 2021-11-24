@@ -56,7 +56,13 @@ class Reader {
         readTable["//"] = (stream:Stream, k) -> {
             stream.takeUntilAndDrop("\n");
             null;
+        }; 
+        // Special comment syntax that disables the next whole reader expression:
+        readTable["**"] = (stream:Stream, k) -> {
+            assertRead(stream, k);
+            null;
         };
+
         readTable["#|"] = (stream:Stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
 
         readTable[":"] = (stream:Stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));

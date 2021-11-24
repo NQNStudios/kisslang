@@ -576,3 +576,6 @@
         (Assert.equals 2 (fullSyntax))
         (Assert.equals 1 (arrowSyntax))
         (Assert.equals 2 (arrowSyntax))))
+
+(function _testExpComment []
+    (Assert.equals 15 (+ **6 5 **(- 5 11) 5 (+ 5 **(20 9)))))
