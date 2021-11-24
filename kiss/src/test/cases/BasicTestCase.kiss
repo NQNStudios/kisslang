@@ -579,3 +579,14 @@
 
 (function _testExpComment []
     (Assert.equals 15 (+ **6 5 **(- 5 11) 5 (+ 5 **(20 9)))))
+
+(var staticValue 9)
+(prop value 2)
+(method _testEval []
+    (Assert.equals 9 (eval 'staticValue))
+    (Assert.equals 2 (eval 'value))
+    (Assert.equals 11 (eval '(+ staticValue value))))
+
+(function _testEvalStatic []
+    (Assert.equals 9 (eval 'staticValue))
+    (assertThrows (eval 'value)))

@@ -41,7 +41,8 @@ typedef KissState = {
     loadingDirectory:String,
     hscript:Bool,
     macroVars:Map<String, Dynamic>,
-    collectedBlocks:Map<String, Array<ReaderExp>>
+    collectedBlocks:Map<String, Array<ReaderExp>>,
+    inStaticFunction:Bool
 };
 
 class Kiss {
@@ -115,7 +116,8 @@ class Kiss {
             loadingDirectory: "",
             hscript: false,
             macroVars: new Map(),
-            collectedBlocks: new Map()
+            collectedBlocks: new Map(),
+            inStaticFunction: false
         };
 
         return k;
@@ -385,6 +387,12 @@ class Kiss {
         };
     }
 
+    // This doesn't clone k because k might be modified in important ways :(
+    public static function forStaticFunction(k:KissState, inStaticFunction:Bool) {
+        k.inStaticFunction = inStaticFunction;
+        return k;
+    }
+
     // Return an identical Kiss State, but without type annotations or wrapping list expressions as kiss.List constructor calls.
     public static function forHScript(k:KissState):KissState {
         var copy = new Cloner().clone(k);
@@ -416,6 +424,11 @@ class Kiss {
                     setLocal(wholeExp, exps, copy);
             };
         };
+
+        // TODO should this also be in forHScript()?
+        // In macro evaluation,  
+        copy.macros.remove("eval");
+
         return copy;
     }
 

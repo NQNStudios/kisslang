@@ -63,6 +63,10 @@ class Reader {
             null;
         };
 
+        readTable["'"] = (stream:Stream, k) -> {
+            CallExp(Symbol("quote").withPos(stream.position()), [assertRead(stream, k)]);
+        };
+
         readTable["#|"] = (stream:Stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
 
         readTable[":"] = (stream:Stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));

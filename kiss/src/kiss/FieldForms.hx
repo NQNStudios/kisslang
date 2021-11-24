@@ -117,13 +117,26 @@ class FieldForms {
 
         var name = Helpers.varName(formName, args[0]);
         var access = fieldAccess(formName, name, args[0]);
+        var inStaticFunction = access.indexOf(AStatic) != -1;
         var returnsValue = !isVoid(args[0]);
 
-        return {
+        var wasInStatic = k.inStaticFunction;
+
+        var f = {
             name: name,
             access: access,
-            kind: FFun(Helpers.makeFunction(args[0], returnsValue, args[1], args.slice(2), k, formName)),
+            kind: FFun(
+                Helpers.makeFunction(
+                    args[0],
+                    returnsValue,
+                    args[1],
+                    args.slice(2),
+                    k.forStaticFunction(inStaticFunction),
+                    formName)),
             pos: wholeExp.macroPos()
         };
+
+        k = k.forStaticFunction(wasInStatic);
+        return f;
     }
 }

@@ -1089,6 +1089,58 @@ class Macros {
         macros["indexOf"] = indexOfMacro.bind(false);
         macros["lastIndexOf"] = indexOfMacro.bind(true);
 
+        // Under the hood, quoted expressions are just Kiss strings for a KissInterp
+        macros["quote"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(quote <exp>)');
+            var b = wholeExp.expBuilder();
+            return b.str(Reader.toString(exps[0].def));
+        };
+
+        // Under the hood, (eval) uses Type.getClassFields, Type.getInstanceFields, and Reflect.field, to mishmash
+        // a bunch of fields ONLY from (var) and (prop) in the class that called Kiss.build(), AT RUNTIME, into a KissInterp that evaluates a string of Kiss code.
+        // This is all complicated, and language- and platform-dependent. And slow, because it converts Kiss to HScript at runtime.
+        // When (eval) is used in a static function, it cannot access instance variables.
+        // (eval) should not be used for serious purposes.
+        macros["eval"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(eval <exp>)');
+            var b = wholeExp.expBuilder();
+            var className = Context.getLocalClass().toString();
+            var classSymbol = b.symbol(className);
+
+            // TODO this might be reusable for passing things to #extern
+            
+            var classFieldsSymbol = b.symbol();
+            var instanceFieldsSymbol = b.symbol();
+            var interpSymbol = b.symbol();
+            var bindings = [
+                interpSymbol, b.callSymbol("new", [b.symbol("kiss.KissInterp")]),
+                classFieldsSymbol, b.callSymbol("Type.getClassFields", [classSymbol]),
+            ];
+            if (!k.inStaticFunction) {
+                bindings = bindings.concat([instanceFieldsSymbol, b.callSymbol("Type.getInstanceFields", [classSymbol])]);
+            }
+            var body = [
+                b.callSymbol("doFor", [
+                    b.symbol("staticField"), classFieldsSymbol,
+                    b.callField("set", b.field("variables", interpSymbol), [
+                        b.symbol("staticField"), b.callSymbol("Reflect.field", [classSymbol, b.symbol("staticField")])
+                    ])
+                ])
+            ];
+            if (!k.inStaticFunction) {
+                body.push(
+                    b.callSymbol("doFor", [
+                        b.symbol("instanceField"), instanceFieldsSymbol,
+                        b.callField("set", b.field("variables", interpSymbol), [
+                            b.symbol("instanceField"), b.callSymbol("Reflect.field", [b.symbol("this"), b.symbol("instanceField")])
+                        ])
+                    ])
+                );
+            }
+            body.push(b.callField("evalKiss", interpSymbol, [exps[0]]));
+            b.let(bindings, body);
+        };
+
         return macros;
     }
 

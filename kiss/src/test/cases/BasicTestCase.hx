@@ -322,6 +322,11 @@ class BasicTestCase extends Test {
     function testExpComment() {
         _testExpComment();
     }
+
+    function testEval() {
+        _testEvalStatic();
+        _testEval();
+    }
 }
 
 class BasicObject {
