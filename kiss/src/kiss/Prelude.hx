@@ -622,6 +622,14 @@ class Prelude {
         return Lambda.filter(l, p);
     }
 
+    #if (sys || hxnodejs)
+    public static function readDirectory(dir:String) {
+        return [for (file in FileSystem.readDirectory(dir)) {
+            joinPath(dir, file);
+        }];
+    }
+    #end
+
     public static var newLine = "\n";
     public static var backSlash = "\\";
 }

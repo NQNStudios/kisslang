@@ -110,6 +110,7 @@ class Kiss {
                 "zipDrop" => Symbol("Prelude.zipDrop"),
                 "zipThrow" => Symbol("Prelude.zipThrow"),
                 "joinPath" => Symbol("Prelude.joinPath"),
+                "readDirectory" => Symbol("Prelude.readDirectory"),
             ],
             fieldList: [],
             fieldDict: new Map(),
