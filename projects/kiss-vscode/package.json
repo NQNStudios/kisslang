@@ -55,6 +55,10 @@
 				"command": "kiss.runKeyboardShortcut"
 			},
 			{
+				"title": "Kiss: Update Kiss-VSCode from the currently installed Haxelib package",
+				"command": "kiss.updateKissVscode"
+			},
+			{
 				"title": "Kiss: Reload Kiss config",
 				"command": "kiss.reloadConfig"
 			}

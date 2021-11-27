@@ -1,4 +1,5 @@
-(load "Util.kiss")
+// This also loads Util.kiss:
+(load "commands/ExtensionTools.kiss")
 
 (function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
 (function userConfigDir []
@@ -126,6 +127,12 @@
                     (if config
                             (.runLastCommand (the KissConfig config))
                         (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
+
+        (context.subscriptions.push
+            (Vscode.commands.registerCommand
+                "kiss.updateKissVscode"
+                (lambda :Void [] 
+                    (updateKissVscode))))
 
         (context.subscriptions.push
             (Vscode.commands.registerCommand
