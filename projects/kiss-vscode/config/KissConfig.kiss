@@ -182,7 +182,6 @@
                 (let [existingKey (dictGet prefixMap firstKey)
                         conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
                     (if keys
-                            // TODO if the existing node is Final, not a branch, throw conflicting message
                             (case existingKey
                                 ((Final _)
                                     (warningMessage conflictMessage))

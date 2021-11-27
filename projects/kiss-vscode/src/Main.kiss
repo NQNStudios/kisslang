@@ -23,13 +23,7 @@
                         // If there's a build error at runtime, tell the user
                         (Vscode.window.showErrorMessage errorMessage))
                 }]
-        // If a backup exists, delete it
-        (when (FileSystem.exists lastConfigDir)
-            (FileSystem.deleteDirectory lastConfigDir))
-        // Backup currently active config
-        // TODO maybe also expose that backup to the user via a "rollback .kiss" command so they can rollback their config without using Git?
-        (when (FileSystem.exists activeConfigDir)
-            (FileSystem.rename activeConfigDir lastConfigDir))
+        
         // Choose where to find the custom config
         (let [customConfigDir
                     (#if test
@@ -40,6 +34,28 @@
                                 (userConfigDir)
                             // Supply the default (empty) config if the user doesn't have one
                             (joinPath builtinConfigDir "default")))]
+        // If a backup exists, delete it
+        (when (FileSystem.exists lastConfigDir)
+            (FileSystem.deleteDirectory lastConfigDir))
+        // TODO maybe also expose that backup to the user via a "rollback .kiss" command so they can rollback their config without using Git?
+        (when (FileSystem.exists activeConfigDir)
+            // If there is an active config folder from a previous session, that is still up-to-date,
+            // skip re-compilation and just use it
+            (#unless test
+                (let [oldConfigFile (joinPath activeConfigDir "config.js")]
+                    (when (let [mTime
+                                    ->file (.getTime .mtime (FileSystem.stat file))
+                                oldFileMTime
+                                    (mTime oldConfigFile)
+                                userConfigMTime
+                                    (apply max (map (readDirectory (userConfigDir)) mTime))]
+                            (> oldFileMTime userConfigMTime))
+                        (requireConfigJs oldConfigFile)
+                        (Vscode.window.showInformationMessage "Config loaded successfully!")
+                        (return))))
+            // Backup currently active config
+            (FileSystem.rename activeConfigDir lastConfigDir))
+
             (FileSystem.createDirectory activeConfigDir)
             // Copy the boilerplate config files to the active config directory
             (doFor file (FileSystem.readDirectory builtinConfigDir)
@@ -74,19 +90,21 @@
                 // Require the config.js package that was generated.
                 // But since Node.require() caches modules by filename,
                 // copy it to a unique path first so hot-reloading works properly.
-                (let [activeConfigFile (joinPath activeConfigDir "config.js")
-                        uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
-                    (File.copy activeConfigFile uniqueConfigFile)
-                    (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
-                    // (FileSystem.deleteFile uniqueConfigFile)
-                    (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
-                    (set config.tryLoadConfig tryLoadConfig)
-                    (config.prepareInterp)
-                    // User-defined init:
-                    (config.init)
+                (let [activeConfigFile (joinPath activeConfigDir "config.js")]
+                    (requireConfigJs activeConfigFile)
                     (Vscode.window.showInformationMessage "Config loaded successfully!"))))))
 
-    (#unless test
+(function requireConfigJs [file]
+    (let [uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
+        (File.copy file uniqueConfigFile)
+        (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
+        (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
+        (set config.tryLoadConfig tryLoadConfig)
+        (config.prepareInterp)
+        // User-defined init:
+        (config.init)))
+
+(#unless test
     (function _activate [:ExtensionContext context]
         (context.subscriptions.push
             (Vscode.commands.registerCommand
@@ -129,8 +147,6 @@
         (set activeConfigDir (joinPath (userHome) ".kiss-vscode" "activeConfig"))
         (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
 
-        // TODO for some reason the custom ktxt2 editor is not available until this completes, even if it is
-        // invoked asynchronously: 
         (tryLoadConfig)))
 
 // Manually define main so it will exist when test is not defined:
