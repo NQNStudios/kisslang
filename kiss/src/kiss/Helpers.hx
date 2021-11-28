@@ -367,7 +367,7 @@ class Helpers {
                         pos: subExp.pos,
                         expr: ETry(e, catches)
                     };
-                default: subExp;
+                default: mapForInterp(subExp);
             }
         });
     }
