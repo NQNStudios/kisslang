@@ -1166,7 +1166,7 @@ class Macros {
     static var exprCaseFunctions:Map<String, ReaderExp->ReaderExp> = [];
 
     public static function exprCase(id:String, toMatchValue:ReaderExp, i:KissInterp):ReaderExp {
-        return i.variables["Helpers"].eval(exprCaseFunctions[id](toMatchValue));
+        return i.variables["eval"](exprCaseFunctions[id](toMatchValue));
     }
 
     static function matchExpr(pattern:ReaderExp, instance:ReaderExp):Bool {
