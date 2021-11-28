@@ -1,8 +1,13 @@
+// When this file is loaded, all expressions in (preload <...>) will be collected. When (end) is called, they will
+// be injected into a method called (doPreload).
+// This allows assets to be declared in Hollywoo files where they first appear, but still loaded before execution starts.
 (collectBlocks preload (cc))
 
+// TODO could make an &eof style of reader macro, and have (end) read automatically at the end of any Hollywoo file.
 (defMacro end []
     `(method doPreload [:Void->Void cc]
         (set isLoading true)
         (collectedBlocks preload)
         (set isLoading false)
         (cc)))
+// TODO also &bof could call (doPreload)

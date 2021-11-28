@@ -37,7 +37,32 @@
 
     (super))
 
-(method :Void delay [sec :Continuation cc]
+// Some real magic happens here. This macro defines a method, AND a reader macro
+// for calling it with cc passed automatically if cc is an argument.
+
+(defMacro hollywooMethod [nameAndType argList &body body]
+    (let [&mut ccIndex -1
+            args (expList argList)
+            numArgs args.length
+            methodName (symbolNameValue nameAndType true)
+            readerMacroStart "$(.toUpperCase methodName) "]
+        (doFor [idx arg] (enumerate args)
+            (exprCase arg
+                (:Continuation cc
+                    (set ccIndex idx))
+                (_)))
+        `{
+            (defReaderMacro ,readerMacroStart [stream]
+                (ReaderExp.CallExp
+                    (ReaderExp.Symbol methodName)
+                    (for i (range numArgs)
+                        (if (= i ccIndex)
+                                (ReaderExp.Symbol "cc")
+                            (read)))))
+            (method ,nameAndType ,argList ,@body)
+        }))
+
+(hollywooMethod :Void delay [sec :Continuation cc]
     (case delayHandling
         (Auto
             (Timer.delay cc (* 1000 sec)))
