@@ -444,7 +444,7 @@ class Macros {
                         requireRest = true;
                         maxArgs = null;
                     default:
-                        throw CompileError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest");
+                        throw CompileError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest or &builder");
                 }
             }
 
@@ -521,21 +521,36 @@ class Macros {
                 default:
                     stringsThatMatch(exps[0], "defReaderMacro");
             };
+
+            var streamArgName = null;
+            var builderArgName = null;
+            var messageForBadArgs = CompileError.fromExp(exps[1], 'expected an argument list for a reader macro, like [stream] or [stream &builder b]');
+            switch (exps[1].def) {
+                case ListExp(args):
+                    for (arg in args) {
+                        switch (arg.def) {
+                            case Symbol(s):
+                                streamArgName = s;
+                            case MetaExp("builder", { pos: _, def: Symbol(b) }):
+                                builderArgName = b;
+                            default:
+                                throw messageForBadArgs;
+                        }
+                    }
+                default:
+                    throw messageForBadArgs;
+            }
+            if (streamArgName == null) throw messageForBadArgs;
+
             for (s in strings) {
-                switch (exps[1].def) {
-                    case ListExp([{pos: _, def: Symbol(streamArgName)}]):
-                        table[s] = (stream, k) -> {
-                            if (strings.length > 1) {
-                                stream.putBackString(s);
-                            }
-                            var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
-                            Helpers.runAtCompileTime(body, k, [streamArgName => stream]).def;
-                        };
-                    case CallExp(_, []):
-                        throw CompileError.fromExp(exps[1], 'expected an argument list. Change the parens () to brackets []');
-                    default:
-                        throw CompileError.fromExp(exps[1], 'second argument to defreadermacro should be [steamArgName]');
-                }
+                
+                table[s] = (stream, k) -> {
+                    if (strings.length > 1) {
+                        stream.putBackString(s);
+                    }
+                    var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
+                    Helpers.runAtCompileTime(body, k, [streamArgName => stream, builderArgName => body.expBuilder()]).def;
+                };
             }
 
             return null;
