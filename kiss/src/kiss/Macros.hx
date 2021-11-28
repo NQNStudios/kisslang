@@ -120,6 +120,21 @@ class Macros {
             b.callSymbol("Prelude.range", [min, max, step]);
         };
 
+        function prepareForConditional(i:KissInterp, k:KissState) {
+            for (flag => value in Context.getDefines()) {
+                // Don't overwrite types that are put in all KissInterps, i.e. the kiss namespace
+                if (!i.variables.exists(flag)) {
+                    i.variables.set(flag, value);
+                }
+            }
+           for (macroVar => value in k.macroVars) {
+                // Don't overwrite types that are put in all KissInterps, i.e. the kiss namespace
+                if (!i.variables.exists(macroVar)) {
+                    i.variables.set(macroVar, value);
+                }
+            }
+        }
+
         // Most conditional compilation macros are based on this macro:
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
@@ -131,12 +146,7 @@ class Macros {
 
             var conditionInterp = new KissInterp(true);
             var conditionStr = Reader.toString(conditionExp.def);
-            for (flag => value in Context.getDefines()) {
-                // Don't overwrite types that are put in all KissInterps, i.e. the kiss namespace
-                if (!conditionInterp.variables.exists(flag)) {
-                    conditionInterp.variables.set(flag, value);
-                }
-            }
+            prepareForConditional(conditionInterp, k);
             try {
                 var hscriptStr = Prelude.convertToHScript(conditionStr);
                 #if test
@@ -188,10 +198,7 @@ class Macros {
             for (matchBodySymbol in matchBodySymbols) {
                 caseInterp.variables.set(Prelude.symbolNameValue(matchBodySymbol), matchBodies.shift());
             }
-            for (flag => value in Context.getDefines()) {
-                if (flag != "kiss")
-                    caseInterp.variables.set(flag, value);
-            }
+            prepareForConditional(caseInterp, k);
             try {
                 var hscriptStr = Prelude.convertToHScript(caseStr);
                 #if test
@@ -535,7 +542,7 @@ class Macros {
                                 if (builderArgName == null) {
                                     builderArgName = b;
                                 } else {
-                                    throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
+                                    throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderArgName');
                                 }
                             default:
                                 throw messageForBadArgs;
