@@ -1225,6 +1225,13 @@ class Macros {
                     default:
                         return false;
                 }
+            case MetaExp(metaStr, patternExp):
+                return switch (instance.def) {
+                    case MetaExp(instanceMetaStr, instanceExp) if (instanceMetaStr == metaStr):
+                        matchExpr(patternExp, instanceExp);
+                    default:
+                        false;
+                };
             // I don't think I'll ever want to match specific string literals, raw haxe, field expressions,
             // key-value expressions, quasiquotes, unquotes, or UnquoteLists. This function can be expanded
             // later if those features are ever needed.
