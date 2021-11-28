@@ -427,7 +427,8 @@ class Helpers {
             return value;
         }
         function innerRunAtCompileTime(exp:ReaderExp) {
-            return compileTimeValueToReaderExp(innerRunAtCompileTimeDynamic(exp), exp);
+            var v:Dynamic = innerRunAtCompileTimeDynamic(exp);
+            return compileTimeValueToReaderExp(v, exp);
         }
 
         interp.variables.set("eval", innerRunAtCompileTimeDynamic);
@@ -461,16 +462,21 @@ class Helpers {
     // The value could be either a ReaderExp, ReaderExpDef, Array of ReaderExp/ReaderExpDefs, or something else entirely,
     // but it needs to be a ReaderExp for evalUnquotes()
     static function compileTimeValueToReaderExp(e:Dynamic, source:ReaderExp):ReaderExp {
-        // TODO if it's a string, return a StrExp. That way, symbolNameValue() won't be required
-        // TODO if it's a number, return a Symbol(number.toString()).
         return if (Std.isOfType(e, Array)) {
             var arr:Array<Dynamic> = e;
             var listExps = arr.map(compileTimeValueToReaderExp.bind(_, source));
             ListExp(listExps).withPosOf(source);
-        } else if (e.def == null) {
+        } else if (Std.isOfType(e, Float) || Std.isOfType(e, Int)) {
+            Symbol(Std.string(e)).withPosOf(source);
+        } else if (Std.isOfType(e, String)) {
+            var s:String = e;
+            StrExp(s).withPosOf(source);
+        } else if (Std.isOfType(e, ReaderExpDef)) {
             (e : ReaderExpDef).withPosOf(source);
-        } else {
+        } else if (e.pos != null && e.def != null) {
             (e : ReaderExp);
+        } else {
+            throw CompileError.fromExp(source, 'Value $e cannot be used as a Kiss expression');
         }
     }
 
@@ -530,16 +536,8 @@ class Helpers {
                 KeyValueExp(recurse(keyExp), recurse(valueExp));
             case Unquote(innerExp):
                 var unquoteValue:Dynamic = innerRunAtCompileTime(innerExp);
-                if (unquoteValue == null) {
-                    throw CompileError.fromExp(innerExp, "unquote evaluated to null");
-                } else if (Std.isOfType(unquoteValue, ReaderExpDef)) {
-                    unquoteValue;
-                } else if (Reflect.getProperty(unquoteValue, "def") != null) {
-                    unquoteValue.def;
-                } else {
-                    throw CompileError.fromExp(exp, "unquote didn't evaluate to a ReaderExp or ReaderExpDef");
-                };
-            case MetaExp(meta, innerExp):
+                compileTimeValueToReaderExp(unquoteValue, exp).def;
+           case MetaExp(meta, innerExp):
                 MetaExp(meta, recurse(innerExp));
             default:
                 throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
