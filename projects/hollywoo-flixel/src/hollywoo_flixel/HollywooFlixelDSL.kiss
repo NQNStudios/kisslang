@@ -1,6 +1,9 @@
 (loadFrom "hollywoo" "src/hollywoo/HollywooDSL.kiss")
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/AssetMacros.kiss")
 
+(defMacroVar subclass true)
+(loadFrom "hollywoo" "src/hollywoo/Movie.kiss")
+
 (method newFlxScene [name set time perspective]
     (let [setSprite (new FlxSprite 0 0)]
         (setSprite.loadGraphic (dictGet sets set))

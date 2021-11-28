@@ -1,65 +1,64 @@
-// Mostly immutable, reusable resources:
-(prop :Map<String,Set> sets (new Map))
-(prop :Map<String,Actor> actors (new Map))
-(prop :Map<String,Sound> sounds (new Map))
-(prop :Map<String,Song> songs (new Map))
-(prop :Map<String,Prop> props (new Map))
+// This file is designed to be loaded again by subclasses, with macroVar "subclass" set
+(#unless subclass
 
-(prop &mut :DelayHandling delayHandling AutoWithSkip)
+    // Mostly immutable, reusable resources:
+    (prop :Map<String,Set> sets (new Map))
+    (prop :Map<String,Actor> actors (new Map))
+    (prop :Map<String,Sound> sounds (new Map))
+    (prop :Map<String,Song> songs (new Map))
+    (prop :Map<String,Prop> props (new Map))
 
-// TODO for some reason this won't work when declared in Kiss syntax:
-// Mutable representation of frames in time:
-// var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
-(prop :Map<String,Bool> shownScenes (new Map))
-(prop :Map<String,Bool> shownCharacters (new Map))
+    (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
-// This is set and unset by doPreload defined in HollywooDSL.kiss
-(prop &mut isLoading false)
+    // TODO for some reason this won't work when declared in Kiss syntax:
+    // Mutable representation of frames in time:
+    // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
+    (prop :Map<String,Bool> shownScenes (new Map))
+    (prop :Map<String,Bool> shownCharacters (new Map))
 
-(function :Appearance appearanceFlag [:Map<String,Bool> map :String key]
-    (if (dictGet map key)
-            ReAppearance
-        {
-            (dictSet map key true)
-            FirstAppearance
-        }))
+    // This is set and unset by doPreload defined in HollywooDSL.kiss
+    (prop &mut isLoading false)
 
-(prop &mut :String sceneKey "")
-(method _currentScene [] (dictGet scenes sceneKey))
+    (function :Appearance appearanceFlag [:Map<String,Bool> map :String key]
+        (if (dictGet map key)
+                ReAppearance
+            {
+                (dictSet map key true)
+                FirstAppearance
+            }))
 
-(defNew
-    [
-        // "View" in the Model-View-Controller architecture:
-        &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop> director
-    ]
+    (prop &mut :String sceneKey "")
+    (method _currentScene [] (dictGet scenes sceneKey))
 
-    (set director.movie this)
+    (defNew
+        [
+            // "View" in the Model-View-Controller architecture:
+            &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop> director
+        ]
 
-    (super))
+        (set director.movie this)
+
+        (super)))
 
 // Some real magic happens here. This macro defines a method, AND a reader macro
 // for calling it with cc passed automatically if cc is an argument.
 
-(defMacro hollywooMethod [nameAndType argList &body body]
-    (let [&mut ccIndex -1
-            args (expList argList)
+(defMacro hollywooMethod [nameAndType argList &builder b &body body]
+    (let [args (expList argList)
             numArgs args.length
             methodName (symbolNameValue nameAndType true)
             readerMacroStart "$(.toUpperCase methodName) "]
-        (doFor [idx arg] (enumerate args)
-            (exprCase arg
-                (:Continuation cc
-                    (set ccIndex idx))
-                (_)))
         `{
-            (defReaderMacro ,readerMacroStart [stream]
-                (ReaderExp.CallExp
-                    (ReaderExp.Symbol methodName)
-                    (for i (range numArgs)
-                        (if (= i ccIndex)
-                                (ReaderExp.Symbol "cc")
-                            (read)))))
-            (method ,nameAndType ,argList ,@body)
+            (defReaderMacro ,readerMacroStart [stream &builder b]
+                (b.callSymbol
+                    ,methodName
+                    ,(for arg args
+                        (exprCase arg
+                            ((exprTyped Continuation cc)
+                                (b.callSymbol "b.symbol" [(b.str "cc")]))
+                            (_
+                                (b.callSymbol "read" [(b.symbol "stream")]))))))
+            (#unless subclass (method ,nameAndType ,argList ,@body))
         }))
 
 (hollywooMethod :Void delay [sec :Continuation cc]
@@ -87,11 +86,11 @@
                     (cc)
                 }))))
 
-(method newSet [name :Set set]
+(hollywooMethod newSet [name :Set set]
     (assert isLoading)
     (dictSet sets name set))
 
-(method newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective]
+(hollywooMethod newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective]
     (assert isLoading)
     (dictSet scenes name (objectWith
                                 [
@@ -105,52 +104,52 @@
                                 time
                                 perspective)))
 
-(method newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
+(hollywooMethod newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
     (assert isLoading)
     (dictSet scenes name scene))
 
-(method setScene [name :Continuation cc]
+(hollywooMethod setScene [name :Continuation cc]
     (set sceneKey name)
     (director.showScene
         (dictGet scenes name)
         (appearanceFlag shownScenes name)
         cc))
 
-(method newSound [name :Sound s]
+(hollywooMethod newSound [name :Sound s]
     (assert isLoading)
     (dictSet sounds name s))
 
-(method playSound [name :Continuation cc &opt :Float volumeMod :Bool waitForEnd]
+(hollywooMethod playSound [name :Continuation cc &opt :Float volumeMod :Bool waitForEnd]
     (set volumeMod (or volumeMod 1))
     (assert (<= 0 volumeMod 1))
     (director.playSound (dictGet sounds name) volumeMod ?waitForEnd cc))
 
-(method awaitPlaySound [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod awaitPlaySound [name :Continuation cc &opt :Float volumeMod]
     (playSound name cc volumeMod true))
 
-(method newSong [name :Song song]
+(hollywooMethod newSong [name :Song song]
     (assert isLoading)
     (dictSet songs name song))
 
-(method playSong [name :Continuation cc &opt :Float volumeMod :Bool loop :Bool waitForEnd]
+(hollywooMethod playSong [name :Continuation cc &opt :Float volumeMod :Bool loop :Bool waitForEnd]
     (set volumeMod (or volumeMod 1))
     (assert (<= 0 volumeMod 1))
     (director.playSong (dictGet songs name) volumeMod ?loop ?waitForEnd cc))
 
-(method awaitPlaySong [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod awaitPlaySong [name :Continuation cc &opt :Float volumeMod]
     (playSong name cc volumeMod false true))
     
-(method loopSong [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod loopSong [name :Continuation cc &opt :Float volumeMod]
     (playSong name cc volumeMod true false))
 
-(method stopSong []
+(hollywooMethod stopSong []
     (director.stopSong))
 
-(method newActor [name :Actor actor]
+(hollywooMethod newActor [name :Actor actor]
     (assert isLoading)
     (dictSet actors name actor))
 
-(method addCharacter [actorName :StagePosition position :StageFacing facing :Continuation cc]
+(hollywooMethod addCharacter [actorName :StagePosition position :StageFacing facing :Continuation cc]
     (let [character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
         (dictSet .characters (_currentScene) actorName character)
         (director.showCharacter
@@ -159,7 +158,7 @@
             cc)
         ))
 
-(method removeCharacter [actorName :Continuation cc]
+(hollywooMethod removeCharacter [actorName :Continuation cc]
     (let [c (dictGet .characters (_currentScene) actorName)]
         (.remove .characters (_currentScene) actorName)
         (director.hideCharacter c cc)))
@@ -167,28 +166,28 @@
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
 
-(method newProp [name :Prop prop]
+(hollywooMethod newProp [name :Prop prop]
     (assert isLoading)
     (dictSet props name prop))
 
-(method addPropToScreen [name :ScreenPosition position :Continuation cc]
+(hollywooMethod addPropToScreen [name :ScreenPosition position :Continuation cc]
     (dictSet .propsOnScreen (_currentScene) name (dictGet props name))
     (director.showPropOnScreen (dictGet props name) position cc))
 
-(method removeProp [name :Continuation cc]
+(hollywooMethod removeProp [name :Continuation cc]
     (director.hideProp (dictGet props name) cc))
 
 // TODO removeProp
 
 // Dialogue:
 
-(method superText [text cc]
+(hollywooMethod superText [text cc]
     (director.showDialog "" Super "" text cc))
 
-(method normalSpeech [actorName wryly text cc]
+(hollywooMethod normalSpeech [actorName wryly text cc]
     (director.showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
-(method onPhoneSpeech [actorName wryly text cc]
+(hollywooMethod onPhoneSpeech [actorName wryly text cc]
     (director.showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
