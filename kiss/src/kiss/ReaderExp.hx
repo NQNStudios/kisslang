@@ -13,7 +13,7 @@ enum ReaderExpDef {
     StrExp(s:String); // "literal"
     Symbol(name:String); // s
     RawHaxe(code:String); // #| haxeCode() |#
-    TypedExp(path:String, exp:ReaderExp); // :type [exp]
+    TypedExp(path:String, exp:ReaderExp); // :Type [exp]
     MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
     FieldExp(field:String, exp:ReaderExp); // .field [exp]
     KeyValueExp(key:ReaderExp, value:ReaderExp); // =>key value

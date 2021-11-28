@@ -1167,6 +1167,13 @@ class Macros {
                     default:
                         false;
                 };
+            case TypedExp(patternTypePath, patternExp):
+                return switch (instance.def) {
+                    case TypedExp(typePath, instanceExp) if (typePath == patternTypePath):
+                        matchExpr(patternExp, instanceExp);  
+                    default:
+                        false;
+                };
             case ListExp(patternExps):
                 switch (instance.def) {
                     case ListExp(instanceExps) if (patternExps.length == instanceExps.length):

@@ -392,9 +392,10 @@ class Prelude {
         return v;
     }
 
-    public static function symbolNameValue(s:ReaderExp):String {
+    public static function symbolNameValue(s:ReaderExp, allowTyped = false):String {
         return switch (s.def) {
             case Symbol(name): name;
+            case TypedExp(_, innerExp) if (allowTyped): symbolNameValue(innerExp, false);
             default: throw 'expected $s to be a plain symbol';
         };
     }
@@ -402,13 +403,14 @@ class Prelude {
     // ReaderExp helpers for macros:
     public static function symbol(?name:String):ReaderExpDef {
         if (name == null)
-            name = '_${Uuid.v4().toShort()}';
+            name = '_${Uuid.v4().toShort()}'; // TODO the underscore will make fields defined with gensym names all PRIVATE!
         return Symbol(name);
     }
 
-    public static function symbolName(s:ReaderExp):ReaderExpDef {
+    public static function symbolName(s:ReaderExp, allowTyped = false):ReaderExpDef {
         return switch (s.def) {
             case Symbol(name): StrExp(name);
+            case TypedExp(_, innerExp) if (allowTyped): symbolName(innerExp, false);
             default: throw 'expected $s to be a plain symbol';
         };
     }
