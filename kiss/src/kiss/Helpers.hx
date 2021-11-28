@@ -344,6 +344,8 @@ class Helpers {
                 FieldExp(field, removeTypeAnnotations(innerExp));
             case KeyValueExp(keyExp, valueExp):
                 KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
+            case None:
+                None;
             default:
                 throw CompileError.fromExp(exp, 'cannot remove type annotations');
         };
@@ -404,6 +406,7 @@ class Helpers {
         });
         interp.variables.set("k", k.forMacroEval());
         interp.variables.set("Macros", Macros);
+        interp.variables.set("Stream", Stream);
         for (name => value in k.macroVars) {
             interp.variables.set(name, value);
         }

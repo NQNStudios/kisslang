@@ -50,14 +50,20 @@
             readerMacroStart "$(.toUpperCase methodName) "]
         `{
             (defReaderMacro ,readerMacroStart [stream &builder b]
-                (b.callSymbol
-                    ,methodName
-                    ,(for arg args
-                        (exprCase arg
-                            ((exprTyped Continuation cc)
-                                (b.callSymbol "b.symbol" [(b.str "cc")]))
-                            (_
-                                (b.callSymbol "read" [(b.symbol "stream")]))))))
+                (let [nextLineStream
+                        (Stream.fromString (stream.expect "hollywoo macro line" ->(stream.takeLine)))]
+                    (b.callSymbol
+                        ,methodName
+                        ,(for arg args
+                            (exprCase arg
+                                ((exprTyped Continuation cc)
+                                    (b.callSymbol "b.symbol" [(b.str "cc")]))
+                                (_
+                                    (b.callSymbol "try" [
+                                        (b.callSymbol "read" [(b.symbol "nextLineStream")])
+                                        // optional arguments may not be present:
+                                        (b.callSymbol "catch" [(b.list [(b.symbol "e")]) (b.callSymbol "b.symbol" [(b.str "null")])])
+                                    ])))))))
             (#unless subclass (method ,nameAndType ,argList ,@body))
         }))
 
