@@ -1186,7 +1186,8 @@ class Macros {
                     default:
                         false;
                 };
-            case TypedExp(patternTypePath, patternExp):
+            case CallExp({pos: _, def: Symbol("exprTyped")}, [type, patternExp]):
+                var patternTypePath = Prelude.symbolNameValue(type);
                 return switch (instance.def) {
                     case TypedExp(typePath, instanceExp) if (typePath == patternTypePath):
                         matchExpr(patternExp, instanceExp);  
