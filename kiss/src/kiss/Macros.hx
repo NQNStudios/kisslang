@@ -532,7 +532,11 @@ class Macros {
                             case Symbol(s):
                                 streamArgName = s;
                             case MetaExp("builder", { pos: _, def: Symbol(b) }):
-                                builderArgName = b;
+                                if (builderArgName == null) {
+                                    builderArgName = b;
+                                } else {
+                                    throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
+                                }
                             default:
                                 throw messageForBadArgs;
                         }
