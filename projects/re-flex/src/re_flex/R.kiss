@@ -71,3 +71,12 @@
                         (r.matchedRight)
                     group
                         ->idx (r.matched idx))))))
+
+// Return an array of all non-overlapping matches in the given text, from left-to-right
+(function :Array<RMatch> distinctMatches [:String regex :String textToSearch &opt :String flags]
+    (let [matches []
+            &mut nextMatch null]
+        (while (set nextMatch (match regex textToSearch flags))
+            (matches.push nextMatch)
+            (set textToSearch nextMatch.right))
+        matches))

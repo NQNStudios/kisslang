@@ -5,3 +5,6 @@
             match "a"
             right "bc"))
         (otherwise (throw "bad match result"))))
+
+(let [matches (R.distinctMatches "a" "abababab")]
+    (assert (= 4 matches.length)))
