@@ -632,6 +632,16 @@ class Prelude {
     }
     #end
 
+    public static function substr(str:String, startIdx:Int, ?endIdx:Int) {
+        function negIdx(idx) {
+            return if (idx < 0) str.length + idx else idx;
+        }
+
+        if (endIdx == null) endIdx = str.length;
+
+        return str.substr(negIdx(startIdx), negIdx(endIdx));
+    }
+
     public static var newLine = "\n";
     public static var backSlash = "\\";
 }
