@@ -286,6 +286,7 @@ class SpecialForms {
             // Therefore only one case is required in a case statement, because one case could be enough
             // to cover all patterns.
             wholeExp.checkNumArgs(2, null, '(case [expression] [cases...] [optional: (otherwise [default])])');
+            var args:kiss.List<ReaderExp> = args.copy();
 
             var isTupleCase = switch (args[0].def) {
                 case ListExp(_):
