@@ -6,6 +6,7 @@ import kiss.Stream;
 import vscode.*;
 import js.lib.Promise;
 import sys.io.File;
+import re_flex.R;
 
 using haxe.io.Path;
 using StringTools;

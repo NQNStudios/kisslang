@@ -13,6 +13,7 @@ import haxe.io.Path;
 import sys.io.File;
 import sys.FileSystem;
 import ktxt2.KTxt2;
+import re_flex.R;
 
 using haxe.io.Path;
 using StringTools;

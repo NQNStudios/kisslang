@@ -112,7 +112,8 @@
                                                     (if documentBeforeShortcut
                                                             (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
                                                                 (_runCommand command selectedTextBeforeShortcut))
-                                                        (_runCommand command selectedTextBeforeShortcut)))))
+                                                        (_runCommand command selectedTextBeforeShortcut)))
+                                                (otherwise)))
 
                                     ("Escape"
                                         (shortcutPanel.dispose))    
@@ -128,7 +129,8 @@
                                     ((Prefix innerMap)
                                         "$(Lambda.count innerMap) shortcuts")
                                     ((Final command)
-                                        command))</p>")]
+                                        command)
+                                    (otherwise))</p>")]
         "<!DOCTYPE html>
         <html lang=\"en\">
             <head>
@@ -168,10 +170,10 @@
             (case (stream.takeUntilAndDrop "]")
                 ((Some newShortcuts)
                     (extractKeyboardShortcuts str stream (+ shortcuts (newShortcuts.toLowerCase))))
-                (None
+                (otherwise
                     (warningMessage "unclosed [ in $str")
                     "")))
-        (None
+        (otherwise
             shortcuts)))
 
 (function :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
@@ -186,7 +188,8 @@
                                 ((Final _)
                                     (warningMessage conflictMessage))
                                 ((Prefix innerPrefixMap)
-                                    (registerShortcut keys description innerPrefixMap)))
+                                    (registerShortcut keys description innerPrefixMap))
+                                (otherwise))
                         (warningMessage conflictMessage))))
             (true
                 (if keys

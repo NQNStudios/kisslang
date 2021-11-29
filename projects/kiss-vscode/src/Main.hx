@@ -11,6 +11,7 @@ import haxe.io.Path;
 import js.Node;
 import js.node.ChildProcess;
 import uuid.Uuid;
+import re_flex.R;
 
 using StringTools;
 using uuid.Uuid;

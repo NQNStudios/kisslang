@@ -51,7 +51,6 @@
 					((objectWith [type "deleteBlock"] start end)
 						(makeEdit
 							->edit (edit.delete document.uri (new Range (streamPosToOffsetDocumentPos start -KTxt2.blockStartEnd.length) (streamPosToOffsetDocumentPos end KTxt2.blockStartEnd.length)))))
-
 					((object type "tryFullAutoConvert")
 						(let [fullConverted (KTxt2.tryFullAutoConvert document.fileName Main.config.conversions)]
 							(makeEdit
