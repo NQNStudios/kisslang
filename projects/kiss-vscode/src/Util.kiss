@@ -94,7 +94,7 @@
                                             errorMessage)]
             {
                 (Vscode.window.showErrorMessage errorMessage)
-                (awaitLet [chosen (quickPickMap (for match compileErrors =>match.match match))]
+                (awaitLet [chosen (quickPickMap (for match (filter compileErrors ->match (= -1 (match.match.indexOf "This case is unused"))) =>match.match match))]
                     (executeCommand "workbench.action.quickOpen" (substr (chosen.namedGroup "file") 0 -1)))
             }
         (Vscode.window.showErrorMessage errorMessage)))
