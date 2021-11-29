@@ -6,6 +6,7 @@
 (var capitalLetter "[A-Z]")
 (var smallLetter "[a-z]")
 (var anyLetter "[A-Za-z]")
+(var anyDigit "[0-9]")
 
 (function :String _group [:Array<Dynamic> exprs]
     (+ "(" (apply + (assert exprs)) ")"))
@@ -59,7 +60,9 @@
                     groups
                         match
                     namedGroups
-                        match.groups))
+                        match.groups
+                    namedGroup
+                        ->name (dictGet match.groups name)))
         (let [r (new EReg regex /*TODO use or for this once fixed */(if flags flags ""))]
             (if (r.match textToSearch)
                 (object

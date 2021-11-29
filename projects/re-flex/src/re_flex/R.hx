@@ -15,6 +15,7 @@ typedef RMatch = {
     #if hxnodejs
     groups:Array<String>,
     namedGroups:DynamicAccess<String>,
+    namedGroup:String->String,
     #end
     group:Int->String
 };
