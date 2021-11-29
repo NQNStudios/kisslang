@@ -554,13 +554,19 @@ class Macros {
             if (streamArgName == null) throw messageForBadArgs;
 
             for (s in strings) {
-                
                 table[s] = (stream, k) -> {
                     if (strings.length > 1) {
                         stream.putBackString(s);
                     }
-                    var body = CallExp(Symbol("begin").withPos(stream.position()), exps.slice(2)).withPos(stream.position());
-                    Helpers.runAtCompileTime(body, k, [streamArgName => stream, builderArgName => body.expBuilder()]).def;
+                    var startingPos = stream.position();
+                    var body = CallExp(Symbol("begin").withPos(startingPos), exps.slice(2)).withPos(startingPos);
+                    try {
+                        Helpers.runAtCompileTime(body, k, [streamArgName => stream, builderArgName => body.expBuilder()]).def;
+                    } catch (err) {
+                        var expForError = Symbol(s).withPos(startingPos);
+                        CompileError.warnFromExp(wholeExp, 'Error from this reader macro');
+                        throw CompileError.fromExp(expForError, '$err');
+                    }
                 };
             }
 
