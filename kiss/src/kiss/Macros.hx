@@ -645,7 +645,6 @@ class Macros {
             var bindingList = exps[0].bindingList(funcName);
             var firstPattern = bindingList.shift();
             var firstValue = bindingList.shift();
-            var firstValueSymbol = b.symbol();
 
             var thenExp = if (assertLet) b.begin(exps.slice(1)) else exps[1];
             var elseExp = if (!assertLet && exps.length > 2) {
@@ -656,29 +655,20 @@ class Macros {
                 b.symbol("null");
             };
 
-            return b.callSymbol("let", [
-                b.list([firstValueSymbol, firstValue]),
-                b.callSymbol("if", [
-                    firstValueSymbol,
-                    b.call(
-                        b.symbol("case"), [
-                            firstValueSymbol,
-                            b.call(
-                                firstPattern, [
-                                    if (bindingList.length == 0) {
-                                        thenExp;
-                                    } else {
-                                        ifLet(assertLet, wholeExp, [
-                                            b.list(bindingList)
-                                        ].concat(exps.slice(1)), k);
-                                    }
-                                ]),
-                            b.call(
-                                b.symbol("otherwise"), [
-                                    elseExp
-                                ])
-                        ]),
-                    elseExp
+            return b.callSymbol("case", [
+                firstValue,
+                b.call(
+                    firstPattern, [
+                        if (bindingList.length == 0) {
+                            thenExp;
+                        } else {
+                            ifLet(assertLet, wholeExp, [
+                                b.list(bindingList)
+                            ].concat(exps.slice(1)), k);
+                        }
+                    ]),
+                b.callSymbol("otherwise", [
+                        elseExp
                 ])
             ]);
         }
@@ -1109,7 +1099,8 @@ class Macros {
             return b.callSymbol("case", [
                 b.callField(funcName, exps.shift(), exps),
                 b.callSymbol("-1", [b.symbol("haxe.ds.Option.None")]),
-                b.callSymbol("other", [b.callSymbol("haxe.ds.Option.Some", [b.symbol("other")])])
+                b.callSymbol("other", [b.callSymbol("haxe.ds.Option.Some", [b.symbol("other")])]),
+                b.callSymbol("null", [b.callSymbol("throw", [b.str("Haxe indexOf is broken")])])
             ]);
         }
         macros["indexOf"] = indexOfMacro.bind(false);

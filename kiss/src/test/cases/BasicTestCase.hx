@@ -327,6 +327,10 @@ class BasicTestCase extends Test {
         _testEvalStatic();
         _testEval();
     }
+
+    function testCaseOnNull() {
+        _testCaseOnNull();
+    }
 }
 
 class BasicObject {

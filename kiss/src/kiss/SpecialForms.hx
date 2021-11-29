@@ -12,6 +12,7 @@ using kiss.Reader;
 using kiss.Helpers;
 using kiss.Prelude;
 using kiss.Kiss;
+using tink.MacroApi;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
 typedef SpecialFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Expr;
@@ -285,6 +286,14 @@ class SpecialForms {
             // Therefore only one case is required in a case statement, because one case could be enough
             // to cover all patterns.
             wholeExp.checkNumArgs(2, null, '(case [expression] [cases...] [optional: (otherwise [default])])');
+
+            var isTupleCase = switch (args[0].def) {
+                case ListExp(_):
+                    true;
+                default:
+                    false;
+            }
+
             var b = wholeExp.expBuilder();
             var defaultExpr = switch (args[-1].def) {
                 case CallExp({pos: _, def: Symbol("otherwise")}, otherwiseExps):
@@ -293,7 +302,32 @@ class SpecialForms {
                 default:
                     null;
             };
-            ESwitch(k.withoutListWrapping().convert(args[0]), args.slice(1).map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
+
+            var cases = args.slice(1);
+            // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.
+            if (!isTupleCase) {
+                var nullExpr = defaultExpr;
+                var idx = 0;
+                for (arg in cases) {
+                    switch (arg.def) {
+                        case CallExp({pos: _, def: Symbol("null")}, nullExps):
+                            cases.splice(idx, 1);
+                            nullExpr = k.convert(b.begin(nullExps));
+                            break;
+                        default:
+                    }
+                    ++idx;
+                }
+
+                if (nullExpr == null) {
+                    throw CompileError.fromExp(wholeExp, "Unmatched pattern: null");
+                }
+
+                var nullCase = b.callSymbol("null", [b.raw(nullExpr.toString())]);
+                cases.insert(0, nullCase);
+            }
+
+            ESwitch(k.withoutListWrapping().convert(args[0]), cases.map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
         };
 
         // Type check syntax:
