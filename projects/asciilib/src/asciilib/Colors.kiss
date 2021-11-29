@@ -16,7 +16,7 @@
 (method _index [x y]
     (+ x (* y width)))
 
-(defmacro withIndex [idxName xName yName &body body]
+(defMacro withIndex [idxName xName yName &body body]
     `(let [,idxName (_index ,xName ,yName)]
         ,@body))
 

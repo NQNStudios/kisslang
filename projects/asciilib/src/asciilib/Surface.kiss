@@ -59,16 +59,15 @@
                 ((Some colorLine)
                     (let [[symbol _r _g _b] (colorLine.split " ")]
                         (dictSet colors symbol (object r (Std.parseInt _r) g (Std.parseInt _g) b (Std.parseInt _b)))))
-                (None (throw "Expected INFO CODES in Surface"))))
+                (otherwise (throw "Expected INFO CODES in Surface"))))
         (loop
             (case (stream.takeLine)
                 ((Some "SIZE") (break))
                 ((Some infoLine)
                     (let [infoTokens (infoLine.split " ")]
                         (dictSet infoCodes (infoTokens.shift) (infoTokens.join " "))))
-                (None (throw "Expected SIZE in Surface"))))
+                (otherwise (throw "Expected SIZE in Surface"))))
         (case (stream.takeLine)
-            (None (throw "expected [width] [height] in Surface"))
             ((Some sizeLine)
                 (let [[width height] (.map (sizeLine.split " ") Std.parseInt)
                         surface (new Surface width height)]
@@ -95,4 +94,5 @@
                         (doFor x (range width)
                             (surface.specialInfo.setCell x y (dictGet infoCodes (stream.expect "a special info code" ->{(stream.takeChars 1)}))))
                         (stream.dropString "\n"))
-                    surface)))))
+                    surface))
+            (otherwise (throw "expected [width] [height] in Surface")))))
