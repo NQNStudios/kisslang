@@ -23,7 +23,7 @@
     (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
         (when chosenItem chosenItem.label)))
 
-(function quickPickMap [:Map<String,Dynamic> stringMap]
+(function :js.lib.Promise.Thenable<Dynamic> quickPickMap [:Map<String,Dynamic> stringMap]
     (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
         (when chosenItem (dictGet stringMap chosenItem.label))))
 
@@ -41,6 +41,7 @@
 // Other
 
 (defAlias &call showTextDocument Vscode.window.showTextDocument)
+(defAlias &call openTextDocument Vscode.workspace.openTextDocument)
 
 // Macros for implementing commands in Kiss
 
@@ -69,11 +70,31 @@
             options ,options
             result (ChildProcess.spawnSync command args options)]
         (if result.error
-                // TODO i can't remember if this needs to be a throw for some reason,
-                // but it seems like it's supposed to be (,onError ...)(return) like below
-                (throw "Error $result.error from $command ${args}: $result.stdout $result.stderr")
+                {(,onError "Error $result.error from $command ${args}: $result.stdout $result.stderr")(return)}
             (case result.status 
                 (0 null)
                 (errCode
                     (,onError "Error code $errCode from $command ${args}: $result.stdout $result.stderr")
-                    (return))))))
+                    (return))
+                (null (,onError "result status is null from $command ${args}: $result.stdout $result.stderr"))))))
+
+(function :Void showCompileError [errorMessage]
+    (ifLet [compileErrors (R.distinctMatches
+                                            (R.group
+                                                (R.namedGroup "file"
+                                                    (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
+                                                    (R.escape ".kiss:")
+                                                    (R.repeat R.anyDigit 1) // line
+                                                    (R.escape ":")
+                                                    (R.optional
+                                                        (R.group 
+                                                            (R.repeat R.anyDigit 1) // column
+                                                            (R.escape ":"))))
+                                                (R.repeat R.anyChar 1))
+                                            errorMessage)]
+            {
+                (Vscode.window.showErrorMessage errorMessage)
+                (awaitLet [chosen (quickPickMap (for match compileErrors =>match.match match))]
+                    (executeCommand "workbench.action.quickOpen" (substr (chosen.namedGroup "file") 0 -1)))
+            }
+        (Vscode.window.showErrorMessage errorMessage)))

@@ -22,7 +22,7 @@
                             // If there's a build error when testing, throw a test failure
                             (throw errorMessage)
                         // If there's a build error at runtime, tell the user
-                        (Vscode.window.showErrorMessage errorMessage))
+                        (showCompileError errorMessage))
                 }]
         
         // Choose where to find the custom config

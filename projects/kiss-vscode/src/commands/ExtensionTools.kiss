@@ -4,8 +4,9 @@
 (function :ChildProcessSpawnSyncOptions options [] (object cwd (let [path (kvLibpath)] (path.substr 0 (- path.length 1)))))
 
 (function handleUpdateFailure [error]
-    (errorMessage "Error updating Kiss-VSCode: $error")
-    (throw error))
+    (showCompileError "Error updating Kiss-VSCode: $error")
+    (object)
+    **(throw error))
 
 (function :Void updateKissVscode [&opt _]
     (trySpawnSync "haxe" ["build.hxml"] (options) handleUpdateFailure)
