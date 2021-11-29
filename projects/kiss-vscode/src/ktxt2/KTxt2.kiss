@@ -55,7 +55,7 @@
                             (set block.output outputBlock)
                             (set block.outputStart outputStartPosition)
                             (set block.outputEnd outputEndPosition)))
-                    (None
+                    (otherwise
                         (break)))
                 (elements.push (Block block))))
             elements))

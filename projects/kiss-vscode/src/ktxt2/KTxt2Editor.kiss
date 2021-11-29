@@ -46,7 +46,7 @@
                             })))
                 ((objectWith [type "find"] text)
                     (_find text))
-                (otherType (throw "bad message $event for KTxt2Editor"))))
+                (otherwise (throw "bad message $event for KTxt2Editor"))))
     
     (window.addEventListener "scroll"
         ->(let [s (getState)]
@@ -399,10 +399,9 @@
                         (content.appendChild topLink)))
                 (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
                     (case element
-                        ((Comment (objectWith text))
-                            (throw "comments are no longer a feature!"))
                         ((Block (objectWith source output outputLocked))
-                            (blockElements source output outputLocked idx))))
+                            (blockElements source output outputLocked idx))
+                        (otherwise (throw "shouldn't happen"))))
                 (when (> (- ktxt2Elements.length 1) (+ elementScrollY SCROLL_AMOUNT))
                     (let [downLink (document.createElement "a")
                             bottomLink (document.createElement "a")]
