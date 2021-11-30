@@ -89,7 +89,8 @@
                             (ui.reportError "The requested command expects between $min and $max entries. You chose: $entries.length")
                     (continuation entries)))
                 min
-                max))))
+                max))
+        (null)))
 
 (method :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
     (lambda :Void []
