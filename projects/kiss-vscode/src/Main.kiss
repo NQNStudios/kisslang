@@ -49,7 +49,7 @@
                                 oldFileMTime
                                     (mTime oldConfigFile)
                                 userConfigMTime
-                                    (apply max (map (readDirectory (userConfigDir)) mTime))]
+                                    (apply max (map (concat (readDirectory (userConfigDir)) (readDirectory builtinConfigDir)) mTime))]
                             (> oldFileMTime userConfigMTime))
                         (requireConfigJs oldConfigFile)
                         (Vscode.window.showInformationMessage "Config loaded successfully!")
