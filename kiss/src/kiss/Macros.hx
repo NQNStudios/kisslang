@@ -560,8 +560,10 @@ class Macros {
                     }
                     var startingPos = stream.position();
                     var body = CallExp(Symbol("begin").withPos(startingPos), exps.slice(2)).withPos(startingPos);
+                    var evalArgs:Map<String,Dynamic> = [streamArgName => stream];
+                    if (builderArgName != null) evalArgs[builderArgName] = body.expBuilder();
                     try {
-                        Helpers.runAtCompileTime(body, k, [streamArgName => stream, builderArgName => body.expBuilder()]).def;
+                        Helpers.runAtCompileTime(body, k, evalArgs).def;
                     } catch (err) {
                         var expForError = Symbol(s).withPos(startingPos);
                         CompileError.warnFromExp(wholeExp, 'Error from this reader macro');

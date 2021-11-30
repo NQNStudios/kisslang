@@ -29,10 +29,9 @@
         (3 (N num))
         (otherwise (throw (+ "Bad facing" facing)))))
 
-(defReaderMacro "" [stream]
+(defReaderMacro "" [stream &builder b]
     (stream.dropWhitespace)
     (if (stream.isEmpty)
             null
-        `(,(ReaderExp.Symbol
-                (stream.expect "a ship command" (lambda [] (stream.takeChars 1))))
-            ,(ReaderExp.Symbol (stream.expect "a number argument" (lambda [] (stream.takeUntilAndDrop #|"\n"|#)))))))
+        `(,(b.symbol (stream.expect "a ship command" ->(stream.takeChars 1)))
+            ,(b.symbol (stream.expect "a number argument" ->(stream.takeUntilAndDrop #|"\n"|#))))))
