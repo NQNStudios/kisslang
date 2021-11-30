@@ -420,7 +420,16 @@ class Prelude {
             case ListExp(exps):
                 exps;
             default: throw 'expected $s to be a list expression';
-        }
+        };
+    }
+    
+    public static function isListExp(s:ReaderExp):Bool {
+        return switch (s.def) {
+            case ListExp(exps):
+                true;
+            default:
+                false;
+        };
     }
 
     #if sys
