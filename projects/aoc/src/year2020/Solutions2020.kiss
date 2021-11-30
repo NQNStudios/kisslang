@@ -82,15 +82,15 @@
     
     (day 8
         (let [example (new BootCodeExample)]
-            (example.setBreakHandler (lambda [example] (assert (= 5 .accumulator example))))
+            (example.setBreakHandler (lambda :Void [example] (assert (= 5 .accumulator example))))
             (example.run))
         (let [bootCode (new BootCodeReal)]
-            (bootCode.setBreakHandler (lambda [bootCode] (assert (= 2058 bootCode.accumulator))))
+            (bootCode.setBreakHandler (lambda :Void [bootCode] (assert (= 2058 bootCode.accumulator))))
             (bootCode.run))
         /* (print "BootCodeFixExample")
         (let [bootCode (new BootCodeFixExample)]
             (bootCode.setBreakHandler
-                (lambda [bootCodeFork]
+                (lambda :Void [bootCodeFork]
                     (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
                             (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string bootCodeFork.forkedAt)))
                         (print "hit an infinite loop"))))
@@ -99,7 +99,7 @@
         (print "BootCodeFixReal")
         (let [bootCode (new BootCodeFix)]
             (bootCode.setBreakHandler
-                (lambda [bootCodeFork]
+                (lambda :Void [bootCodeFork]
                     (if (= bootCodeFork.instructionPointer (bootCodeFork.instructionCount))
                             (print (+ "answer could be " (Std.string bootCodeFork.accumulator) " forked at " (Std.string (+ 1 bootCodeFork.forkedAt))))
                         (print "hit an infinite loop"))))
