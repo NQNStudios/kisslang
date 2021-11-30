@@ -414,6 +414,7 @@ class Helpers {
             k.macroVars[name] = value;
             interp.variables.set(name, value);
         });
+        interp.variables.set("CompileError", CompileError);
 
         function innerRunAtCompileTimeDynamic(innerExp:ReaderExp) {
             // in case macroVars have changed
