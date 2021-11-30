@@ -38,6 +38,19 @@
             (set promise (promise.then iteration)))
         promise))
 
+(defMacro awaitCommands [commandsAndArgs &builder b &body body]
+    (let [commandsAndArgs
+                (if (isListExp commandsAndArgs)
+                        (.copy (expList commandsAndArgs))
+                    (throw (CompileError.fromExp commandsAndArgs "First argument to awaitCommands should be a list of commands with optional argument arrays")))
+            bindings []]
+        (while commandsAndArgs
+            (bindings.push (b.symbol "_"))
+            (let [nextCommand (commandsAndArgs.shift)]
+                (bindings.push (b.callSymbol "executeCommand"
+                                    (concat [nextCommand] (if (and commandsAndArgs (isListExp (first commandsAndArgs))) (expList (commandsAndArgs.shift)) []))))))
+        `(awaitLet ,bindings ,@body)))
+
 // Other
 
 (defAlias &call showTextDocument Vscode.window.showTextDocument)
