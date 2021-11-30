@@ -10,7 +10,8 @@
                 ((when (> hours 12) hours)
                     (set ampm PM)
                     (- hours 12))
-                (hours hours))
+                (hours hours)
+                (otherwise (throw "null error")))
             (now.getMinutes)
             ampm)))
 
@@ -19,7 +20,8 @@
         ((Time 12 minute AM) minute)
         ((Time hour minute AM) (+ minute (* 60 hour)))
         ((Time 12 minute PM) (+ minute (* 60 12)))
-        ((Time hour minute PM) (+ minute (* 60 (+ hour 12))))))
+        ((Time hour minute PM) (+ minute (* 60 (+ hour 12))))
+        (otherwise (throw "null error"))))
 
 (function isBefore [time1 time2]
     (< (sortIndex time1) (sortIndex time2)))
