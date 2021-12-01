@@ -52,7 +52,7 @@ class AsyncEmbeddedScript {
         var commandList:Array<Expr> = [];
 
         if (dslHaxelib.length > 0) {
-            dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]); 
+            dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]);
         }
 
         // This brings in the DSL's functions and global variables.
