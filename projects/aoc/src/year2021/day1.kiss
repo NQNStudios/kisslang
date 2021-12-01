@@ -1,0 +1,5 @@
+(function countIncreases [l]
+    .length (filter (for [a b] (pairs l false) (> b a))))
+
+(function slicesOf [l size]
+    (for i (range (- l.length (- size 1))) (l.slice i (+ i size))))

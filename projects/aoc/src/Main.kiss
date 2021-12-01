@@ -4,3 +4,5 @@
     (Solutions2018.run))
 (year 2020
     (Solutions2020.run))
+(year 2021
+    (Solutions2021.run))
