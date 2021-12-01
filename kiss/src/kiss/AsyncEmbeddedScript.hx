@@ -42,7 +42,7 @@ class AsyncEmbeddedScript {
 
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
-        //trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
+        // trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
         var k = Kiss.defaultKissState();
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
