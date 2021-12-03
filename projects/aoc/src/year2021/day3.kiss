@@ -1,0 +1,28 @@
+// Silly but fun implementation of a binary->decimal conversion
+(function :Int binaryStringToDecimal [:String binary &opt :Bool invert]
+    (apply +
+        (for [idx digit] (enumerate (reversed (binary.split "")))
+            (* 
+                (let [digit (Std.parseInt digit)] (if invert (- 1 digit) digit))
+                (^ 2 idx)))))
+
+(assert (= 22 (binaryStringToDecimal "10110")))
+(assert (= 9 (binaryStringToDecimal "10110" true)))
+
+(function :String mostCommonBit [:String binary]
+    (let [&mut ones 0.0
+            &mut total 0.0]
+        (doFor digit (binary.split "")
+            (+= total 1)
+            (case digit
+                ("1" (+= ones 1))
+                (otherwise)))
+        (Std.string (Math.round (/ ones total)))))
+
+(function :Int rate [:Array<String> inputs :Bool epsilon]
+    (binaryStringToDecimal
+        (.join
+            (for idx (range .length (first inputs))
+                (mostCommonBit (.join (for input inputs (input.charAt idx)) "")))
+            "")
+        epsilon))

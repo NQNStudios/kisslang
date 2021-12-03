@@ -9,7 +9,10 @@
         (load "day2.kiss")
         (assert (= 2150351 (apply * (simulateSubCommands (readSubCommands "src/year2021/inputs/day2.txt")))))
         (assert (= 1842742223 (apply * (simulateSubCommands (readSubCommands "src/year2021/inputs/day2.txt") true)))))
-    (dayTodo 3)
+    (day 3
+        (load "day3.kiss")
+        (let [inputs (Util.readLines "src/year2021/inputs/day3.txt")]
+            (assert (= 845186 (* (rate inputs false) (rate inputs true))))))
     (dayTodo 4)
     (dayTodo 5)
     (dayTodo 6)
