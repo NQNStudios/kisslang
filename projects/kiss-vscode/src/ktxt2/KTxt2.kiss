@@ -67,8 +67,11 @@
                 "${blockStartEnd}${source}$(if outputLocked lockedStart unlockedStart)${output}${blockStartEnd}"))))
 
 // To save window space after each block editor, ¶ can be used in place of \n\n
+// and ↵ in place of \n
 (function :String applySpecialChars [:String text]
-    (text.replace "¶" "\n\n"))
+    (.replace
+        (text.replace "¶" "\n\n")
+        "↵" "\n"))
 
 // Return [sourceFile outputFile]
 (function :Array<String> extractFileContents [:Stream fileStream :String->Dynamic reportError]

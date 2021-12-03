@@ -10,9 +10,14 @@
 (defNew [&prop :ExtensionContext context])
 
 (method :String insertSpecialChars [:String text]
-	(if (text.endsWith "\n\n")
-			(+ (text.substr 0 (- text.length 2)) "¶")
-		text))
+	(let [text (text.replace "\r" "")]
+		(cond 
+			((text.endsWith "\n\n")
+				(+ (substr text 0 -2) "¶"))
+			((text.endsWith "\n")
+				(+ (substr text 0 -1) "↵"))
+			(true
+				text))))
 
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
     (set webviewPanel.webview.options (object enableScripts true))
