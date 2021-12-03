@@ -20,6 +20,12 @@
 				text))))
 
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
+	// When a blank file with the ktxt2 extension is opened for the first time, give it an empty
+	// block so the user can actually add to it:
+	(unless (document.getText)
+		(File.saveContent document.fileName KTxt2.emptyBlock)
+		**(makeEdit
+			->edit (edit.insert document.uri (streamPosToDocumentPos (object absoluteChar 0)) KTxt2.emptyBlock)))
     (set webviewPanel.webview.options (object enableScripts true))
     (set webviewPanel.webview.html (htmlForWebview webviewPanel.webview))
     (let [updateWebview
@@ -89,7 +95,7 @@
 				(unless e.webviewPanel.visible (exportSourceAndOutputFiles document))
 			})						
 
-		(updateWebview))
+		(when (document.getText) (updateWebview)))
 	null)
 
 (method :String htmlForWebview [:Webview webview]
