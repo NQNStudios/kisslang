@@ -7,7 +7,8 @@
         (assert (= 1516 (countIncreases (for trio (slicesOf (Util.readInts "src/year2021/inputs/day1.txt") 3) (apply + trio))))))
     (day 2
         (load "day2.kiss")
-        (print (apply * (simulateSubCommands (readSubCommands "src/year2021/inputs/day2.txt")))))
+        (assert (= 2150351 (apply * (simulateSubCommands (readSubCommands "src/year2021/inputs/day2.txt")))))
+        (assert (= 1842742223 (apply * (simulateSubCommands (readSubCommands "src/year2021/inputs/day2.txt") true)))))
     (dayTodo 3)
     (dayTodo 4)
     (dayTodo 5)

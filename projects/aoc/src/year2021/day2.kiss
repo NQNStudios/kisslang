@@ -9,12 +9,26 @@
 (var &mut :Int subX) 
 (var &mut :Int subY)
 
-(function simulateSubCommands [commands]
+(function simulateSubCommands [commands &opt fixed]
     (set subX 0)
     (set subY 0)
+    (set aim 0)
+    (set forward (if fixed forward2 forward1))
+    (set down (if fixed down2 down1))
+    (set up (if fixed up2 up1))
     (commands)
     [subX subY])
 
-(function forward [x] (+= subX x))
-(function down [x] (+= subY x))
-(function up [x] (-= subY x))
+(var &mut :Function forward)
+(var &mut :Function down)
+(var &mut :Function up)
+
+(function forward1 [x] (+= subX x))
+(function down1 [x] (+= subY x))
+(function up1 [x] (-= subY x))
+
+(function forward2 [x] (+= subX x) (+= subY (* aim x)))
+(function down2 [x] (+= aim x))
+(function up2 [x] (-= aim x))
+
+(var &mut :Int aim)
