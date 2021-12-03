@@ -1,0 +1,20 @@
+(defMacro readSubCommands [file &builder b]
+    (let [s (Stream.fromFile (eval file))
+            commands []]
+        (until (s.isEmpty)
+            (commands.push (b.call (read s) [(read s)]))
+            (s.dropWhitespace))
+        `(lambda [] ,(b.begin commands))))
+
+(var &mut :Int subX) 
+(var &mut :Int subY)
+
+(function simulateSubCommands [commands]
+    (set subX 0)
+    (set subY 0)
+    (commands)
+    [subX subY])
+
+(function forward [x] (+= subX x))
+(function down [x] (+= subY x))
+(function up [x] (-= subY x))
