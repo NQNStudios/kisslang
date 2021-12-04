@@ -187,13 +187,26 @@
 
 // Dialogue:
 
+(prop &mut :Map<String,String> intercutMap)
+(hollywooMethod intercut [:Map<String,String> actorNamesToSceneNames cc]
+    (set intercutMap actorNamesToSceneNames))
+
+(hollywooMethod endIntercut [cc]
+    (set intercutMap null))
+
+(method showDialog [actorName dialogType wryly text cc]
+    (when intercutMap
+        (whenLet [sceneForActor (dictGet intercutMap actorName)]
+            (setScene sceneForActor ->{})))
+    (director.showDialog actorName dialogType text cc))
+
 (hollywooMethod superText [text cc]
-    (director.showDialog "" Super "" text cc))
+    (showDialog "" Super "" text cc))
 
 (hollywooMethod normalSpeech [actorName wryly text cc]
-    (director.showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
+    (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
 (hollywooMethod onPhoneSpeech [actorName wryly text cc]
-    (director.showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
+    (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
