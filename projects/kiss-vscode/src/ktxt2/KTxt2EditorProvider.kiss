@@ -9,16 +9,6 @@
 
 (defNew [&prop :ExtensionContext context])
 
-(method :String insertSpecialChars [:String text]
-	(let [text (text.replace "\r" "")]
-		(cond 
-			((text.endsWith "\n\n")
-				(+ (substr text 0 -2) "¶"))
-			((text.endsWith "\n")
-				(+ (substr text 0 -1) "↵"))
-			(true
-				text))))
-
 (method :Promise<Void> resolveCustomTextEditor [:TextDocument document :WebviewPanel webviewPanel :CancellationToken _token]
 	// When a blank file with the ktxt2 extension is opened for the first time, give it an empty
 	// block so the user can actually add to it:
@@ -52,7 +42,7 @@
 						(infoMessage message))
 					((objectWith [type "replace"] text start end)
 						(makeEdit
-							->edit (edit.replace document.uri (rangeFromStartEnd start end) (insertSpecialChars text))))
+							->edit (edit.replace document.uri (rangeFromStartEnd start end) (KTxt2.insertSpecialChars text))))
 					((objectWith [type "insertBefore"] text position)
 						(makeEdit
 							->edit (edit.insert document.uri (streamPosToOffsetDocumentPos position -KTxt2.blockStartEnd.length) text)))

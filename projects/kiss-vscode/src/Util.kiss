@@ -27,6 +27,8 @@
     (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
         (when chosenItem (dictGet stringMap chosenItem.label))))
 
+(defAlias &call openDialog Vscode.window.showOpenDialog)
+
 // commands
 (defAlias &call executeCommand Vscode.commands.executeCommand)
 (function repeatCommand [command times]

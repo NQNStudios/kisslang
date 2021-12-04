@@ -209,13 +209,15 @@
 
 (loadFrom "kiss-vscode" "src/commands/KissTools.kiss")
 (loadFrom "kiss-vscode" "src/commands/ExtensionTools.kiss")
+(loadFrom "kiss-vscode" "src/commands/KTxt2Tools.kiss")
 
 // Provided from Main.kiss via (set):
 (var &mut :Command tryLoadConfig)
 
 (function :Void registerBuiltins [&opt leaderKeys]
     (unless leaderKeys (set leaderKeys ""))
-    (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"]
+    (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"
+            ktxt2Prefix "KTxt2:$(if leaderKeys " [${leaderKeys}]" "")"]
         // In Main.kiss:
         (registerCommand "${prefix} [r]eload Config.kiss" tryLoadConfig)
         // In this file:
@@ -228,7 +230,9 @@
         (registerCommand "${prefix} open corresponding .kiss/.hx [f]ile" showCorrespondingFile)
         // ExtensionTools.kiss:
         (registerCommand "${prefix} [u]pdate Kiss-VSCode" updateKissVscode)
-        (registerCommand "${prefix} [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode)))
+        (registerCommand "${prefix} [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode)
+        // KTxt2.kiss:
+        (registerCommand "${ktxt2Prefix} [i]mport input file" importKTxt2InputFile)))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []

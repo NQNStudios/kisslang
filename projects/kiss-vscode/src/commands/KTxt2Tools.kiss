@@ -1,0 +1,20 @@
+// Command to import a file to a new KTxt2 file:
+(function :Void importKTxt2InputFile [&opt _]
+    (awaitLet [uris (openDialog (object openLabel "Import" title "File to import as KTxt2 input" canSelectMany false))
+                outputType (inputBox (object prompt "Output file extension"))
+                splitBy (quickPickMap [=>"↵ (new line)" "\n" =>"¶ (new paragraph)" "\n\n" =>"Other (specify via text box)" ""])]
+        (withValueOrInputBox splitBy
+            (let [file .fsPath (first uris)
+                    outputType (if (outputType.startsWith ".") (outputType.substr 1) outputType)
+                    ktxt2Filename "${file}.${outputType}.ktxt2"
+                    &mut newContents ""
+                    :kiss.List<String> inputBlocks (.split (File.getContent file) splitBy)]
+                (doFor block (inputBlocks.slice 0 -1)
+                    (+= newContents (_blockOf block splitBy)))
+                (+= newContents (_blockOf (last inputBlocks) ""))
+                (File.saveContent ktxt2Filename newContents)
+                (executeCommand "workbench.action.quickOpen" ktxt2Filename)))))
+
+(function _blockOf [inputText :String splitBy]
+    (let [blockText (KTxt2.insertSpecialChars "${inputText}${splitBy}")]
+        "${KTxt2.blockStartEnd}${blockText}${KTxt2.unlockedStart}${KTxt2.blockStartEnd}"))

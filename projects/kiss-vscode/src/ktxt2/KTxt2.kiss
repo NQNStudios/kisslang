@@ -120,3 +120,13 @@
                                 (let [onlyConversion (first (collect (conversions.iterator)))]
                                     (set element.output (onlyConversion.convert element.source))))))))
             (toString elements))))
+
+(function :String insertSpecialChars [:String text]
+	(let [text (text.replace "\r" "")]
+		(cond 
+			((text.endsWith "\n\n")
+				(+ (substr text 0 -2) "¶"))
+			((text.endsWith "\n")
+				(+ (substr text 0 -1) "↵"))
+			(true
+				text))))
