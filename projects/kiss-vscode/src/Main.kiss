@@ -10,6 +10,7 @@
 (var &mut activeConfigDir "")
 (var &mut lastConfigDir "")
 (var &mut builtinConfigDir "")
+(var &mut commandsDir "")
 (var &mut :KissConfig config null)
 
 (function :Void tryLoadConfig [&opt :String text]
@@ -49,7 +50,11 @@
                                 oldFileMTime
                                     (mTime oldConfigFile)
                                 userConfigMTime
-                                    (apply max (map (concat (readDirectory (userConfigDir)) (readDirectory builtinConfigDir)) mTime))]
+                                    (let [foldersToCheck [(userConfigDir) builtinConfigDir ]]
+                                        (when commandsDir
+                                            (foldersToCheck.push commandsDir))
+                                        (apply max
+                                            (map (apply concat (map foldersToCheck readDirectory)) mTime)))]
                             (> oldFileMTime userConfigMTime))
                         (requireConfigJs oldConfigFile)
                         (Vscode.window.showInformationMessage "Config loaded successfully!")
@@ -151,6 +156,10 @@
                         (Prelude.libPath "kiss-vscode")
                     (catch [e] context.extensionPath))
                 "config"))
+        (set commandsDir
+            (try (let [srcPath (Prelude.libPath "kiss-vscode")]
+                    (joinPath srcPath "src" "commands"))
+                (catch [e] "")))
         (set activeConfigDir (joinPath (userHome) ".kiss-vscode" "activeConfig"))
         (set lastConfigDir (joinPath (userHome) ".kiss-vscode" "lastActiveConfig"))
 
@@ -160,6 +169,7 @@
 (function :Void main []
     (#when test
         (set builtinConfigDir "config")
+        (set commandsDir "src/commands")
         (set activeConfigDir "_activeConfig")
         (set lastConfigDir "_lastActiveConfig")
         (tryLoadConfig)
