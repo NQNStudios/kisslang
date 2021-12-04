@@ -83,7 +83,7 @@
             (case ktxtElement
                 ((Block (objectWith source output))
                     (+= sourceText source)
-                    (dictSet interp.variables "source" source)
+                    (dictSet interp.variables "source" (removeSpecialChars source))
                     (dictSet interp.variables "sourceLine" ->line (nth (source.split "\n") line))
                     (dictSet interp.variables "R" re_flex.R)
                     (+= outputText
@@ -102,7 +102,7 @@
                 ((when (and
                             (= sourceType (sourceFile.extension))
                             (= outputType (outputFile.extension))
-                            (canConvert source))
+                            (canConvert (removeSpecialChars source)))
                         (objectWith sourceType outputType canConvert name))
                     (dictSet validMap name c))
                 (otherwise {})))
@@ -118,7 +118,7 @@
                         (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source)]
                             (when (= 1 (count conversions))
                                 (let [onlyConversion (first (collect (conversions.iterator)))]
-                                    (set element.output (onlyConversion.convert element.source))))))))
+                                    (set element.output (onlyConversion.convert (removeSpecialChars element.source)))))))))
             (toString elements))))
 
 (function :String insertSpecialChars [:String text]
@@ -130,3 +130,9 @@
 				(+ (substr text 0 -1) "↵"))
 			(true
 				text))))
+
+(function :String removeSpecialChars [:String text]
+	(let [text (text.replace "\r" "")]
+        (.replace
+            (.replace text "¶" "\n\n")
+            "↵" "\n")))
