@@ -13,12 +13,17 @@
 (var &mut commandsDir "")
 (var &mut :KissConfig config null)
 
-(function :Void tryLoadConfig [&opt :String text]
+(function :Void tryLoadConfig [&opt :Bool fallbackToDefault :String _]
     (let [handleConfigFailure
                 ->errorMessage {
                     (FileSystem.deleteDirectory activeConfigDir)
                     (when (FileSystem.exists lastConfigDir)
                         (FileSystem.rename lastConfigDir activeConfigDir))
+                    // When user config fails to build, use the default
+                    (unless fallbackToDefault
+                        (warningMessage "Falling back to the default Kiss-VSCode Config")
+                        (unless config
+                            (tryLoadConfig true)))
                     (#if test
                             // If there's a build error when testing, throw a test failure
                             (throw errorMessage)
@@ -32,9 +37,9 @@
                             // When running unit tests, build the example config
                             (joinPath builtinConfigDir "example")
                         // When running for real, try the user's config directory
-                        (if (FileSystem.exists (userConfigDir))
+                        (if (and !fallbackToDefault (FileSystem.exists (userConfigDir)))
                                 (userConfigDir)
-                            // Supply the default (empty) config if the user doesn't have one
+                            // Supply the default (empty) config if the user doesn't have one, or if the user's failed to compile
                             (joinPath builtinConfigDir "default")))]
         // If a backup exists, delete it
         (when (FileSystem.exists lastConfigDir)
@@ -105,7 +110,7 @@
         (File.copy file uniqueConfigFile)
         (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
         (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
-        (set config.tryLoadConfig tryLoadConfig)
+        (set config.tryLoadConfig ->[&opt _] (tryLoadConfig false))
         (config.prepareInterp)
         // User-defined init:
         (config.init)))
