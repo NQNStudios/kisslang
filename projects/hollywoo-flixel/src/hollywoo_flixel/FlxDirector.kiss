@@ -36,7 +36,8 @@
                 (Left
                     STAGE_LEFT_X)
                 (Right
-                    STAGE_RIGHT_X))
+                    STAGE_RIGHT_X)
+                (otherwise (throw "unsupported stage position")))
             (/ character.actor.width 2)))
     (set character.actor.y ACTOR_Y)
     (currentState.add character.actor)

@@ -30,6 +30,13 @@
     (prop &mut :String sceneKey "")
     (method _currentScene [] (dictGet scenes sceneKey))
 
+    (prop &mut :Map<String,String> intercutMap)
+    (method showDialog [actorName dialogType wryly text cc]
+        (when intercutMap
+            (whenLet [sceneForActor (dictGet intercutMap actorName)]
+                (setScene sceneForActor ->{})))
+        (director.showDialog actorName dialogType wryly text cc))
+
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
@@ -90,7 +97,8 @@
                 ->{
                     (director.stopWaitForInput)
                     (cc)
-                }))))
+                }))
+        (otherwise (throw "Unsupported delay type $delayHandling"))))
 
 (hollywooMethod newSet [name :Set set]
     (assert isLoading)
@@ -148,8 +156,9 @@
 (hollywooMethod loopSong [name :Continuation cc &opt :Float volumeMod]
     (playSong name cc volumeMod true false))
 
-(hollywooMethod stopSong []
-    (director.stopSong))
+(hollywooMethod stopSong [cc]
+    (director.stopSong)
+    (cc))
 
 (hollywooMethod newActor [name :Actor actor]
     (assert isLoading)
@@ -161,8 +170,7 @@
         (director.showCharacter
             character
             (appearanceFlag shownCharacters actorName)
-            cc)
-        ))
+            cc)))
 
 (hollywooMethod removeCharacter [actorName :Continuation cc]
     (let [c (dictGet .characters (_currentScene) actorName)]
@@ -183,30 +191,23 @@
 (hollywooMethod removeProp [name :Continuation cc]
     (director.hideProp (dictGet props name) cc))
 
-// TODO removeProp
-
 // Dialogue:
 
-(prop &mut :Map<String,String> intercutMap)
-(hollywooMethod intercut [:Map<String,String> actorNamesToSceneNames cc]
-    (set intercutMap actorNamesToSceneNames))
+(hollywooMethod intercut [:Map<String,String> actorNamesToSceneNames :Continuation cc]
+    (set intercutMap actorNamesToSceneNames)
+    (cc))
 
-(hollywooMethod endIntercut [cc]
-    (set intercutMap null))
+(hollywooMethod endIntercut [:Continuation cc]
+    (set intercutMap null)
+    (cc))
 
-(method showDialog [actorName dialogType wryly text cc]
-    (when intercutMap
-        (whenLet [sceneForActor (dictGet intercutMap actorName)]
-            (setScene sceneForActor ->{})))
-    (director.showDialog actorName dialogType text cc))
-
-(hollywooMethod superText [text cc]
+(hollywooMethod superText [text :Continuation cc]
     (showDialog "" Super "" text cc))
 
-(hollywooMethod normalSpeech [actorName wryly text cc]
+(hollywooMethod normalSpeech [actorName wryly text :Continuation cc]
     (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
-(hollywooMethod onPhoneSpeech [actorName wryly text cc]
+(hollywooMethod onPhoneSpeech [actorName wryly text :Continuation cc]
     (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
