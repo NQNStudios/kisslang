@@ -8,7 +8,7 @@
                     outputType (if (outputType.startsWith ".") (outputType.substr 1) outputType)
                     ktxt2Filename "${file}.${outputType}.ktxt2"
                     &mut newContents ""
-                    :kiss.List<String> inputBlocks (.split (File.getContent file) splitBy)]
+                    :kiss.List<String> inputBlocks (.split (.replace (File.getContent file) "\r" "") splitBy)]
                 (doFor block (inputBlocks.slice 0 -1)
                     (+= newContents (_blockOf block splitBy)))
                 (+= newContents (_blockOf (last inputBlocks) ""))

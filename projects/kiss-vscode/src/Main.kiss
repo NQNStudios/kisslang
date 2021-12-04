@@ -55,7 +55,7 @@
                                 oldFileMTime
                                     (mTime oldConfigFile)
                                 userConfigMTime
-                                    (let [foldersToCheck [(userConfigDir) builtinConfigDir ]]
+                                    (let [foldersToCheck [(userConfigDir) builtinConfigDir]]
                                         (when commandsDir
                                             (foldersToCheck.push commandsDir))
                                         (apply max
