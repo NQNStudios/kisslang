@@ -59,10 +59,13 @@
 // Macros for implementing commands in Kiss
 
 (defMacro withValueOrInputBox [v &body body]
-    `(if ,v
-            {,@body}
-        (awaitLet [,v (inputBox)]
-            ,@body)))
+    `{
+        (if ,v
+                {,@body}
+            (awaitLet [,v (inputBox)]
+                ,@body))
+        null
+    })
 
 (defMacro withValueOrQuickPick [v options &body body]
     `(if ,v
