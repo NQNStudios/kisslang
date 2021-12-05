@@ -1,8 +1,8 @@
 (load "../UtilMacros.kiss")
-(load "day1.kiss")
 
 (function run []
     (day 1
+        (load "day1.kiss")
         (assert (= 1475 (countIncreases (Util.readInts "src/year2021/inputs/day1.txt"))))
         (assert (= 1516 (countIncreases (for trio (slicesOf (Util.readInts "src/year2021/inputs/day1.txt") 3) (apply + trio))))))
     (day 2
@@ -13,7 +13,10 @@
         (load "day3.kiss")
         (let [inputs (Util.readLines "src/year2021/inputs/day3.txt")]
             (assert (= 845186 (* (rate inputs false) (rate inputs true))))))
-    (dayTodo 4)
+    (day 4
+        (load "day4.kiss")
+        (assert (= 4512 (winningScore "src/year2021/inputs/day4-example.txt")))
+        (assert (= 46920 (winningScore "src/year2021/inputs/day4.txt"))))
     (dayTodo 5)
     (dayTodo 6)
     (dayTodo 7)

@@ -1,0 +1,59 @@
+(function :GameState readState [file]
+    (let [lines (filter (Util.readLines file))
+            :Map<Int,Array<Board>> boardsByNumber (new Map)]
+        (objectWith
+            [
+                numbersToCall (map (.split (lines.shift) ",") Std.parseInt)
+                boards (for group (groups lines 5)
+                            (let [numbers (map (apply concat (for line group (filter (line.split " ")))) Std.parseInt)
+                                    board (object
+                                                uncalled (for line (groups numbers 5) (for number line (Some number)))
+                                                called (for y (range 5) (for x (range 5) None)))]
+                                (doFor number numbers
+                                    (unless (boardsByNumber.exists number) (dictSet boardsByNumber number []))
+                                    (.push (dictGet boardsByNumber number) board))
+                                board))
+            ]
+            boardsByNumber)))
+
+// Return true if the board wins as a result of the given number being called
+(function :Bool stepBoard [:Board board numberCalled]
+    (doFor [y row] (enumerate board.uncalled)
+        (doFor [x square] (enumerate row)
+            (whenLet [(when (= numberCalled number) (Some number)) square]
+                (setNth row x None)
+                (setNth (nth board.called y) x (Some number)))))
+    (boardWon board))
+
+(function :Bool boardWon [:Board board]
+    (let [:Array<Array<Option<Int>>> linesOfFive 
+                (concat
+                    board.called
+                    (for x (range 5) (for row board.called (nth row x))))]
+        (doFor line linesOfFive
+            (let [&mut won true]
+                (doFor square line
+                    (case square
+                        (None (set won false) (break))
+                        (otherwise)))
+                (when won (return true))))
+        (return false)))
+
+// Return the winning score when a board wins
+(function :Null<Int> stepState [:GameState state]
+    (let [numberCalled (state.numbersToCall.shift)]
+        (when (state.boardsByNumber.exists numberCalled)
+            (doFor board (dictGet state.boardsByNumber numberCalled)
+                (when (stepBoard board numberCalled)
+                    (return (boardScore board numberCalled)))))
+        null))
+
+(function :Int boardScore [:Board board numberCalled]
+    (* numberCalled (apply + (for row board.uncalled (apply + (for square row (case square ((Some v) v) (otherwise 0))))))))
+
+(function winningScore [file]
+    (let [state (readState file)]
+        (loop
+            (whenLet [winningScore (stepState state)]
+                (return winningScore))))
+    (throw ""))
