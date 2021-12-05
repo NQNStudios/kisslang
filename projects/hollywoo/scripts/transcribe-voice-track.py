@@ -64,7 +64,10 @@ while True:
         for sentence in results:
             words = sentence['result']
             text = sentence['text']
-            lines[text] = {'start': words[0]['start'], 'end': words[-1]['end']}
+            # Account for duplicate sentences:
+            if not text in lines:
+                lines[text] = []
+            lines[text].append({'start': words[0]['start'], 'end': words[-1]['end']})
             print(f'{text}: {words[0]["start"]} {words[-1]["end"]}')
         json.dump(lines, f)
 
