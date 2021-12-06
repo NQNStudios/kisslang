@@ -12,7 +12,8 @@
     (day 3
         (load "day3.kiss")
         (let [inputs (Util.readLines "src/year2021/inputs/day3.txt")]
-            (assert (= 845186 (* (rate inputs false) (rate inputs true))))))
+            (assert (= 845186 (* (rate inputs false) (rate inputs true))))
+            (assert (= 4636702 (* (otherRate inputs false) (otherRate inputs true))))))
     (day 4
         (load "day4.kiss")
         (assert (= 4512 (winningScore "src/year2021/inputs/day4-example.txt")))

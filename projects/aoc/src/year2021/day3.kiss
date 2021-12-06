@@ -9,7 +9,7 @@
 (assert (= 22 (binaryStringToDecimal "10110")))
 (assert (= 9 (binaryStringToDecimal "10110" true)))
 
-(function :String mostCommonBit [:String binary]
+(function :String mostCommonBit [:String binary &opt :String tieBreaker]
     (let [&mut ones 0.0
             &mut total 0.0]
         (doFor digit (binary.split "")
@@ -17,7 +17,9 @@
             (case digit
                 ("1" (+= ones 1))
                 (otherwise)))
-        (Std.string (Math.round (/ ones total)))))
+        (if (and tieBreaker (= ones (/ total 2)))
+                tieBreaker
+            (Std.string (Math.round (/ ones total))))))
 
 (function :Int rate [:Array<String> inputs :Bool epsilon]
     (binaryStringToDecimal
@@ -26,3 +28,13 @@
                 (mostCommonBit (.join (for input inputs (input.charAt idx)) "")))
             "")
         epsilon))
+
+// Part 2
+(function :Int otherRate [:Array<String> inputs :Bool co2]
+    (doFor idx (range .length (first inputs))
+        (let [mcb (mostCommonBit (.join (for input inputs (input.charAt idx)) "") "1")
+                o2filter ->input (= (input.charAt idx) mcb)
+                co2Filter ->input !(o2filter input)]
+                (set inputs (filter inputs (if co2 co2Filter o2filter))))
+                (when (= 1 inputs.length) (return (binaryStringToDecimal (first inputs)))))
+    null)
