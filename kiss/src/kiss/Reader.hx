@@ -76,7 +76,12 @@ class Reader {
         readTable["!"] = (stream:Stream, k) -> CallExp(Symbol("not").withPos(stream.position()), [assertRead(stream, k)]);
 
         // Helpful for quickly debugging an expression by printing the value:
-        readTable["~"] = (stream:Stream, k) -> CallExp(Symbol("print").withPos(stream.position()), [assertRead(stream, k)]);
+        readTable["~"] = (stream:Stream, k) -> {
+            var pos = stream.position();
+            var expToPrint = assertRead(stream, k);
+            var expToPrintRepresentation = StrExp(Reader.toString(expToPrint.def)).withPos(pos);
+            CallExp(Symbol("print").withPos(pos), [expToPrint, expToPrintRepresentation]);
+        }
 
         // Helpful for defining predicates to pass to Haxe functions:
         readTable["?"] = (stream:Stream, k) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, k)]);
