@@ -1,0 +1,39 @@
+(defMacro dictInc [theMap key &builder b amount]
+    `(let [theMap ,theMap]
+        (unless (dictGet theMap ,key)
+            (dictSet theMap ,key 0))
+        (+= (dictGet theMap ,key) ,amount)))
+
+// Store the simulation state in a map of age => count.
+(function :Map<Int,Int> ageMap [:String file]
+    (let [:Array<Int> list (map (.split (first (Util.readLines file)) ",") Std.parseInt)
+            :Map<Int,Int> theMap (new Map)]
+        // special key -1 corresponds to total count
+        (dictSet theMap -1 list.length)
+        (doFor age (range 9)
+            (dictSet theMap age 0))
+        (doFor age list
+            (+= (dictGet theMap age) 1))
+        theMap))
+
+(function :Map<Int,Int> stepAgeMap [:Map<Int,Int> theMap]
+    // Lanternfish are guaranteed to be between 0-8 years old
+    (let [:Map<Int,Int> newMap (new Map)]
+        (dictSet newMap -1 (dictGet theMap -1))
+        (doFor age (range 9)
+            (let [count (dictGet theMap age)]
+                (case age
+                    // Lanternfish giving birth:
+                    (0
+                        (dictInc newMap 8 count)
+                        (dictInc newMap -1 count)
+                        (dictInc newMap 6 count))
+                    (otherwise
+                        (dictInc newMap (- age 1) count)))))
+        newMap))
+                    
+(function countAfter [file days]
+    (let [&mut ageMap (ageMap file)]
+        (doFor i (range days)
+            (set ageMap (stepAgeMap ageMap)))
+        (nth ageMap -1)))

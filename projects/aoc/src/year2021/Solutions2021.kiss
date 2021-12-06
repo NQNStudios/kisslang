@@ -18,7 +18,9 @@
         (assert (= 4512 (winningScore "src/year2021/inputs/day4-example.txt")))
         (assert (= 46920 (winningScore "src/year2021/inputs/day4.txt"))))
     (dayTodo 5)
-    (dayTodo 6)
+    (day 6
+        (load "day6.kiss")
+        (print (countAfter "src/year2021/inputs/day6.txt" 80)))
     (dayTodo 7)
     (dayTodo 8)
     (dayTodo 9)
