@@ -1,28 +1,30 @@
-(defMacro dictInc [theMap key &builder b amount]
-    `(let [theMap ,theMap]
-        (unless (dictGet theMap ,key)
-            (dictSet theMap ,key 0))
-        (+= (dictGet theMap ,key) ,amount)))
+(defMacro dictInc [theMap key amount]
+    `(let [theMap ,theMap key ,key amount ,amount &mut count (dictGet theMap key)]
+        (unless count
+            (dictSet theMap key (set count (Int64Helper.fromFloat 0))))
+        (dictSet theMap key #|count + amount|#)))
 
 // Store the simulation state in a map of age => count.
-(function :Map<Int,Int> ageMap [:String file]
+(function :Map<Int,Int64> ageMap [:String file]
     (let [:Array<Int> list (map (.split (first (Util.readLines file)) ",") Std.parseInt)
-            :Map<Int,Int> theMap (new Map)]
+            :Map<Int,Int64> theMap (new Map)]
         // special key -1 corresponds to total count
-        (dictSet theMap -1 list.length)
+        (dictSet theMap -1 (Int64Helper.fromFloat list.length))
         (doFor age (range 9)
-            (dictSet theMap age 0))
+            (dictSet theMap age (Int64Helper.fromFloat 0)))
         (doFor age list
-            (+= (dictGet theMap age) 1))
+            (let [count (dictGet theMap age)
+                    one (Int64Helper.fromFloat 1)]
+            (dictSet theMap age #|count + one|#)))
         theMap))
 
-(function :Map<Int,Int> stepAgeMap [:Map<Int,Int> theMap]
+(function :Map<Int,Int64> stepAgeMap [:Map<Int,Int64> theMap]
     // Lanternfish are guaranteed to be between 0-8 years old
-    (let [:Map<Int,Int> newMap (new Map)]
+    (let [:Map<Int,Int64> newMap (new Map)]
         (dictSet newMap -1 (dictGet theMap -1))
         (doFor age (range 9)
             (let [count (dictGet theMap age)]
-                (case age
+                (case ~age
                     // Lanternfish giving birth:
                     (0
                         (dictInc newMap 8 count)
@@ -32,8 +34,8 @@
                         (dictInc newMap (- age 1) count)))))
         newMap))
                     
-(function countAfter [file days]
+(function :String countAfter [file days]
     (let [&mut ageMap (ageMap file)]
         (doFor i (range days)
             (set ageMap (stepAgeMap ageMap)))
-        (nth ageMap -1)))
+        (Int64.toStr (dictGet ageMap -1))))

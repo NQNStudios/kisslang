@@ -20,7 +20,10 @@
     (dayTodo 5)
     (day 6
         (load "day6.kiss")
-        (print (countAfter "src/year2021/inputs/day6.txt" 80)))
+        (assert (= "5934" (countAfter "src/year2021/inputs/day6-example.txt" 80)))
+        (assert (= "26984457539" (countAfter "src/year2021/inputs/day6-example.txt" 256)))
+        (assert (= "346063" (countAfter "src/year2021/inputs/day6.txt" 80)))
+        (assert (= "1572358335990" (countAfter "src/year2021/inputs/day6.txt" 256))))
     (dayTodo 7)
     (dayTodo 8)
     (dayTodo 9)
