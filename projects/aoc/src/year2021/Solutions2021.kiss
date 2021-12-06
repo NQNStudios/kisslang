@@ -17,7 +17,9 @@
     (day 4
         (load "day4.kiss")
         (assert (= 4512 (winningScore "src/year2021/inputs/day4-example.txt")))
-        (assert (= 46920 (winningScore "src/year2021/inputs/day4.txt"))))
+        (assert (= 46920 (winningScore "src/year2021/inputs/day4.txt")))
+        (assert (= 1924 (lastWinningScore "src/year2021/inputs/day4-example.txt")))
+        (assert (= 12635 (lastWinningScore "src/year2021/inputs/day4.txt"))))
     (dayTodo 5)
     (day 6
         (load "day6.kiss")

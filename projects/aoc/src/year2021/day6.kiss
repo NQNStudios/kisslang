@@ -24,7 +24,7 @@
         (dictSet newMap -1 (dictGet theMap -1))
         (doFor age (range 9)
             (let [count (dictGet theMap age)]
-                (case ~age
+                (case age
                     // Lanternfish giving birth:
                     (0
                         (dictInc newMap 8 count)

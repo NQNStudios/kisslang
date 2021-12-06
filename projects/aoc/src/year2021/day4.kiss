@@ -8,7 +8,8 @@
                             (let [numbers (map (apply concat (for line group (filter (line.split " ")))) Std.parseInt)
                                     board (object
                                                 uncalled (for line (groups numbers 5) (for number line (Some number)))
-                                                called (for y (range 5) (for x (range 5) None)))]
+                                                called (for y (range 5) (for x (range 5) None))
+                                                won false)]
                                 (doFor number numbers
                                     (unless (boardsByNumber.exists number) (dictSet boardsByNumber number []))
                                     (.push (dictGet boardsByNumber number) board))
@@ -39,14 +40,18 @@
                 (when won (return true))))
         (return false)))
 
-// Return the winning score when a board wins
-(function :Null<Int> stepState [:GameState state]
-    (let [numberCalled (state.numbersToCall.shift)]
+// Return the winning score(s) when a board(s) win
+(function :Null<Array<Int>> stepState [:GameState state]
+    // Keep returning the last score if there are no more numbers to call
+    (let [numberCalled (state.numbersToCall.shift)
+            winningScores []]
         (when (state.boardsByNumber.exists numberCalled)
             (doFor board (dictGet state.boardsByNumber numberCalled)
-                (when (stepBoard board numberCalled)
-                    (return (boardScore board numberCalled)))))
-        null))
+                (unless board.won
+                    (when (stepBoard board numberCalled)
+                        (set board.won true)
+                        (winningScores.push (boardScore board numberCalled))))))
+        winningScores))
 
 (function :Int boardScore [:Board board numberCalled]
     (* numberCalled (apply + (for row board.uncalled (apply + (for square row (case square ((Some v) v) (otherwise 0))))))))
@@ -54,6 +59,17 @@
 (function winningScore [file]
     (let [state (readState file)]
         (loop
-            (whenLet [winningScore (stepState state)]
-                (return winningScore))))
+            // Assume that for potential solutions to the AOC problem, only one board wins at a time.
+            (whenLet [[score] (stepState state)]
+                (return score))))
+    (throw ""))
+
+(function lastWinningScore [file]
+    (let [state (readState file)
+            &mut finishedBoards 0]
+        (loop
+            (whenLet [winningScores (stepState state)]
+                (+= finishedBoards winningScores.length)
+                (when (= finishedBoards state.boards.length)
+                    (return (first winningScores))))))
     (throw ""))
