@@ -31,7 +31,8 @@
         (load "day7.kiss")
         (assert (= 2 (bestPosToAlignAt (crabPositions "src/year2021/inputs/day7-example.txt"))))
         (let [positions (crabPositions "src/year2021/inputs/day7.txt")]
-            (print (fuelToAlignAt (bestPosToAlignAt positions) positions))))
+            (assert (= 356958 (fuelToAlignAt (bestPosToAlignAt positions) positions)))
+            (assert (= 105461913 (fuelToAlignAt (bestPosToAlignAt positions true) positions true)))))
     (dayTodo 8)
     (dayTodo 9)
     (dayTodo 10)
