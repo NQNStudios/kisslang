@@ -6,30 +6,35 @@
             (objectWith x1 y1 x2 y2))))
 
 // An inclusive range whose start may be greater than its end
-(function inclusiveRange [start end]
+(function :Array<Int> inclusiveRange [start end]
     (let [s (min start end)
             e (max start end)]
-        (range s (+ e 1))))
+        (let [r (collect (range s (+ e 1)))]
+            (if (> start end)
+                    (reversed r)
+                r))))
 
-(function :Array<Point> pointsCoveredBy [:Line line]
+(function :Array<Point> pointsCoveredBy [:Line line :Bool part2]
     (cond
         ((= line.x1 line.x2)
             (for y (inclusiveRange line.y1 line.y2) [line.x1 y]))
         ((= line.y1 line.y2)
             (for x (inclusiveRange line.x1 line.x2) [x line.y1]))
         // Diagonal lines:
+        (part2
+            (zipThrow (inclusiveRange line.x1 line.x2) (inclusiveRange line.y1 line.y2)))
         (true
             [])))
 
-(function :Map<String,Int64> ventsByPos [file]
+(function :Map<String,Int64> ventsByPos [file :Bool part2]
     (let [lines (parseLines file)
             :Map<String,Int64> theMap (new Map)]
         (doFor line lines
-            (doFor point (pointsCoveredBy line)
+            (doFor point (pointsCoveredBy line part2)
                 (dictInc theMap (Std.string point) 1)))
         theMap))
 
-(function :Int numHotPositions [file]
-    (let [theMap (ventsByPos file)
+(function :Int numHotPositions [file &opt :Bool part2]
+    (let [theMap (ventsByPos file ?part2)
             two (Int64Helper.fromFloat 2)]
         (count theMap ->vents #| vents >= two |#)))

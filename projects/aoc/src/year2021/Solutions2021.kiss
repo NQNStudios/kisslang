@@ -29,7 +29,9 @@
     (day 5
         (load "day5.kiss")
         (assert (= 5 ~(numHotPositions "src/year2021/inputs/day5-example.txt")))
-        (print (numHotPositions "src/year2021/inputs/day5.txt")))
+        (assert (= 7473 (numHotPositions "src/year2021/inputs/day5.txt")))
+        (assert (= 12 (numHotPositions "src/year2021/inputs/day5-example.txt" true)))
+        (assert (= 24164 (numHotPositions "src/year2021/inputs/day5.txt" true))))
     (day 6
         (load "day6.kiss")
         (assert (= "5934" (countAfter "src/year2021/inputs/day6-example.txt" 80)))
