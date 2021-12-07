@@ -1,0 +1,25 @@
+(function crabPositions [file]
+    (map (.split (first (Util.readLines file)) ",") Std.parseInt))
+
+(function :Int fuelToAlignAt [x :Array<Int> positions]
+    (apply + (for crabX positions (Math.abs (- x crabX)))))
+
+(function :Int bestPosToAlignAt [:Array<Int> positions]
+    (let [&mut minX (apply min positions)
+            &mut maxX (apply max positions)]
+        (loop
+            (let [middleX (Math.floor (/ (+ minX maxX) 2))
+                    middleFuel (fuelToAlignAt middleX positions)
+                    leftBy1Fuel (fuelToAlignAt (- middleX 1) positions)
+                    rightBy1Fuel (fuelToAlignAt (+ middleX 1) positions)]
+                ~[minX middleX maxX]
+                (cond
+                    ((= minX middleX maxX)
+                        (throw ""))
+                    ((< middleFuel (min leftBy1Fuel rightBy1Fuel))
+                        (return middleX))
+                    ((< leftBy1Fuel middleFuel)
+                        (set maxX middleX))
+                    ((< rightBy1Fuel middleFuel)
+                        (set minX middleX)))))
+        (throw "")))

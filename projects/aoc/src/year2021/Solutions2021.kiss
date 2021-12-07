@@ -27,7 +27,11 @@
         (assert (= "26984457539" (countAfter "src/year2021/inputs/day6-example.txt" 256)))
         (assert (= "346063" (countAfter "src/year2021/inputs/day6.txt" 80)))
         (assert (= "1572358335990" (countAfter "src/year2021/inputs/day6.txt" 256))))
-    (dayTodo 7)
+    (day 7
+        (load "day7.kiss")
+        (assert (= 2 (bestPosToAlignAt (crabPositions "src/year2021/inputs/day7-example.txt"))))
+        (let [positions (crabPositions "src/year2021/inputs/day7.txt")]
+            (print (fuelToAlignAt (bestPosToAlignAt positions) positions))))
     (dayTodo 8)
     (dayTodo 9)
     (dayTodo 10)
