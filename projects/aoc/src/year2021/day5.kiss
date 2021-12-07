@@ -1,0 +1,35 @@
+(function :Array<Line> parseLines [file]
+    (for textLine (Util.readLines file)
+        (let [[p1 p2] (textLine.split " -> ")
+                [x1 y1] (map (p1.split ",") Std.parseInt)
+                [x2 y2] (map (p2.split ",") Std.parseInt)]
+            (objectWith x1 y1 x2 y2))))
+
+// An inclusive range whose start may be greater than its end
+(function inclusiveRange [start end]
+    (let [s (min start end)
+            e (max start end)]
+        (range s (+ e 1))))
+
+(function :Array<Point> pointsCoveredBy [:Line line]
+    (cond
+        ((= line.x1 line.x2)
+            (for y (inclusiveRange line.y1 line.y2) [line.x1 y]))
+        ((= line.y1 line.y2)
+            (for x (inclusiveRange line.x1 line.x2) [x line.y1]))
+        // Diagonal lines:
+        (true
+            [])))
+
+(function :Map<String,Int64> ventsByPos [file]
+    (let [lines (parseLines file)
+            :Map<String,Int64> theMap (new Map)]
+        (doFor line lines
+            (doFor point (pointsCoveredBy line)
+                (dictInc theMap (Std.string point) 1)))
+        theMap))
+
+(function :Int numHotPositions [file]
+    (let [theMap (ventsByPos file)
+            two (Int64Helper.fromFloat 2)]
+        (count theMap ->vents #| vents >= two |#)))

@@ -1,9 +1,3 @@
-(defMacro dictInc [theMap key amount]
-    `(let [theMap ,theMap key ,key amount ,amount &mut count (dictGet theMap key)]
-        (unless count
-            (dictSet theMap key (set count (Int64Helper.fromFloat 0))))
-        (dictSet theMap key #|count + amount|#)))
-
 // Store the simulation state in a map of age => count.
 (function :Map<Int,Int64> ageMap [:String file]
     (let [:Array<Int> list (map (.split (first (Util.readLines file)) ",") Std.parseInt)
