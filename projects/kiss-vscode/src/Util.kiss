@@ -88,13 +88,18 @@
             options ,options
             result (ChildProcess.spawnSync command args options)]
         (if result.error
-                {(,onError "Error $result.error from $command ${args}: $result.stdout $result.stderr")(return)}
+                {
+                    (,onError "Error $result.error from $command ${args}: $result.stdout $result.stderr")
+                    null
+                }
             (case result.status 
-                (0 null)
+                (0 (when result.stdout (.toString (the js.node.Buffer result.stdout))))
                 (errCode
                     (,onError "Error code $errCode from $command ${args}: $result.stdout $result.stderr")
-                    (return))
-                (null (,onError "result status is null from $command ${args}: $result.stdout $result.stderr"))))))
+                    null)
+                (null
+                    (,onError "result status is null from $command ${args}: $result.stdout $result.stderr")
+                    null)))))
 
 (function :Void showCompileError [errorMessage]
     (ifLet [compileErrors (R.distinctMatches
