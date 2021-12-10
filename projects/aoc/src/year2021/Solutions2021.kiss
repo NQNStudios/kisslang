@@ -6,6 +6,13 @@
             (dictSet theMap key (set count (Int64Helper.fromFloat 0))))
         (dictSet theMap key #|count + amount|#)))
 
+// Remove and return an arbitrary key-value pair from the given Map
+(function :Array<Dynamic> dictShift [:Map<String,Dynamic> m]
+    (let [key (.next (m.keys))
+            val (dictGet m key)]
+        (m.remove key)
+        [key val]))
+
 (function run []
     (day 1
         (load "day1.kiss")
@@ -45,7 +52,11 @@
             (assert (= 356958 (fuelToAlignAt (bestPosToAlignAt positions) positions)))
             (assert (= 105461913 (fuelToAlignAt (bestPosToAlignAt positions true) positions true)))))
     (dayTodo 8)
-    (dayTodo 9)
+    (day 9
+        (load "day9.kiss")
+        (assert (= 4 (count (lowPoints "src/year2021/inputs/day9-example.txt"))))
+        (let [lp (lowPoints "src/year2021/inputs/day9.txt")]
+            (doFor =>key val lp (print "$key : $val"))))
     (dayTodo 10)
     (dayTodo 11)
     (dayTodo 12)

@@ -1,0 +1,48 @@
+(function :Map<String,Int> pointMap [file]
+    (let [:Map<String,Int> m (new Map)
+            lines (Util.readLines file)]
+        (for [y line] (enumerate lines)
+            (for [x tile] (enumerate (line.split ""))
+                (dictSet m (mapKey [x y]) (Std.parseInt tile))))
+        m))
+
+(function :String mapKey [:Array<Int> coords]
+    "$(first coords),$(second coords)")
+
+(function :Array<Int> coordinates [:String key]
+    (map (key.split ",") Std.parseInt))
+
+(function :Array<String> adjacentPoints [:String key]
+    (let [[x y] (coordinates key)]
+        (map
+            [
+                [(+ x 1) y]
+                [(- x 1) y]
+                [x (+ y 1)]
+                [x (- y 1)]
+            ]
+            mapKey)))
+
+(function :Map<String,Int> adjacentPointMap [:String key :Map<String,Int> allPoints]
+    (let [:Map<String,Int> m (new Map)]
+        (doFor point (adjacentPoints key) 
+            (whenLet [h (dictGet allPoints point)]
+                (dictSet m point h)))
+        m))
+
+(function :Map<String,Int> lowPoints [file]
+    (let [allPoints (pointMap file)
+            pointsToCheck (pointMap file)
+            :Map<String,Int> lowPoints (new Map)]
+        (while !(= 0 (count pointsToCheck))
+            (let [[key height] (dictShift pointsToCheck)
+                    adj (adjacentPointMap key allPoints)
+                    &mut isLow true]
+                (doFor =>adjKey adjHeight adj
+                    (cond
+                        ((> adjHeight height)
+                            (pointsToCheck.remove adjKey))
+                        ((< adjHeight height)
+                            (set isLow false))))
+                (when isLow (dictSet lowPoints key height))))
+        lowPoints))
