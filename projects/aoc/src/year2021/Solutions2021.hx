@@ -5,6 +5,7 @@ import haxe.Constraints;
 import haxe.ds.Option;
 import haxe.Int64;
 import haxe.Int64Helper;
+import hx.strings.ansi.Ansi;
 #if day4
 import year2021.Day4;
 #end

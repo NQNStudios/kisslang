@@ -55,8 +55,9 @@
     (day 9
         (load "day9.kiss")
         (assert (= 4 (count (lowPoints "src/year2021/inputs/day9-example.txt"))))
-        (let [lp (lowPoints "src/year2021/inputs/day9.txt")]
-            (doFor =>key val lp (print "$key : $val"))))
+        // (highlightLowPoints "src/year2021/inputs/day9.txt")
+        (print (apply + (for =>_ height (lowPoints "src/year2021/inputs/day9.txt") (+ 1 height))))
+        )
     (dayTodo 10)
     (dayTodo 11)
     (dayTodo 12)

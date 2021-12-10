@@ -42,7 +42,24 @@
                     (cond
                         ((> adjHeight height)
                             (pointsToCheck.remove adjKey))
-                        ((< adjHeight height)
+                        ((<= adjHeight height)
                             (set isLow false))))
                 (when isLow (dictSet lowPoints key height))))
         lowPoints))
+
+(function :Void highlightLowPoints [file]
+    (let [writer (Ansi.writer (Sys.stdout))
+            m (lowPoints file)
+            lines (Util.readLines file)
+            &mut isRed false]
+        (doFor [y line] (enumerate lines)
+            (doFor [x height] (enumerate (line.split ""))
+                (if (m.exists (mapKey [x y]))
+                        (unless isRed
+                            (writer.fg RED)
+                            (set isRed true))
+                    (when isRed
+                        (writer.fg WHITE)
+                        (set isRed false)))
+                (writer.write height))
+            (writer.write "\n"))))
