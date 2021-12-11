@@ -54,10 +54,17 @@
     (dayTodo 8)
     (day 9
         (load "day9.kiss")
-        (assert (= 4 (count (lowPoints "src/year2021/inputs/day9-example.txt"))))
+        
         // (highlightLowPoints "src/year2021/inputs/day9.txt")
-        (print (apply + (for =>_ height (lowPoints "src/year2021/inputs/day9.txt") (+ 1 height))))
-        )
+        (let [exampleLowPoints (lowPoints "src/year2021/inputs/day9-example.txt")]
+            (assert (= 4 (count exampleLowPoints)))
+            (assert (= 9 (count (basinAround (.next (exampleLowPoints.keys)) "src/year2021/inputs/day9-example.txt")))))
+        (let [realLowPoints (lowPoints "src/year2021/inputs/day9.txt")
+                realBasins (for =>lp _ realLowPoints (basinAround lp "src/year2021/inputs/day9.txt"))
+                basinSizes (for b realBasins (count b))]
+            (assert (= 480 (apply + (for =>_ height realLowPoints (+ 1 height)))))
+            
+            (assert (= 1045660 (apply * (.slice (reversed (sort basinSizes)) 0 3))))))
     (dayTodo 10)
     (dayTodo 11)
     (dayTodo 12)
