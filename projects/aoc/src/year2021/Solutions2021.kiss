@@ -63,11 +63,13 @@
                 realBasins (for =>lp _ realLowPoints (basinAround lp "src/year2021/inputs/day9.txt"))
                 basinSizes (for b realBasins (count b))]
             (assert (= 480 (apply + (for =>_ height realLowPoints (+ 1 height)))))
-            
             (assert (= 1045660 (apply * (.slice (reversed (sort basinSizes)) 0 3))))))
     (dayTodo 10)
     (dayTodo 11)
-    (dayTodo 12)
+    (day 12
+        (load "day12.kiss")
+        (assert (= 10 .length (allPaths "start" "end" "src/year2021/inputs/day12-example.txt")))
+        (assert (= 3421 .length (allPaths "start" "end" "src/year2021/inputs/day12.txt"))))
     (dayTodo 13)
     (dayTodo 14)
     (dayTodo 15)

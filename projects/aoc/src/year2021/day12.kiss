@@ -1,0 +1,37 @@
+(function link [from to :Map<String,Array<String>> m]
+    (unless (m.exists from)
+        (dictSet m from []))
+    (.push (dictGet m from) to))
+
+(function pathsMap [file]
+    (let [:Map<String,Array<String>> m (new Map)]
+        (doFor line (Util.readLines file)
+            (let [[from to] (line.split "-")]
+                (link from to m)
+                (link to from m)))
+        m))
+
+(function :Array<kiss.List<String>> allPaths [start end file]
+    (let [pMap (pathsMap file)
+            :Array<kiss.List<String>> paths []
+            :Array<Map<String,Bool>> pathsVisited []]
+        (paths.push [start])
+        (let [pathVisited (new Map)]
+            (dictSet pathVisited start true)
+            (pathsVisited.push pathVisited))
+        (until (apply = (concat [end] (for path paths (last path))))
+            (doFor idx (reversed (collect (range paths.length)))
+                (let [path (nth paths idx)
+                        pathVisited (nth pathsVisited idx)
+                        position (last path)]
+                    (when (= end position) (continue))
+                    (paths.splice idx 1)
+                    (pathsVisited.splice idx 1)
+                    (doFor nextPosition (dictGet pMap position)
+                        (unless (dictGet pathVisited nextPosition)
+                            (paths.insert idx (concat (path.copy) [nextPosition]))
+                            (let [nextPathVisited (pathVisited.copy)]
+                                (when (nextPosition.isLowerCase)
+                                    (dictSet nextPathVisited nextPosition true))
+                                (pathsVisited.insert idx nextPathVisited)))))))
+        paths))

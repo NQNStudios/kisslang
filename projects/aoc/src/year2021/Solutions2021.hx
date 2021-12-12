@@ -13,5 +13,7 @@ import year2021.Day4;
 import year2021.Day5;
 #end
 
+using hx.strings.Strings;
+
 @:build(kiss.Kiss.build())
 class Solutions2021 {}
