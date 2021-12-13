@@ -69,7 +69,9 @@
     (day 12
         (load "day12.kiss")
         (assert (= 10 .length (allPaths "start" "end" "src/year2021/inputs/day12-example.txt")))
-        (assert (= 3421 .length (allPaths "start" "end" "src/year2021/inputs/day12.txt"))))
+        (assert (= 36 .length (allPaths "start" "end" "src/year2021/inputs/day12-example.txt" true)))
+        (assert (= 3421 .length (allPaths "start" "end" "src/year2021/inputs/day12.txt")))
+        (assert (= 84870 .length (allPaths "start" "end" "src/year2021/inputs/day12.txt" true))))
     (dayTodo 13)
     (dayTodo 14)
     (dayTodo 15)

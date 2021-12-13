@@ -11,27 +11,38 @@
                 (link to from m)))
         m))
 
-(function :Array<kiss.List<String>> allPaths [start end file]
+(function :Array<kiss.List<String>> allPaths [start end file &opt part2]
     (let [pMap (pathsMap file)
-            :Array<kiss.List<String>> paths []
-            :Array<Map<String,Bool>> pathsVisited []]
-        (paths.push [start])
+            &mut :Array<kiss.List<String>> paths [[start]]
+            &mut :Array<Map<String,Bool>> pathsVisited []
+            &mut :Array<Bool> pathsDoubleVisited [false]
+            :Array<kiss.List<String>> finishedPaths []]
         (let [pathVisited (new Map)]
             (dictSet pathVisited start true)
             (pathsVisited.push pathVisited))
-        (until (apply = (concat [end] (for path paths (last path))))
-            (doFor idx (reversed (collect (range paths.length)))
-                (let [path (nth paths idx)
-                        pathVisited (nth pathsVisited idx)
-                        position (last path)]
-                    (when (= end position) (continue))
-                    (paths.splice idx 1)
-                    (pathsVisited.splice idx 1)
-                    (doFor nextPosition (dictGet pMap position)
-                        (unless (dictGet pathVisited nextPosition)
-                            (paths.insert idx (concat (path.copy) [nextPosition]))
-                            (let [nextPathVisited (pathVisited.copy)]
-                                (when (nextPosition.isLowerCase)
-                                    (dictSet nextPathVisited nextPosition true))
-                                (pathsVisited.insert idx nextPathVisited)))))))
-        paths))
+        (while paths
+            (let [:Array<kiss.List<String>> nextPaths []
+                    :Array<Map<String,Bool>> nextPathsVisited []
+                    :kiss.List<Bool> nextPathsDoubleVisited []]
+                (while paths
+                    (let [path (paths.pop)
+                            pathVisited (pathsVisited.pop)
+                            pathDoubleVisited (pathsDoubleVisited.pop)
+                            position (last path)]
+                        (when (= end position) 
+                            (finishedPaths.push path)
+                            (continue))
+                        (doFor nextPosition (dictGet pMap position)
+                            (let [alreadyVisited (dictGet pathVisited nextPosition)]
+                                (when (or !alreadyVisited (and part2 !pathDoubleVisited !(= nextPosition start)))
+                                    (nextPathsDoubleVisited.push pathDoubleVisited)
+                                    (when alreadyVisited (setNth nextPathsDoubleVisited -1 alreadyVisited))
+                                    (nextPaths.push (concat (path.copy) [nextPosition]))
+                                    (let [nextPathVisited (pathVisited.copy)]
+                                        (when (nextPosition.isLowerCase)
+                                            (dictSet nextPathVisited nextPosition true))
+                                        (nextPathsVisited.push nextPathVisited)))))))
+                (set paths nextPaths)
+                (set pathsVisited nextPathsVisited)
+                (set pathsDoubleVisited nextPathsDoubleVisited)))
+        finishedPaths))
