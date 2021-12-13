@@ -1,0 +1,36 @@
+(function :LineType getLineType [:String line]
+    (let [expected []]
+        (doFor char (line.split "")
+            (case char
+                ("(" (expected.push ")"))
+                ("[" (expected.push "]"))
+                ("{" (expected.push "}"))
+                ("<" (expected.push ">"))
+                ((when (= (last expected) c) c)
+                    (expected.pop))
+                (otherwise
+                    (return (Corrupt char)))))
+        (Incomplete expected)))
+
+(function score [:LineType line]
+    (case line
+        ((Corrupt ")") 3)
+        ((Corrupt "]") 57)
+        ((Corrupt "}") 1197)
+        ((Corrupt ">") 25137)
+        (otherwise 0)))
+
+(function completionScore [:LineType line]
+    (let [&mut :Float score 0]
+        (case line
+            ((Incomplete expected)
+                (doFor char (reversed expected)
+                    (*= score 5)
+                    (+= score (case char
+                                    (")" 1)
+                                    ("]" 2)
+                                    ("}" 3)
+                                    (">" 4)
+                                    (otherwise (throw ""))))))
+            (otherwise))
+        (if (= score 0) null score)))

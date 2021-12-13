@@ -64,7 +64,11 @@
                 basinSizes (for b realBasins (count b))]
             (assert (= 480 (apply + (for =>_ height realLowPoints (+ 1 height)))))
             (assert (= 1045660 (apply * (.slice (reversed (sort basinSizes)) 0 3))))))
-    (dayTodo 10)
+    (day 10
+        (load "day10.kiss")
+        (assert (= 462693 (apply + (map (map (Util.readLines "src/year2021/inputs/day10.txt") getLineType) score))))
+        (let [completionScores (sort (filter (map (map (Util.readLines "src/year2021/inputs/day10.txt") getLineType) completionScore)))]
+            (assert (= 3094671161 (nth completionScores (Math.floor (/ completionScores.length 2)))))))
     (dayTodo 11)
     (day 12
         (load "day12.kiss")

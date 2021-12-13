@@ -12,6 +12,9 @@ import year2021.Day4;
 #if day5
 import year2021.Day5;
 #end
+#if day10
+import year2021.Day10;
+#end
 
 using hx.strings.Strings;
 
