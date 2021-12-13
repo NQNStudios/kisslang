@@ -1100,6 +1100,14 @@ class Macros {
             ].concat(body))]);
         };
 
+        // Time a block's evaluation
+        macros["measureTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, null, "(time <body...>)");
+            var b = wholeExp.expBuilder();
+
+            return b.callSymbol("haxe.Timer.measure", [b.callSymbol("lambda", [b.list([])].concat(exps))]);
+        };
+
         function indexOfMacro(last:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var funcName = if (last) "lastIndexOf" else "indexOf";
             wholeExp.checkNumArgs(2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');
