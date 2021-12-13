@@ -35,7 +35,7 @@
         (assert (= 12635 (lastWinningScore "src/year2021/inputs/day4.txt"))))
     (day 5
         (load "day5.kiss")
-        (assert (= 5 ~(numHotPositions "src/year2021/inputs/day5-example.txt")))
+        (assert (= 5 (numHotPositions "src/year2021/inputs/day5-example.txt")))
         (assert (= 7473 (numHotPositions "src/year2021/inputs/day5.txt")))
         (assert (= 12 (numHotPositions "src/year2021/inputs/day5-example.txt" true)))
         (assert (= 24164 (numHotPositions "src/year2021/inputs/day5.txt" true))))
