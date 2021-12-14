@@ -1,6 +1,7 @@
-# pip install requests
-# pip install volk
-# pip install scipy
+# pip install -r requirements.txt
+usage = 'python transcribe-voice-track.py <?wav filename>'
+
+import util
 import wave
 import json
 import sys
@@ -27,7 +28,7 @@ if not os.path.exists(model_path):
     with ZipFile(model_zip_path, "r") as zip_file:
         zip_file.extractall('models')
 
-audio_filename = sys.argv[1] if len(sys.argv) > 1 else input("mono-track wav filename? ")
+audio_filename = util.arg(1, usage)
 wf = wave.open(audio_filename, "rb")
 
 model = Model(model_path)
