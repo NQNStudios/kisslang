@@ -2,9 +2,9 @@
 
 (registerConversion
     (new ktxt2.StreamConversion "On Phone Speech" "fountain" "hollywoo"
-        ->stream ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.)")] true)
+        ->stream ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")] true)
         ->stream
-            (let [name (whenLet [(Some name) (stream.takeUntilAndDrop "(O.P.)")] name)
+            (let [name (whenLet [(Some name) (stream.takeUntilAndDrop "(O.P.")] name)
                     &mut output ""]
                 (stream.takeLine)
                 (loop
@@ -17,8 +17,8 @@
 (registerConversion
     (new ktxt2.StreamConversion "Normal Speech" "fountain" "hollywoo"
         ->stream ?(whenLet [(Some name) (stream.takeLine)
-                                None (indexOf name "(O.P.)")
-                                None (indexOf name "(V.O.)")] true)
+                                None (indexOf name "(O.P.")
+                                None (indexOf name "(V.O.")] true)
         ->stream
             (let [name (whenLet [(Some name) (stream.takeLine)] name)
                     &mut output ""]
