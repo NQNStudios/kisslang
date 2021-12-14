@@ -1,0 +1,52 @@
+(function readGrid [file]
+    (for line (Util.readLines file) (map (line.split "") Std.parseInt)))
+
+(function :Array<Array<Int>> neighboringPoints [:Array<Int> point]
+    (let [[col row] point]
+        (apply concat (for c (range (- col 1) (+ col 2))
+            (for r (range (- row 1) (+ row 2)) [c r])))))
+
+// Return true if any new flashes were triggered, so handleFlashes can be called again
+(function :Bool handleFlashes [:Array<Array<Int>> grid]
+    (let [&mut newFlash false]
+        (doFor row (range grid.length)
+            (doFor col (range .length (first grid))
+                (when (<= 10 (nth (nth grid row) col))
+                    (set newFlash true)
+                    (setNth (nth grid row) col 0)
+                    (doFor [c r] (neighboringPoints [col row])
+                        (when (and
+                                    (< c .length (first grid))
+                                    (>= c 0)
+                                    (< r grid.length)
+                                    (>= r 0)
+                                    !(= 0 (nth (nth grid r) c)))
+                            (setNth (nth grid r) c (+ 1 (nth (nth grid r) c))))))))
+        newFlash))
+
+(function _stepGrid [:Array<Array<Int>> grid]
+    (let [newGrid
+                (for line grid (for octo line (+ octo 1)))]
+        (while (handleFlashes newGrid) 0)
+        newGrid))
+(var stepGrid (memoize _stepGrid))
+
+(function _flashes [:Array<Array<Int>> grid]
+    (apply + (for line grid (count line ->num ?(= num 0)))))
+(var flashes (memoize _flashes))
+
+(function flashesAfter [steps file]
+    (let [&mut grid (readGrid file)
+            &mut :Float f 0]
+        (doFor i (range steps)
+            (set grid (stepGrid grid))
+            (+= f (flashes grid)))
+        f))
+
+(function firstSimultaneousFlash [file]
+    (let [&mut grid (readGrid file)
+            &mut step 0]
+        (until (= (* grid.length .length (nth grid 0)) (flashes grid))
+            (set grid (stepGrid grid))
+            (+= step 1))
+        step))

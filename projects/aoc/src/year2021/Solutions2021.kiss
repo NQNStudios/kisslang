@@ -69,7 +69,12 @@
         (assert (= 462693 (apply + (map (map (Util.readLines "src/year2021/inputs/day10.txt") getLineType) score))))
         (let [completionScores (sort (filter (map (map (Util.readLines "src/year2021/inputs/day10.txt") getLineType) completionScore)))]
             (assert (= 3094671161 (nth completionScores (Math.floor (/ completionScores.length 2)))))))
-    (dayTodo 11)
+    (day 11
+        (load "day11.kiss")
+        (assert (= 35 (flashesAfter 2 "src/year2021/inputs/day11-example.txt")))
+        (assert (= 1656 (flashesAfter 100 "src/year2021/inputs/day11-example.txt")))
+        (assert (= 1723 (flashesAfter 100 "src/year2021/inputs/day11.txt")))
+        ~(firstSimultaneousFlash "src/year2021/inputs/day11.txt"))
     (day 12
         (load "day12.kiss")
         (assert (= 10 .length (allPaths "start" "end" "src/year2021/inputs/day12-example.txt")))
