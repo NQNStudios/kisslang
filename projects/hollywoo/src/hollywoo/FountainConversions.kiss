@@ -1,8 +1,13 @@
 // KTxt2 Conversions for Fountain files
 
+(function isUpperCase [s]
+    (= s (s.toUpperCase)))
+
 (registerConversion
     (new ktxt2.StreamConversion "On Phone Speech" "fountain" "hollywoo"
-        ->stream ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")] true)
+        ->stream
+            ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")]
+                (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
         ->stream
             (let [name (whenLet [(Some name) (stream.takeUntilAndDrop "(O.P.")] name)
                     &mut output ""]
@@ -18,7 +23,7 @@
     (new ktxt2.StreamConversion "Normal Speech" "fountain" "hollywoo"
         ->stream ?(whenLet [(Some name) (stream.takeLine)
                                 None (indexOf name "(O.P.")
-                                None (indexOf name "(V.O.")] true)
+                                None (indexOf name "(V.O.")] (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
         ->stream
             (let [name (whenLet [(Some name) (stream.takeLine)] name)
                     &mut output ""]
