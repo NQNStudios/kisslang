@@ -9,11 +9,11 @@
             ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")]
                 (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
         ->stream
-            (let [name (whenLet [(Some name) (stream.takeUntilAndDrop "(O.P.")] name)
+            (let [name (whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")] name)
                     &mut output ""]
                 (stream.takeLine)
                 (loop
-                    (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")")] w "")
+                    (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")\n")] w "")
                             line (ifLet [(Some l) (stream.takeLine)] (l.trim) (break))]
                         (when line
                             (+= output "ONPHONESPEECH \"${name}\" \"${wryly}\" ##\"${line}\"##\n"))))
@@ -28,7 +28,7 @@
             (let [name (whenLet [(Some name) (stream.takeLine)] name)
                     &mut output ""]
                 (loop
-                    (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")")] w "")
+                    (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")\n")] w "")
                             line (ifLet [(Some l) (stream.takeLine)] (l.trim) (break))]
                         (when line
                             (+= output "NORMALSPEECH \"${name}\" \"${wryly}\" ##\"${line}\"##\n"))))
