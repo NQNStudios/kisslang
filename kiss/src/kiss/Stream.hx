@@ -198,6 +198,43 @@ class Stream {
         return Some(toReturn);
     }
 
+    // If the stream starts with the opening delimiter, return the text between it and the closing delimiter.
+    // Allow either delimiter to appear immediately after escapeSeq,
+    // otherwise throw if open occurs again before close, and end on finding close
+    public function takeBetween(open:String, close:String, ?escapeSeq:String):Option<String> {
+        if (!startsWith(open)) return None;
+        dropString(open);
+        var taken = "";
+        while (true) {
+            if (startsWith(close)) {
+                dropString(close);
+                return Some(taken);
+            } else if (startsWith(open)) {
+                error(this, "takeBetween() does not support nested delimiter pairs");
+            } else if (escapeSeq != null && startsWith(escapeSeq)) {
+                dropString(escapeSeq);
+                if (startsWith(open)) {
+                    dropString(open);
+                    taken += open;
+                } else if (startsWith(close)) {
+                    dropString(close);
+                    taken += close;
+                } else if (startsWith(escapeSeq)) {
+                    dropString(escapeSeq);
+                    taken += escapeSeq;
+                } else {
+                    error(this, 'invalid escape sequence');
+                }
+            } else {
+                var next = switch (takeChars(1)) {
+                    case Some(n): n;
+                    default: error(this, 'Ran out of characters before closing delimiter $close'); "";
+                }
+                taken += next;
+            }
+        }
+    }
+
     public function takeRest():String {
         var toReturn = content;
         dropChars(content.length);
