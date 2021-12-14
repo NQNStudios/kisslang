@@ -1,0 +1,9 @@
+(defNew [&prop &mut :String name
+            &prop &mut :String sourceType
+            &prop &mut :String outputType
+            :Stream->Bool canConvertStream
+            :Stream->String convertStream]
+    [
+        &mut :String->Bool canConvert ->block (canConvertStream (Stream.fromString block))
+        &mut :String->String convert ->block (convertStream (Stream.fromString block))
+    ])
