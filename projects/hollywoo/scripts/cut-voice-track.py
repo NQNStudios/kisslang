@@ -35,6 +35,18 @@ _, data = wavfile.read(wav_filename)
 new_data = data[0:1]
 new_json = {}
 
+def save():
+    suffix = "0"
+    new_wav = wav_filename.replace(".wav", f"-cut{suffix}.wav")
+    while exists(new_wav):
+        new_suffix = str(int(suffix) + 1)
+        new_wav = new_wav.replace(f"-cut{suffix}.wav", f"-cut{new_suffix}.wav")
+        suffix = new_suffix
+    wavfile.write(new_wav, framerate, new_data)
+    with open(new_wav.replace(".wav", ".json"), 'w') as f:
+        json.dump(new_json, f)
+    sys.exit(0)
+
 current_sec = 0
 searching_for = None
 for (audio_guess, possible_sections) in timestamps.items():
@@ -74,16 +86,7 @@ for (audio_guess, possible_sections) in timestamps.items():
             searching_for = phrase
             break
         elif choice == 'q':
-            suffix = "0"
-            new_wav = wav_filename.replace(".wav", f"-cut{suffix}.wav")
-            while exists(new_wav):
-                new_suffix = str(int(suffix) + 1)
-                new_wav = new_wav.replace(f"-cut{suffix}.wav", f"-cut{new_suffix}.wav")
-                suffix = new_suffix
-            wavfile.write(new_wav, framerate, new_data)
-            with open(new_wav.replace(".wav", ".json"), 'w') as f:
-                json.dump(new_json, f)
-            sys.exit(0)
+            save()
         elif choice == 'u':
             choice = getch()
             if choice != '/' and choice in takes:
@@ -103,3 +106,5 @@ for (audio_guess, possible_sections) in timestamps.items():
 
 if searching_for != None:
     print(f"{searching_for} not found")
+
+save()
