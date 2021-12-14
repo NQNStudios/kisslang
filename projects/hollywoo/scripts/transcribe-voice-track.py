@@ -73,4 +73,8 @@ while True:
             print(f'{text}: {words[0]["start"]} {words[-1]["end"]}')
         json.dump(lines, f)
 
-    frames = int(input(f"Try different frames num? (was {frames}): "))
+    frames = input(f"Try different frames num? (was {frames}) (press ENTER to quit): ")
+    if len(frames) == 0:
+        sys.exit(0)
+    else:
+        frames = int(frames)
