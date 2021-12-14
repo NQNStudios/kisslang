@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 # pip install -r requirements.txt
 usage = 'python transcribe-voice-track.py <?wav filename>'
 

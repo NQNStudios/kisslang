@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 # pip install -r requirements.txt
 usage = 'python cut-voice-track.py <?wav timestamp json> <?wav filename>'
 
