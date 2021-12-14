@@ -67,7 +67,7 @@
 											(when (= "Overwrite" overwrite)
 												(withValueOrQuickPickMap chosenConversion conversions
 													(whenLet [converted
-																	(try (chosenConversion.convert (KTxt2.applySpecialChars source))
+																	(try (KTxt2.insertSpecialChars (chosenConversion.convert (KTxt2.applySpecialChars source)))
 																		(catch [e] (errorMessage "Conversion error: $e") null))]
 														(makeEdit
 															->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) converted)))))))

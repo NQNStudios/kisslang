@@ -119,7 +119,7 @@
                         (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source)]
                             (when (= 1 (count conversions))
                                 (let [onlyConversion (first (collect (conversions.iterator)))]
-                                    (set element.output (onlyConversion.convert (applySpecialChars element.source)))))))))
+                                    (set element.output (insertSpecialChars (onlyConversion.convert (applySpecialChars element.source))))))))))
             (toString elements))))
 
 (function :String insertSpecialChars [:String text]
