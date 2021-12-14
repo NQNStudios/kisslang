@@ -9,6 +9,7 @@ from numpy import vstack
 from scipy.io import wavfile
 from simpleaudio import play_buffer
 import wave
+import string
 try:
     from getch import getch
 except:
@@ -58,11 +59,21 @@ for (audio_guess, possible_sections) in timestamps.items():
             continue
 
     num_takes = len(possible_sections)
-    assert num_takes <= 10, "I didn't plan for this many takes of any line"
+    assert num_takes <= 36, "I didn't plan for this many takes of any line"
+    alphabet_takes = 0
+    if num_takes > 10:
+        alphabet_takes = num_takes - 10
+        num_takes = 10
     takes = '/'.join([str(num) for num in range(num_takes)])
+    if alphabet_takes > 0:
+        takes += '/' + '/'.join(string.ascii_uppercase[:alphabet_takes])
 
     def audio_and_length(choice):
-        take_num = int(choice)
+        take_num = -1
+        if choice in string.ascii_uppercase:
+            take_num = 10 + string.ascii_uppercase.index(choice)
+        else:
+            take_num = int(choice)
         take_info = possible_sections[take_num]
         start = take_info['start']
         end = take_info['end']
