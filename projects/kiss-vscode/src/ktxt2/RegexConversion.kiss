@@ -5,7 +5,7 @@
             :String blockTemplate
             &opt :String flags]
     [
-        &mut :String->Bool canConvert ->block ?(R.match regex block /*TODO use or for this */(if flags flags ""))
+        &mut :String->Bool canConvert ->block ?(R.match regex block (or flags ""))
         &mut :String->String convert ->_ "\$(let [groups .namedGroups (R.match #\"$(escapeRegex regex)\"# source \"$(if flags flags "")\") group ->g (dictGet groups g)] \"${blockTemplate}\")"
     ])
 
