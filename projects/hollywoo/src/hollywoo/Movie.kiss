@@ -2,19 +2,20 @@
 (#unless subclass
 
     // Mostly immutable, reusable resources:
-    (prop :Map<String,Set> sets (new Map))
-    (prop :Map<String,Actor> actors (new Map))
-    (prop :Map<String,Sound> sounds (new Map))
-    (prop :Map<String,Song> songs (new Map))
-    (prop :Map<String,Prop> props (new Map))
+    (prop :FuzzyMap<Set> sets (new FuzzyMap<Set>))
+    (prop :FuzzyMap<Actor> actors (new FuzzyMap<Actor>))
+    (prop :FuzzyMap<Sound> sounds (new FuzzyMap<Sound>))
+    (prop :FuzzyMap<Song> songs (new FuzzyMap<Song>))
+    (prop :FuzzyMap<Prop> props (new FuzzyMap<Prop>))
 
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
     // TODO for some reason this won't work when declared in Kiss syntax:
     // Mutable representation of frames in time:
     // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
-    (prop :Map<String,Bool> shownScenes (new Map))
-    (prop :Map<String,Bool> shownCharacters (new Map))
+
+    (prop :FuzzyMap<Bool> shownScenes (new FuzzyMap<Bool>))
+    (prop :FuzzyMap<Bool> shownCharacters (new FuzzyMap<Bool>))
 
     // This is set and unset by doPreload defined in HollywooDSL.kiss
     (prop &mut isLoading false)

@@ -4,9 +4,10 @@ import haxe.ds.StringMap;
 
 using hx.strings.Strings;
 
+// TODO forward and implement the full Map API
 abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
-    public inline function new(m:StringMap<T>) {
-        this = m;
+    public inline function new(?m:StringMap<T>) {
+        this = if (m != null) m else new StringMap<T>();
     }
 
     @:from
@@ -19,24 +20,50 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         return this;
     }
 
-    @:arrayAccess
-    public inline function get(searchKey:String):Null<T> {
-        var bestMatch:Null<T> = null;
-        var bestScore = 0;
+    static var threshold = 0.8;
+    function bestMatch(fuzzySearchKey:String, ?throwIfNone=true):String {
+        if (this.exists(fuzzySearchKey)) return fuzzySearchKey;
 
-        for (key => value in this) {
-            var score = searchKey.getFuzzyDistance(key);
+        var bestScore = 0.0;
+        var bestKey = null;
+
+        for (key in this.keys()) {
+            var score = 1 - (key.getLevenshteinDistance(fuzzySearchKey) / Math.max(key.length, fuzzySearchKey.length));
             if (score > bestScore) {
                 bestScore = score;
-                bestMatch = value;
+                bestKey = key;
             }
         }
 
-        return bestMatch;
+        if (bestScore < threshold) {
+            if (throwIfNone)
+                throw 'No good match for $fuzzySearchKey in $this -- best was $bestKey with $bestScore';
+            else
+                return null;
+        }
+
+        #if (test || debug)
+        trace('Fuzzy match $bestKey for $fuzzySearchKey score: $bestScore');
+        #end
+        
+        return bestKey;
     }
 
     @:arrayAccess
-    public inline function set(key:String, v:T):T {
+    public inline function get(fuzzySearchKey:String):Null<T> {
+        return this.get(bestMatch(fuzzySearchKey));
+    }
+
+    public inline function remove(fuzzySearchKey:String):Bool {
+        var key = bestMatch(fuzzySearchKey, false);
+        if (key == null) return false;
+        return this.remove(key);
+    }
+
+    @:arrayAccess
+    public inline function set(fuzzySearchKey:String, v:T):T {
+        var key = bestMatch(fuzzySearchKey, false);
+        if (key == null) key = fuzzySearchKey;
         this.set(key, v);
         return v;
     }
