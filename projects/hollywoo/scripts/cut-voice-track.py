@@ -59,6 +59,10 @@ for (audio_guess, possible_sections) in timestamps.items():
             continue
 
     num_takes = len(possible_sections)
+    if num_takes > 36:
+        print('\033[31m' + audio_guess + '\033[0m')
+        print('\033[31m' + f'Warning! {num_takes} is too many! Skipping' + '\033[0m')
+        continue
     assert num_takes <= 36, "I didn't plan for this many takes of any line"
     alphabet_takes = 0
     if num_takes > 10:
@@ -80,7 +84,6 @@ for (audio_guess, possible_sections) in timestamps.items():
         start_frame = int(start * framerate)
         end_frame = int(end * framerate)
         return data[start_frame:end_frame], end - start
-# Line: okay so what's the owner of what kind of oh know is this like oh no our table or it's it's a different oh no
     
     print('\033[31m' + audio_guess + '\033[0m')
     print(f'{takes}/u({takes})/d/f/h/q')
