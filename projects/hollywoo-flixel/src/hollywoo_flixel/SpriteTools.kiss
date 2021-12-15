@@ -1,0 +1,31 @@
+// Calculate where to draw the given stamp sprite on the given canvas sprite, as percentages or pixels from edge
+(function :Array<Int> positionOn [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
+    (unless pos.anchorX (set pos.anchorX (Percent 0.5)))
+    (unless pos.anchorY (set pos.anchorY (Percent 0.5)))
+    (let [&mut x (coordIn pos.x (/ canvas.width canvas.scale.x))
+            &mut y (coordIn pos.y (/ canvas.height canvas.scale.y))]
+        (-= x (coordIn pos.anchorX (/ stamp.width stamp.scale.x)))
+        (-= y (coordIn pos.anchorY (/ stamp.height stamp.scale.y)))
+        [x y]))
+
+(function :Int coordIn [:RelativeCoordinate coord :Int range]
+    (Math.round
+        (case coord
+            ((when (and (>= p -1) (< p 0)) (Percent p))
+                (+ range (* p range)))
+            ((when (and (>= p -range) (< p 0)) (Pixels p))
+                (+ range p))
+            ((when (<= p 1) (Percent p))
+                (* range p))
+            ((when (<= p range) (Pixels p))
+                p)
+            (otherwise (throw "$coord is out of range $range")))))
+
+// TODO allow specifying size relative to canvas
+(function :Void drawOnSprite [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
+    (let [[x y] (positionOn stamp canvas pos)]
+        (canvas.stamp stamp x y)))
+
+// TODO allow specifying size relative to canvas
+(function :Void writeOnSprite [:String text :Int size :FlxSprite canvas :RelativePosition pos]
+    (drawOnSprite (new FlxText 0 0 0 text size) canvas pos))
