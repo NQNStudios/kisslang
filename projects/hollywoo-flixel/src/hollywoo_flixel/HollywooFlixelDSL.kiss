@@ -21,3 +21,14 @@
     (let [propSprite (new FlxSprite 0 0)]
         (propSprite.loadGraphic path)
         (newProp name propSprite)))
+
+(method :Void update [:Float elapsed]
+    // TODO CCs queued to timers will still be called
+    (#when debug
+        (when FlxG.keys.justPressed.N
+            (doFor [idx label] (enumerate labels)
+                (when (> label lastInstructionPointer)
+                    (doFor =>labelName labelIdx labelsByName
+                        (when (= labelIdx label) (trace "SKIPPING TO $labelName")))
+                    (runInstruction label)
+                    (break))))))

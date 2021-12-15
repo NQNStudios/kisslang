@@ -18,6 +18,7 @@
         (currentState.close))
     // TODO on the first appearance, give a super (for some scenes but probably not others... hm....)
     (set currentState (cast scene SceneFlxState))
+    (set currentState.parent FlxG.state)
     (FlxG.state.openSubState currentState)
     (cc))
 

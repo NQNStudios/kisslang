@@ -3,6 +3,7 @@ package hollywoo_flixel;
 import kiss.Prelude;
 import kiss.List;
 import flixel.FlxSubState;
+import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import hollywoo.Scene;

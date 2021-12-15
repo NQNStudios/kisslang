@@ -1,5 +1,6 @@
 (defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
+        &mut :FlxState parent null
         :Map<String,Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new Map)
         :Map<FlxSprite,FlxScreenPosition> propsOnScreen (new Map)
     ]
@@ -15,4 +16,6 @@
     (setSprite.screenCenter))
 
 (method &override :Void update [:Float elapsed]
+    (when parent
+        (parent.update elapsed))
     (super.update elapsed))

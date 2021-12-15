@@ -22,6 +22,7 @@ class AsyncEmbeddedScript {
     private var instructions:Array<AsyncCommand> = null;
     private var breakPoints:Map<Int, () -> Bool> = [];
     private var onBreak:AsyncCommand = null;
+    public var lastInstructionPointer = 0;
 
     public function setBreakHandler(handler:AsyncCommand) {
         onBreak = handler;
@@ -136,6 +137,7 @@ class AsyncEmbeddedScript {
                     }
                 ],
                 expr: macro {
+                    lastInstructionPointer = instructionPointer;
                     if (instructions == null)
                         resetInstructions();
                     if (withBreakPoints && breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {

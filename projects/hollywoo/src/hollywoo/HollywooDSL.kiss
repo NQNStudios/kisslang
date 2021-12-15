@@ -3,11 +3,28 @@
 // This allows assets to be declared in Hollywoo files where they first appear, but still loaded before execution starts.
 (collectBlocks preload (cc))
 
+(prop :Map<String,Int> labelsByName (new Map))
+(prop :Array<Int> labels [])
+
+(defMacroVar _labelNames [])
+(defMacroVar _labelLines [])
+(defReaderMacro "LABEL " [stream]
+    (_labelNames.push (stream.expect "label name" ->(stream.takeLine)))
+    (_labelLines.push (- .line (stream.position) 1))
+    `(cc))
+
 // TODO could make an &eof style of reader macro, and have (end) read automatically at the end of any Hollywoo file.
 (defMacro end []
-    `(method doPreload [:Void->Void cc]
-        (set isLoading true)
-        (collectedBlocks preload)
-        (set isLoading false)
-        (cc)))
+    (let [labelSetters
+                (for [label idx] (zipThrow _labelNames _labelLines)
+                    `{
+                        (dictSet labelsByName ,label ,idx)
+                        (labels.push ,idx)
+                    })]
+        `(method doPreload [:Void->Void cc]
+            (set isLoading true)
+            (collectedBlocks preload)
+            (set isLoading false)
+            ,@labelSetters
+            (cc))))
 // TODO also &bof could call (doPreload)
