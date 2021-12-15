@@ -20,6 +20,7 @@ typedef AsyncCommand = (AsyncEmbeddedScript, Continuation) -> Void;
 **/
 class AsyncEmbeddedScript {
     private var instructions:Array<AsyncCommand> = null;
+    public var instructionPointersByLine:Map<Int,Int> = [];
     private var breakPoints:Map<Int, () -> Bool> = [];
     private var onBreak:AsyncCommand = null;
     public var lastInstructionPointer = 0;
@@ -51,6 +52,7 @@ class AsyncEmbeddedScript {
         var classFields = []; // Kiss.build() will already include Context.getBuildFields()
 
         var commandList:Array<Expr> = [];
+        var mappedIndexList:Array<Expr> = [];
 
         if (dslHaxelib.length > 0) {
             dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]);
@@ -72,6 +74,8 @@ class AsyncEmbeddedScript {
                 #end
 
                 if (expr != null) {
+                    mappedIndexList.push(macro instructionPointersByLine[$v{nextExp.pos.line}] = $v{commandList.length});
+
                     commandList.push(macro function(self, cc) {
                         $expr;
                     });
@@ -96,7 +100,10 @@ class AsyncEmbeddedScript {
             kind: FFun({
                 ret: null,
                 args: [],
-                expr: macro this.instructions = [$a{commandList}]
+                expr: macro {
+                    this.instructions = [$a{commandList}];
+                    $b{mappedIndexList};
+                }
             })
         });
 
@@ -146,7 +153,14 @@ class AsyncEmbeddedScript {
                         }
                     }
                     var continuation = if (instructionPointer < instructions.length - 1) {
-                        () -> runInstruction(instructionPointer + 1);
+                        () -> {
+                            // runInstruction may be called externally to skip through the script.
+                            // When this happens, make sure other scheduled continuations are canceled
+                            // by verifying that lastInstructionPointer hasn't changed
+                            if (lastInstructionPointer == instructionPointer) {
+                                runInstruction(instructionPointer + 1);
+                            }
+                        };
                     } else {
                         () -> {};
                     }

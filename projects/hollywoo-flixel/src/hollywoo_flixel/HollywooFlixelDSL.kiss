@@ -30,5 +30,5 @@
                 (when (> label lastInstructionPointer)
                     (doFor =>labelName labelIdx labelsByName
                         (when (= labelIdx label) (trace "SKIPPING TO $labelName")))
-                    (runInstruction label)
+                    (runInstruction (dictGet instructionPointersByLine label))
                     (break))))))
