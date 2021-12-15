@@ -22,6 +22,7 @@ typedef Character<StagePosition, StageFacing, Actor> = {
 enum SpeechType<StagePosition, StageFacing, Actor> {
     Super;
     OffScreen(actor:Actor);
+    VoiceOver(actor:Actor);
     TextMessage(actor:Actor);
     FromPhone(actor:Actor);
     OnScreen(character:Character<StagePosition, StageFacing, Actor>);

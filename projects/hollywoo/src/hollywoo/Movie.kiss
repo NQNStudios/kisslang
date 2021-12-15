@@ -207,6 +207,9 @@
 (hollywooMethod normalSpeech [actorName wryly text :Continuation cc]
     (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
+(hollywooMethod voiceOver [actorName wryly text :Continuation cc]
+    (showDialog actorName (VoiceOver (dictGet actors actorName)) wryly text cc))
+
 (hollywooMethod onPhoneSpeech [actorName wryly text :Continuation cc]
     (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)

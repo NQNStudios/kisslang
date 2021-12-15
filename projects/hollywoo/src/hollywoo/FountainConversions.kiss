@@ -3,27 +3,35 @@
 (function isUpperCase [s]
     (= s (s.toUpperCase)))
 
-(registerConversion
-    (new ktxt2.StreamConversion "On Phone Speech" "fountain" "hollywoo"
-        ->stream
-            ?(whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")]
-                (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
-        ->stream
-            (let [name (whenLet [(Some name) (stream.takeUntilAndDrop " (O.P.")] name)
-                    &mut output ""]
-                (stream.takeLine)
-                (loop
-                    (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")\n")] w "")
-                            line (ifLet [(Some l) (stream.takeLine)] (l.trim) (break))]
-                        (when line
-                            (+= output "ONPHONESPEECH \"${name}\" \"${wryly}\" ##\"${line}\"##\n"))))
-                output)))
+(var :Array<String> specialSpeechTags [])
+
+(function specialSpeech [name parenTag hmethod]
+    (specialSpeechTags.push parenTag)
+    (registerConversion
+        (new ktxt2.StreamConversion name "fountain" "hollywoo"
+            ->stream
+                ?(whenLet [(Some name) (stream.takeUntilAndDrop " (${parenTag}")]
+                    (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
+            ->stream
+                (let [name (whenLet [(Some name) (stream.takeUntilAndDrop " (${parenTag}")] name)
+                        &mut output ""]
+                    (stream.takeLine)
+                    (loop
+                        (let [wryly (ifLet [(Some w) (stream.takeBetween "(" ")\n")] w "")
+                                line (ifLet [(Some l) (stream.takeLine)] (l.trim) (break))]
+                            (when line
+                                (+= output "$hmethod \"${name}\" \"${wryly}\" ##\"${line}\"##\n"))))
+                    output))))
+
+(specialSpeech "On Phone Speech" "O.P." "ONPHONESPEECH")
+(specialSpeech "VoiceOver Speech" "V.O." "VOICEOVER")
 
 (registerConversion
     (new ktxt2.StreamConversion "Normal Speech" "fountain" "hollywoo"
-        ->stream ?(whenLet [(Some name) (stream.takeLine)
-                                None (indexOf name "(O.P.")
-                                None (indexOf name "(V.O.")] (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
+        ->stream ?(whenLet [(Some name) (stream.takeLine)]
+                        (doFor tag specialSpeechTags
+                            (whenLet [(Some _) (indexOf name "(${tag}")] (return false)))
+                        (and (isUpperCase name) {(stream.dropWhitespace) !(stream.isEmpty)}))
         ->stream
             (let [name (whenLet [(Some name) (stream.takeLine)] name)
                     &mut output ""]
