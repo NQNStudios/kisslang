@@ -43,7 +43,9 @@
                         (Json.parse
                             (request apiQuery))
                     imageInfo
-                        (nth result.hits (% resultNumber perPage))]
+                        (if result.hits
+                                (nth result.hits (% resultNumber perPage))
+                            (throw "No Pixabay results for $searchQuery"))]
                 // Document where the assets came from:
                 (appendToSources searchQuery resultNumber "Pixabay" "${imageInfo.user}:${imageInfo.user_id}" apiQuery)
                 (ReaderExp.StrExp (downloadToImages searchQuery resultNumber "Pixabay" imageInfo.largeImageURL)))
