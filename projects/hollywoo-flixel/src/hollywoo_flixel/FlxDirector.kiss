@@ -32,6 +32,7 @@
     // TODO  also allow for manually defined flipped frames so text doesn't mirror
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     (character.actor.setGraphicSize ACTOR_WIDTH)
+    (character.actor.updateHitbox)
     (set character.actor.x
         (- (case character.stagePosition
                 (Left
@@ -64,7 +65,7 @@
 (var DIALOG_WIDTH (- 1280 ACTOR_WIDTH ACTOR_WIDTH))
 (var DIALOG_Y 500)
 (var DIALOG_HEIGHT (- 720 DIALOG_Y))
-// TODO these could be customizable to the Actor
+// TODO these could be customizable to the Actor, wrylies, etc.
 (var DIALOG_BOX_COLOR FlxColor.BLACK)
 (var DIALOG_COLOR FlxColor.WHITE)
 (var DIALOG_SIZE 24)
@@ -142,18 +143,20 @@
 (method :Void stopSong [] (when music (music.stop)))
 
 (var PROP_MIN_WIDTH 200)
-(var PROP_MAX_WIDTH 500)
+(var PROP_MAX_WIDTH 300)
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
     // TODO assign the other possible positions
+    // TODO allow absolute position and relative position by screen percentages
     (let [[x y]
                 (case position
                     (Center [(/ 1280 2) (/ 720 2)])
                     (otherwise (throw "not implemented")))]
         (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
             (prop.setGraphicSize width)
+            (prop.updateHitbox)
             (set prop.x (- x (/ prop.width 2)))
-            (set prop.y (- y (/ (* prop.height prop.scale.y) 2)))
+            (set prop.y (- y (/ prop.height 2)))
             (currentState.add prop)))
         // TODO give the prop reveal some time to land
     (cc))
