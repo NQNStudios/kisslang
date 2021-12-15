@@ -80,17 +80,17 @@
     (unless dialogBox
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))
         (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR))
+    
     (currentState.add dialogBox)
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
-        // TODO use FlxTypeText to reveal dialog gradually
         (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
     (currentState.add dialogText)
     (set dialogText.text text)
-    // TODO actually clip the dialogue instead of sizing it down:
-    // TODO this is downsizing everything:
-    (when (< 720 (+ dialogText.y dialogText.height))
+    // TODO actually page through the dialog instead of sizing it down?
+    (set dialogText.size DIALOG_SIZE)
+    (while (< 720 (+ dialogText.y dialogText.height))
         (-= dialogText.size 6))
     // show the speaker name
     (unless speakerNameText
