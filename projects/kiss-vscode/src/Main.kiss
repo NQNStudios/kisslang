@@ -20,6 +20,7 @@
                     (when (FileSystem.exists lastConfigDir)
                         (FileSystem.rename lastConfigDir activeConfigDir))
                     // When user config fails to build, use the default
+                    // Counterintuitively, this unless is correct:
                     (unless fallbackToDefault
                         (warningMessage "Falling back to the default Kiss-VSCode Config")
                         (unless config
