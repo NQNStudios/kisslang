@@ -8,16 +8,22 @@
     (object)
     **(throw error))
 
+(defMacro forceUpdateFailure [error]
+    `{
+        (handleUpdateFailure ,error)
+        (return)
+    })
+
 (function :Void updateKissVscode [&opt _]
-    (trySpawnSync "haxe" ["build.hxml"] (options) handleUpdateFailure)
+    (trySpawnSync "haxe" ["build.hxml"] (options) forceUpdateFailure)
     (if (= "Windows" (Sys.systemName))
             {
-                (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) handleUpdateFailure)
-                (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) handleUpdateFailure)
+                (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) forceUpdateFailure)
+                (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) forceUpdateFailure)
             }
         {
-            (trySpawnSync "npm" ["install"] (options) handleUpdateFailure)
-            (trySpawnSync "vsce" ["package"] (options) handleUpdateFailure)
+            (trySpawnSync "npm" ["install"] (options) forceUpdateFailure)
+            (trySpawnSync "vsce" ["package"] (options) forceUpdateFailure)
         })
     (awaitLet [_ (executeCommand 
                         "workbench.extensions.command.installFromVSIX"
