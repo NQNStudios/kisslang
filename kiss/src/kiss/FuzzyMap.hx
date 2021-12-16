@@ -28,7 +28,7 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         var bestKey = null;
 
         for (key in this.keys()) {
-            var score = 1 - (key.getLevenshteinDistance(fuzzySearchKey) / Math.max(key.length, fuzzySearchKey.length));
+            var score = 1 - (key.toLowerCase().getLevenshteinDistance(fuzzySearchKey.toLowerCase()) / Math.max(key.length, fuzzySearchKey.length));
             if (score > bestScore) {
                 bestScore = score;
                 bestKey = key;
