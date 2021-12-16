@@ -1,6 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite> movie)
+(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound> movie)
 
 (defNew []
     (set continueAction (new FlxActionDigital "Continue" onContinue))
@@ -105,17 +105,12 @@
             }
         (set dialogText.y DIALOG_Y))
     (dialogText.revive)
+    (startWaitForInput cc))
 
-    // wait for input or delay
-    // TODO customize the delay in a more sophisticated way to the dialog length or voice-over length,
-    // or rely on FlxTypeText to add breathing room
-    (movie.delay (+ 5 (* 0.5 .length (text.split " ")))
-        ->{
-            (dialogText.kill)
-            (speakerNameText.kill)
-            (dialogBox.kill)
-            (cc)
-        }))
+(method :Void hideDialog []
+    (dialogText.kill)
+    (speakerNameText.kill)
+    (dialogBox.kill))
 
 (method :Void playSound [:FlxSound sound :Float volumeMod :Bool waitForEnd :Continuation cc]
     (let [originalVolume sound.volume
@@ -127,6 +122,13 @@
                 restoreOriginalVolume)))
     (sound.play)
     (unless waitForEnd (cc)))
+
+(method :Void playVoiceTrack [:FlxSound track :Float volumeMod :Float start :Float end :Continuation cc]
+    (let [originalVolume track.volume
+            restoreOriginalVolume ->(set track.volume originalVolume)]
+        (*= track.volume volumeMod)
+        (set track.onComplete ->{(restoreOriginalVolume) (cc)}))
+    (track.play false (* 1000 start) (* 1000 end)))
 
 (prop &mut :FlxSound music)
 (prop MUSIC_FADE_SEC 1)

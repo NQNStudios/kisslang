@@ -7,6 +7,8 @@
     (prop :FuzzyMap<Sound> sounds (new FuzzyMap<Sound>))
     (prop :FuzzyMap<Song> songs (new FuzzyMap<Song>))
     (prop :FuzzyMap<Prop> props (new FuzzyMap<Prop>))
+    (prop :Map<String,VoiceTrack> voiceTracks (new Map))
+    (prop :FuzzyMap<VoiceLine> voiceLines (new FuzzyMap<VoiceLine>))
 
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
@@ -32,16 +34,30 @@
     (method _currentScene [] (dictGet scenes sceneKey))
 
     (prop &mut :Map<String,String> intercutMap)
-    (method showDialog [actorName dialogType wryly text cc]
+    (method :Void showDialog [actorName dialogType wryly text cc]
         (when intercutMap
             (whenLet [sceneForActor (dictGet intercutMap actorName)]
                 (setScene sceneForActor ->{})))
-        (director.showDialog actorName dialogType wryly text cc))
+        
+        (let [cc ->:Void {(director.hideDialog) (cc)}]
+            (director.showDialog actorName dialogType wryly text cc)
+            (when (< 0 (count voiceTracks))
+                    (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
+                        ((objectWith trackKey start end)
+                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
+                        (otherwise)))))
+
+    (method newVoiceTrack [actorName :VoiceTrack track :String lineJson]
+        (let [trackKey (Uuid.v4)
+                :haxe.DynamicAccess<Dynamic> lines (Json.parse lineJson)]
+            (dictSet voiceTracks trackKey track)
+            (doFor =>key line (lines.keyValueIterator)
+                (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey)))))
 
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
-            &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop> director
+            &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack> director
         ]
 
         (set director.movie this)

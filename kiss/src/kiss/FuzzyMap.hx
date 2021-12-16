@@ -20,7 +20,7 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         return this;
     }
 
-    static var threshold = 0.8;
+    static var threshold = 0.4;
     function bestMatch(fuzzySearchKey:String, ?throwIfNone=true):String {
         if (this.exists(fuzzySearchKey)) return fuzzySearchKey;
 

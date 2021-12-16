@@ -31,4 +31,4 @@ enum FlxScreenPosition {
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
-class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite> {}
+class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound> {}
