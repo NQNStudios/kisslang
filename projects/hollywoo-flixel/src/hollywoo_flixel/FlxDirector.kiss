@@ -128,7 +128,7 @@
             restoreOriginalVolume ->(set track.volume originalVolume)]
         (*= track.volume volumeMod)
         (set track.onComplete ->{(restoreOriginalVolume) (cc)}))
-    (track.play false (* 1000 start) (* 1000 end)))
+    (track.play true (* 1000 start) (* 1000 end)))
 
 (prop &mut :FlxSound music)
 (prop MUSIC_FADE_SEC 1)
