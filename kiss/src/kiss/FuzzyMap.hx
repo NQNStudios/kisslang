@@ -61,9 +61,7 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
     }
 
     @:arrayAccess
-    public inline function set(fuzzySearchKey:String, v:T):T {
-        var key = bestMatch(fuzzySearchKey, false);
-        if (key == null) key = fuzzySearchKey;
+    public inline function set(key:String, v:T):T {
         this.set(key, v);
         return v;
     }
