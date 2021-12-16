@@ -145,7 +145,7 @@
 (method :Void stopSong [] (when music (music.stop)))
 
 (var PROP_MIN_WIDTH 200)
-(var PROP_MAX_WIDTH 300)
+(var PROP_MAX_WIDTH 500)
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
     // TODO assign the other possible positions

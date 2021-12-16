@@ -30,7 +30,6 @@
         (stamp.setGraphicSize x y)
         (stamp.updateHitbox)))
 
-// TODO allow specifying size relative to canvas
 (function :Void drawOnSprite [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
     (let [[x y] (positionOn stamp canvas pos)]
         (scaleStampOn stamp canvas pos)
