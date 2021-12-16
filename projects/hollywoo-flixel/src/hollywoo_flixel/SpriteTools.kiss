@@ -21,9 +21,19 @@
                 p)
             (otherwise (throw "$coord is out of range $range")))))
 
+(function :Void scaleStampOn [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
+    (let [&mut x 0 &mut y 0]
+        (when pos.sizeX
+            (set x (coordIn pos.sizeX canvas.frameWidth)))
+        (when pos.sizeY
+            (set y (coordIn pos.sizeY canvas.frameHeight)))
+        (stamp.setGraphicSize x y)
+        (stamp.updateHitbox)))
+
 // TODO allow specifying size relative to canvas
 (function :Void drawOnSprite [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
     (let [[x y] (positionOn stamp canvas pos)]
+        (scaleStampOn stamp canvas pos)
         (canvas.stamp stamp x y)))
 
 // TODO allow specifying size relative to canvas
