@@ -24,7 +24,8 @@ typedef EditorState = {
     elementScrollY:Int,
     activeEditorIdx:Int,
     startCursorPos:Int,
-    endCursorPos:Int
+    endCursorPos:Int,
+    lastSearch:String,
 };
 
 typedef Disposable = {

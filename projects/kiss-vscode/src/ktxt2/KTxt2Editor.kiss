@@ -18,10 +18,16 @@
             text ""
             activeEditorIdx -1
             startCursorPos -1
-            endCursorPos -1)))
+            endCursorPos -1
+            lastSearch "")))
 
 (function :Void setState [:EditorState state]
     (_vscode.setState state))
+
+(defMacro changeState [s &body b]
+    `(let [,s (getState)]
+        ,@b
+        (setState ,s)))
 
 (function main []
     (set _vscode (EditorExterns.acquireVsCodeApi))
@@ -36,9 +42,8 @@
             (case (the MessageToEditor event.data)
                 ((objectWith [type "update"] text)
                     // Either create the first EditorState, or get the last one
-                    (let [newState (getState)]
+                    (changeState newState
                         (set newState.text text)
-                        (setState newState)
                         (whenMonacoIsAvailable
                             ->{
                                 (updateContent "told by the provider" text)
@@ -49,14 +54,14 @@
                 (otherwise (throw "bad message $event for KTxt2Editor"))))
     
     (window.addEventListener "scroll"
-        ->(let [s (getState)]
-            (set s.scrollY window.scrollY)
-            (setState s)))
+        ->(changeState s
+            (set s.scrollY window.scrollY)))
 
     (window.addEventListener "keydown" ->:Void e
         (if e.ctrlKey
                 (case e.key
                     ("f" (find))
+                    ("n" (findNext))
                     (otherwise))
             (unless activeEditor
                 (case e.key
@@ -169,20 +174,18 @@
         (eventSubscriptions.push (e.onDidChangeCursorPosition
             ->evt
                 (when (Range.isEmpty (activeEditor.getSelection))
-                    (let [s (getState)]
+                    (changeState s
                         (set s.startCursorPos (.getOffsetAt (e.getModel) evt.position))
-                        (set s.endCursorPos -1)
-                        (setState s))
+                        (set s.endCursorPos -1))
 
                     // Delay updating the block
                     (when (dictGet editTimeoutHandles eIdx)
                         (onChange e)))))
         (eventSubscriptions.push (e.onDidChangeCursorSelection
             ->evt {
-                (let [s (getState)]
+                (changeState s
                     (set s.startCursorPos (.getOffsetAt (e.getModel) (evt.selection.getStartPosition)))
-                    (set s.endCursorPos (.getOffsetAt (e.getModel) (evt.selection.getEndPosition)))
-                    (setState s))
+                    (set s.endCursorPos (.getOffsetAt (e.getModel) (evt.selection.getEndPosition))))
                 
                 // Delay updating the block
                 (when (dictGet editTimeoutHandles eIdx)
@@ -192,11 +195,10 @@
         (eventSubscriptions.push (e.onDidContentSizeChange updateSize))
         (eventSubscriptions.push (e.onDidChangeModelContent
             ->[&opt _] {
-                (let [s (getState)]
+                (changeState s
                     (set s.activeEditorIdx eIdx)
                     (set s.startCursorPos (.getOffsetAt (e.getModel) (e.getPosition)))
-                    (set s.endCursorPos -1)
-                    (setState s))
+                    (set s.endCursorPos -1))
                 (onChange e)
             }))
         (editors.push e)
@@ -207,7 +209,7 @@
 (function activateEditor [eIdx]
     ->{
         (set activeEditor (nth editors eIdx))
-        (let [s (getState)]
+        (changeState s
             (set s.activeEditorIdx eIdx)
             (let [sel (activeEditor.getSelection)]
                 (if (Range.isEmpty sel)
@@ -220,18 +222,16 @@
                     {
                         (set s.startCursorPos (activeEditor.getOffsetAt (sel.getStartPosition)))
                         (set s.endCursorPos (activeEditor.getOffsetAt (sel.getEndPosition)))
-                    }))
-            (setState s))
+                    })))
     })
 
 (function deactivateEditor [eIdx]
     ->(when (= activeEditor (nth editors eIdx))
         (set activeEditor null)
-        (let [s (getState)]
+        (changeState s
             (set s.activeEditorIdx -1)
             (set s.startCursorPos -1)
-            (set s.endCursorPos -1)
-            (setState s))))
+            (set s.endCursorPos -1))))
 
 (function :Void postMessage [:Dynamic message]
     // (print "posting $message")
@@ -370,9 +370,8 @@
 (function :Void changeElementScrollY [:Void->Void changeFunc]
     (changeFunc)
     (clamp elementScrollY 0 (- ktxt2Elements.length PAGE_SIZE))
-    (let [s (getState)]
-        (set s.elementScrollY elementScrollY)
-        (setState s))
+    (changeState s
+        (set s.elementScrollY elementScrollY))
     (updateContent "scrolling through elements"))
 
 (function :Void updateContent [:String reason &opt text]
@@ -452,6 +451,9 @@
 
 (function find []
     (postMessage (object type "find")))
+
+(function findNext []
+    (postMessage (object type "findNext")))
 
 (defMacro __find []
     `(let [elem (nth ktxt2Elements idx)]
