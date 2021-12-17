@@ -41,3 +41,14 @@
                         (when line
                             (+= output "NORMALSPEECH \"${name}\" \"${wryly}\" ##\"${line}\"##\n"))))
                 output)))
+
+(registerConversion
+    (new ktxt2.StreamConversion "Label" "fountain" "hollywoo"
+        ->stream ?{(stream.dropWhitespace) (stream.startsWith "/*")}
+        ->stream
+            "LABEL $(.trim
+                (.replace 
+                    (.replace
+                        (.replace stream.content "/*" "")
+                        "*/" "")
+                    "*" ""))\n"))
