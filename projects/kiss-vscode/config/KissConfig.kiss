@@ -239,11 +239,12 @@
             ->e
                 (let [f e.document.fileName
                         dir (FileSystem.readDirectory (f.directory))]
-                    (doFor otherF dir
-                        (whenLet [(Some _) (indexOf otherF (.withoutDirectory (f.withoutExtension)))
-                                    (Some _) (indexOf otherF (f.extension))
-                                    true (otherF.endsWith ".ktxt2")]
-                            (errorMessage "Editing file $(f.withoutDirectory) which is managed by $(otherF.withoutDirectory)"))))))
+                    (unless (f.endsWith "ktxt2")
+                        (doFor otherF dir
+                            (whenLet [(Some _) (indexOf otherF (.withoutDirectory (f.withoutExtension)))
+                                        (Some _) (indexOf otherF (f.extension))
+                                        true (otherF.endsWith ".ktxt2")]
+                                (errorMessage "Editing file $(f.withoutDirectory) which is managed by $(otherF.withoutDirectory)")))))))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []
