@@ -61,10 +61,10 @@
         (if e.ctrlKey
                 (case e.key
                     ("f" (find))
-                    ("n" (findNext))
                     (otherwise))
             (unless activeEditor
                 (case e.key
+                    ("n" (findNext))
                     ("g" (pageTop))
                     ("v" (pageBottom))
                     ("ArrowUp" (pageUp))
@@ -453,7 +453,8 @@
     (postMessage (object type "find")))
 
 (function findNext []
-    (postMessage (object type "findNext")))
+    (let [s (getState)]
+        (_find s.lastSearch)))
 
 (defMacro __find []
     `(let [elem (nth ktxt2Elements idx)]
@@ -463,6 +464,7 @@
                 (return)))))
 
 (function :Void _find [text]
+    (changeState s (set s.lastSearch text))
     (let [startIdx elementScrollY]
         (doFor idx (range (+ 1 startIdx) ktxt2Elements.length)
             (__find))
