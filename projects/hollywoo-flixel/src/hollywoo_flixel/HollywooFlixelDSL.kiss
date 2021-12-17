@@ -17,13 +17,15 @@
         (set s.persist true)
         (newSound name s)))
 
+(method newFlxVoiceTrack [name wavPath jsonPath]
+    (newVoiceTrack name (FlxG.sound.load wavPath) (openfl.utils.Assets.getText jsonPath)))
+
 (method newFlxProp [name path]
     (let [propSprite (new FlxSprite 0 0)]
         (propSprite.loadGraphic path)
         (newProp name propSprite)))
 
 (method :Void update [:Float elapsed]
-    // TODO CCs queued to timers will still be called
     (#when debug
         (when FlxG.keys.justPressed.N
             (doFor [idx label] (enumerate labels)
