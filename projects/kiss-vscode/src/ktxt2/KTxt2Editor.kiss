@@ -61,6 +61,7 @@
         (if e.ctrlKey
                 (case e.key
                     ("f" (find))
+                    ("m" (tryFullAutoConvert))
                     (otherwise))
             (unless activeEditor
                 (case e.key
@@ -296,7 +297,6 @@
             convertLink (document.createElement "a")
             xLink (document.createElement "a")
             lockLink (document.createElement "a")
-            fullConvLink (document.createElement "a")
             nextBlankLink (document.createElement "a")
             blockLinkBefore (document.createElement "a")
             blockLinkAfter (document.createElement "a")
@@ -349,9 +349,6 @@
         (set nextBlankLink.innerHTML "NextBlank")
         (nextBlankLink.addEventListener "click" nextBlankOutput)
         (outerDiv.appendChild nextBlankLink)
-        (set fullConvLink.innerHTML "ConvertAll")
-        (fullConvLink.addEventListener "click" tryFullAutoConvert)
-        (outerDiv.appendChild fullConvLink)
         (content.appendChild outerDiv)
         (content.appendChild (document.createElement "br"))
         (content.appendChild blockLinkAfter)
