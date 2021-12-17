@@ -3,11 +3,15 @@
 (defMacroFunction appendToSources [query resultNumber apiName author apiQuery]
     (unless (FileSystem.exists ASSET_SOURCES_FILE)
         (File.saveContent ASSET_SOURCES_FILE ""))
-    (File.saveContent
-        ASSET_SOURCES_FILE
-        (+
-            (File.getContent ASSET_SOURCES_FILE)
-            "${query}\t${resultNumber}\t${apiName}\t${author}\t${apiQuery}\n")))
+    (let [newLine "${query}\t${resultNumber}\t${apiName}\t${author}\t${apiQuery}\n"
+            existingSources (File.getContent ASSET_SOURCES_FILE)]
+        (unless !(= -1 (existingSources.indexOf newLine))
+            (File.saveContent
+                ASSET_SOURCES_FILE
+                (+
+                    existingSources
+                    (if (StringTools.endsWith existingSources "\n") "" "\n")
+                    newLine)))))
 
 (defMacroFunction downloadToImages [query resultNumber apiName url]
     (let [ext
