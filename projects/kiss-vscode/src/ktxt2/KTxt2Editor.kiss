@@ -456,12 +456,11 @@
 (defMacro __find []
     `(let [elem (nth ktxt2Elements idx)]
         (assertLet [(Block block) elem]
-            (whenLet [(Some foundIdx) (indexOf "${block.source}${block.output}" text)]
+            (whenLet [(Some foundIdx) (indexOf (.toLowerCase "${block.source}${block.output}") (.toLowerCase text))]
                 (changeElementScrollY ->(set elementScrollY idx))
                 (return)))))
 
 (function :Void _find [text]
-    // TODO use (indexOf) to find the text in source/output of elements, then set elementScrollY to that element
     (let [startIdx elementScrollY]
         (doFor idx (range (+ 1 startIdx) ktxt2Elements.length)
             (__find))
