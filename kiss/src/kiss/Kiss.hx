@@ -106,6 +106,7 @@ class Kiss {
                 "chooseRandom" => Symbol("Prelude.chooseRandom"),
                 // These ones *probably* won't conflict with variables and might commonly be used with (apply) because they are variadic
                 "concat" => Symbol("Prelude.concat"),
+                "zip" => Symbol("Prelude.zipThrow"),
                 "zipKeep" => Symbol("Prelude.zipKeep"),
                 "zipDrop" => Symbol("Prelude.zipDrop"),
                 "zipThrow" => Symbol("Prelude.zipThrow"),
