@@ -232,7 +232,18 @@
         (registerCommand "${prefix} [u]pdate Kiss-VSCode" updateKissVscode)
         (registerCommand "${prefix} [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode)
         // KTxt2.kiss:
-        (registerCommand "${ktxt2Prefix} [i]mport input file" importKTxt2InputFile)))
+        (registerCommand "${ktxt2Prefix} [i]mport input file" importKTxt2InputFile))
+        
+        // Show a warning when editing a document that is managed by a ktxt2 file
+        (Vscode.workspace.onDidChangeTextDocument
+            ->e
+                (let [f e.document.fileName
+                        dir (FileSystem.readDirectory (f.directory))]
+                    (doFor otherF dir
+                        (whenLet [(Some _) (indexOf otherF (.withoutDirectory (f.withoutExtension)))
+                                    (Some _) (indexOf otherF (f.extension))
+                                    true (otherF.endsWith ".ktxt2")]
+                            (errorMessage "Editing file $(f.withoutDirectory) which is managed by $(otherF.withoutDirectory)"))))))
 
 // TODO standardize this with KissInterp
 (function :Void prepareInterp []
