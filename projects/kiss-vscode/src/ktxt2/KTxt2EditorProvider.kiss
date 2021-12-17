@@ -66,11 +66,8 @@
 										(withValueOrQuickPick overwrite ["Overwrite" "Cancel"]
 											(when (= "Overwrite" overwrite)
 												(withValueOrQuickPickMap chosenConversion conversions
-													(whenLet [converted
-																	(try (KTxt2.insertSpecialChars (chosenConversion.convert (KTxt2.applySpecialChars source)))
-																		(catch [e] (errorMessage "Conversion error: $e") null))]
-														(makeEdit
-															->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) converted)))))))
+													(makeEdit
+														->edit (edit.replace document.uri (rangeFromStartEnd outputStart outputEnd) chosenConversion))))))
 								(errorMessage "No automatic conversions are valid for the chosen block."))))
 					((object type "export")
 						(exportSourceAndOutputFiles document))

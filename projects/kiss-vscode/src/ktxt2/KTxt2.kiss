@@ -96,7 +96,7 @@
                 (otherwise)))
         (.map [sourceText outputText] applySpecialChars)))
 
-(function :Map<String,KTxt2Conversion> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
+(function :Map<String,String> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
     (let [validMap (new Map)]
         (doFor c conversions
             (case c
@@ -104,8 +104,11 @@
                             (= sourceType (sourceFile.extension))
                             (= outputType (outputFile.extension))
                             (canConvert (applySpecialChars source)))
-                        (objectWith sourceType outputType canConvert name))
-                    (dictSet validMap name c))
+                        (objectWith sourceType outputType canConvert convert name))
+                    (dictSet validMap name
+                            (try (KTxt2.insertSpecialChars
+                                    (convert (KTxt2.applySpecialChars source)))
+                                (catch [e] "Conversion error: $e"))))
                 (otherwise {})))
         validMap))
 
@@ -119,7 +122,7 @@
                         (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source)]
                             (when (= 1 (count conversions))
                                 (let [onlyConversion (first (collect (conversions.iterator)))]
-                                    (set element.output (insertSpecialChars (onlyConversion.convert (applySpecialChars element.source))))))))))
+                                    (set element.output onlyConversion)))))))
             (toString elements))))
 
 (function :String insertSpecialChars [:String text]
