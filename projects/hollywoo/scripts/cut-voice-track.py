@@ -51,6 +51,7 @@ def save():
 
 current_sec = 0
 searching_for = None
+last_search = None
 for (audio_guess, possible_sections) in timestamps.items():
     if searching_for != None:
         if searching_for in audio_guess:
@@ -86,11 +87,11 @@ for (audio_guess, possible_sections) in timestamps.items():
         return data[start_frame:end_frame], end - start
     
     print('\033[31m' + audio_guess + '\033[0m')
-    print(f'{takes}/u({takes})/d/f/h/q')
+    print(f'{takes}/u({takes})/d/f/n/h/q')
     while True:
         choice = getch()
         if choice == 'h':
-            print(f'{num_takes} takes. Type {takes} to play one. Type u + {takes} to use one of them. Type f to search ahead for a word or phrase. Type d to discard this snippet. Type q to quit')
+            print(f'{num_takes} takes. Type {takes} to play one. Type u + {takes} to use one of them. Type f to search ahead for a word or phrase. Type n to repeat a search. Type d to discard this snippet. Type q to quit')
         elif choice == 'd':
             break
         elif choice != '/' and choice in takes:
@@ -98,7 +99,11 @@ for (audio_guess, possible_sections) in timestamps.items():
             play_buffer(audio, nchannels, sampwidth, framerate)
         elif choice == 'f':
             phrase = input("phrase (lower-case) to search for?")
+            last_search = phrase
             searching_for = phrase
+            break
+        elif choice == 'n':
+            searching_for = last_search
             break
         elif choice == 'q':
             save()
