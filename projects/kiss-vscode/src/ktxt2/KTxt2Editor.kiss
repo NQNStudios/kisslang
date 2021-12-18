@@ -67,6 +67,7 @@
                     (otherwise))
             (unless activeEditor
                 (case e.key
+                    ("h" (showHelp))
                     ("n" (findNext))
                     ("g" (pageTop))
                     ("v" (pageBottom))
@@ -76,6 +77,9 @@
                     ("ArrowRight" (scrollToPageBottom))
                     ("s" (export))
                     (otherwise)))))
+    (function showHelp []
+        (print "s: export | C-f: find | n: find next | C-m: Try full conversion | h: show this message | g/v: beginning/end of file | arrow down/up: next page/previous page. | arrow left/right: scroll to page top/bottom"))    
+    
 
     // Don't use getState helper here because we don't want to force updateContent with blank text
     (whenLet [state (the EditorState (_vscode.getState))]
@@ -402,10 +406,13 @@
                 (document.body.appendChild content)
                 (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
                 (let [terminatorEditor (document.createElement "div")
+                        help (document.createElement "p")
                         explanation (document.createElement "p")]
+                    (set help.innerHTML "press h for keyboard shortcut help")
                     (set explanation.innerHTML "Force output blocks to end with:")
                     (monacoEditor terminatorEditor "" (KTxt2.insertSpecialChars (KTxt2.outputBlockTerminator (Stream.fromString text))) "txt" false
                         ->editor (changeOutputTerminator (KTxt2.insertSpecialChars (editor.getValue))))
+                    (content.appendChild help)
                     (content.appendChild explanation)
                     (content.appendChild terminatorEditor))
                 (when (< 0 elementScrollY)
