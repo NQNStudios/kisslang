@@ -259,6 +259,13 @@
         (unless (or lock1 lock2)
             (postMessage (objectWith [type "replace"] start end text)))))
 
+(function changeOutputTerminator [terminator]
+    (let [oldTerminator .outputTerminator (getState)
+            s (Stream.fromString oldTerminator)
+            start (s.position)]
+        (s.dropString oldTerminator)
+        (postMessage (objectWith [type "replace" text terminator end (s.position)] start))))
+
 (function replaceSourceBlock [element newText]
     (case element
         ((Block (object source text sourceStart start sourceEnd end))
@@ -394,6 +401,13 @@
                 (set content (document.createElement "div"))
                 (document.body.appendChild content)
                 (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
+                (let [terminatorEditor (document.createElement "div")
+                        explanation (document.createElement "p")]
+                    (set explanation.innerHTML "Force output blocks to end with:")
+                    (monacoEditor terminatorEditor "" (KTxt2.insertSpecialChars (KTxt2.outputBlockTerminator (Stream.fromString text))) "txt" false
+                        ->editor (changeOutputTerminator (KTxt2.insertSpecialChars (editor.getValue))))
+                    (content.appendChild explanation)
+                    (content.appendChild terminatorEditor))
                 (when (< 0 elementScrollY)
                     (let [upLink (document.createElement "a")
                             topLink (document.createElement "a")]
