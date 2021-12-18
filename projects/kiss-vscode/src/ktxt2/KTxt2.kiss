@@ -10,6 +10,10 @@
 (var outputStarts [unlockedStart lockedStart])
 (var emptyBlock "${blockStartEnd}${unlockedStart}${blockStartEnd}")
 
+(function :String outputBlockTerminator [:Stream fileStream]
+    (whenLet [(Some terminator) (fileStream.takeUntilOneOf [blockStartEnd] true)]
+        terminator))
+
 (function :Array<KTxt2Element> splitFileElements [:Stream fileStream]
     (let [elements []]
         (loop

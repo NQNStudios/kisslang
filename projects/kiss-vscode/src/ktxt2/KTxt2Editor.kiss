@@ -19,7 +19,8 @@
             activeEditorIdx -1
             startCursorPos -1
             endCursorPos -1
-            lastSearch "")))
+            lastSearch ""
+            outputTerminator "")))
 
 (function :Void setState [:EditorState state]
     (_vscode.setState state))
@@ -44,6 +45,7 @@
                     // Either create the first EditorState, or get the last one
                     (changeState newState
                         (set newState.text text)
+                        (set newState.outputTerminator (KTxt2.outputBlockTerminator (Stream.fromString text)))
                         (whenMonacoIsAvailable
                             ->{
                                 (updateContent "told by the provider" text)
@@ -290,6 +292,14 @@
 (function tryFullAutoConvert []
     (postMessage (object type "tryFullAutoConvert")))
 
+(function withOutputTerminator [:String text]
+    (if text
+            (let [outputTerminator .outputTerminator (getState)]
+                (if (text.endsWith outputTerminator)
+                        text
+                    "${text}$outputTerminator"))
+        text))
+
 (function blockElements [source output locked idx]
     (let [outerDiv (document.createElement "div")
             :js.html.Element sourceDiv (cast (document.createElement "div"))
@@ -321,7 +331,7 @@
             ->editor (replaceSourceBlock (nth ktxt2Elements idx) (.replace (editor.getValue) "\r" "")))
 
         (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
-            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (.replace (editor.getValue) "\r" "")))
+            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (withOutputTerminator (.replace (editor.getValue) "\r" ""))))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
