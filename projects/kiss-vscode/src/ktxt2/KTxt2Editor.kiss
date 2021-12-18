@@ -20,7 +20,8 @@
             startCursorPos -1
             endCursorPos -1
             lastSearch ""
-            outputTerminator "")))
+            outputTerminator ""
+            sourceBlockChanged null)))
 
 (function :Void setState [:EditorState state]
     (_vscode.setState state))
@@ -270,7 +271,8 @@
         (s.dropString oldTerminator)
         (postMessage (objectWith [type "replace" text terminator end (s.position)] start))))
 
-(function replaceSourceBlock [element newText]
+(function replaceSourceBlock [element idx newText]
+    (changeState s (set s.sourceBlockChanged idx))
     (case element
         ((Block (object source text sourceStart start sourceEnd end))
             (postMessage (object type "replace" text newText start start end end)))
@@ -339,7 +341,7 @@
         (content.appendChild (document.createElement "br"))
 
         (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
-            ->editor (replaceSourceBlock (nth ktxt2Elements idx) (.replace (editor.getValue) "\r" "")))
+            ->editor (replaceSourceBlock (nth ktxt2Elements idx) idx (.replace (editor.getValue) "\r" "")))
 
         (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
             ->editor (replaceOutputBlock (nth ktxt2Elements idx) (withOutputTerminator (.replace (editor.getValue) "\r" ""))))
@@ -396,6 +398,11 @@
     // (print "updating content because $reason")
     (try
             {
+                (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
+                (whenLet [sourceBlockChanged .sourceBlockChanged (getState)]
+                    (changeState s (set s.sourceBlockChanged null))
+                    (tryAutoConvert (nth ktxt2Elements sourceBlockChanged))
+                    (return))
                 (set updatingContent true)
                 (when content
                     (set editors [])
@@ -404,7 +411,6 @@
                     (document.body.removeChild content))
                 (set content (document.createElement "div"))
                 (document.body.appendChild content)
-                (when text (set ktxt2Elements (KTxt2.splitFileElements (Stream.fromString text))))
                 (let [terminatorEditor (document.createElement "div")
                         help (document.createElement "p")
                         explanation (document.createElement "p")]
