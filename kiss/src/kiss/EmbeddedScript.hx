@@ -50,6 +50,7 @@ class EmbeddedScript {
     #if macro
     public static function build(dslFile:String, scriptFile:String):Array<Field> {
         var k = Kiss.defaultKissState();
+        k.file = scriptFile;
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         var loadingDirectory = Path.directory(classPath);

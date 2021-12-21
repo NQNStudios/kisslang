@@ -24,6 +24,7 @@ typedef ExprConversion = (ReaderExp) -> Expr;
 
 typedef KissState = {
     className:String,
+    file:String,
     readTable:ReadTable,
     startOfLineReadTable:ReadTable,
     fieldForms:Map<String, FieldFormFunction>,
@@ -51,6 +52,7 @@ class Kiss {
 
         var k = {
             className: className,
+            file: "",
             readTable: Reader.builtins(),
             startOfLineReadTable: new ReadTable(),
             fieldForms: FieldForms.builtins(),
@@ -215,6 +217,8 @@ class Kiss {
         } else {
             Path.join([loadingDirectory, kissFile]);
         };
+        var previousFile = k.file;
+        k.file = fullPath;
 
         if (k.loadedFiles.exists(fullPath)) {
             return k.loadedFiles[fullPath];
@@ -268,6 +272,7 @@ class Kiss {
             null;
         }
         k.loadedFiles[fullPath] = exp;
+        k.file = previousFile;
         return exp;
     }
 

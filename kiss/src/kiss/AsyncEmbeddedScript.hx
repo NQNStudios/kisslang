@@ -47,6 +47,7 @@ class AsyncEmbeddedScript {
         // trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
         var k = Kiss.defaultKissState();
 
+        k.file = scriptFile;
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         var loadingDirectory = Path.directory(classPath);
         var classFields = []; // Kiss.build() will already include Context.getBuildFields()

@@ -121,6 +121,8 @@ class Macros {
         };
 
         function prepareForConditional(i:KissInterp, k:KissState) {
+            i.variables.set("kissFile", k.file);
+            i.variables.set("className", k.className);
             for (flag => value in Context.getDefines()) {
                 // Don't overwrite types that are put in all KissInterps, i.e. the kiss namespace
                 if (!i.variables.exists(flag)) {
