@@ -9,6 +9,11 @@
         (setSprite.loadGraphic (dictGet sets set))
         (newScene name (cast (new SceneFlxState setSprite time perspective)))))
 
+// Destroy substates when the movie end is reached:
+(cleanup
+    (doFor =>name scene scenes
+        (.destroy (cast scene SceneFlxState))))
+
 (method newFlxSound [name path &opt :Float volume]
     (set volume (or volume 1))
     (assert (<= 0 volume 1))

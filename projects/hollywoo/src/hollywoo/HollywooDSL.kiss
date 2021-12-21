@@ -1,7 +1,8 @@
 // When this file is loaded, all expressions in (preload <...>) will be collected. When (end) is called, they will
 // be injected into a method called (doPreload).
 // This allows assets to be declared in Hollywoo files where they first appear, but still loaded before execution starts.
-(collectBlocks preload (cc))
+(collectBlocks preload (#when (StringTools.contains kissFile className) (cc)))
+(collectBlocks cleanup (#when (StringTools.contains kissFile className) (cc)))
 
 (prop :Map<String,Int> labelsByName (new Map))
 (prop :Array<Int> labels [])
@@ -21,10 +22,17 @@
                         (dictSet labelsByName ,label ,idx)
                         (labels.push ,idx)
                     })]
-        `(method doPreload [:Void->Void cc]
-            (set isLoading true)
-            (collectedBlocks preload)
-            (set isLoading false)
-            ,@labelSetters
-            (cc))))
+        `{
+            (method doPreload [:Void->Void cc]
+                (set isLoading true)
+                (collectedBlocks preload)
+                (set isLoading false)
+                ,@labelSetters
+                (cc))
+            (method doCleanup []
+                (director.cleanup)
+                (set lastInstructionPointer -2)
+                (collectedBlocks cleanup))
+            (doCleanup)
+        }))
 // TODO also &bof could call (doPreload)

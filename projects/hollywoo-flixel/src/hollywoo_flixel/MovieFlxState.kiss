@@ -1,11 +1,6 @@
 (prop &mut :FlxDirector director)
-(prop &mut :FlxMovie movie)
 
 (method &override :Void create []
     (set destroySubStates false)
     (super.create)
-    (set director (new FlxDirector))
-    (set movie (new FlxMovie director)))
-
-(method &override :Void update [:Float elapsed]
-    (super.update elapsed))
+    (set director (new FlxDirector)))

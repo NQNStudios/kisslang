@@ -22,6 +22,9 @@
     (FlxG.state.openSubState currentState)
     (cc))
 
+(method :Void cleanup []
+    (FlxG.state.openSubState null))
+
 (var STAGE_LEFT_X 150)
 (var STAGE_RIGHT_X (- 1280 150))
 (var ACTOR_Y 500)

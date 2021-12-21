@@ -25,4 +25,6 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound
     function showPropOnScreen(prop:Prop, position:ScreenPosition, cc:Continuation):Void;
     // TODO showPropOnStage
     function hideProp(prop:Prop, cc:Continuation):Void;
+
+    function cleanup():Void;
 }
