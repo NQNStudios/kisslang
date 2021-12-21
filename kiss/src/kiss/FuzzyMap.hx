@@ -4,7 +4,7 @@ import haxe.ds.StringMap;
 
 using hx.strings.Strings;
 
-// TODO forward and implement the full Map API
+@:forward(clear, copy, iterator, keyValueIterator, keys, toString)
 abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
     public inline function new(?m:StringMap<T>) {
         this = if (m != null) m else new StringMap<T>();
@@ -58,6 +58,10 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         var key = bestMatch(fuzzySearchKey, false);
         if (key == null) return false;
         return this.remove(key);
+    }
+
+    public inline function exists(fuzzySearchKey:String):Bool {
+        return bestMatch(fuzzySearchKey, false) != null;
     }
 
     @:arrayAccess
