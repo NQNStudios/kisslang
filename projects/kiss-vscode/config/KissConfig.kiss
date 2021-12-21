@@ -123,8 +123,10 @@
     (shortcutPanel.webview.postMessage (object command "focus")))
 
 (function shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
-    (let [shortcutParagraphs
+    (let [&mut unusedKeys "abcdefghijklmnopqrstuvwxyz1234567890-/"
+            shortcutParagraphs
                 (for =>key shortcutKey prefixMap
+                    (set unusedKeys (unusedKeys.replace (key.toLowerCase) ""))
                     "<p><strong>${key}</strong> - $(case shortcutKey
                                     ((Prefix innerMap)
                                         "$(Lambda.count innerMap) shortcuts")
@@ -140,6 +142,7 @@
             </head>
             <body>
                 $(shortcutParagraphs.join "")
+                <p>unused: ${unusedKeys}</p>
                 <script>
                     const vscode = acquireVsCodeApi();
                     window.addEventListener('message', function(event) {
