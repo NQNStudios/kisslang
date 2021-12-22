@@ -26,6 +26,7 @@ class AsyncEmbeddedScript {
     private var onBreak:AsyncCommand = null;
     private var lastInstructionPointer = -1;
     private var labels:Map<String,Int> = [];
+    private var noSkipInstructions:Map<Int,Bool> = [];
 
     public function setBreakHandler(handler:AsyncCommand) {
         onBreak = handler;
@@ -81,12 +82,31 @@ class AsyncEmbeddedScript {
     }
 
     private function skipToInstruction(ip:Int) {
+        var lastCC = ()->runInstruction(ip);
+        // chain together the unskippable instructions prior to running the requested ip
+        var noSkipList = [];
         for (cIdx in lastInstructionPointer+1... ip) {
-            // TODO add an optional cc argument to runInstruction
-            // TODO use that chain together the unskippable instructions prior to running the requested ip
+            if (noSkipInstructions.exists(cIdx)) {
+                noSkipList.push(cIdx);
+            }
         }
+        if (noSkipList.length > 0) {
+            var cc = null;
+            cc = ()->{
+                if (noSkipList.length == 0) {
+                    lastCC();
+                } else {
+                    var inst = noSkipList.shift();
+                    lastInstructionPointer = inst;
+                    instructions[inst](this, cc);
+                }
+            };
+            cc();
+        } else {
+            lastCC();
+        }
+
         // TODO remember whether breakpoints were requested
-        runInstruction(ip);
     }
 
     public function skipToNextLabel() {
@@ -100,6 +120,8 @@ class AsyncEmbeddedScript {
         }
     }
 
+    // TODO skip to label by name
+
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
         // trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
@@ -112,6 +134,7 @@ class AsyncEmbeddedScript {
 
         var commandList:Array<Expr> = [];
         var labelsList:Array<Expr> = [];
+        var noSkipList:Array<Expr> = [];
 
         k.macros["label"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, '(label <label>)');
@@ -120,6 +143,13 @@ class AsyncEmbeddedScript {
             
             wholeExp.expBuilder().callSymbol("cc", []);
         };
+
+        k.macros["noSkip"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, null, '(noSkip <body...>)');
+            noSkipList.push(macro noSkipInstructions[$v{commandList.length}] = true);
+
+            wholeExp.expBuilder().begin(args);
+        }
 
         if (dslHaxelib.length > 0) {
             dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]);
@@ -167,6 +197,7 @@ class AsyncEmbeddedScript {
                 expr: macro {
                     this.instructions = [$a{commandList}];
                     $b{labelsList};
+                    $b{noSkipList};
                 }
             })
         });
