@@ -67,7 +67,7 @@
 // Some real magic happens here. This macro defines a method, AND a reader macro
 // for calling it with cc passed automatically if cc is an argument.
 
-(defMacro hollywooMethod [nameAndType argList &builder b &body body]
+(defMacro hollywooMethod [nameAndType canSkip argList &builder b &body body]
     (let [args (expList argList)
             numArgs args.length
             methodName (symbolNameValue nameAndType true)
@@ -75,23 +75,25 @@
         `{
             (defReaderMacro ,readerMacroStart [stream &builder b]
                 (let [nextLineStream
-                        (Stream.fromString (stream.expect "hollywoo macro line" ->(stream.takeLine)))]
-                    (b.callSymbol
-                        ,methodName
-                        ,(for arg args
-                            (exprCase arg
-                                ((exprTyped Continuation cc)
-                                    (b.callSymbol "b.symbol" [(b.str "cc")]))
-                                (_
-                                    (b.callSymbol "try" [
-                                        (b.callSymbol "read" [(b.symbol "nextLineStream")])
-                                        // optional arguments may not be present:
-                                        (b.callSymbol "catch" [(b.list [(b.symbol "e")]) (b.callSymbol "b.symbol" [(b.str "null")])])
-                                    ])))))))
+                            (Stream.fromString (stream.expect "hollywoo macro line" ->(stream.takeLine)))
+                        methodCall
+                            (b.callSymbol
+                                ,methodName
+                                ,(for arg args
+                                    (exprCase arg
+                                        ((exprTyped Continuation cc)
+                                            (b.callSymbol "b.symbol" [(b.str "cc")]))
+                                        (_
+                                            (b.callSymbol "try" [
+                                                (b.callSymbol "read" [(b.symbol "nextLineStream")])
+                                                // optional arguments may not be present:
+                                                (b.callSymbol "catch" [(b.list [(b.symbol "e")]) (b.callSymbol "b.symbol" [(b.str "null")])])
+                                            ])))))]
+                    (if ,canSkip methodCall (b.callSymbol "noSkip" [methodCall]))))
             (#unless subclass (method ,nameAndType ,argList ,@body))
         }))
 
-(hollywooMethod :Void delay [sec :Continuation cc]
+(hollywooMethod :Void delay true [sec :Continuation cc]
     (case delayHandling
         (Auto
             (Timer.delay cc (* 1000 sec)))
@@ -117,11 +119,11 @@
                 }))
         (otherwise (throw "Unsupported delay type $delayHandling"))))
 
-(hollywooMethod newSet [name :Set set]
+(hollywooMethod newSet true [name :Set set]
     (assert isLoading)
     (dictSet sets name set))
 
-(hollywooMethod newSceneFromSet [name :String setKey :SceneTime time :ScenePerspective perspective]
+(hollywooMethod newSceneFromSet true [name :String setKey :SceneTime time :ScenePerspective perspective]
     (assert isLoading)
     (dictSet scenes name (objectWith
                                 [
@@ -135,53 +137,53 @@
                                 time
                                 perspective)))
 
-(hollywooMethod newScene [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
+(hollywooMethod newScene true [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
     (assert isLoading)
     (dictSet scenes name scene))
 
-(hollywooMethod setScene [name :Continuation cc]
+(hollywooMethod setScene false [name :Continuation cc]
     (set sceneKey name)
     (director.showScene
         (dictGet scenes name)
         (appearanceFlag shownScenes name)
         cc))
 
-(hollywooMethod newSound [name :Sound s]
+(hollywooMethod newSound true [name :Sound s]
     (assert isLoading)
     (dictSet sounds name s))
 
-(hollywooMethod playSound [name :Continuation cc &opt :Float volumeMod :Bool waitForEnd]
+(hollywooMethod playSound true [name :Continuation cc &opt :Float volumeMod :Bool waitForEnd]
     (set volumeMod (or volumeMod 1))
     (assert (<= 0 volumeMod 1))
     (director.playSound (dictGet sounds name) volumeMod ?waitForEnd cc))
 
-(hollywooMethod awaitPlaySound [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod awaitPlaySound true [name :Continuation cc &opt :Float volumeMod]
     (playSound name cc volumeMod true))
 
-(hollywooMethod newSong [name :Song song]
+(hollywooMethod newSong true [name :Song song]
     (assert isLoading)
     (dictSet songs name song))
 
-(hollywooMethod playSong [name :Continuation cc &opt :Float volumeMod :Bool loop :Bool waitForEnd]
+(hollywooMethod playSong true [name :Continuation cc &opt :Float volumeMod :Bool loop :Bool waitForEnd]
     (set volumeMod (or volumeMod 1))
     (assert (<= 0 volumeMod 1))
     (director.playSong (dictGet songs name) volumeMod ?loop ?waitForEnd cc))
 
-(hollywooMethod awaitPlaySong [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod awaitPlaySong true [name :Continuation cc &opt :Float volumeMod]
     (playSong name cc volumeMod false true))
     
-(hollywooMethod loopSong [name :Continuation cc &opt :Float volumeMod]
+(hollywooMethod loopSong true [name :Continuation cc &opt :Float volumeMod]
     (playSong name cc volumeMod true false))
 
-(hollywooMethod stopSong [cc]
+(hollywooMethod stopSong true [cc]
     (director.stopSong)
     (cc))
 
-(hollywooMethod newActor [name :Actor actor]
+(hollywooMethod newActor true [name :Actor actor]
     (assert isLoading)
     (dictSet actors name actor))
 
-(hollywooMethod addCharacter [actorName :StagePosition position :StageFacing facing :Continuation cc]
+(hollywooMethod addCharacter false [actorName :StagePosition position :StageFacing facing :Continuation cc]
     (let [character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
         (dictSet .characters (_currentScene) actorName character)
         (director.showCharacter
@@ -189,7 +191,7 @@
             (appearanceFlag shownCharacters actorName)
             cc)))
 
-(hollywooMethod removeCharacter [actorName :Continuation cc]
+(hollywooMethod removeCharacter false [actorName :Continuation cc]
     (let [c (dictGet .characters (_currentScene) actorName)]
         (.remove .characters (_currentScene) actorName)
         (director.hideCharacter c cc)))
@@ -197,37 +199,37 @@
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
 
-(hollywooMethod newProp [name :Prop prop]
+(hollywooMethod newProp true [name :Prop prop]
     (assert isLoading)
     (dictSet props name prop))
 
-(hollywooMethod addPropToScreen [name :ScreenPosition position :Continuation cc]
+(hollywooMethod addPropToScreen false [name :ScreenPosition position :Continuation cc]
     (dictSet .propsOnScreen (_currentScene) name (dictGet props name))
     (director.showPropOnScreen (dictGet props name) position cc))
 
-(hollywooMethod removeProp [name :Continuation cc]
+(hollywooMethod removeProp false [name :Continuation cc]
     (director.hideProp (dictGet props name) cc))
 
 // Dialogue:
 
-(hollywooMethod intercut [:Map<String,String> actorNamesToSceneNames :Continuation cc]
+(hollywooMethod intercut false [:Map<String,String> actorNamesToSceneNames :Continuation cc]
     (set intercutMap actorNamesToSceneNames)
     (cc))
 
-(hollywooMethod endIntercut [:Continuation cc]
+(hollywooMethod endIntercut false [:Continuation cc]
     (set intercutMap null)
     (cc))
 
-(hollywooMethod superText [text :Continuation cc]
+(hollywooMethod superText true [text :Continuation cc]
     (showDialog "" Super "" text cc))
 
-(hollywooMethod normalSpeech [actorName wryly text :Continuation cc]
+(hollywooMethod normalSpeech true [actorName wryly text :Continuation cc]
     (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
-(hollywooMethod voiceOver [actorName wryly text :Continuation cc]
+(hollywooMethod voiceOver true [actorName wryly text :Continuation cc]
     (showDialog actorName (VoiceOver (dictGet actors actorName)) wryly text cc))
 
-(hollywooMethod onPhoneSpeech [actorName wryly text :Continuation cc]
+(hollywooMethod onPhoneSpeech true [actorName wryly text :Continuation cc]
     (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
