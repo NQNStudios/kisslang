@@ -42,6 +42,42 @@ class AsyncEmbeddedScript {
 
     public function new() {}
 
+    private function resetInstructions() {}
+
+    public function instructionCount() { 
+        if (instructions == null)
+            resetInstructions();
+        return instructions.length;
+    }
+
+    public function runInstruction(instructionPointer:Int, withBreakPoints = true) {
+        lastInstructionPointer = instructionPointer;
+        if (instructions == null)
+            resetInstructions();
+        if (withBreakPoints && breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
+            if (onBreak != null) {
+                onBreak(this, () -> runInstruction(instructionPointer, false));
+            }
+        }
+        var continuation = if (instructionPointer < instructions.length - 1) {
+            () -> {
+                // runInstruction may be called externally to skip through the script.
+                // When this happens, make sure other scheduled continuations are canceled
+                // by verifying that lastInstructionPointer hasn't changed
+                if (lastInstructionPointer == instructionPointer) {
+                    runInstruction(instructionPointer + 1);
+                }
+            };
+        } else {
+            () -> {};
+        }
+        instructions[instructionPointer](this, continuation);
+    }
+
+    public function run(withBreakPoints = true) {
+        runInstruction(0, withBreakPoints);
+    }
+
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
         // trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
@@ -73,7 +109,7 @@ class AsyncEmbeddedScript {
                 #if debug
                 expr = macro { trace($v{exprString}); $expr; };
                 #end
-
+                
                 if (expr != null) {
                     mappedIndexList.push(macro instructionPointersByLine[$v{nextExp.pos.line}] = $v{commandList.length});
 
@@ -97,7 +133,7 @@ class AsyncEmbeddedScript {
                 file: scriptFile
             }),
             name: "resetInstructions",
-            access: [APrivate],
+            access: [APrivate, AOverride],
             kind: FFun({
                 ret: null,
                 args: [],
@@ -108,86 +144,7 @@ class AsyncEmbeddedScript {
             })
         });
 
-        classFields.push({
-            pos: PositionTools.make({
-                min: 0,
-                max: File.getContent(scriptFile).length,
-                file: scriptFile
-            }),
-            name: "instructionCount",
-            access: [APublic],
-            kind: FFun({
-                ret: null,
-                args: [],
-                expr: macro {
-                    if (instructions == null)
-                        resetInstructions();
-                    return instructions.length;
-                }
-            })
-        });
-
-        classFields.push({
-            pos: PositionTools.make({
-                min: 0,
-                max: File.getContent(scriptFile).length,
-                file: scriptFile
-            }),
-            name: "runInstruction",
-            access: [APublic],
-            kind: FFun({
-                ret: null,
-                args: [
-                    {name: "instructionPointer"},
-                    {
-                        name: "withBreakPoints",
-                        value: macro true
-                    }
-                ],
-                expr: macro {
-                    lastInstructionPointer = instructionPointer;
-                    if (instructions == null)
-                        resetInstructions();
-                    if (withBreakPoints && breakPoints.exists(instructionPointer) && breakPoints[instructionPointer]()) {
-                        if (onBreak != null) {
-                            onBreak(this, () -> runInstruction(instructionPointer, false));
-                        }
-                    }
-                    var continuation = if (instructionPointer < instructions.length - 1) {
-                        () -> {
-                            // runInstruction may be called externally to skip through the script.
-                            // When this happens, make sure other scheduled continuations are canceled
-                            // by verifying that lastInstructionPointer hasn't changed
-                            if (lastInstructionPointer == instructionPointer) {
-                                runInstruction(instructionPointer + 1);
-                            }
-                        };
-                    } else {
-                        () -> {};
-                    }
-                    instructions[instructionPointer](this, continuation);
-                }
-            })
-        });
-
-        classFields.push({
-            pos: PositionTools.make({
-                min: 0,
-                max: File.getContent(scriptFile).length,
-                file: scriptFile
-            }),
-            name: "run",
-            access: [APublic],
-            kind: FFun({
-                ret: null,
-                args: [],
-                expr: macro {
-                    runInstruction(0);
-                }
-            })
-        });
-
-       return classFields;
+        return classFields;
     }
     #end
 }
