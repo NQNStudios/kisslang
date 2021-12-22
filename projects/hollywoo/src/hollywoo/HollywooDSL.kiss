@@ -14,7 +14,6 @@
     (_labelLines.push (- .line (stream.position) 1))
     `(cc))
 
-// TODO could make an &eof style of reader macro, and have (end) read automatically at the end of any Hollywoo file.
 (defMacro end []
     (let [labelSetters
                 (for [label idx] (zipThrow _labelNames _labelLines)
@@ -35,4 +34,6 @@
                 (collectedBlocks cleanup))
             (doCleanup)
         }))
-// TODO also &bof could call (doPreload)
+
+(defReaderMacro &bof "" [stream] `(#when (StringTools.contains kissFile className) (doPreload cc)))
+(defReaderMacro &eof "" [stream] `(#when (StringTools.contains kissFile className) (end)))
