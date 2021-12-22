@@ -287,8 +287,30 @@ class Reader {
         They can't be read all at once because some expressions change the Readtable state
     **/
     public static function readAndProcess(stream:Stream, k:KissState, process:(ReaderExp) -> Void) {
+        for (key => func in k.startOfFileReadTable) {
+            if (stream.startsWith(key)) {
+                var pos = stream.position();
+                stream.dropString(key);
+                var v = func(stream, k);
+                if (v != null)
+                    process(v.withPos(pos));
+                break;
+            }
+        }
+
         while (true) {
             stream.dropWhitespace();
+            for (key => func in k.endOfFileReadTable) {
+                if (stream.content == key) {
+                    var pos = stream.position();
+                    stream.dropString(key);
+                    var v = func(stream, k);
+                    if (v != null)
+                        process(v.withPos(pos));
+                    break;
+                }
+            }
+
             if (stream.isEmpty())
                 break;
             var position = stream.position();

@@ -527,6 +527,12 @@ class Macros {
                 case MetaExp("start", stringsExp):
                     table = k.startOfLineReadTable;
                     stringsThatMatch(stringsExp, "defReaderMacro");
+                case MetaExp("bof", stringsExp):
+                    table = k.startOfFileReadTable;
+                    stringsThatMatch(stringsExp, "defReaderMacro");
+                case MetaExp("eof", stringsExp):
+                    table = k.endOfFileReadTable;
+                    stringsThatMatch(stringsExp, "defReaderMacro");
                 default:
                     stringsThatMatch(exps[0], "defReaderMacro");
             };
@@ -590,6 +596,12 @@ class Macros {
             var strings = switch (exps[0].def) {
                 case MetaExp("start", stringsExp):
                     table = k.startOfLineReadTable;
+                    stringsThatMatch(stringsExp, "undefReaderMacro");
+                case MetaExp("bof", stringsExp):
+                    table = k.startOfFileReadTable;
+                    stringsThatMatch(stringsExp, "undefReaderMacro");
+                case MetaExp("eof", stringsExp):
+                    table = k.endOfFileReadTable;
                     stringsThatMatch(stringsExp, "undefReaderMacro");
                 default:
                     stringsThatMatch(exps[0], "undefReaderMacro");
