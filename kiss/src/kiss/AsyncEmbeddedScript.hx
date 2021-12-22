@@ -6,7 +6,9 @@ import haxe.macro.Context;
 import haxe.macro.PositionTools;
 import sys.io.File;
 import haxe.io.Path;
+using kiss.Helpers;
 #end
+
 import kiss.Kiss;
 import kiss.Prelude;
 import kiss.cloner.Cloner;
@@ -20,10 +22,10 @@ typedef AsyncCommand = (AsyncEmbeddedScript, Continuation) -> Void;
 **/
 class AsyncEmbeddedScript {
     private var instructions:Array<AsyncCommand> = null;
-    public var instructionPointersByLine:Map<Int,Int> = [];
     private var breakPoints:Map<Int, () -> Bool> = [];
     private var onBreak:AsyncCommand = null;
-    public var lastInstructionPointer = 0;
+    private var lastInstructionPointer = -1;
+    private var labels:Map<String,Int> = [];
 
     public function setBreakHandler(handler:AsyncCommand) {
         onBreak = handler;
@@ -50,7 +52,7 @@ class AsyncEmbeddedScript {
         return instructions.length;
     }
 
-    public function runInstruction(instructionPointer:Int, withBreakPoints = true) {
+    private function runInstruction(instructionPointer:Int, withBreakPoints = true) {
         lastInstructionPointer = instructionPointer;
         if (instructions == null)
             resetInstructions();
@@ -78,6 +80,26 @@ class AsyncEmbeddedScript {
         runInstruction(0, withBreakPoints);
     }
 
+    private function skipToInstruction(ip:Int) {
+        for (cIdx in lastInstructionPointer+1... ip) {
+            // TODO add an optional cc argument to runInstruction
+            // TODO use that chain together the unskippable instructions prior to running the requested ip
+        }
+        // TODO remember whether breakpoints were requested
+        runInstruction(ip);
+    }
+
+    public function skipToNextLabel() {
+        var labelPointers = [for (ip in labels) ip];
+        labelPointers.sort(Reflect.compare);
+        for (ip in labelPointers) {
+            if (ip > lastInstructionPointer) {
+                skipToInstruction(ip);
+                break;
+            }
+        }
+    }
+
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
         // trace('AsyncEmbeddedScript.build $dslHaxelib $dslFile $scriptFile');
@@ -89,7 +111,15 @@ class AsyncEmbeddedScript {
         var classFields = []; // Kiss.build() will already include Context.getBuildFields()
 
         var commandList:Array<Expr> = [];
-        var mappedIndexList:Array<Expr> = [];
+        var labelsList:Array<Expr> = [];
+
+        k.macros["label"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(1, 1, '(label <label>)');
+            var label = Prelude.symbolNameValue(args[0]);
+            labelsList.push(macro labels[$v{label}] = $v{commandList.length});
+            
+            wholeExp.expBuilder().callSymbol("cc", []);
+        };
 
         if (dslHaxelib.length > 0) {
             dslFile = Path.join([Prelude.libPath(dslHaxelib), dslFile]);
@@ -109,10 +139,7 @@ class AsyncEmbeddedScript {
                 #if debug
                 expr = macro { trace($v{exprString}); $expr; };
                 #end
-                
                 if (expr != null) {
-                    mappedIndexList.push(macro instructionPointersByLine[$v{nextExp.pos.line}] = $v{commandList.length});
-
                     commandList.push(macro function(self, cc) {
                         $expr;
                     });
@@ -139,7 +166,7 @@ class AsyncEmbeddedScript {
                 args: [],
                 expr: macro {
                     this.instructions = [$a{commandList}];
-                    $b{mappedIndexList};
+                    $b{labelsList};
                 }
             })
         });

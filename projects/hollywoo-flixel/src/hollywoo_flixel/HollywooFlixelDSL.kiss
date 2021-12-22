@@ -33,9 +33,4 @@
 (method :Void update [:Float elapsed]
     (#when debug
         (when FlxG.keys.justPressed.N
-            (doFor [idx label] (enumerate labels)
-                (when (> label lastInstructionPointer)
-                    (doFor =>labelName labelIdx labelsByName
-                        (when (= labelIdx label) (trace "SKIPPING TO $labelName")))
-                    (runInstruction (dictGet instructionPointersByLine label))
-                    (break))))))
+            (skipToNextLabel))))
