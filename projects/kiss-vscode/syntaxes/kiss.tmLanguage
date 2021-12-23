@@ -116,7 +116,7 @@
 		<dict>
 			<key>match</key>
 			<!-- TODO cut this down and add some missing ones -->
-			<string>(?<=\()(?i:\*|\*\*|\*\*\*|\+|\+\+|\+\+\+|\-|/|//|///|/=|<|<=|=|>|>=|and|apply|assert|begin|break|case|catch|concat|cond|continue|count|defMacro|defReaderMacro|defun|defmethod|method|function|defvar|var|defprop|prop|for|doFor|eighth|eval|fifth|first|fourth|localFunction|localVar|symbol|if|load|withFunction|withFunctions|lambda|last|let|loop|map|max|min|ninth|not|nth|setNth|getDict|setDict|or|otherwise|print|rest|return|reversed|second|set|sixth|Some|sort|symbolName|symbolNameValue|tenth|the|third|throw|trace|when|unless|ifLet|whenLet|unlessLet|forCase|doForCase|with[A-Z]\S+)(?=\s+)</string>
+			<string>(?<=\()(?i:\*|\*\*|\*\*\*|\+|\+\+|\+\+\+|\-|/|//|///|/=|<|<=|=|>|>=|and|apply|assert|begin|break|case|catch|concat|cond|continue|count|defMacro|defReaderMacro|defun|defmethod|method|function|defvar|var|defprop|prop|for|doFor|eighth|eval|fifth|first|fourth|localFunction|localVar|symbol|if|load|withFunction|withFunctions|lambda|last|let|loop|map|max|min|ninth|not|nth|setNth|getDict|setDict|or|otherwise|print|rest|return|reverse|second|set|sixth|Some|sort|symbolName|symbolNameValue|tenth|the|third|throw|trace|when|unless|ifLet|whenLet|unlessLet|forCase|doForCase|with[A-Z]\S+)(?=\s+)</string>
 			<key>name</key>
 			<string>keyword.control.kiss</string>
 		</dict>

@@ -71,10 +71,10 @@ class Kiss {
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
                 "groups" => Symbol("Prelude.groups"),
-                "pairs" => Symbol("Prelude.pairs"), // TODO test pairs
-                "reversed" => Symbol("Prelude.reversed"), // TODO test reversed
-                "memoize" => Symbol("Prelude.memoize"), // TODO test memoize
-                "fsMemoize" => Symbol("Prelude.fsMemoize"), // TODO test fsMemoize
+                "pairs" => Symbol("Prelude.pairs"),
+                "reverse" => Symbol("Prelude.reverse"),
+                "memoize" => Symbol("Prelude.memoize"),
+                "fsMemoize" => Symbol("Prelude.fsMemoize"),
                 "symbolName" => Symbol("Prelude.symbolName"),
                 "symbolNameValue" => Symbol("Prelude.symbolNameValue"),
                 "symbol" => Symbol("Prelude.symbol"),

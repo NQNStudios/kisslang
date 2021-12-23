@@ -24,7 +24,7 @@
     (let [&mut :Float score 0]
         (case line
             ((Incomplete expected)
-                (doFor char (reversed expected)
+                (doFor char (reverse expected)
                     (*= score 5)
                     (+= score (case char
                                     (")" 1)

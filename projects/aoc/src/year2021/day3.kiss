@@ -1,7 +1,7 @@
 // Silly but fun implementation of a binary->decimal conversion
 (function :Int binaryStringToDecimal [:String binary &opt :Bool invert]
     (apply +
-        (for [idx digit] (enumerate (reversed (binary.split "")))
+        (for [idx digit] (enumerate (reverse (binary.split "")))
             (* 
                 (let [digit (Std.parseInt digit)] (if invert (- 1 digit) digit))
                 (^ 2 idx)))))

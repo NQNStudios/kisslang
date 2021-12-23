@@ -260,7 +260,7 @@ class Prelude {
         return zipThrow(l1, l2);
     }
 
-    public static function reversed<T>(l:kiss.List<T>):kiss.List<T> {
+    public static function reverse<T>(l:kiss.List<T>):kiss.List<T> {
         var c = l.copy();
         c.reverse();
         return c;
