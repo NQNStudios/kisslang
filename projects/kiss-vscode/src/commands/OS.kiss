@@ -31,4 +31,4 @@
                     ((sys.FileSystem.isDirectory dirOrFile)
                         (osOpenFileInDir dirOrFile))
                     (true
-                        (osOpenFile ~dirOrFile)))))))
+                        (osOpenFile dirOrFile)))))))
