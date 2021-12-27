@@ -81,6 +81,16 @@
         (awaitLet [,v (quickPickMap ,options)]
             ,@body)))
 
+(function :Void chooseFileInDir [:String->Void openFile :Bool allowNew &opt :String dir]
+    (withValueOrInputBox dir
+        (awaitLet [dirOrFile (quickPick (sys.FileSystem.readDirectory dir))]
+            (let [dirOrFile (joinPath dir dirOrFile)]
+                (cond
+                    ((sys.FileSystem.isDirectory dirOrFile)
+                        (chooseFileInDir openFile allowNew dirOrFile))
+                    (true
+                        (openFile dirOrFile)))))))
+
 // This has to be a macro so it can return from tryLoadConfig
 (defMacro trySpawnSync [command args options onError]
     `(let [command ,command

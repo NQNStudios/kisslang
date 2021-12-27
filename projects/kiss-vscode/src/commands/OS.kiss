@@ -24,11 +24,4 @@
 (registerCommand "desired name with [a]ny [b]indings" ->[&opt _] (osOpenFileInDir "path/to/dir"))
 */
 (function :Void osOpenFileInDir [&opt :String dir]
-    (withValueOrInputBox dir
-        (awaitLet [dirOrFile (quickPick (sys.FileSystem.readDirectory dir))]
-            (let [dirOrFile (joinPath dir dirOrFile)]
-                (cond
-                    ((sys.FileSystem.isDirectory dirOrFile)
-                        (osOpenFileInDir dirOrFile))
-                    (true
-                        (osOpenFile dirOrFile)))))))
+    (chooseFileInDir osOpenFile false dir))
