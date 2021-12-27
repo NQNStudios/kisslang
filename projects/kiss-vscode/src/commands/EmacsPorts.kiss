@@ -1,0 +1,19 @@
+// Commands that kind of emulate EMACS commands
+
+// Before you use commands in this file:
+/* (loadFrom "kiss-vscode" "src/commands/EmacsPorts.kiss") */
+
+// Open any file in VSCode, creating it if necessary
+(function :Void _forceOpenFile [:String file]
+    (let [&mut uri (Uri.file file)]
+        (unless (FileSystem.exists file)
+            (set uri (uri.with (object scheme "untitled"))))
+        (awaitLet [doc (openTextDocument uri)]
+            (showTextDocument doc))))
+
+/*
+(registerCommand "[xf] emacs find-file" ->[&opt _] (findFile "path/to/dir"))
+*/
+// TODO use current file's containing folder as a default
+(function :Void findFile [&opt :String dir]
+    (chooseFileInDir _forceOpenFile true dir))
