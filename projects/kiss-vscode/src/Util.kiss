@@ -23,6 +23,22 @@
     (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
         (when chosenItem chosenItem.label)))
 
+// thanks https://stackoverflow.com/a/69842249
+(function autoSuggestPick [:Array<String> strings]
+    (new js.lib.Promise
+        ->[resolve reject] (let [qp (Vscode.window.createQuickPick)
+                    :Array<Dynamic> items (for string strings (quickPickItem string))]
+            (set qp.items items)
+            (qp.onDidChangeValue
+                ->v (unlessLet [(Some _) (indexOf strings v)]
+                        (set qp.items (concat [(quickPickItem v)] items))))
+            (qp.onDidAccept
+                ->_ {
+                    (resolve .label (first qp.activeItems))
+                    (qp.hide)
+                })
+            (qp.show))))
+
 (function :js.lib.Promise.Thenable<Dynamic> quickPickMap [:Map<String,Dynamic> stringMap]
     (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
         (when chosenItem (dictGet stringMap chosenItem.label))))
@@ -81,9 +97,10 @@
         (awaitLet [,v (quickPickMap ,options)]
             ,@body)))
 
+// TODO allow navigating back up to a parent directory
 (function :Void chooseFileInDir [:String->Void openFile :Bool allowNew &opt :String dir]
     (withValueOrInputBox dir
-        (awaitLet [dirOrFile (quickPick (sys.FileSystem.readDirectory dir))]
+        (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (sys.FileSystem.readDirectory dir))]
             (let [dirOrFile (joinPath dir dirOrFile)]
                 (cond
                     ((sys.FileSystem.isDirectory dirOrFile)
