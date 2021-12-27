@@ -97,11 +97,16 @@
         (awaitLet [,v (quickPickMap ,options)]
             ,@body)))
 
-// TODO allow navigating back up to a parent directory
 (function :Void chooseFileInDir [:String->Void openFile :Bool allowNew &opt :String dir]
     (withValueOrInputBox dir
-        (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (sys.FileSystem.readDirectory dir))]
-            (let [dirOrFile (joinPath dir dirOrFile)]
+        (set dir (dir.replace "\\" "/"))
+        (when (dir.endsWith "/") (set dir (substr dir 0 -1)))
+        (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (concat [".."] (sys.FileSystem.readDirectory dir)))]
+            (let [dirOrFile
+                        (case dirOrFile
+                            (".."
+                                (substr dir 0 (dir.lastIndexOf "/")))
+                            (otherwise (joinPath dir dirOrFile)))]
                 (cond
                     ((sys.FileSystem.isDirectory dirOrFile)
                         (chooseFileInDir openFile allowNew dirOrFile))
