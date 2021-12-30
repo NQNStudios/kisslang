@@ -239,6 +239,9 @@
 (hollywooMethod normalSpeech true [actorName wryly text :Continuation cc]
     (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
 
+(hollywooMethod offScreenSpeech true [actorName wryly text :Continuation cc]
+    (showDialog actorName (OffScreen (dictGet actors actorName)) wryly text cc))
+
 (hollywooMethod voiceOver true [actorName wryly text :Continuation cc]
     (showDialog actorName (VoiceOver (dictGet actors actorName)) wryly text cc))
 

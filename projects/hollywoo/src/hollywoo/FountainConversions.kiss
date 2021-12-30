@@ -25,6 +25,7 @@
 
 (specialSpeech "On Phone Speech" "O.P." "ONPHONESPEECH")
 (specialSpeech "VoiceOver Speech" "V.O." "VOICEOVER")
+(specialSpeech "Off-Screen Speech" "O.S." "OFFSCREENSPEECH")
 
 (registerConversion
     (new ktxt2.StreamConversion "Normal Speech" "fountain" "hollywoo"
