@@ -64,6 +64,27 @@
 (method :Void stopWaitForInput []
     (set nextCC null))
 
+(var TITLE_Y 240)
+(var TITLE_SIZE 72)
+(var TITLE_MARGIN 100)
+(var SUBTITLES_MARGIN 30)
+(var SUBTITLES_SIZE 48)
+(prop &mut :FlxSprite titleCard null)
+(method :Void showTitleCard [:Array<String> text :Continuation cc]
+    (set titleCard (new FlxSprite))
+    (titleCard.makeGraphic 1280 720 FlxColor.BLACK)
+    (SpriteTools.writeOnSprite (text.shift) TITLE_SIZE titleCard (object x (Percent 0.5) y (Pixels TITLE_Y)))
+    (localVar &mut subtitleY (+ TITLE_Y TITLE_SIZE TITLE_MARGIN))
+    (doFor subtitle text
+        (SpriteTools.writeOnSprite subtitle SUBTITLES_SIZE titleCard (object x (Percent 0.5) y (Pixels subtitleY)))
+        (+= subtitleY SUBTITLES_SIZE SUBTITLES_MARGIN))
+    (currentState.add titleCard)
+    // Allow skipping
+    (startWaitForInput cc))
+
+(method :Void hideTitleCard []
+    (currentState.remove titleCard))
+
 (var DIALOG_X 300)
 (var DIALOG_WIDTH (- 1280 ACTOR_WIDTH ACTOR_WIDTH))
 (var DIALOG_Y 500)

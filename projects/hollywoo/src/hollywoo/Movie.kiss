@@ -233,6 +233,17 @@
     (set intercutMap null)
     (cc))
 
+(hollywooMethod timedTitleCard true [time :Array<String> lines :Continuation cc]
+    // TODO allow skipping it
+    (let [cc ->{(director.hideTitleCard)(cc)}]
+        (director.showTitleCard lines cc)
+        (delay time cc)))
+
+// TODO themed titleCard
+
+// TODO timed superText
+// TODO themed superText
+
 (hollywooMethod superText true [text :Continuation cc]
     (showDialog "" Super "" text cc))
 
