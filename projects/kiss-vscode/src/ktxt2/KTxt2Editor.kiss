@@ -392,7 +392,7 @@
     (clamp elementScrollY 0 (- ktxt2Elements.length PAGE_SIZE))
     (changeState s
         (set s.elementScrollY elementScrollY))
-    (updateContent "scrolling through elements"))
+    (updateContent "scrolling to element $.elementScrollY (getState) of $ktxt2Elements.length"))
 
 (function :Void updateContent [:String reason &opt text]
     // (print "updating content because $reason")
@@ -416,8 +416,12 @@
                         explanation (document.createElement "p")]
                     (set help.innerHTML "press h for keyboard shortcut help")
                     (set explanation.innerHTML "Force output blocks to end with:")
-                    (monacoEditor terminatorEditor "" (KTxt2.insertSpecialChars (KTxt2.outputBlockTerminator (Stream.fromString text))) "txt" false
-                        ->editor (changeOutputTerminator (KTxt2.insertSpecialChars (editor.getValue))))
+                    (let [outputTerminator
+                                (if text
+                                        (KTxt2.insertSpecialChars (KTxt2.outputBlockTerminator (Stream.fromString text)))
+                                    .outputTerminator (getState))]
+                        (monacoEditor terminatorEditor "" outputTerminator "txt" false
+                            ->editor (changeOutputTerminator (KTxt2.insertSpecialChars (editor.getValue)))))
                     (content.appendChild help)
                     (content.appendChild explanation)
                     (content.appendChild terminatorEditor))
