@@ -64,6 +64,10 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         return bestMatch(fuzzySearchKey, false) != null;
     }
 
+    public inline function existsExactly(searchKey:String):Bool {
+        return this.exists(searchKey);
+    }
+
     @:arrayAccess
     public inline function set(key:String, v:T):T {
         this.set(key, v);
