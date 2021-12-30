@@ -9,6 +9,9 @@
     (prop :FuzzyMap<Prop> props (new FuzzyMap<Prop>))
     (prop :Map<String,VoiceTrack> voiceTracks (new Map))
     (prop :FuzzyMap<VoiceLine> voiceLines (new FuzzyMap<VoiceLine>))
+    // Used to give unique, persistent IDs to voice tracks
+    (prop :Map<String,Int> voiceTracksPerActor (new Map))
+    (prop :Map<String,VoiceLine> matchedVoiceLines (new Map))
 
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
@@ -48,8 +51,10 @@
                         (otherwise)))))
 
     (method newVoiceTrack [actorName :VoiceTrack track :String lineJson]
-        (let [trackKey (Uuid.v4)
+        (let [actorNumVoiceTracks (or (dictGet voiceTracksPerActor actorName) 0)
+                trackKey "${actorName}${actorNumVoiceTracks}"
                 :haxe.DynamicAccess<Dynamic> lines (Json.parse lineJson)]
+            (dictSet voiceTracksPerActor actorName (+ 1 actorNumVoiceTracks))
             (dictSet voiceTracks trackKey track)
             (doFor =>key line (lines.keyValueIterator)
                 (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey)))))
