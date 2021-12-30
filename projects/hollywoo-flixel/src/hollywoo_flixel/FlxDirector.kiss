@@ -72,7 +72,7 @@
 (prop &mut :FlxSprite titleCard null)
 (method :Void showTitleCard [:Array<String> text :Continuation cc]
     (set titleCard (new FlxSprite))
-    (titleCard.makeGraphic 1280 720 FlxColor.BLACK)
+    (titleCard.makeGraphic 1280 720 FlxColor.BLACK true)
     (SpriteTools.writeOnSprite (text.shift) TITLE_SIZE titleCard (object x (Percent 0.5) y (Pixels TITLE_Y)))
     (localVar &mut subtitleY (+ TITLE_Y TITLE_SIZE TITLE_MARGIN))
     (doFor subtitle text
