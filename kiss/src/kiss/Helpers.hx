@@ -214,10 +214,16 @@ class Helpers {
         function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
             return switch (patternExp.def) {
                 case CallExp({pos: _, def: Symbol("when")}, whenExps):
-                    patternExp.checkNumArgs(2, 2, "(when [guard] [pattern])");
+                    patternExp.checkNumArgs(2, 2, "(when <guard> <pattern>)");
                     if (guard != null)
-                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` guard");
+                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
                     guard = macro Prelude.truthy(${k.convert(whenExps[0])});
+                    makeSwitchPattern(whenExps[1]);
+                case CallExp({pos: _, def: Symbol("unless")}, whenExps):
+                    patternExp.checkNumArgs(2, 2, "(unless <guard> <pattern>)");
+                    if (guard != null)
+                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
+                    guard = macro !Prelude.truthy(${k.convert(whenExps[0])});
                     makeSwitchPattern(whenExps[1]);
                 case ListEatingExp(exps) if (exps.length == 0):
                     throw CompileError.fromExp(patternExp, "list-eating pattern should not be empty");

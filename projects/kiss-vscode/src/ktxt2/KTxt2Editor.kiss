@@ -461,8 +461,7 @@
 (function nextBlankOutput []
     (doFor idx (range (+ 1 elementScrollY) ktxt2Elements.length)
         (case (nth ktxt2Elements idx)
-            // TODO add unless guards to case
-            ((when !(output.trim) (Block (objectWith output)))
+            ((unless (output.trim) (Block (objectWith output)))
                 (changeElementScrollY ->(set elementScrollY idx))
                 (scrollToPageTop)
                 (break))
