@@ -130,7 +130,7 @@
     (let [originalVolume track.volume
             restoreOriginalVolume ->(set track.volume originalVolume)]
         (*= track.volume volumeMod)
-        (set track.onComplete ->{(restoreOriginalVolume) (cc)}))
+        (set track.onComplete ->{(restoreOriginalVolume) (movie.delay 0.1 cc)}))
     (track.play true (* 1000 start) (* 1000 end)))
 
 (prop &mut :FlxSound music)
