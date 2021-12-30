@@ -43,7 +43,9 @@
         
         (let [cc ->:Void {(director.hideDialog) (cc)}]
             (director.showDialog actorName dialogType wryly text cc)
-            (when (< 0 (count voiceTracks))
+            // When an actorName is given, check for a voiced line to play.
+            // Otherwise, assume it is un-voiced super text
+            (when (and actorName (< 0 (count voiceTracks)))
                     (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
                         ((objectWith trackKey start end)
                             (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
