@@ -159,9 +159,20 @@
                     (otherwise (throw "not implemented")))]
         (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
             (prop.setGraphicSize width)
+
             (prop.updateHitbox)
+            // if the prop is too tall, shrink it heightwise
+            (when (> prop.height DIALOG_Y)
+                (prop.setGraphicSize 0 DIALOG_Y)
+                (prop.updateHitbox))
+
             (set prop.x (- x (/ prop.width 2)))
             (set prop.y (- y (/ prop.height 2)))
+            // if the prop would block the dialogue box, bump it up
+            (let [propBottom (+ prop.y prop.height)]
+                (when (> propBottom DIALOG_Y)
+                    (-= prop.y (- propBottom DIALOG_Y))))
+
             (currentState.add prop)))
         // TODO give the prop reveal some time to land
     (cc))
