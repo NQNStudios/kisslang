@@ -126,12 +126,19 @@
     (sound.play)
     (unless waitForEnd (cc)))
 
+(var DELAY_BETWEEN_VOICE_TRACKS 0.1)
+(prop :Map<FlxSound,Function> restoreOriginalVolumes (new Map))
 (method :Void playVoiceTrack [:FlxSound track :Float volumeMod :Float start :Float end :Continuation cc]
     (let [originalVolume track.volume
             restoreOriginalVolume ->(set track.volume originalVolume)]
+        (dictSet restoreOriginalVolumes track restoreOriginalVolume)
         (*= track.volume volumeMod)
-        (set track.onComplete ->{(restoreOriginalVolume) (movie.delay 0.1 cc)}))
+        (set track.onComplete ->{(restoreOriginalVolume) (movie.delay DELAY_BETWEEN_VOICE_TRACKS cc)}))
     (track.play true (* 1000 start) (* 1000 end)))
+
+(method :Void stopVoiceTrack [:FlxSound track]
+    (track.stop)
+    ((dictGet restoreOriginalVolumes track)))
 
 (prop &mut :FlxSound music)
 (prop MUSIC_FADE_SEC 1)

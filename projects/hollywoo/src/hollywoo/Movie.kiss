@@ -41,15 +41,17 @@
             (whenLet [sceneForActor (dictGet intercutMap actorName)]
                 (setScene sceneForActor ->{})))
         
-        (let [cc ->:Void {(director.hideDialog) (cc)}]
-            (director.showDialog actorName dialogType wryly text cc)
+        (let [cc ->:Void {(director.hideDialog) (cc)}
+                &mut skipCC cc]
             // When an actorName is given, check for a voiced line to play.
             // Otherwise, assume it is un-voiced super text
             (when (and actorName (< 0 (count voiceTracks)))
                     (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
                         ((objectWith trackKey start end)
-                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
-                        (otherwise)))))
+                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc)
+                            (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
+                        (otherwise)))
+            (director.showDialog actorName dialogType wryly text skipCC)))
 
     (method newVoiceTrack [actorName :VoiceTrack track :String lineJson]
         (let [actorNumVoiceTracks (or (dictGet voiceTracksPerActor actorName) 0)

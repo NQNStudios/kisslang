@@ -17,6 +17,7 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound
     function playSound(sound:Sound, volumeMod:Float, waitForEnd:Bool, cc:Continuation):Void;
     function playSong(song:Song, volumeMod:Float, loop:Bool, waitForEnd:Bool, cc:Continuation):Void;
     function playVoiceTrack(track:VoiceTrack, volumeMod:Float, start:Float, end:Float, cc:Continuation):Void;
+    function stopVoiceTrack(track:VoiceTrack):Void;
     function stopSong():Void;
     function startWaitForInput(cc:Continuation):Void;
     function stopWaitForInput():Void;
