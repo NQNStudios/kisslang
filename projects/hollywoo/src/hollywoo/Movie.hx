@@ -10,6 +10,8 @@ import hollywoo.Director;
 import haxe.Json;
 import uuid.Uuid;
 
+using kiss.FuzzyMapTools;
+
 enum DelayHandling {
     Auto;
     AutoWithSkip;

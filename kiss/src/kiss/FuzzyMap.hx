@@ -51,7 +51,12 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
 
     @:arrayAccess
     public inline function get(fuzzySearchKey:String):Null<T> {
-        return this.get(bestMatch(fuzzySearchKey));
+        var match = bestMatch(fuzzySearchKey);
+        var value = this.get(match);
+        if (match != null) {
+            FuzzyMapTools.onMatchMade(this, fuzzySearchKey, value);
+        }
+        return value;
     }
 
     public inline function remove(fuzzySearchKey:String):Bool {

@@ -11,7 +11,6 @@
     (prop :FuzzyMap<VoiceLine> voiceLines (new FuzzyMap<VoiceLine>))
     // Used to give unique, persistent IDs to voice tracks
     (prop :Map<String,Int> voiceTracksPerActor (new Map))
-    (prop :Map<String,VoiceLine> matchedVoiceLines (new Map))
 
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
@@ -63,9 +62,13 @@
         [
             // "View" in the Model-View-Controller architecture:
             &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack> director
+            &opt :String voiceLinesJson
         ]
 
         (set director.movie this)
+        (voiceLines.serializeMatches "matchedVoiceLines.json")
+        (when voiceLinesJson
+            (voiceLines.loadMatches voiceLinesJson))
 
         (super)))
 
