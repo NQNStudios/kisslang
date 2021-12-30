@@ -83,7 +83,8 @@
     (let [args (expList argList)
             numArgs args.length
             methodName (symbolNameValue nameAndType true)
-            readerMacroStart "$(.toUpperCase methodName) "]
+            &mut readerMacroStart "$(.toUpperCase methodName) "]
+        (when (= 1 numArgs) (set readerMacroStart (StringTools.trim readerMacroStart)))
         `{
             (defReaderMacro ,readerMacroStart [stream &builder b]
                 (let [nextLineStream
@@ -93,7 +94,7 @@
                                 ,methodName
                                 ,(for arg args
                                     (exprCase arg
-                                        ((exprTyped Continuation cc)
+                                        ((exprOr cc (exprTyped Continuation cc))
                                             (b.callSymbol "b.symbol" [(b.str "cc")]))
                                         (_
                                             (b.callSymbol "try" [
