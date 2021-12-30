@@ -33,4 +33,16 @@
 (method :Void update [:Float elapsed]
     (#when debug
         (when FlxG.keys.justPressed.N
-            (skipToNextLabel))))
+            (skipToNextLabel))
+        (when FlxG.keys.justPressed.L
+            (showLabelSkipButtons))))
+
+(method :Void showLabelSkipButtons []
+    (let [runners (labelRunners)
+            buttons (new flixel.group.FlxGroup.FlxTypedGroup<flixel.ui.FlxButton>)]
+        (localVar &mut buttonY 0)
+        (doFor =>label runner runners
+            (let [b (new flixel.ui.FlxButton 0 buttonY label ->{(FlxG.state.remove buttons)(runner)})]
+                (buttons.add b))
+            (+= buttonY 20))
+        (FlxG.state.add buttons)))

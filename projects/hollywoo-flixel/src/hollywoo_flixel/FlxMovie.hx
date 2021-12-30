@@ -33,6 +33,8 @@ enum FlxScreenPosition {
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
 class FlxMovie extends Movie<String, FlxStagePosition, FlxStageFacing, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound> {
+    // Think of HollywooFlixelDSL.kiss as the corresponding Kiss file for this class!
+
     public function new(director:FlxDirector, ?voiceLinesAssetPath:String) {
         var voiceLinesJson = null;
         if (voiceLinesAssetPath != null) {

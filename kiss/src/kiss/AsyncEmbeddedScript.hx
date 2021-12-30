@@ -120,7 +120,17 @@ class AsyncEmbeddedScript {
         }
     }
 
-    // TODO skip to label by name
+    public function skipToLabel(name:String) {
+        var ip = labels[name];
+        if (lastInstructionPointer > ip) {
+            throw "Rewinding AsyncEmbeddedScript is not implemented";
+        }
+        skipToInstruction(ip);
+    }
+
+    public function labelRunners():Map<String,Void->Void> {
+        return [for (label => ip in labels) label => () -> skipToInstruction(ip)];
+    }
 
     #if macro
     public static function build(dslHaxelib:String, dslFile:String, scriptFile:String):Array<Field> {
