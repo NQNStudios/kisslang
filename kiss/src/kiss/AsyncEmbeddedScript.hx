@@ -177,7 +177,7 @@ class AsyncEmbeddedScript {
                 var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
                 #if debug
-                expr = macro { trace($v{exprString}); $expr; };
+                expr = macro { Prelude.print($v{exprString}); $expr; };
                 #end
                 if (expr != null) {
                     commandList.push(macro function(self, cc) {
