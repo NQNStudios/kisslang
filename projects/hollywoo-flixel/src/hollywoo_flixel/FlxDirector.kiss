@@ -32,7 +32,7 @@
 
 (method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
     // TODO on the first appearance, show name and description (maybe? also probably not for all?)
-    // TODO  also allow for manually defined flipped frames so text doesn't mirror
+    // TODO  also allow for manually defined flipped frames so text on clothing doesn't mirror
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     (character.actor.setGraphicSize ACTOR_WIDTH)
     (character.actor.updateHitbox)
@@ -45,6 +45,9 @@
                 (otherwise (throw "unsupported stage position")))
             (/ character.actor.width 2)))
     (set character.actor.y ACTOR_Y)
+    (let [bottom (+ character.actor.y character.actor.height)]
+        (when (> bottom 720)
+            (-= character.actor.y (- bottom 720))))
     (currentState.add character.actor)
     (cc))
 
