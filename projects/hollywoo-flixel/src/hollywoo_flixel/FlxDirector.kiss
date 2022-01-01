@@ -220,3 +220,58 @@
 (method :Void hideProp [prop cc]
     (currentState.remove prop)
     (cc))
+
+(prop :Array<FlxText> creditsText [])
+(method _ctext [:String text :Int size]
+    (let [t (new FlxText 0 0 0 text size)]
+        (creditsText.push t)
+        t))
+
+// TODO maybe credits need their own substate so an after-credits scene could be done.
+// currently the bg will cover whatever the final scene was.
+(method :Void rollCredits [:Array<CreditsLine> credits cc]
+    (localVar bg (new FlxSprite))
+    (bg.makeGraphic 1280 720 FlxColor.BLACK true)
+    (currentState.add bg)
+    (localVar &mut textY 720)
+    (var oneColSize 64)
+    (var twoColSize 48)
+    (var threeColSize 32)
+    (var creditMargin 10)
+    (var twoColumnGap 50)
+    (doFor line credits
+        (case line
+            (Break
+                (+= textY oneColSize))
+            // Centered, big one column lines
+            ((OneColumn col1)
+                (let [t (_ctext col1 oneColSize)]
+                    (t.screenCenter)
+                    (set t.y textY))
+                (+= textY oneColSize creditMargin))
+            // Centered left/right two column lines
+            ((TwoColumn col1 col2)
+                (let [t1 (_ctext col1 twoColSize)
+                        t2 (_ctext col2 twoColSize)]
+                    (set t1.x (- (/ 1280 2) t1.width (/ twoColumnGap 2)))
+                    (set t1.y textY)
+                    (set t2.x (+ (/ 1280 2) (/ twoColumnGap 2)))
+                    (set t2.y textY))
+                (+= textY twoColSize creditMargin))
+            // Left-justified, centered, right-justified three column lines
+            ((ThreeColumn col1 col2 col3)
+                (let [t1 (_ctext col1 threeColSize)
+                        t2 (_ctext col2 threeColSize)
+                        t3 (_ctext col3 threeColSize)]
+                    (set t1.x creditMargin)
+                    (set t1.y textY)
+                    (t2.screenCenter)
+                    (set t2.y textY)
+                    (set t3.x (- 1280 creditMargin t3.width))
+                    (set t3.y textY))
+                (+= textY threeColSize creditMargin))
+            (otherwise)))
+    
+    (doFor text creditsText
+        (currentState.add text)
+        (FlxTween.linearMotion text text.x text.y text.x (- text.y textY) 200 false (object onComplete ->:Void _ (cc)))))

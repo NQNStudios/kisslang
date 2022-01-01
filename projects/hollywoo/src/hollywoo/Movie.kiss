@@ -259,3 +259,20 @@
     (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
+
+// TODO themedRollCredits
+(hollywooMethod rollCredits true [:String creditsTSV :Continuation cc]
+    (director.rollCredits
+        (for line (.split .content (Stream.fromString creditsTSV) "\n")
+            (case (line.split "\t")
+                ((unless line [_])
+                    Break)
+                ([col1]
+                    (OneColumn col1))
+                ([col1 col2]
+                    (TwoColumn col1 col2))
+                ([col1 col2 col3]
+                    (ThreeColumn col1 col2 col3))
+                (otherwise
+                    (throw "unsupported credits line $line"))))
+        cc))

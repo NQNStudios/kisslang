@@ -4,6 +4,7 @@ import haxe.Constraints.Function;
 import haxe.Timer;
 import kiss.AsyncEmbeddedScript;
 import kiss.Prelude;
+import kiss.Stream;
 import kiss.FuzzyMap;
 import hollywoo.Scene;
 import hollywoo.Director;
@@ -23,6 +24,13 @@ typedef VoiceLine = {
     start:Float,
     end:Float
 };
+
+enum CreditsLine {
+    OneColumn(s:String);
+    TwoColumn(left:String, right:String);
+    ThreeColumn(left:String, center:String, right:String);
+    Break;
+}
 
 /**
  * Model/controller of a Hollywoo film, and main execution script
