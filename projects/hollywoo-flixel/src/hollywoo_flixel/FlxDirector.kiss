@@ -104,6 +104,15 @@
 (method showDialog [:String speakerName :SpeechType<FlxStagePosition,FlxStageFacing,ActorFlxSprite> type :String wryly :String text :Continuation cc]
     // TODO handle text messages, wrylies, off-screen, from-phone, etc. via (case type)
     // TODO attribute on-screen dialogue to the character's stageposition
+
+    // When the actor is in the scene, check for an animation matching the wryly
+    (doFor =>actorName character currentState.characters
+        (when (= actorName speakerName)
+            (let [actor (the ActorFlxSprite character.actor)]
+                (if wryly
+                        (actor.playAnimation wryly)
+                    (actor.playAnimation "neutral")))))
+
     // Make a dialog box
     (unless dialogBox
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))

@@ -1,6 +1,8 @@
 (prop :FlxStageFacing defaultFacing)
 
-(defNew [:String assetPath &opt frameWidth frameHeight :FlxStageFacing defaultFacing :Map<String,AnimationArgs> animations]
+(prop :FuzzyMap<String> animationNames (new FuzzyMap<String>))
+
+(defNew [&prop :String assetPath &opt frameWidth frameHeight :FlxStageFacing defaultFacing :Map<String,AnimationArgs> animations]
     (super)
 
     (set this.defaultFacing (or defaultFacing Right))
@@ -10,6 +12,7 @@
         (loadGraphic assetPath))
     (when animations
         (doFor =>name animationArgs animations
+            (dictSet animationNames name name)
             (animation.add
                 name
                 animationArgs.frames
@@ -17,3 +20,12 @@
                 (or animationArgs.looped true)
                 ?animationArgs.flipX
                 ?animationArgs.flipY))))
+
+(method :Void playAnimation [fuzzySearchKey]
+    (if (animationNames.exists fuzzySearchKey)
+            (animation.play (dictGet animationNames fuzzySearchKey) true)
+        (#when debug
+            (print "WARNING! No animation matches $fuzzySearchKey for actor with spritesheet $assetPath"))))
+
+(method :Void stopAnimation []
+    (animation.stop))
