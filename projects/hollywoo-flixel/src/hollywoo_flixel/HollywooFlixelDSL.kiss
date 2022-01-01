@@ -25,6 +25,11 @@
 (method newFlxVoiceTrack [name wavPath jsonPath]
     (newVoiceTrack name (FlxG.sound.load wavPath) (openfl.utils.Assets.getText jsonPath)))
 
+(method newFlxVoiceTracks [:Array<String> names :Array<String> wavJsonPaths]
+    (doFor name names
+        (doFor [wavPath jsonPath] (groups wavJsonPaths 2 Throw)
+            (newFlxVoiceTrack name wavPath jsonPath))))
+
 (method newFlxProp [name path]
     (let [propSprite (new FlxSprite 0 0)]
         (propSprite.loadGraphic path)
