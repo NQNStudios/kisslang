@@ -2,8 +2,8 @@
 (function :Array<Int> positionOn [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
     (unless pos.anchorX (set pos.anchorX (Percent 0.5)))
     (unless pos.anchorY (set pos.anchorY (Percent 0.5)))
-    (let [&mut x (coordIn pos.x (/ canvas.width canvas.scale.x))
-            &mut y (coordIn pos.y (/ canvas.height canvas.scale.y))]
+    (let [&mut x (coordIn pos.x (/ canvas.width canvas.scale.x) pos.offsetX)
+            &mut y (coordIn pos.y (/ canvas.height canvas.scale.y) pos.offsetY)]
         (-= x (coordIn pos.anchorX (/ stamp.width stamp.scale.x)))
         (-= y (coordIn pos.anchorY (/ stamp.height stamp.scale.y)))
         [x y]))
