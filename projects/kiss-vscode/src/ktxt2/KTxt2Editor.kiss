@@ -55,7 +55,8 @@
                 ((objectWith [type "find"] text)
                     (_find text))
                 (otherwise (throw "bad message $event for KTxt2Editor"))))
-    
+
+    (window.addEventListener "wheel" ->e (e.stopPropagation) true)    
     (window.addEventListener "scroll"
         ->(changeState s
             (set s.scrollY window.scrollY)))
