@@ -22,7 +22,8 @@ enum DelayHandling {
 typedef VoiceLine = {
     trackKey:String,
     start:Float,
-    end:Float
+    end:Float,
+    ?alts:Array<VoiceLine>
 };
 
 enum CreditsLine {

@@ -87,11 +87,11 @@ for (audio_guess, possible_sections) in timestamps.items():
         return data[start_frame:end_frame], end - start
     
     print('\033[31m' + audio_guess + '\033[0m')
-    print(f'{takes}/u({takes})/d/f/n/h/q')
+    print(f'{takes}/u({takes}/*)/d/f/n/h/q')
     while True:
         choice = getch()
         if choice == 'h':
-            print(f'{num_takes} takes. Type {takes} to play one. Type u + {takes} to use one of them. Type f to search ahead for a word or phrase. Type n to repeat a search. Type d to discard this snippet. Type q to quit')
+            print(f'{num_takes} takes. Type {takes} to play one. Type u + {takes} to use one of them. u* to use all of them. Type f to search ahead for a word or phrase. Type n to repeat a search. Type d to discard this snippet. Type q to quit')
         elif choice == 'd':
             break
         elif choice != '/' and choice in takes:
@@ -109,7 +109,26 @@ for (audio_guess, possible_sections) in timestamps.items():
             save()
         elif choice == 'u':
             choice = getch()
-            if choice != '/' and choice in takes:
+            if choice == '*':
+                # use all the takes
+                print('using all')
+                line_with_alts = {}
+                choices = takes.split('/')
+                audio, length = audio_and_length(choices[0])
+                new_data = vstack((new_data, audio))
+                line_with_alts['start'] = current_sec
+                line_with_alts['end'] = current_sec + length
+                current_sec += length
+                alts = []
+                for choice in choices[1:]:
+                    audio, length = audio_and_length(choices[0])
+                    alts.append({'start': current_sec, 'end': current_sec + length})
+                    current_sec += length
+                    new_data = vstack((new_data, audio))
+                line_with_alts['alts'] = alts
+                new_json[audio_guess] = line_with_alts
+                break
+            elif choice != '/' and choice in takes:
                 audio, length = audio_and_length(choice)
                 new_json[audio_guess] = {
                     'start': current_sec,
