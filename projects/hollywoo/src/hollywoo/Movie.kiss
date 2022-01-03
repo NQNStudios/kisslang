@@ -36,7 +36,6 @@
     (method _currentScene [] (dictGet scenes sceneKey))
 
     (prop &mut :Map<String,String> intercutMap)
-    (prop &mut :Map<String,Int> altIdx (new Map))
     (method :Void showDialog [actorName dialogType wryly text cc]
         (when intercutMap
             (whenLet [sceneForActor (dictGet intercutMap actorName)]
@@ -48,22 +47,6 @@
             // Otherwise, assume it is un-voiced super text
             (when (and actorName (< 0 (count voiceTracks)))
                     (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
-                        ((objectWith trackKey start end alts)
-                            (case (dictGet altIdx "$actorName $text")
-                                (null
-                                    (dictSet altIdx "$actorName $text" 0)
-                                    (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
-                                ((when (>= idx alts.length) idx)
-                                    (dictSet altIdx "$actorName $text" 0)
-                                    (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
-                                (idx
-                                    (let [alt (nth alts idx)
-                                            start alt.start
-                                            end alt.end]
-                                        (+= (dictGet altIdx "$actorName $text") 1)
-                                        (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))))
-                            
-                            (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
                         ((objectWith trackKey start end)
                             (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc)
                             (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
@@ -77,11 +60,7 @@
             (dictSet voiceTracksPerActor actorName (+ 1 actorNumVoiceTracks))
             (dictSet voiceTracks trackKey track)
             (doFor =>key line (lines.keyValueIterator)
-                (let [:Array<VoiceLine> alts
-                            (if line.alts
-                                    (for alt (the Array<Dynamic> line.alts) (objectWith [start alt.start end alt.end] trackKey))
-                                [])]
-                    (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey alts))))))
+                (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey)))))
 
     (defNew
         [
