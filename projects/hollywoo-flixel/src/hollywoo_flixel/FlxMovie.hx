@@ -12,6 +12,8 @@ import openfl.Assets;
 enum FlxStagePosition {
     Left;
     Right;
+    LeftBehind;
+    RightBehind;
 }
 
 enum FlxStageFacing {

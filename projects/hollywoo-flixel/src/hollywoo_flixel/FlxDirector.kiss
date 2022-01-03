@@ -27,6 +27,7 @@
 
 (var STAGE_LEFT_X 150)
 (var STAGE_RIGHT_X (- 1280 150))
+(var STAGE_BEHIND_DY -250)
 (var ACTOR_Y 500)
 (var ACTOR_WIDTH 300)
 
@@ -39,8 +40,14 @@
     (set character.actor.x
         (- (case character.stagePosition
                 (Left
+                    (set currentState.actorOnLeft character.actor)
+                    STAGE_LEFT_X)
+                (LeftBehind
                     STAGE_LEFT_X)
                 (Right
+                    (set currentState.actorOnRight character.actor)
+                    STAGE_RIGHT_X)
+                (RightBehind
                     STAGE_RIGHT_X)
                 (otherwise (throw "unsupported stage position")))
             (/ character.actor.width 2)))
@@ -48,10 +55,26 @@
     (let [bottom (+ character.actor.y character.actor.height)]
         (when (> bottom 720)
             (-= character.actor.y (- bottom 720))))
-    (currentState.add character.actor)
+    (let [&mut reAddFront false]
+        (case character.stagePosition
+            ((or LeftBehind RightBehind)
+                (set reAddFront true)
+                (+= character.actor.y STAGE_BEHIND_DY))
+            (otherwise))
+        (when reAddFront
+            (when currentState.actorOnLeft (currentState.remove currentState.actorOnLeft))
+            (when currentState.actorOnRight (currentState.remove currentState.actorOnRight))
+        (currentState.add character.actor)
+        (when reAddFront
+            (when currentState.actorOnLeft (currentState.add currentState.actorOnLeft))
+            (when currentState.actorOnRight (currentState.add currentState.actorOnRight)))))
     (cc))
 
 (method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
+    (when (= currentState.actorOnLeft character.actor)
+        (set currentState.actorOnLeft null))
+    (when (= currentState.actorOnRight character.actor)
+        (set currentState.actorOnRight null))
     (currentState.remove character.actor)
     (cc))
 

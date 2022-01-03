@@ -1,3 +1,7 @@
+// Track which actors are in FRONT of the stage so actors can appear behind them
+(prop &mut :ActorFlxSprite actorOnLeft null)
+(prop &mut :ActorFlxSprite actorOnRight null)
+
 (defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
         &mut :FlxState parent null
