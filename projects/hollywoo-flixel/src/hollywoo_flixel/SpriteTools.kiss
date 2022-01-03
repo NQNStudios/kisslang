@@ -36,5 +36,8 @@
         (canvas.stamp stamp x y)))
 
 // TODO allow specifying size relative to canvas
-(function :Void writeOnSprite [:String text :Int size :FlxSprite canvas :RelativePosition pos]
-    (drawOnSprite (new FlxText 0 0 0 text size) canvas pos))
+(function :Void writeOnSprite [:String text :Int size :FlxSprite canvas :RelativePosition pos &opt :FlxColor color]
+    (let [text (new FlxText 0 0 0 text size)]
+        (when color
+            (set text.color color))
+            (drawOnSprite text canvas pos)))
