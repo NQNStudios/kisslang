@@ -39,6 +39,8 @@
     (set Prelude.printStr ->[message]
         (_vscode.postMessage (object type "print" text message)))
 
+    (window.addEventListener "wheel" ->event {(event.preventDefault)(window.scrollBy 0 event.deltaY)} true)
+
     (window.addEventListener "message"
         ->:Void event
             (case (the MessageToEditor event.data)
