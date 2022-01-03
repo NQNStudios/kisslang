@@ -20,6 +20,8 @@ typedef RelativePosition = {
     ?anchorY:RelativeCoordinate, // default Percent(0.5)
     ?sizeX:RelativeCoordinate,
     ?sizeY:RelativeCoordinate,
+    ?offsetX:Int,
+    ?offsetY:Int
 };
 
 @:build(kiss.Kiss.build())
