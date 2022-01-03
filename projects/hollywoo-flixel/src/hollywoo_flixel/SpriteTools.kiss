@@ -4,11 +4,11 @@
     (unless pos.anchorY (set pos.anchorY (Percent 0.5)))
     (let [&mut x (coordIn pos.x (/ canvas.width canvas.scale.x) pos.offsetX)
             &mut y (coordIn pos.y (/ canvas.height canvas.scale.y) pos.offsetY)]
-        (-= x (coordIn pos.anchorX (/ stamp.width stamp.scale.x)))
-        (-= y (coordIn pos.anchorY (/ stamp.height stamp.scale.y)))
+        (-= x (coordIn pos.anchorX stamp.width))
+        (-= y (coordIn pos.anchorY stamp.height))
         [x y]))
 
-(function :Int coordIn [:RelativeCoordinate coord :Int range &opt :Int offset]
+(function :Int coordIn [:RelativeCoordinate coord :Float range &opt :Int offset]
     (+ (or offset 0)
         (Math.round
             (case coord
@@ -32,9 +32,13 @@
         (stamp.updateHitbox)))
 
 (function :Void drawOnSprite [:FlxSprite stamp :FlxSprite canvas :RelativePosition pos]
+    (scaleStampOn stamp canvas pos)
     (let [[x y] (positionOn stamp canvas pos)]
-        (scaleStampOn stamp canvas pos)
-        (canvas.stamp stamp x y)))
+        (let [oX stamp.origin.x
+                 oY stamp.origin.y]
+            (stamp.origin.set 0 0)
+            (canvas.stamp stamp x y)
+            (stamp.origin.set oX oY))))
 
 // TODO allow specifying size relative to canvas
 (function :Void writeOnSprite [:String text :Int size :FlxSprite canvas :RelativePosition pos &opt :FlxColor color]
