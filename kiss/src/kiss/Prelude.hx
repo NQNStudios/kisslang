@@ -654,4 +654,5 @@ class Prelude {
     public static var newLine = "\n";
     public static var backSlash = "\\";
     public static var doubleQuote = "\"";
+    public static var dollar = "$";
 }
