@@ -78,6 +78,10 @@
     (currentState.remove character.actor)
     (cc))
 
+(method :Void moveCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character fromPos fromFacing toPos toFacing :Continuation cc]
+    (hideCharacter character
+        ->:Void (showCharacter character ReAppearance cc)))
+
 (prop &mut :Null<Continuation> nextCC)
 (method onContinue [:FlxActionDigital continueAction]
     (whenLet [cc nextCC]

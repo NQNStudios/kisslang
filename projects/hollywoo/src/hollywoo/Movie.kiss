@@ -230,6 +230,14 @@
         (.remove .characters (_currentScene) actorName)
         (director.hideCharacter c cc)))
 
+(hollywooMethod moveCharacter false [actorName :StagePosition newPosition :StageFacing newFacing :Continuation cc]
+    (let [c (dictGet .characters (_currentScene) actorName)
+            oldPosition c.stagePosition
+            oldFacing c.stageFacing]
+        (set c.stagePosition newPosition)
+        (set c.stageFacing newFacing)
+        (director.moveCharacter c oldPosition oldFacing newPosition newFacing cc)))
+
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
 
