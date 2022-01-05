@@ -269,11 +269,17 @@
 
 // TODO themed titleCard (wait for song or sound)
 
-// TODO timed superText
-// TODO themed superText
 
 (hollywooMethod superText true [text :Continuation cc]
-    (showDialog "" Super "" text cc))
+    // Skip voice track handling:
+    (director.showDialog "" Super "" text cc))
+
+(hollywooMethod timedSuperText true [text :Float sec :Continuation cc]
+    (let [cc ->:Void {(director.hideDialog) (cc)}]
+        (superText text cc)
+        (delay sec cc)))
+
+// TODO themed superText
 
 (hollywooMethod normalSpeech true [actorName wryly text :Continuation cc]
     (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
