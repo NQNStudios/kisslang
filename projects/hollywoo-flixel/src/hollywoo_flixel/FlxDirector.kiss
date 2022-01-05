@@ -63,11 +63,11 @@
             (otherwise))
         (when reAddFront
             (when currentState.actorOnLeft (currentState.remove currentState.actorOnLeft))
-            (when currentState.actorOnRight (currentState.remove currentState.actorOnRight))
+            (when currentState.actorOnRight (currentState.remove currentState.actorOnRight)))
         (currentState.add character.actor)
         (when reAddFront
             (when currentState.actorOnLeft (currentState.add currentState.actorOnLeft))
-            (when currentState.actorOnRight (currentState.add currentState.actorOnRight)))))
+            (when currentState.actorOnRight (currentState.add currentState.actorOnRight))))
     (cc))
 
 (method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
