@@ -1,5 +1,7 @@
 package hollywoo;
 
+import kiss.FuzzyMap;
+
 enum SceneTime {
     Morning;
     Day;
@@ -31,8 +33,8 @@ enum SpeechType<StagePosition, StageFacing, Actor> {
 
 typedef Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop> = {
     set:Set,
-    characters:Map<String, Character<StagePosition, StageFacing, Actor>>,
-    propsOnScreen:Map<String, Prop>,
+    characters:FuzzyMap<Character<StagePosition, StageFacing, Actor>>,
+    propsOnScreen:FuzzyMap<Prop>,
     // TODO props on stage
     time:SceneTime,
     perspective:ScenePerspective

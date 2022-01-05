@@ -164,9 +164,9 @@
                                     set
                                         (dictGet sets setKey)
                                     characters
-                                        (new Map)
+                                        (new FuzzyMap<Character<StagePosition,StageFacing,Actor>>)
                                     propsOnScreen
-                                        (new Map)
+                                        (new FuzzyMap<Prop>)
                                 ]
                                 time
                                 perspective)))
@@ -291,7 +291,7 @@
     (showDialog actorName (VoiceOver (dictGet actors actorName)) wryly text cc))
 
 (hollywooMethod onPhoneSpeech true [actorName wryly text :Continuation cc]
-    (showDialog actorName (ifLet [charOnScreen (dictGet .characters (_currentScene) actorName)]
+    (showDialog actorName (ifLet [charOnScreen (try (dictGet .characters (_currentScene) actorName) (catch [e] null))]
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
 
