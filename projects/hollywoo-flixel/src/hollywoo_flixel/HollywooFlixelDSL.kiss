@@ -22,6 +22,9 @@
         (set s.persist true)
         (newSound name s)))
 
+(method newFlxSong [name path]
+    (newSong name path))
+
 (method newFlxVoiceTrack [name wavPath jsonPath]
     (newVoiceTrack name (FlxG.sound.load wavPath) (openfl.utils.Assets.getText jsonPath)))
 
