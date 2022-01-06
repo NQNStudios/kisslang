@@ -133,8 +133,13 @@
     // TODO attribute on-screen dialogue to the character's stageposition
 
     // When the actor is in the scene, check for an animation matching the wryly
+    // TODO allow sounds for wrylies, like the dispatch click
+    (localVar &mut nameOnRight false)
     (doFor =>actorName character currentState.characters
         (when (= actorName speakerName)
+            (case character.stagePosition
+                ((or Right RightBehind) (set nameOnRight true))
+                (otherwise))
             (let [actor (the ActorFlxSprite character.actor)]
                 (if wryly
                         (actor.playAnimation wryly)
@@ -158,11 +163,12 @@
         (-= dialogText.size 6))
     // show the speaker name
     (unless speakerNameText
-        (set speakerNameText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
+        (set speakerNameText (new FlxText DIALOG_X DIALOG_Y 0 "" DIALOG_SIZE)))
     (currentState.add speakerNameText)
     (if speakerName
             {
                 (set speakerNameText.text "${speakerName}:")
+                (set speakerNameText.x (if nameOnRight (- (+ DIALOG_X DIALOG_WIDTH) speakerNameText.fieldWidth) DIALOG_X))
                 (speakerNameText.revive)
                 (set dialogText.y (+ DIALOG_Y speakerNameText.height))
             }
