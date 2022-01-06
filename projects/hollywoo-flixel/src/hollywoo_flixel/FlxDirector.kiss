@@ -20,6 +20,9 @@
     (set currentState (cast scene SceneFlxState))
     (set currentState.parent FlxG.state)
     (FlxG.state.openSubState currentState)
+    // Re-show characters in case their actor sprites were moved in different scenes:
+    (doFor =>name character currentState.characters
+        (showCharacter character ReAppearance ->:Void {}))
     (cc))
 
 (method :Void cleanup []
