@@ -44,11 +44,13 @@
         (- (case character.stagePosition
                 (Left
                     (set currentState.actorOnLeft character.actor)
+                    (set currentState.characterOnLeft character)
                     STAGE_LEFT_X)
                 (LeftBehind
                     STAGE_LEFT_X)
                 (Right
                     (set currentState.actorOnRight character.actor)
+                    (set currentState.characterOnRight character)
                     STAGE_RIGHT_X)
                 (RightBehind
                     STAGE_RIGHT_X)
@@ -75,15 +77,28 @@
 
 (method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
     (when (= currentState.actorOnLeft character.actor)
-        (set currentState.actorOnLeft null))
+        (set currentState.actorOnLeft null)
+        (set currentState.characterOnLeft null))
     (when (= currentState.actorOnRight character.actor)
-        (set currentState.actorOnRight null))
+        (set currentState.actorOnRight null)
+        (set currentState.characterOnRight null))
     (currentState.remove character.actor)
     (cc))
 
-(method :Void moveCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character fromPos fromFacing toPos toFacing :Continuation cc]
+(method :Void moveCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character toPos toFacing :Continuation cc]
+    // Directors don't have to change the character, but FlxDirector does because that state determines
+    // where actors are drawn in showCharacter:
+    (set character.stagePosition toPos)
+    (set character.stageFacing toFacing)
     (hideCharacter character
         ->:Void (showCharacter character ReAppearance cc)))
+
+(method :Void swapCharacters [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> a :Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> b :Continuation cc]
+    (let [noCC ->:Void {}
+            tempStagePos a.stagePosition
+            tempStageFacing a.stageFacing]
+        (moveCharacter a b.stagePosition b.stageFacing noCC)
+        (moveCharacter b tempStagePos tempStageFacing cc)))
 
 (prop &mut :Null<Continuation> nextCC)
 (method onContinue [:FlxActionDigital continueAction]
@@ -135,18 +150,32 @@
     // TODO handle text messages, wrylies, off-screen, from-phone, etc. via (case type)
     // TODO attribute on-screen dialogue to the character's stageposition
 
-    // When the actor is in the scene, check for an animation matching the wryly
+    // When an actor is associated with the line, check for an animation matching the wryly
     // TODO allow sounds for wrylies, like the dispatch click
     (localVar &mut nameOnRight false)
-    (doFor =>actorName character currentState.characters
-        (when (= actorName speakerName)
+    (case type
+        ((OnScreen character)
             (case character.stagePosition
                 ((or Right RightBehind) (set nameOnRight true))
+                (otherwise))
+            // If the character is behind another character, swap them so the speaker is front
+            (case character.stagePosition
+                (LeftBehind
+                    ~"swap left"
+                    (swapCharacters ~character ~currentState.characterOnLeft ->:Void {}))
+                (RightBehind
+                    ~"swap Right"
+                    (swapCharacters ~character ~currentState.characterOnRight ->:Void {}))
                 (otherwise))
             (let [actor (the ActorFlxSprite character.actor)]
                 (if wryly
                         (actor.playAnimation wryly)
-                    (actor.playAnimation "neutral")))))
+                    (actor.playAnimation "neutral"))))
+        ((or (OffScreen actor) (VoiceOver actor) (TextMessage actor) (FromPhone actor) (Custom _ actor _))
+            (if wryly
+                        (actor.playAnimation wryly)
+                    (actor.playAnimation "neutral")))
+        (otherwise))
 
     // Make a dialog box
     (unless dialogBox

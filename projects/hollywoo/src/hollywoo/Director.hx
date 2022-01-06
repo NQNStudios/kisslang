@@ -15,7 +15,8 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound
     function showScene(scene:Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop>, appearance:Appearance, cc:Continuation):Void;
     function showCharacter(character:Character<StagePosition, StageFacing, Actor>, appearance:Appearance, cc:Continuation):Void;
     function hideCharacter(character:Character<StagePosition, StageFacing, Actor>, cc:Continuation):Void;
-    function moveCharacter(character:Character<StagePosition, StageFacing, Actor>, fromPos:StagePosition, fromFacing:StageFacing, toPos:StagePosition, toFacing:StageFacing, cc:Continuation):Void;
+    function moveCharacter(character:Character<StagePosition, StageFacing, Actor>, toPos:StagePosition, toFacing:StageFacing, cc:Continuation):Void;
+    function swapCharacters(a:Character<StagePosition, StageFacing, Actor>, b:Character<StagePosition, StageFacing, Actor>, cc:Continuation):Void;
     function playSound(sound:Sound, volumeMod:Float, waitForEnd:Bool, cc:Continuation):Void;
     function playSong(song:Song, volumeMod:Float, loop:Bool, waitForEnd:Bool, cc:Continuation):Void;
     function stopSong():Void;

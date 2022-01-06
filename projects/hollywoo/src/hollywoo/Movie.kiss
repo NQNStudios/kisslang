@@ -231,12 +231,24 @@
         (director.hideCharacter c cc)))
 
 (hollywooMethod moveCharacter false [actorName :StagePosition newPosition :StageFacing newFacing :Continuation cc]
-    (let [c (dictGet .characters (_currentScene) actorName)
-            oldPosition c.stagePosition
-            oldFacing c.stageFacing]
-        (set c.stagePosition newPosition)
-        (set c.stageFacing newFacing)
-        (director.moveCharacter c oldPosition oldFacing newPosition newFacing cc)))
+    (let [c (dictGet .characters (_currentScene) actorName)]
+        (director.moveCharacter c newPosition newFacing ->:Void {
+            (set c.stagePosition newPosition)
+            (set c.stageFacing newFacing)
+            (cc)
+        })))
+
+(hollywooMethod swapCharacters false [actorNameA actorNameB :Continuation cc]
+    (let [a (dictGet .characters (_currentScene) actorNameA)
+            b (dictGet .characters (_currentScene) actorNameB)]
+        (director.swapCharacters a b ->:Void 
+                (let [tempStagePos a.stagePosition
+                        tempStageFacing a.stageFacing]
+                    (set a.stagePosition b.stagePosition)
+                    (set a.stageFacing b.stageFacing)
+                    (set b.stagePosition tempStagePos)
+                    (set b.stageFacing tempStageFacing)
+                    (cc)))))
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene

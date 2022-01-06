@@ -1,11 +1,13 @@
 // Track which actors are in FRONT of the stage so actors can appear behind them
 (prop &mut :ActorFlxSprite actorOnLeft null)
+(prop &mut :Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> characterOnLeft null)
 (prop &mut :ActorFlxSprite actorOnRight null)
+(prop &mut :Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> characterOnRight null)
 
 (defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
         &mut :FlxState parent null
-        :Map<String,Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new Map)
+        :FuzzyMap<Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>> characters (new FuzzyMap<Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite>>)
         :Map<FlxSprite,FlxScreenPosition> propsOnScreen (new Map)
     ]
     (super)
