@@ -35,7 +35,7 @@
 
 (method newFlxProp [name path]
     (let [propSprite (new FlxSprite 0 0)]
-        (propSprite.loadGraphic path)
+        (propSprite.loadGraphic path false 0 0 true) // Load props uniquely because they can be drawn on
         (newProp name propSprite)))
 
 (method :Void update [:Float elapsed]
