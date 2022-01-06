@@ -161,11 +161,9 @@
             // If the character is behind another character, swap them so the speaker is front
             (case character.stagePosition
                 (LeftBehind
-                    ~"swap left"
-                    (swapCharacters ~character ~currentState.characterOnLeft ->:Void {}))
+                    (swapCharacters character currentState.characterOnLeft ->:Void {}))
                 (RightBehind
-                    ~"swap Right"
-                    (swapCharacters ~character ~currentState.characterOnRight ->:Void {}))
+                    (swapCharacters character currentState.characterOnRight ->:Void {}))
                 (otherwise))
             (let [actor (the ActorFlxSprite character.actor)]
                 (if wryly
