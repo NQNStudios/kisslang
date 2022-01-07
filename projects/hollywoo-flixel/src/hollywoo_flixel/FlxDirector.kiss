@@ -284,6 +284,8 @@
         (canvas.makeGraphic 1280 720 FlxColor.BLACK)
         (let [[x y] (SpriteTools.positionOn prop canvas rpos)]
             (SpriteTools.scaleStampOn prop canvas rpos)
+            (set prop.x x)
+            (set prop.y y)
             (.add (nth currentState.spriteLayers layer) prop)))
     (cc))
 
