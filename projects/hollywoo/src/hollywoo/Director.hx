@@ -28,6 +28,8 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound
     function hideDialog():Void;
     function showTitleCard(text:Array<String>, cc:Continuation):Void;
     function hideTitleCard():Void;
+    function showBlackScreen():Void;
+    function hideBlackScreen():Void;
     function showPropOnScreen(prop:Prop, position:ScreenPosition, cc:Continuation):Void;
     // TODO showPropOnStage
     function hideProp(prop:Prop, cc:Continuation):Void;

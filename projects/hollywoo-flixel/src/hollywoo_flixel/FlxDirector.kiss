@@ -290,6 +290,15 @@
         (creditsText.push t)
         t))
 
+(prop &mut :FlxSprite blackBG null)
+(method :Void showBlackScreen []
+    (set blackBG (new FlxSprite))
+    (blackBG.makeGraphic 1280 720 FlxColor.BLACK true)
+    (currentState.add blackBG))
+
+(method :Void hideBlackScreen []
+    (currentState.remove blackBG))
+
 // TODO maybe credits need their own substate so an after-credits scene could be done.
 // currently the bg will cover whatever the final scene was.
 (method :Void rollCredits [:Array<CreditsLine> credits cc]

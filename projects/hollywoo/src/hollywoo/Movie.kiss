@@ -309,6 +309,10 @@
                                     (OnScreen charOnScreen)
                                 (FromPhone (dictGet actors actorName))) wryly text cc))
 
+(hollywooMethod cutToBlack true [seconds :Continuation cc]
+    (director.showBlackScreen)
+    (delay seconds ->:Void {(director.hideBlackScreen)(cc)}))
+
 // TODO themedRollCredits
 (hollywooMethod rollCredits true [:String creditsTSV :Continuation cc]
     (director.rollCredits
