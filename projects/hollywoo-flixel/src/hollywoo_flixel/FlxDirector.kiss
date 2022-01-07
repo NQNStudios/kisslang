@@ -259,7 +259,7 @@
     (let [[x y]
                 (case position
                     (Center [(/ 1280 2) (/ 720 2)])
-                    (otherwise (throw "not implemented")))]
+                    (otherwise (throw "screen position not implemented")))]
         (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
             (prop.setGraphicSize width)
 

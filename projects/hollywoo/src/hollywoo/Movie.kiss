@@ -35,11 +35,11 @@
     (prop &mut :String sceneKey "")
     (method _currentScene [] (dictGet scenes sceneKey))
 
-    (prop &mut :Map<String,String> intercutMap)
+    (prop &mut :FuzzyMap<String> intercutMap)
     (prop &mut :Map<String,Int> altIdx (new Map))
     (method :Void showDialog [actorName dialogType wryly text cc]
         (when intercutMap
-            (whenLet [sceneForActor (dictGet intercutMap actorName)]
+            (whenLet [sceneForActor (try (dictGet intercutMap actorName) (catch [e] null))]
                 (setScene sceneForActor ->{})))
         
         (let [cc ->:Void {(director.hideDialog) (cc)}
@@ -267,7 +267,9 @@
 // Dialogue:
 
 (hollywooMethod intercut false [:Map<String,String> actorNamesToSceneNames :Continuation cc]
-    (set intercutMap actorNamesToSceneNames)
+    (set intercutMap (new FuzzyMap<String>))
+    (doFor =>actor scene actorNamesToSceneNames
+        (dictSet intercutMap actor scene))
     (cc))
 
 (hollywooMethod endIntercut false [:Continuation cc]
