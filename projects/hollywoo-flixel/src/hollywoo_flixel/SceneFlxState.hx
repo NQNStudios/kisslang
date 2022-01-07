@@ -6,6 +6,7 @@ import kiss.FuzzyMap;
 import flixel.FlxSubState;
 import flixel.FlxState;
 import flixel.FlxSprite;
+import flixel.group.FlxGroup;
 import flixel.FlxG;
 import hollywoo.Scene;
 import hollywoo_flixel.FlxMovie;

@@ -22,6 +22,7 @@ enum FlxStageFacing {
 }
 
 enum FlxScreenPosition {
+    // Shortcuts
     UpperLeft;
     UpperRight;
     LowerLeft;
@@ -29,6 +30,9 @@ enum FlxScreenPosition {
     LowerCenter;
     UpperCenter;
     Center;
+
+    // Specify the layer and position relative to screen size, or in absolute coordinates, etc.
+    FullControl(layer:Int, pos:RelativePosition);
 }
 
 /**

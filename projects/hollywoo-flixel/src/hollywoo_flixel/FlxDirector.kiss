@@ -253,9 +253,8 @@
 (var PROP_MIN_WIDTH 200)
 (var PROP_MAX_WIDTH 500)
 
-(method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
+(method :Void quickShowPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
     // TODO assign the other possible positions
-    // TODO allow absolute position and relative position by screen percentages
     (let [[x y]
                 (case position
                     (Center [(/ 1280 2) (/ 720 2)])
@@ -277,11 +276,27 @@
                     (-= prop.y (- propBottom DIALOG_Y))))
 
             (currentState.add prop)))
-        // TODO give the prop reveal some time to land
     (cc))
 
-(method :Void hideProp [prop cc]
+(method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
+    (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
+    (let [canvas (new FlxSprite 0 0)]
+        (canvas.makeGraphic 1280 720 FlxColor.BLACK)
+        (let [[x y] (SpriteTools.positionOn prop canvas rpos)]
+            (SpriteTools.scaleStampOn prop canvas rpos)
+            (.add (nth currentState.spriteLayers layer) prop)))
+    (cc))
+
+(method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
+    // TODO give the prop reveal some time to land (add a delay to the cc)
+    (ifLet [(FullControl layer rpos) position]
+            (smartShowPropOnScreen prop layer rpos cc)
+        (quickShowPropOnScreen prop position cc)))
+
+(method :Void hideProp [:FlxSprite prop cc]
     (currentState.remove prop)
+    (doFor layer currentState.spriteLayers
+        (layer.remove prop))
     (cc))
 
 (prop :Array<FlxText> creditsText [])

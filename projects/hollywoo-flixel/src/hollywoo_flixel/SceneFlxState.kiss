@@ -4,6 +4,10 @@
 (prop &mut :ActorFlxSprite actorOnRight null)
 (prop &mut :Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> characterOnRight null)
 
+// Track props in an arbitrary number of layers
+(prop :Array<FlxTypedGroup<FlxSprite>> spriteLayers [])
+(var LAYER_MAX 5)
+
 (defNew [&prop :FlxSprite setSprite &prop :SceneTime time &prop :ScenePerspective perspective]
     [
         &mut :FlxState parent null
@@ -11,7 +15,12 @@
         :Map<FlxSprite,FlxScreenPosition> propsOnScreen (new Map)
     ]
     (super)
-    (add setSprite))
+    (add setSprite)
+    // TODO characters will be in front of every prop layer -- characters need their own group layer
+    (doFor i (range LAYER_MAX)
+        (let [g (new FlxTypedGroup<FlxSprite>)]
+            (spriteLayers.push g)
+            (add g))))
 
 (method &override :Void create []
     (super.create)
