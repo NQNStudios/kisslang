@@ -33,10 +33,15 @@
         (doFor [wavPath jsonPath] (groups wavJsonPaths 2 Throw)
             (newFlxVoiceTrack name wavPath jsonPath))))
 
-(method newFlxProp [name path]
+(method newFlxProp [name path &opt :FlxSprite->Void prepareSprite]
     (let [propSprite (new FlxSprite 0 0)]
         (propSprite.loadGraphic path false 0 0 true) // Load props uniquely because they can be drawn on
+        (when prepareSprite
+            (prepareSprite propSprite))
         (newProp name propSprite)))
+
+(defMacro flxSprite [asset &builder b]
+    `(new FlxSprite 0 0 ,(b.field (symbolNameValue asset) (b.symbol "AssetPaths"))))
 
 (method :Void update [:Float elapsed]
     (#when debug
