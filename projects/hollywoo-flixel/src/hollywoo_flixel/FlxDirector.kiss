@@ -188,6 +188,8 @@
     (currentState.add dialogText)
     (set dialogText.text text)
     // TODO actually page through the dialog instead of sizing it down?
+    // ^ though that doesn't work automatically with VO unless individual word times are kept in the json
+    // (which would be really clunky)
     (set dialogText.size DIALOG_SIZE)
     (while (< 720 (+ dialogText.y dialogText.height))
         (-= dialogText.size 6))
@@ -254,10 +256,21 @@
 (var PROP_MAX_WIDTH 500)
 
 (method :Void quickShowPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
-    // TODO assign the other possible positions
-    (let [[x y]
+    (let [left (/ 1280 6)
+            right (- 1280 left)
+            upper (/ 720 6)
+            lower (- 720 upper)
+            centerX (/ 1280 2)
+            centerY (/ 720 2)
+            [x y]
                 (case position
-                    (Center [(/ 1280 2) (/ 720 2)])
+                    (Center [centerX centerY])
+                    (UpperLeft [left upper])
+                    (UpperRight [right upper])
+                    (LowerLeft [left lower])
+                    (LowerRight [right lower])
+                    (LowerCenter [centerX lower])
+                    (UpperCenter [centerX upper])
                     (otherwise (throw "screen position not implemented")))]
         (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
             (prop.setGraphicSize width)
@@ -270,12 +283,12 @@
 
             (set prop.x (- x (/ prop.width 2)))
             (set prop.y (- y (/ prop.height 2)))
-            // if the prop would block the dialogue box, bump it up
-            (let [propBottom (+ prop.y prop.height)]
-                (when (> propBottom DIALOG_Y)
-                    (-= prop.y (- propBottom DIALOG_Y))))
-
-            (currentState.add prop)))
+            // if a prop meant to be centered would block the dialogue box, bump it up
+            (whenLet [Center position]
+                (let [propBottom (+ prop.y prop.height)]
+                    (when (> propBottom DIALOG_Y)
+                        (-= prop.y (- propBottom DIALOG_Y)))))
+            (.add (nth currentState.spriteLayers SceneFlxState.LAYER_MAX) prop)))
     (cc))
 
 (method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
