@@ -172,23 +172,30 @@ class AsyncEmbeddedScript {
         scriptFile = Path.join([loadingDirectory, scriptFile]);
         k.fieldList = [];
         Kiss._try(() -> {
-            Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
-                var exprString = Reader.toString(nextExp.def);
-                var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
+            #if profileKiss
+            haxe.Timer.measure(() -> {
+                trace(scriptFile);
+            #end
+                Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
+                    var exprString = Reader.toString(nextExp.def);
+                    var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
-                #if debug
-                expr = macro { Prelude.print($v{exprString}); $expr; };
-                #end
-                if (expr != null) {
-                    commandList.push(macro function(self, cc) {
-                        $expr;
-                    });
-                }
+                    #if debug
+                    expr = macro { Prelude.print($v{exprString}); $expr; };
+                    #end
+                    if (expr != null) {
+                        commandList.push(macro function(self, cc) {
+                            $expr;
+                        });
+                    }
 
-                // This return is essential for type unification of concat() and push() above... ugh.
-                return;
+                    // This return is essential for type unification of concat() and push() above... ugh.
+                    return;
+                });
+                null;
+            #if profileKiss
             });
-            null;
+            #end
         });
 
         classFields = classFields.concat(k.fieldList);

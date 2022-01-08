@@ -164,6 +164,7 @@ class Kiss {
         Build macro: add fields to a class from a corresponding .kiss file
     **/
     public static function build(?kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
+
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         // (load... ) relative to the original file
         var loadingDirectory = Path.directory(classPath);
@@ -173,42 +174,49 @@ class Kiss {
         //trace('kiss build $kissFile');
 
         return _try(() -> {
-            if (k == null)
-                k = defaultKissState();
+            #if profileKiss
+            haxe.Timer.measure(() -> {
+                trace(kissFile);
+            #end
+                if (k == null)
+                    k = defaultKissState();
 
-            if (useClassFields) {
-                k.fieldList = Context.getBuildFields();
-                for (field in k.fieldList) {
-                    k.fieldDict[field.name] = field;
+                if (useClassFields) {
+                    k.fieldList = Context.getBuildFields();
+                    for (field in k.fieldList) {
+                        k.fieldDict[field.name] = field;
+                    }
                 }
-            }
-            k.loadingDirectory = loadingDirectory;
+                k.loadingDirectory = loadingDirectory;
 
-            var topLevelBegin = load(kissFile, k);
+                var topLevelBegin = load(kissFile, k);
 
-            if (topLevelBegin != null) {
-                // If no main function is defined manually, Kiss expressions at the top of a file will be put in a main function.
-                // If a main function IS defined, this will result in an error
-                if (k.fieldDict.exists("main")) {
-                    throw CompileError.fromExp(topLevelBegin, '$kissFile has expressions outside of field definitions, but already defines its own main function.');
+                if (topLevelBegin != null) {
+                    // If no main function is defined manually, Kiss expressions at the top of a file will be put in a main function.
+                    // If a main function IS defined, this will result in an error
+                    if (k.fieldDict.exists("main")) {
+                        throw CompileError.fromExp(topLevelBegin, '$kissFile has expressions outside of field definitions, but already defines its own main function.');
+                    }
+                    var b = topLevelBegin.expBuilder();
+                    // This doesn't need to be added to the fieldDict because all code generation is done
+                    k.fieldList.push({
+                        name: "main",
+                        access: [AStatic],
+                        kind: FFun(Helpers.makeFunction(
+                            b.symbol("main"),
+                            false,
+                            b.list([]),
+                            [topLevelBegin],
+                            k,
+                            "function")),
+                        pos: topLevelBegin.macroPos()
+                    });
                 }
-                var b = topLevelBegin.expBuilder();
-                // This doesn't need to be added to the fieldDict because all code generation is done
-                k.fieldList.push({
-                    name: "main",
-                    access: [AStatic],
-                    kind: FFun(Helpers.makeFunction(
-                        b.symbol("main"),
-                        false,
-                        b.list([]),
-                        [topLevelBegin],
-                        k,
-                        "function")),
-                    pos: topLevelBegin.macroPos()
-                });
-            }
 
-            k.fieldList;
+                k.fieldList;
+            #if profileKiss
+            });
+            #end
         });
     }
 

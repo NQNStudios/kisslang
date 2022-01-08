@@ -64,23 +64,30 @@ class EmbeddedScript {
         scriptFile = Path.join([loadingDirectory, scriptFile]);
 
         Kiss._try(() -> {
-            Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
-                var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
+            #if profileKiss
+            haxe.Timer.measure(() -> {
+                trace(scriptFile);
+            #end
+                Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
+                    var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
-                if (expr != null) {
-                    commandList.push(macro function(self) {
-                        $expr;
-                    });
-                }
+                    if (expr != null) {
+                        commandList.push(macro function(self) {
+                            $expr;
+                        });
+                    }
 
-                // This return is essential for type unification of concat() and push() above... ugh.
-                return;
-                // TODO also allow label setting and multiple commands coming from the same expr?
-                // Multiple things could come from the same expr by returning begin, or a call to a function that does more stuff
-                // i.e. knot declarations need to end the previous knot, and BELOW that set a label for the new one, then increment the read count
-                // TODO test await
+                    // This return is essential for type unification of concat() and push() above... ugh.
+                    return;
+                    // TODO also allow label setting and multiple commands coming from the same expr?
+                    // Multiple things could come from the same expr by returning begin, or a call to a function that does more stuff
+                    // i.e. knot declarations need to end the previous knot, and BELOW that set a label for the new one, then increment the read count
+                    // TODO test await
+                });
+                null;
+            #if profileKiss
             });
-            null;
+            #end
         });
 
         classFields.push({
