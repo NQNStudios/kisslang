@@ -249,6 +249,23 @@ class Stream {
         };
     }
 
+    public function takeLineAsStream():Option<Stream> {
+        var lineNo = this.line;
+        var column = this.column;
+        var absoluteChar = this.absoluteChar;
+        return switch (takeLine()) {
+            case Some(line): Some({
+                var s = Stream.fromString(line);
+                s.line = lineNo;
+                s.column = column;
+                s.file = this.file;
+                s.absoluteChar = absoluteChar;
+                s;
+            });
+            default: None;
+        };
+    }
+
     public function expect(whatToExpect:String, f:Void->Option<String>):String {
         var position = position();
         switch (f()) {

@@ -109,7 +109,7 @@
         `{
             (defReaderMacro ,readerMacroStart [stream &builder b]
                 (let [nextLineStream
-                            (Stream.fromString (stream.expect "hollywoo macro line" ->(stream.takeLine)))
+                            (stream.expect "hollywoo macro line" ->(stream.takeLineAsStream))
                         methodCall
                             (b.callSymbol
                                 ,methodName
