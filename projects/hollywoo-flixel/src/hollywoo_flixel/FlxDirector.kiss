@@ -295,7 +295,7 @@
                 (let [propBottom (+ prop.y prop.height)]
                     (when (> propBottom DIALOG_Y)
                         (-= prop.y (- propBottom DIALOG_Y)))))
-            (.add (nth currentState.spriteLayers SceneFlxState.LAYER_MAX) prop)))
+            (currentState.add prop)))
     (cc))
 
 (method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
@@ -306,7 +306,10 @@
             (SpriteTools.scaleStampOn prop canvas rpos)
             (set prop.x x)
             (set prop.y y)
-            (.add (nth currentState.spriteLayers layer) prop)))
+            (if (= layer SceneFlxState.LAYER_MAX)
+                    // In front of everything:    
+                    ~(currentState.add prop)
+                (.add (nth currentState.spriteLayers layer) prop))))
     (cc))
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]

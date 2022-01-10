@@ -17,7 +17,7 @@
     (super)
     (add setSprite)
     // TODO characters will be in front of every prop layer -- characters need their own group layer
-    (doFor i (range (+ 1 LAYER_MAX))
+    (doFor i (range LAYER_MAX)
         (let [g (new FlxTypedGroup<FlxSprite>)]
             (spriteLayers.push g)
             (add g))))
