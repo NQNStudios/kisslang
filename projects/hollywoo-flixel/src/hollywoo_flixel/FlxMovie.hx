@@ -14,6 +14,10 @@ enum FlxStagePosition {
     Right;
     LeftBehind;
     RightBehind;
+
+    // Specify the layer and position relative to screen size, or in absolute coordinates, etc.
+    // AND don't move the object automatically for any reason
+    FullControl(layer:Int, pos:RelativePosition);
 }
 
 enum FlxStageFacing {

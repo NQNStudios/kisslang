@@ -40,39 +40,53 @@
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     (character.actor.setGraphicSize ACTOR_WIDTH)
     (character.actor.updateHitbox)
-    (set character.actor.x
-        (- (case character.stagePosition
-                (Left
-                    (set currentState.actorOnLeft character.actor)
-                    (set currentState.characterOnLeft character)
-                    STAGE_LEFT_X)
-                (LeftBehind
-                    STAGE_LEFT_X)
-                (Right
-                    (set currentState.actorOnRight character.actor)
-                    (set currentState.characterOnRight character)
-                    STAGE_RIGHT_X)
-                (RightBehind
-                    STAGE_RIGHT_X)
-                (otherwise (throw "unsupported stage position")))
-            (/ character.actor.width 2)))
-    (set character.actor.y ACTOR_Y)
-    (let [bottom (+ character.actor.y character.actor.height)]
-        (when (> bottom 720)
-            (-= character.actor.y (- bottom 720))))
-    (let [&mut reAddFront false]
-        (case character.stagePosition
-            ((or LeftBehind RightBehind)
-                (set reAddFront true)
-                (+= character.actor.y STAGE_BEHIND_DY))
-            (otherwise))
-        (when reAddFront
-            (when currentState.actorOnLeft (currentState.remove currentState.actorOnLeft))
-            (when currentState.actorOnRight (currentState.remove currentState.actorOnRight)))
-        (currentState.add character.actor)
-        (when reAddFront
-            (when currentState.actorOnLeft (currentState.add currentState.actorOnLeft))
-            (when currentState.actorOnRight (currentState.add currentState.actorOnRight))))
+    (ifLet [(FullControl layer rpos) character.stagePosition]
+            {
+                (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
+                (let [[x y] (SpriteTools.positionOn character.actor (canvas) rpos)]
+                    (SpriteTools.scaleStampOn character.actor (canvas) rpos)
+                    (set character.actor.x x)
+                    (set character.actor.y y)
+                    (if (= layer SceneFlxState.LAYER_MAX)
+                            // In front of everything:    
+                            (currentState.add character.actor)
+                        (.add (nth currentState.spriteLayers layer) character.actor)))
+            }
+        {
+            (set character.actor.x
+                (- (case character.stagePosition
+                        (Left
+                            (set currentState.actorOnLeft character.actor)
+                            (set currentState.characterOnLeft character)
+                            STAGE_LEFT_X)
+                        (LeftBehind
+                            STAGE_LEFT_X)
+                        (Right
+                            (set currentState.actorOnRight character.actor)
+                            (set currentState.characterOnRight character)
+                            STAGE_RIGHT_X)
+                        (RightBehind
+                            STAGE_RIGHT_X)
+                        (otherwise (throw "unsupported stage position")))
+                    (/ character.actor.width 2)))
+            (set character.actor.y ACTOR_Y)
+            (let [bottom (+ character.actor.y character.actor.height)]
+                (when (> bottom 720)
+                    (-= character.actor.y (- bottom 720))))
+            (let [&mut reAddFront false]
+                (case character.stagePosition
+                    ((or LeftBehind RightBehind)
+                        (set reAddFront true)
+                        (+= character.actor.y STAGE_BEHIND_DY))
+                    (otherwise))
+                (when reAddFront
+                    (when currentState.actorOnLeft (currentState.remove currentState.actorOnLeft))
+                    (when currentState.actorOnRight (currentState.remove currentState.actorOnRight)))
+                (currentState.add character.actor)
+                (when reAddFront
+                    (when currentState.actorOnLeft (currentState.add currentState.actorOnLeft))
+                    (when currentState.actorOnRight (currentState.add currentState.actorOnRight))))
+                })
     (cc))
 
 (method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
@@ -306,18 +320,23 @@
             (currentState.add prop)))
     (cc))
 
+(prop &mut :FlxSprite _canvas null)
+(method :FlxSprite canvas []
+    (unless _canvas
+        (set _canvas (new FlxSprite 0 0))
+        (_canvas.makeGraphic FlxG.width FlxG.height FlxColor.BLACK))
+    _canvas)
+        
 (method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
     (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
-    (let [canvas (new FlxSprite 0 0)]
-        (canvas.makeGraphic 1280 720 FlxColor.BLACK)
-        (let [[x y] (SpriteTools.positionOn prop canvas rpos)]
-            (SpriteTools.scaleStampOn prop canvas rpos)
-            (set prop.x x)
-            (set prop.y y)
-            (if (= layer SceneFlxState.LAYER_MAX)
-                    // In front of everything:    
-                    ~(currentState.add prop)
-                (.add (nth currentState.spriteLayers layer) prop))))
+    (let [[x y] (SpriteTools.positionOn prop (canvas) rpos)]
+        (SpriteTools.scaleStampOn prop (canvas) rpos)
+        (set prop.x x)
+        (set prop.y y)
+        (if (= layer SceneFlxState.LAYER_MAX)
+                // In front of everything:    
+                (currentState.add prop)
+            (.add (nth currentState.spriteLayers layer) prop)))
     (cc))
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
