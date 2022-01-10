@@ -290,11 +290,19 @@
 
             (set prop.x (- x (/ prop.width 2)))
             (set prop.y (- y (/ prop.height 2)))
-            // if a prop meant to be centered would block the dialogue box, bump it up
-            (whenLet [Center position]
-                (let [propBottom (+ prop.y prop.height)]
-                    (when (> propBottom DIALOG_Y)
-                        (-= prop.y (- propBottom DIALOG_Y)))))
+
+            (let [propBottom (+ prop.y prop.height)]
+                (case position 
+                    // if a prop meant to be centered would block the dialogue box, bump it up
+                    (Center
+                            (when (> propBottom DIALOG_Y)
+                                (-= prop.y (- propBottom DIALOG_Y))))
+                    // If a prop meant to be on the lower half of the screen goes below the edge, bring it up
+                    ((or LowerLeft LowerCenter LowerRight)
+                        (when (> propBottom FlxG.height)
+                            (-= prop.y (- propBottom FlxG.height))))
+                    (otherwise)))
+
             (currentState.add prop)))
     (cc))
 
