@@ -59,3 +59,33 @@
                 (buttons.add b))
             (+= buttonY 20))
         (FlxG.state.add buttons)))
+
+(defMacro withProp [propKey name &body body]
+    `(let [,name (dictGet props ,propKey)]
+        ,@body
+        (cc)))
+
+// like withProp, but you promise to call CC yourself in the body:
+(defMacro withPropCC [propKey name &body body]
+    `(let [,name (dictGet props ,propKey)]
+        ,@body))
+        
+(defMacro withActor [actorKey name &body body]
+    `(let [,name (dictGet actors ,actorKey)]
+        ,@body
+        (cc)))
+
+// like withActor, but you promise to call CC yourself in the body:
+(defMacro withActorCC [actorKey name &body body]
+    `(let [,name (dictGet actors ,actorKey)]
+        ,@body))
+
+(defMacro withSet [sceneKey name &body body]
+    `(let [,name .setSprite (cast (dictGet scenes ,sceneKey) SceneFlxState)]
+        ,@body
+        (cc)))
+
+// like withSet, but you promise to call CC yourself in the body:
+(defMacro withSetCC [sceneKey name &body body]
+    `(let [,name .setSprite (cast (dictGet scenes ,sceneKey) SceneFlxState)]
+        ,@body))
