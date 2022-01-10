@@ -194,6 +194,10 @@
 (hollywooMethod awaitPlaySound true [name :Continuation cc &opt :Float volumeMod]
     (playSound name cc volumeMod true))
 
+(hollywooMethod stopSound true [name :Continuation cc]
+    (director.stopSound (dictGet sounds name))
+    (cc))
+
 (hollywooMethod newSong true [name :Song song]
     (assert isLoading)
     (dictSet songs name song))

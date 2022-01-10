@@ -228,6 +228,9 @@
     (sound.play)
     (unless waitForEnd (cc)))
 
+(method :Void stopSound [:FlxSound sound]
+    (sound.stop))
+
 (var DELAY_BETWEEN_VOICE_TRACKS 0.1)
 (prop :Map<FlxSound,Function> restoreOriginalVolumes (new Map))
 (method :Void playVoiceTrack [:FlxSound track :Float volumeMod :Float start :Float end :Continuation cc]
