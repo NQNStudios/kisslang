@@ -54,8 +54,9 @@
     (let [runners (labelRunners)
             buttons (new flixel.group.FlxGroup.FlxTypedGroup<flixel.ui.FlxButton>)]
         (localVar &mut buttonY 0)
-        (doFor =>label runner runners
-            (let [b (new flixel.ui.FlxButton 0 buttonY label ->{(FlxG.state.remove buttons)(runner)})]
+        (doFor label (sort (collect (runners.keys)))
+            (let [runner (dictGet runners label)
+                    b (new flixel.ui.FlxButton 0 buttonY label ->{(FlxG.state.remove buttons)(runner)})]
                 (buttons.add b))
             (+= buttonY 20))
         (FlxG.state.add buttons)))
