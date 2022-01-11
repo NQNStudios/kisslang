@@ -24,8 +24,7 @@
 
 (method &override :Void create []
     (super.create)
-    (when (> setSprite.width FlxG.width)
-        (setSprite.setGraphicSize FlxG.width))
+    (setSprite.setGraphicSize FlxG.width)
     (when (> setSprite.height FlxG.height)
         (setSprite.setGraphicSize 0 FlxG.height))
     (setSprite.updateHitbox)
