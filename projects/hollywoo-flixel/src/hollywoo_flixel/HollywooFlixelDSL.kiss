@@ -6,7 +6,7 @@
 
 (method newFlxScene [name set time perspective]
     (let [setSprite (new FlxSprite 0 0)]
-        (setSprite.loadGraphic (dictGet sets set))
+        (setSprite.loadGraphic (dictGet sets set) false 0 0 true) // Load uniquely so we can draw on sets for specific scenes
         (newScene name (cast (new SceneFlxState setSprite time perspective)))))
 
 // Destroy substates when the movie end is reached:
