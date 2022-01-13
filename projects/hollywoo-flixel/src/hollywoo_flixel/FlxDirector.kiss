@@ -43,8 +43,8 @@
     (ifLet [(FullControl layer rpos) character.stagePosition]
             {
                 (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
+                (SpriteTools.scaleStampOn character.actor (canvas) rpos)
                 (let [[x y] (SpriteTools.positionOn character.actor (canvas) rpos)]
-                    (SpriteTools.scaleStampOn character.actor (canvas) rpos)
                     (set character.actor.x x)
                     (set character.actor.y y)
                     (if (= layer SceneFlxState.LAYER_MAX)
@@ -329,8 +329,8 @@
         
 (method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
     (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
+    (SpriteTools.scaleStampOn prop (canvas) rpos)
     (let [[x y] (SpriteTools.positionOn prop (canvas) rpos)]
-        (SpriteTools.scaleStampOn prop (canvas) rpos)
         (set prop.x x)
         (set prop.y y)
         (if (= layer SceneFlxState.LAYER_MAX)
