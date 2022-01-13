@@ -392,9 +392,9 @@
             ((TwoColumn col1 col2)
                 (let [t1 (_ctext col1 twoColSize)
                         t2 (_ctext col2 twoColSize)]
-                    (set t1.x (- (/ 1280 2) t1.width (/ twoColumnGap 2)))
+                    (set t1.x (- (* 1280 0.3) t1.width (/ twoColumnGap 2)))
                     (set t1.y textY)
-                    (set t2.x (+ (/ 1280 2) (/ twoColumnGap 2)))
+                    (set t2.x (+ (* 1280 0.3) (/ twoColumnGap 2)))
                     (set t2.y textY))
                 (+= textY twoColSize creditMargin))
             // Left-justified, centered, right-justified three column lines
