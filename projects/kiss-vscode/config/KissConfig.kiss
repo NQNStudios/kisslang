@@ -225,7 +225,7 @@
         (registerCommand "${prefix} [r]eload Config.kiss" tryLoadConfig)
         // In this file:
         (registerCommand "${prefix} [q]uickPick and run a command" runCommand)
-        (registerCommand "${prefix} Re-run [l]ast command" runLastCommand)
+        (registerCommand "${prefix} Re-run last command" runLastCommand)
         (registerCommand "${prefix} Run a keyboard [s]hortcut command" runKeyboardShortcut)
         // KissTools.kiss:
         (registerCommand "${prefix} [e]valuate and print an expression" evalAndPrint)

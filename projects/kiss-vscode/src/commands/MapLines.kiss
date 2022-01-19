@@ -1,3 +1,4 @@
+// Perform a synchronous transformation on each selected line of text
 (function _mapLinesSync [selectedText mapFunc]
     (let [:String->String safeMapFunc
                     ->[line]
@@ -18,8 +19,24 @@
     (awaitLet [mapFuncStr (inputBox)]
         (let [:String->String mapFunc (evalString mapFuncStr)]
             (_mapLinesSync selectedText mapFunc))))
+
+// Sort the selected lines of text using a comparison function (String,String) -> Int
+(function _sortLinesSync [selectedText :Dynamic compareFunc]
+    (let [lines (selectedText.split "\n")]
+        (lines.sort compareFunc)
+        (.edit activeTextEditor
+            (lambda [e]
+                (let [editor activeTextEditor]
+                    (e.delete editor.selection)
+                    (e.insert editor.selection.active (lines.join "\n")))))))
+
+(function sortLinesSync [&opt selectedText]
+    (awaitLet [compareFuncStr (inputBox)]
+        (_sortLinesSync selectedText (if (< 0 compareFuncStr.length) (evalString compareFuncStr) Reflect.compare))))
+ 
                 
 (function :Void registerMapLinesCommands [&opt leaderKeys]
     (unless leaderKeys (set leaderKeys ""))
     (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"]
-        (registerCommand "${prefix} [M]ap lines synchronously" mapLinesSync)))
+        (registerCommand "${prefix} [L]ines - [M]ap synchronously" mapLinesSync)
+        (registerCommand "${prefix} [L]ines - [S]ort synchronously" sortLinesSync)))
