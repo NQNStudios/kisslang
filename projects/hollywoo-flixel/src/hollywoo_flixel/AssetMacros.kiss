@@ -22,6 +22,8 @@
             (assertProcess "curl" ["--output" file url]))
         file))
 
+// TODO alternate macro: accept a direct pixabay url instead, and extract the id from the url (last token in split by -) and pass "id" instead of "query" to the API and use that image
+
 // This macro downloads an image from the Pixabay.com API and puts it in
 // your projects AssetPaths, returning the path for loadAsset().
 (defMacro pixabayImage [searchQuery resultNumber]
