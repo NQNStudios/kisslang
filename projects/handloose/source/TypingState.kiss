@@ -1,0 +1,73 @@
+(method &override :Void create []
+    #|{
+        super.create();
+
+		var background = new FlxSprite();
+		background.makeGraphic(1280, 720, FlxColor.BLACK);
+		// background.x = 0;
+		// background.y = 0;
+
+		FlxSpriteUtil.beginDraw(FlxColor.WHITE);
+
+		var spacing = 20;
+		var shapeSize = 100;
+		var x = spacing;
+		var y = 720 - shapeSize - spacing;
+
+		// Split the screen into text area and dance area:
+		var splitX = 1280 / 2 + shapeSize;
+		background.drawLine(splitX, 0, splitX, 720);
+		// Split the left side into upper/lower:
+		background.drawLine(0, 720 - shapeSize - spacing * 2, splitX, 720 - shapeSize - spacing * 2);
+
+		var bSprite = makeCircleSprite("B", x, y);
+		x += shapeSize + spacing;
+		var leftSprite = makeTriangleSprite(Left, "", x, y);
+		x += shapeSize + spacing;
+		var downSprite = makeTriangleSprite(Down, "", x, y);
+		x += shapeSize + spacing;
+		var upSprite = makeTriangleSprite(Up, "", x, y);
+		x += shapeSize + spacing;
+		var rightSprite = makeTriangleSprite(Right, "", x, y);
+		x += shapeSize + spacing;
+		var aSprite = makeCircleSprite("A", x, y);
+
+		add(background);
+		add(bSprite);
+		add(leftSprite);
+		add(downSprite);
+		add(upSprite);
+		add(rightSprite);
+		add(aSprite);
+    }|#)
+
+(var SPRITE_SIZE 100)
+(var TEXT_SIZE 24)
+
+(method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int x :Int y]
+    #|{
+		var spr = new FlxSprite();
+		spr.makeGraphic(SPRITE_SIZE, SPRITE_SIZE, FlxColor.TRANSPARENT, true);
+		FlxSpriteUtil.beginDraw(FlxColor.WHITE);
+		spr.drawTriangle(0, 0, SPRITE_SIZE);
+
+		spr.angle = switch (dir)
+		{
+			case Left:
+				-90;
+			case Down:
+				180;
+			case Up:
+				0;
+			case Right:
+				90;
+		};
+		var text = new FlxText(text, TEXT_SIZE);
+		text.angle = -spr.angle;
+		text.color = FlxColor.BLACK;
+		spr.stamp(text, Math.floor(SPRITE_SIZE/2) - Math.floor(text.width / 2), Math.floor(SPRITE_SIZE/2) - Math.floor(text.height / 2));
+
+		spr.x = x;
+		spr.y = y;
+		return spr;
+    }|#)
