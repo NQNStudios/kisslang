@@ -1,3 +1,7 @@
+(var SPRITE_SPACING 20)
+(var SPRITE_SIZE 100)
+(var TEXT_SIZE 24)
+
 (method &override :Void create []
     #|{
         super.create();
@@ -9,40 +13,24 @@
 
 		FlxSpriteUtil.beginDraw(FlxColor.WHITE);
 
-		var spacing = 20;
-		var shapeSize = 100;
-		var x = spacing;
-		var y = 720 - shapeSize - spacing;
+		var x = SPRITE_SPACING;
+		var y = FlxG.height - SPRITE_SIZE - SPRITE_SPACING;
 
 		// Split the screen into text area and dance area:
-		var splitX = 1280 / 2 + shapeSize;
-		background.drawLine(splitX, 0, splitX, 720);
+		var splitX = SPRITE_SPACING * 5 + SPRITE_SIZE * 4;
+		background.drawLine(splitX, 0, splitX, FlxG.height);
 		// Split the left side into upper/lower:
-		background.drawLine(0, 720 - shapeSize - spacing * 2, splitX, 720 - shapeSize - spacing * 2);
-
-		var bSprite = makeCircleSprite("B", x, y);
-		x += shapeSize + spacing;
-		var leftSprite = makeTriangleSprite(Left, "", x, y);
-		x += shapeSize + spacing;
-		var downSprite = makeTriangleSprite(Down, "", x, y);
-		x += shapeSize + spacing;
-		var upSprite = makeTriangleSprite(Up, "", x, y);
-		x += shapeSize + spacing;
-		var rightSprite = makeTriangleSprite(Right, "", x, y);
-		x += shapeSize + spacing;
-		var aSprite = makeCircleSprite("A", x, y);
+		background.drawLine(0, FlxG.height - SPRITE_SIZE - SPRITE_SPACING * 2, splitX, FlxG.height - SPRITE_SIZE - SPRITE_SPACING * 2);
 
 		add(background);
-		add(bSprite);
-		add(leftSprite);
-		add(downSprite);
-		add(upSprite);
-		add(rightSprite);
-		add(aSprite);
-    }|#)
 
-(var SPRITE_SIZE 100)
-(var TEXT_SIZE 24)
+		makeTriangleSprite(Left, "", y);
+		makeTriangleSprite(Down, "", y);
+		makeTriangleSprite(Up, "", y);
+		makeTriangleSprite(Right, "", y);
+
+		var actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE, ()->{trace("a");});
+    }|#)
 
 (prop :Map<Int,ArrowDir> inputCodes (new Map))
 (var DIR_ORDER [ Left Down Up Right ])
@@ -70,9 +58,9 @@
                     (dictSet inputCodes id nextToMap))
             })))
 
-(method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int x :Int y]
+(method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int y &opt :Void->Void action]
     #|{
-		var spr = new FlxSprite();
+		var spr = new ActionSprite(action);
 		spr.makeGraphic(SPRITE_SIZE, SPRITE_SIZE, FlxColor.TRANSPARENT, true);
 		FlxSpriteUtil.beginDraw(FlxColor.WHITE);
 		spr.drawTriangle(0, 0, SPRITE_SIZE);
@@ -93,7 +81,13 @@
 		text.color = FlxColor.BLACK;
 		spr.stamp(text, Math.floor(SPRITE_SIZE/2) - Math.floor(text.width / 2), Math.floor(SPRITE_SIZE/2) - Math.floor(text.height / 2));
 
-		spr.x = x;
+		spr.x = SPRITE_SPACING + DIR_ORDER.indexOf(dir) * (SPRITE_SIZE + SPRITE_SPACING);
 		spr.y = y;
+
+        if (action != null) {
+            FlxTween.linearMotion(spr, spr.x, spr.y, spr.x, FlxG.height, 200, false, {onComplete: (_) -> {spr.kill();}});
+        }
+        add(spr);
+
 		return spr;
     }|#)
