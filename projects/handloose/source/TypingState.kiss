@@ -44,6 +44,32 @@
 (var SPRITE_SIZE 100)
 (var TEXT_SIZE 24)
 
+(prop :Map<Int,ArrowDir> inputCodes (new Map))
+(var DIR_ORDER [ Left Down Up Right ])
+
+(prop &mut :FlxText instructionText null)
+(method &override :Void update [:Float elapsed]
+    #|{
+		super.update(elapsed);
+
+		var lastId = getFirstInputId();
+    }|#
+
+    // Prompt to map the arrows
+    (let [mappedCodes (count inputCodes)
+            nextToMap (nth DIR_ORDER mappedCodes)]
+        (if (= DIR_ORDER.length mappedCodes)
+                (set instructionText.text "")
+            {
+                (unless instructionText
+                    (set instructionText (new FlxText "" TEXT_SIZE))
+                    (add instructionText))
+                (set instructionText.text "Press $nextToMap")
+                (instructionText.screenCenter)
+                (whenLet [(Some id) (getFirstInputId)]
+                    (dictSet inputCodes id nextToMap))
+            })))
+
 (method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int x :Int y]
     #|{
 		var spr = new FlxSprite();

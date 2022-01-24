@@ -7,6 +7,8 @@ import flixel.util.FlxColor;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.text.FlxText;
 import haxe.ds.Option;
+import kiss.Prelude;
+import kiss.List;
 
 using flixel.util.FlxSpriteUtil;
 
@@ -34,13 +36,6 @@ class TypingState extends FlxState
 		spr.x = x;
 		spr.y = y;
 		return spr;
-	}
-
-	override public function update(elapsed:Float)
-	{
-		super.update(elapsed);
-
-		var lastId = getFirstInputId();
 	}
 
 	function getFirstInputId():Option<Int> {
