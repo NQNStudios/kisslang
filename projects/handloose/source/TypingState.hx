@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.util.FlxColor;
+import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;

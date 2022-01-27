@@ -29,6 +29,8 @@
 		makeTriangleSprite(Up, "", y);
 		makeTriangleSprite(Right, "", y);
 
+		add(actionSprites);
+
 		var actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE, ()->{trace("a");});
     }|#)
 
@@ -37,17 +39,28 @@
 
 (prop &mut :FlxText instructionText null)
 (method &override :Void update [:Float elapsed]
-    #|{
-		super.update(elapsed);
+	(super.update elapsed)
 
-		var lastId = getFirstInputId();
-    }|#
-
-    // Prompt to map the arrows
     (let [mappedCodes (count inputCodes)
             nextToMap (nth DIR_ORDER mappedCodes)]
         (if (= DIR_ORDER.length mappedCodes)
-                (set instructionText.text "")
+				// Handle an arrow press
+				{
+					(set instructionText.text "")
+					(whenLet [(Some id) (getFirstInputId)
+								dir (dictGet inputCodes id)]
+						(let [&mut :ActionSprite lowestMatching null
+								&mut :Float highestY -SPRITE_SIZE-1]
+							(actionSprites.forEachAlive 
+								->spr (when (= dir spr.dir)
+											(when (> spr.y highestY)
+												(set highestY spr.y)
+												(set lowestMatching spr))))
+							(when lowestMatching
+								(lowestMatching.action)
+								(lowestMatching.kill))))
+				}
+			// Prompt to map the arrows
             {
                 (unless instructionText
                     (set instructionText (new FlxText "" TEXT_SIZE))
@@ -58,9 +71,12 @@
                     (dictSet inputCodes id nextToMap))
             })))
 
+
+(prop :FlxTypedGroup<ActionSprite> actionSprites (new FlxTypedGroup))
+
 (method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int y &opt :Void->Void action]
     #|{
-		var spr = new ActionSprite(action);
+		var spr = new ActionSprite(action, dir);
 		spr.makeGraphic(SPRITE_SIZE, SPRITE_SIZE, FlxColor.TRANSPARENT, true);
 		FlxSpriteUtil.beginDraw(FlxColor.WHITE);
 		spr.drawTriangle(0, 0, SPRITE_SIZE);
@@ -85,9 +101,15 @@
 		spr.y = y;
 
         if (action != null) {
-            FlxTween.linearMotion(spr, spr.x, spr.y, spr.x, FlxG.height, 200, false, {onComplete: (_) -> {spr.kill();}});
-        }
-        add(spr);
+			actionSprites.add(spr);
+			FlxTween.linearMotion(spr, spr.x, spr.y, spr.x, FlxG.height, 200, false, {
+				onComplete: (_) -> {
+					spr.kill();
+				}
+			});
+        } else {
+			add(spr);
+		}
 
 		return spr;
     }|#)
