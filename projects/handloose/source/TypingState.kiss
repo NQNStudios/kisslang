@@ -107,10 +107,14 @@
 			case "\t": "<tab>";
 			default: text;
 		};
-		var text = new FlxText(text, TEXT_SIZE);
-		text.angle = -spr.angle;
-		text.color = FlxColor.BLACK;
-		spr.stamp(text, Math.floor(SPRITE_SIZE/2) - Math.floor(text.width / 2), Math.floor(SPRITE_SIZE/2) - Math.floor(text.height / 2));
+		var ftext = new FlxText(text, TEXT_SIZE);
+		ftext.angle = -spr.angle;
+		ftext.color = FlxColor.BLACK;
+
+		if (text.length > 1) {
+			ftext.size = 12;
+		}
+		spr.stamp(ftext, Math.floor(SPRITE_SIZE/2) - Math.floor(ftext.width / 2), Math.floor(SPRITE_SIZE/2) - Math.floor(ftext.height / 2));
 
 		spr.x = SPRITE_SPACING + DIR_ORDER.indexOf(dir) * (SPRITE_SIZE + SPRITE_SPACING);
 		spr.y = y;

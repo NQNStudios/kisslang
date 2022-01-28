@@ -1,10 +1,10 @@
 (defNew [&prop :String path]
+    (when (FileSystem.exists path) (set content (File.getContent path)))
     (type "") // If the file can't be written to, throw the error right away
     // Use files with the same extension in the current working directory to determine letter frequencies
     (walkDirectory "" (FileSystem.absolutePath "")
         ->file (when (= (Path.extension file) (Path.extension path))
-            (learnFrequencies ~(File.getContent ~file))
-            ~charFrequencies)))
+            (learnFrequencies (File.getContent file)))))
 
 (prop &mut :String content "")
 (method :Void type [:String str]
@@ -17,6 +17,7 @@
 
 (method incFrequency [:Map<String,Map<String,Int>> m :String c :String following]
     (when c
+        (when (= c "\r") (set c "\n"))
         (unless (m.exists following) (dictSet m following (new Map)))
         (let [followingMap (dictGet m following)]
             (dictSet followingMap c (+ 1 (or (dictGet followingMap c) 0))))))
