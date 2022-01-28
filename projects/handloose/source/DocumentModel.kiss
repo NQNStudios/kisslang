@@ -12,15 +12,17 @@
     (File.saveContent path content)
     (print content))
 
-(prop :Map<String,Map<String,Int>> charFrequencies (new Map))
-(prop :Map<String,Map<String,Int>> wordFrequencies (new Map))
+(prop :Map<String,Map<String,Float>> charFrequencies (new Map))
+(prop :Map<String,Map<String,Float>> wordFrequencies (new Map))
 
-(method incFrequency [:Map<String,Map<String,Int>> m :String c :String following]
-    (when c
-        (when (= c "\r") (set c "\n"))
-        (unless (m.exists following) (dictSet m following (new Map)))
-        (let [followingMap (dictGet m following)]
-            (dictSet followingMap c (+ 1 (or (dictGet followingMap c) 0))))))
+(method incFrequency [:Map<String,Map<String,Float>> m :String c :String following]
+    (let [&mut weight 1.0]
+        (when c
+            (when (= c "\r") (set c "\n"))
+            (when (= c following " ") (set c "\t") (set weight 0.25))
+            (unless (m.exists following) (dictSet m following (new Map)))
+            (let [followingMap (dictGet m following)]
+                (dictSet followingMap c (+ weight (or (dictGet followingMap c) 0)))))))
 
 (method learnFrequencies [:String str]
     (let [chars (str.split "")]
@@ -32,6 +34,7 @@
             ))
 
 (prop :FlxRandom r (new FlxRandom))
+(var ANY_CHANCE 25) // percent
 (method :ArrowStuff generateArrowStuff []
     // TODO also generate word arrows if lastChar is a space
     (let [lastChar (substr content -1)
@@ -41,5 +44,5 @@
         (doFor =>c weight charFreq
             (chars.push c)
             (weights.push weight))
-        (let [c (r.getObject chars weights)]
+        (let [c (r.getObject chars (if (r.bool ANY_CHANCE) null weights))]
             (object text c action ->(type c)))))
