@@ -1,10 +1,7 @@
 (defNew [&prop :String path]
     (when (FileSystem.exists path) (set content (File.getContent path)))
     (type "") // If the file can't be written to, throw the error right away
-    // Use files with the same extension in the current working directory to determine letter frequencies
-    (walkDirectory "" (FileSystem.absolutePath "")
-        ->file (when (= (Path.extension file) (Path.extension path))
-            (learnFrequencies (File.getContent file)))))
+    (learnAllFrequencies))
 
 (prop &mut :String content "")
 (method :Void type [:String str]
@@ -23,6 +20,25 @@
             (unless (m.exists following) (dictSet m following (new Map)))
             (let [followingMap (dictGet m following)]
                 (dictSet followingMap c (+ weight (or (dictGet followingMap c) 0)))))))
+
+(defMacro prelearnAllFrequencies []
+    /* TODO - add Context.definedValues to macro variables
+            - walk LEARN_FROM, adding to a frequency map in prelearnFrequencies() below
+            - stringify the frequency map with "" specially added around the keys
+            - inject a Context.parse of the stringified frequency map
+    */
+    (throw "not implemented"))
+
+(defMacroFunction prelearnFrequencies [str &builder b]
+    (throw "not implemented"))
+
+(method learnAllFrequencies []
+    (#if LEARN_FROM
+            (prelearnAllFrequencies)
+        // Use files with the same extension in the current working directory to determine letter frequencies
+        (walkDirectory "" (FileSystem.absolutePath "")
+            ->file (when (= (Path.extension file) (Path.extension path))
+                (learnFrequencies (File.getContent file))))))
 
 (method learnFrequencies [:String str]
     (let [chars (str.split "")]

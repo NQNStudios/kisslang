@@ -46,6 +46,10 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
+	<!-- Uncomment these and change the values to pre-compile character frequencies: -->
+	<!--<haxedef name="LEARN_FROM" value="path/to/text/folder"/>-->
+	<!--<haxedef name="LEARN_FROM_EXT" value="txt,markdown,etc"/>-->
+
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
 
