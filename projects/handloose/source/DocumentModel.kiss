@@ -1,0 +1,40 @@
+(defNew [&prop :String path]
+    (type "") // If the file can't be written to, throw the error right away
+    // Use files with the same extension in the current working directory to determine letter frequencies
+    (walkDirectory (FileSystem.absolutePath "")
+        ->file (when (= (file.extension) (path.extension))
+            (learnFrequencies (File.getContent file)))))
+
+(prop &mut :String content "")
+(method type [:String str]
+    (+= content str)
+    (File.saveContent path content))
+
+(prop :Map<String,Map<String,Int>> charFrequencies (new Map))
+(prop :Map<String,Map<String,Int>> wordFrequencies (new Map))
+
+(method incFrequency [:Map<String,Map<String,Int>> m :String c :String following]
+    (unless (m.exists following) (dictSet m following (new Map)))
+    (let [followingMap (dictGet m following)]
+        (dictSet followingMap c (+ 1 (or (dictGet followingMap c) 0)))))
+
+(method learnFrequencies [:String str]
+    (let [chars (str.split "")]
+        (incFrequency charFrequencies (first chars) "")
+        (doFor [following c] (pairs chars)
+            (incFrequency charFrequencies c following)))
+    // TODO learn word frequencies
+    )
+
+(prop :FlxRandom r (new FlxRandom))
+(method :ArrowStuff generateArrowStuff []
+    // TODO also generate word arrows if lastChar is a space
+    (let [lastChar (substr content -1)
+            charFreq (dictGet charFrequencies lastChar)
+            chars []
+            weights []]
+        (doFor =>c weight charFreq
+            (chars.push c)
+            (weights.push weight))
+        (let [c (r.getObject chars weights)]
+            (object text c action ->(type c)))))

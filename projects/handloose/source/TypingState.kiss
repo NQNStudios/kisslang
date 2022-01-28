@@ -32,6 +32,7 @@
 		add(actionSprites);
 
 		var actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE, ()->{trace("a");});
+		actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE*4, ()->{trace("a");});
     }|#)
 
 (prop :Map<Int,ArrowDir> inputCodes (new Map))
