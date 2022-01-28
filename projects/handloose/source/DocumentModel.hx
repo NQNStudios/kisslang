@@ -5,8 +5,7 @@ import kiss.List;
 import sys.io.File;
 import sys.FileSystem;
 import flixel.math.FlxRandom;
-
-using haxe.io.Path;
+import haxe.io.Path;
 
 typedef ArrowStuff = {
     text:String,

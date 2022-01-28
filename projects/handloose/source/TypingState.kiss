@@ -31,8 +31,6 @@
 
 		add(actionSprites);
 
-		var actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE, ()->{trace("a");});
-		actionSprite = makeTriangleSprite(Right, "a", -SPRITE_SIZE*4, ()->{trace("a");});
     }|#)
 
 (prop :Map<Int,ArrowDir> inputCodes (new Map))
@@ -74,6 +72,14 @@
 
 
 (prop :FlxTypedGroup<ActionSprite> actionSprites (new FlxTypedGroup))
+(prop &mut :DocumentModel _model null)
+(method setModel [:DocumentModel m]
+	(set _model m)
+	(doFor i (range 100)
+		#|{
+			var stuff = m.generateArrowStuff();
+			makeTriangleSprite(DIR_ORDER[i % DIR_ORDER.length], stuff.text, -SPRITE_SIZE*i, stuff.action);
+		}|#))
 
 (method :FlxSprite makeTriangleSprite [:ArrowDir dir :String text :Int y &opt :Void->Void action]
     #|{
@@ -92,6 +98,14 @@
 				0;
 			case Right:
 				90;
+		};
+
+		text = switch (text) {
+			case "\n": "<newline>";
+			case "\r": "<bad newline>";
+			case " ": "<space>";
+			case "\t": "<tab>";
+			default: text;
 		};
 		var text = new FlxText(text, TEXT_SIZE);
 		text.angle = -spr.angle;
