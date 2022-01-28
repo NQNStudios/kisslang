@@ -46,6 +46,14 @@
 				// Handle an arrow press
 				{
 					(set instructionText.text "")
+					(unless timer
+						(set timer (new FlxTimer))
+						(let [&mut i 0]
+							(timer.start ARROW_DELAY ->_ {
+								#|{
+									var stuff = _model.generateArrowStuff();
+									makeTriangleSprite(DIR_ORDER[i++ % DIR_ORDER.length], stuff.text, -SPRITE_SIZE, stuff.action);
+								}|# } 0)))
 					(whenLet [(Some id) (getFirstInputId)
 								dir (dictGet inputCodes id)]
 						(let [&mut :ActionSprite lowestMatching null
@@ -73,6 +81,8 @@
 
 (prop :FlxTypedGroup<ActionSprite> actionSprites (new FlxTypedGroup))
 (prop &mut :DocumentModel _model null)
+(prop &mut :FlxTimer timer null)
+(var ARROW_DELAY 0.25)
 (method setModel [:DocumentModel m]
 	(set _model m)
 	(doFor i (range 100)
