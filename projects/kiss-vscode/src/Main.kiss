@@ -107,18 +107,21 @@
                     (requireConfigJs activeConfigFile)
                     (Vscode.window.showInformationMessage "Config loaded successfully!"))))))
 
+(var &mut extensionPath "")
 (function requireConfigJs [file]
     (let [uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
         (File.copy file uniqueConfigFile)
         (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
         (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
         (set config.tryLoadConfig ->[&opt _] (tryLoadConfig true false))
+        (set config.extensionPath extensionPath)
         (config.prepareInterp)
         // User-defined init:
         (config.init)))
 
 (#unless test
     (function _activate [:ExtensionContext context]
+        (set extensionPath context.extensionPath)
         (context.subscriptions.push
             (Vscode.commands.registerCommand
                 "kiss.reloadConfig"
