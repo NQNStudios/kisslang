@@ -271,7 +271,23 @@
             int Std.int)))
 
 // Way to more forgivingly get long text inputs
-// (function :Promise<String> inputEditor [:String filename :String prompt] )
+(function :Promise<String> inputEditor [:String filename :String prompt]
+    (let [tempFile (joinPath extensionPath "temp" filename)
+            uri (if (FileSystem.exists tempFile)
+                        (Uri.parse "file:$tempFile")
+                    (Uri.parse "untitled:$tempFile"))]
+        (new Promise
+            ->[resolve reject]
+                (awaitLet [doc (openTextDocument uri)
+                            editor (showTextDocument doc)]
+                    (print "Enter ${prompt}, then save and close this editor.")
+                    (let [&mut :Disposable closeEvent null]
+                        (set closeEvent
+                            (Vscode.workspace.onDidCloseTextDocument
+                                ->closedDoc
+                                    (when (= closedDoc.fileName doc.fileName)
+                                        (closeEvent.dispose)
+                                        (if editor.document.isDirty (reject "Input editor for $prompt was closed without saving.") (resolve (doc.getText)))))))))))
 
 (#unless test
     (var :Array<KTxt2Conversion> conversions [])
