@@ -16,7 +16,7 @@
                         (e.insert editor.selection.active mappedText))))))
 
 (function mapLinesSync [&opt selectedText]
-    (awaitLet [mapFuncStr (inputBox)]
+    (awaitLet [mapFuncStr (inputEditor "mapLinesFunc.kiss" "a String->String function through which to map the selected lines")]
         (let [:String->String mapFunc (evalString mapFuncStr)]
             (_mapLinesSync selectedText mapFunc))))
 
@@ -31,7 +31,7 @@
                     (e.insert editor.selection.active (lines.join "\n")))))))
 
 (function sortLinesSync [&opt selectedText]
-    (awaitLet [compareFuncStr (inputBox)]
+    (awaitLet [compareFuncStr (inputEditor "sortLinesFunc.kiss" "a (String,String) -> Int function with which to sort the selected lines")]
         (_sortLinesSync selectedText (if (< 0 compareFuncStr.length) (evalString compareFuncStr) Reflect.compare))))
  
                 

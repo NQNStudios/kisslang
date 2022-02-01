@@ -272,13 +272,15 @@
 
 // Way to more forgivingly get long text inputs
 (function :Promise<String> inputEditor [:String filename :String prompt]
-    (let [tempFile (joinPath extensionPath "temp" filename)
+    (let [previousEditor activeTextEditor
+            tempFile (joinPath extensionPath "temp" filename)
             uri (if (FileSystem.exists tempFile)
                         (Uri.parse "file:$tempFile")
                     (Uri.parse "untitled:$tempFile"))]
         (new Promise
             ->[resolve reject]
                 (awaitLet [doc (openTextDocument uri)
+                            _ (doc.save)
                             editor (showTextDocument doc)]
                     (print "Enter ${prompt}, then save and close this editor.")
                     (let [&mut :Disposable closeEvent null]
@@ -287,7 +289,8 @@
                                 ->closedDoc
                                     (when (= closedDoc.fileName doc.fileName)
                                         (closeEvent.dispose)
-                                        (if editor.document.isDirty (reject "Input editor for $prompt was closed without saving.") (resolve (doc.getText)))))))))))
+                                        (awaitLet [_ (showTextDocument previousEditor.document)]
+                                            (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText))))))))))))
 
 (#unless test
     (var :Array<KTxt2Conversion> conversions [])
