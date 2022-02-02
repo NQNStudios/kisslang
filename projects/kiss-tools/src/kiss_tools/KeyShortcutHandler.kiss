@@ -1,0 +1,82 @@
+(prop :PrefixMap<T> rootMap (new Map))
+(prop &mut :PrefixMap<T> currentMap null)
+
+(prop &mut :String cancelKey null)
+(prop &mut :PrefixMapHandler<T> onSelectPrefixMap null)
+(prop &mut :ItemHandler<T> onSelectItem null)
+(prop &mut :FinishHandler onFinishOrCancel null)
+(prop &mut :BadKeyHandler<T> onBadKey null)
+(prop &mut :BadShortcutHandler<T> onBadShortcut null)
+
+(defMacro tryCall [handler &rest args]
+    `(whenLet [handler ,handler]
+        (handler ,@args)))
+
+(defMacro tryCallOrThrow [handler message &rest args]
+    `(ifLet [handler ,handler]
+            (handler ,@args)
+        (throw ,message)))
+
+(method _selectMap [m]
+    (set currentMap m)
+    (tryCall onSelectPrefixMap m))
+
+(method start []
+    (_selectMap rootMap))
+
+(method cancel []
+    (set currentMap null)
+    (tryCall onFinishOrCancel))
+
+(method handleKey [:String key]
+    (unless currentMap (tryCallOrThrow onBadKey "Tried to handle key $key without calling start() first" key null))
+    (case (dictGet currentMap key)
+        ((Final item)
+            (tryCall onSelectItem item)
+            (cancel))
+        ((Prefix nextMap)
+            (_selectMap nextMap))
+        (otherwise
+            (tryCallOrThrow onBadKey "Key $key is not defined in $currentMap and no onBadKey event was given" key currentMap))))
+
+// Extract [k]eyboard [s]hortcuts from a string:
+(method extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
+    (unless stream (set stream (Stream.fromString str)))
+    (unless shortcuts (set shortcuts ""))
+    (case (stream.takeUntilAndDrop "[")
+        ((Some _)
+            (case (stream.takeUntilAndDrop "]")
+                ((Some newShortcuts)
+                    (extractKeyboardShortcuts str stream (+ shortcuts (newShortcuts.toLowerCase))))
+                (otherwise
+                    (tryCallOrThrow onBadShortcut "unclosed [ in $str" str null)
+                    "")))
+        (otherwise
+            shortcuts)))
+
+(method :Void registerShortcut [keys description item &opt :PrefixMap<T> prefixMap]
+    (unless prefixMap (set prefixMap rootMap))
+    (let [firstKey (keys.shift)]
+        (cond 
+            ((prefixMap.exists firstKey)
+                (let [existingKey (dictGet prefixMap firstKey)
+                        conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
+                    (if keys
+                            (case existingKey
+                                ((Final _)
+                                    (tryCallOrThrow onBadShortcut conflictMessage description existingKey))
+                                ((Prefix innerPrefixMap)
+                                    (registerShortcut keys description item innerPrefixMap))
+                                (otherwise))
+                        (tryCallOrThrow onBadShortcut conflictMessage description existingKey))))
+            (true
+                (if keys
+                        (let [innerPrefixMap (new Map)]
+                            (dictSet prefixMap firstKey (Prefix innerPrefixMap))
+                            (registerShortcut keys description item innerPrefixMap))
+                    (dictSet prefixMap firstKey (Final item)))))))
+
+(method :Void registerItem [description :T item]
+    (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
+        (registerShortcut (keyboardShortcut.split "") description item)))
+
