@@ -1,0 +1,17 @@
+{
+	"main": "kiss_tools.Main",
+	"name": "kiss-tools",
+	"description": "Tools for Kiss programs, written in Kiss",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
