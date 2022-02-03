@@ -599,3 +599,10 @@
     (Assert.equals 5 (case null (v 10) (null 5)))
     (Assert.equals 5 (case null (v 10) (null 5) (otherwise 6)))
     (Assert.equals 5 (case null (v 10) (otherwise 5))))
+
+(function _testContains []
+    (assert (contains "abc" "b"))
+    (assert !(contains "abc" "z"))
+    (assert (contains [1 2 3] 1))
+    (assert !(contains [1 2 3] 5))
+    (Assert.pass))

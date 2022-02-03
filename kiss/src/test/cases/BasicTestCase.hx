@@ -331,6 +331,10 @@ class BasicTestCase extends Test {
     function testCaseOnNull() {
         _testCaseOnNull();
     }
+
+    function testContains() {
+        _testContains();
+    }
 }
 
 class BasicObject {

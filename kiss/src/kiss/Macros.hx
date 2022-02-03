@@ -1136,6 +1136,13 @@ class Macros {
         macros["indexOf"] = indexOfMacro.bind(false);
         macros["lastIndexOf"] = indexOfMacro.bind(true);
 
+        // contains is a macro so it can be called on either an Array or a String
+        macros["contains"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, 2, '(contains <string or list> <snippet or element>)');
+            var b = wholeExp.expBuilder();
+            return b.not(b.callSymbol("=", [b.symbol("-1"), b.callField("indexOf", exps[0], [exps[1]])]));
+        }
+
         // Under the hood, quoted expressions are just Kiss strings for a KissInterp
         macros["quote"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, '(quote <exp>)');

@@ -594,6 +594,7 @@ class Helpers {
             callField: (fieldName:String, callOn:ReaderExp, args:Array<ReaderExp>) -> call(field(fieldName, callOn), args),
             print: (arg:ReaderExp) -> CallExp(Symbol("print").withPosOf(posRef), [arg]).withPosOf(posRef),
             the: (type:ReaderExp, value:ReaderExp) -> callSymbol("the", [type, value]),
+            not: (exp:ReaderExp) -> callSymbol("not", [exp]),
             list: list,
             str: str,
             symbol: _symbol,
