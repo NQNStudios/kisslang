@@ -29,7 +29,7 @@
  */
 
 (var :Map<String,Command> commands (new Map))
-(var :Map<String,ShortcutKey> commandShortcuts (new Map))
+(var :KeyShortcutHandler<String> shortcutHandler (new KeyShortcutHandler))
 
 (var &mut :String lastCommand null)
 (var parser (new Parser))
@@ -74,56 +74,40 @@
 (var &mut :vscode.WebviewPanel shortcutPanel null)
 (var &mut :vscode.TextDocument documentBeforeShortcut null)
 (var &mut :String selectedTextBeforeShortcut null)
+(var &mut :Disposable keyListener null)
 
-(function :Void showShortcutPanel [&opt :Map<String,ShortcutKey> prefixMap]
+(function :Void closeShortcutPanel []
+    (set documentBeforeShortcut null)
+    (set selectedTextBeforeShortcut null)
+    (when shortcutPanel
+        (keyListener.dispose)
+        (shortcutPanel.dispose)
+        (set shortcutPanel null)))
+
+(function :Void runChosenCommand [:String command]
+    (if documentBeforeShortcut
+            (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
+                (_runCommand command selectedTextBeforeShortcut))
+        (_runCommand command selectedTextBeforeShortcut)))
+
+(function :Void showShortcutPanel [:PrefixMap<String> prefixMap]
     // Preserve the selected text and focused document before opening the webview:
     (whenLet [text (selectedText)] (set selectedTextBeforeShortcut text))
-    (if activeTextEditor
-            (set documentBeforeShortcut activeTextEditor.document)
-        (unless prefixMap (set documentBeforeShortcut null)))
+    (when activeTextEditor
+        (set documentBeforeShortcut activeTextEditor.document))
 
-    // When called without a prefixMap, if a shortcut panel is still open, close it and start over:
-    (unless prefixMap 
-        (when shortcutPanel
-            // TODO for some reason, method calling an object in (when [object] ...) context, resets the object's type to Any unless (the [Type]) is used
-            (.dispose (the WebviewPanel shortcutPanel))
-            (set shortcutPanel null))
-        (set prefixMap commandShortcuts))
-    (when shortcutPanel (shortcutPanel.dispose))
+    (closeShortcutPanel)
     (set shortcutPanel (Vscode.window.createWebviewPanel 
-                                            "kissShortcut"
-                                            "Kiss Shortcuts"
-                                            vscode.ViewColumn.Two
-                                            (object
-                                                enableScripts true)))
-    // The keyListener handler needs to have access to the Disposible object to dispose itself, hence this let/set
-    (let [&mut keyListener null]
-        (set keyListener (shortcutPanel.webview.onDidReceiveMessage
-                                ->:Void key
-                                    (case (the String key)
-                                        ((when (prefixMap.exists key) key)
-                                            (keyListener.dispose)
-                                            (case (dictGet prefixMap key)
-                                                ((Prefix innerMap)
-                                                    (showShortcutPanel innerMap))
-                                                ((Final command)
-                                                    // TODO dispose() for some reason doesn't take effect until
-                                                    // the awaitLet below finishes its work...
-                                                    (shortcutPanel.dispose)
-                                                    (if documentBeforeShortcut
-                                                            (awaitLet [_ (Vscode.window.showTextDocument documentBeforeShortcut)]
-                                                                (_runCommand command selectedTextBeforeShortcut))
-                                                        (_runCommand command selectedTextBeforeShortcut)))
-                                                (otherwise)))
-
-                                    ("Escape"
-                                        (shortcutPanel.dispose))    
-
-                                    (otherwise (warningMessage "$key is not mapped to a shortcut in this context"))))))
+                                "kissShortcut"
+                                "Kiss Shortcuts"
+                                vscode.ViewColumn.Two
+                                (object
+                                    enableScripts true)))
+    (set keyListener (shortcutPanel.webview.onDidReceiveMessage ->:Void key (shortcutHandler.handleKey (the String key))))
     (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
     (shortcutPanel.webview.postMessage (object command "focus")))
 
-(function shortcutPanelHtml [:Map<String,ShortcutKey> prefixMap]
+(function shortcutPanelHtml [:PrefixMap<String> prefixMap]
     (let [&mut unusedKeys "abcdefghijklmnopqrstuvwxyz1234567890-/"
             shortcutParagraphs
                 (for =>key shortcutKey prefixMap
@@ -163,49 +147,7 @@
         </html>"))
 
 (function :Void runKeyboardShortcut [&opt _]
-    (showShortcutPanel))
-
-// Extract [k]eyboard [s]hortcuts from a string:
-(function extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]
-    (unless stream (set stream (Stream.fromString str)))
-    (unless shortcuts (set shortcuts ""))
-    (case (stream.takeUntilAndDrop "[")
-        ((Some _)
-            (case (stream.takeUntilAndDrop "]")
-                ((Some newShortcuts)
-                    (extractKeyboardShortcuts str stream (+ shortcuts (newShortcuts.toLowerCase))))
-                (otherwise
-                    (warningMessage "unclosed [ in $str")
-                    "")))
-        (otherwise
-            shortcuts)))
-
-(function :Void registerShortcut [keys description &opt :Map<String,ShortcutKey> prefixMap]
-    (unless prefixMap (set prefixMap commandShortcuts))
-    (let [firstKey (keys.shift)]
-        (cond 
-            ((prefixMap.exists firstKey)
-                (let [existingKey (dictGet prefixMap firstKey)
-                        conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
-                    (if keys
-                            (case existingKey
-                                ((Final _)
-                                    (warningMessage conflictMessage))
-                                ((Prefix innerPrefixMap)
-                                    (registerShortcut keys description innerPrefixMap))
-                                (otherwise))
-                        (warningMessage conflictMessage))))
-            (true
-                (if keys
-                        (let [innerPrefixMap (new Map)]
-                            (dictSet prefixMap firstKey (Prefix innerPrefixMap))
-                            (registerShortcut keys description innerPrefixMap))
-                    (dictSet prefixMap firstKey (Final description)))))))
-
-(function registerCommand [description command]
-    (dictSet commands description command)
-    (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
-        (registerShortcut (keyboardShortcut.split "") description)))
+    (shortcutHandler.start))
 
 // Register a VSCode command (built-in, or from an extension)
 (function registerExistingCommand [description command]
@@ -219,6 +161,14 @@
 (var &mut :Command tryLoadConfig)
 
 (function :Void registerBuiltins [&opt leaderKeys]
+    // Set up the KeyShortcutHandler
+    (set shortcutHandler.cancelKey "Escape")
+    (set shortcutHandler.onSelectPrefixMap showShortcutPanel)
+    (set shortcutHandler.onSelectItem runChosenCommand)
+    (set shortcutHandler.onFinishOrCancel closeShortcutPanel)
+    (set shortcutHandler.onBadKey ->:Void [key map] (warningMessage "$key is not mapped to a shortcut in $map"))
+    (set shortcutHandler.onBadShortcut ->:Void [key otherKey] (warningMessage "$key conflicts with $otherKey"))
+
     (unless leaderKeys (set leaderKeys ""))
     (let [prefix "Kiss-VSCode:$(if leaderKeys " [${leaderKeys}]" "")"
             ktxt2Prefix "KTxt2:$(if leaderKeys " [${leaderKeys}]" "")"]
@@ -291,6 +241,10 @@
                                         (closeEvent.dispose)
                                         (awaitLet [_ (showTextDocument previousEditor.document)]
                                             (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText))))))))))))
+
+(function registerCommand [description :Command command]
+    (dictSet commands description command)
+    (shortcutHandler.registerItem description description))
 
 (#unless test
     (var :Array<KTxt2Conversion> conversions [])

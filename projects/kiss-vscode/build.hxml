@@ -5,6 +5,7 @@
 -lib hscript
 -lib tink_macro
 -lib re-flex
+-lib kiss-tools
 -cp src
 -js bin/extension.js
 -D analyzer-optimize

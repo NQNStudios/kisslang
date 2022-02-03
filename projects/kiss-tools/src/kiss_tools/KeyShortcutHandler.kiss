@@ -8,6 +8,8 @@
 (prop &mut :BadKeyHandler<T> onBadKey null)
 (prop &mut :BadShortcutHandler<T> onBadShortcut null)
 
+(defNew [])
+
 (defMacro tryCall [handler &rest args]
     `(whenLet [handler ,handler]
         (handler ,@args)))
@@ -30,14 +32,16 @@
 
 (method handleKey [:String key]
     (unless currentMap (tryCallOrThrow onBadKey "Tried to handle key $key without calling start() first" key null))
-    (case (dictGet currentMap key)
-        ((Final item)
-            (tryCall onSelectItem item)
-            (cancel))
-        ((Prefix nextMap)
-            (_selectMap nextMap))
-        (otherwise
-            (tryCallOrThrow onBadKey "Key $key is not defined in $currentMap and no onBadKey event was given" key currentMap))))
+    (if (= cancelKey key)
+            (cancel)
+        (case (dictGet currentMap key)
+            ((Final item)
+                (tryCall onSelectItem item)
+                (cancel))
+            ((Prefix nextMap)
+                (_selectMap nextMap))
+            (otherwise
+                (tryCallOrThrow onBadKey "Key $key is not defined in $currentMap and no onBadKey event was given" key currentMap)))))
 
 // Extract [k]eyboard [s]hortcuts from a string:
 (method extractKeyboardShortcuts [str &opt :Stream stream :String shortcuts]

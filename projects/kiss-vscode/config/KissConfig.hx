@@ -14,16 +14,12 @@ import sys.io.File;
 import sys.FileSystem;
 import ktxt2.KTxt2;
 import re_flex.R;
+import kiss_tools.KeyShortcutHandler;
 
 using haxe.io.Path;
 using StringTools;
 
 typedef Command = (String) -> Void;
-
-enum ShortcutKey {
-    Final(command:String);
-    Prefix(keys:Map<String, ShortcutKey>);
-}
 
 @:expose
 @:build(kiss.Kiss.buildAll(["KissConfig.kiss", "Config.kiss"]))
