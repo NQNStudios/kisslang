@@ -1,3 +1,60 @@
+(prop :Array<Entry> dailyEntries [])
+(prop :Array<Entry> bonusEntries [])
+(prop :Array<Entry> todoEntries [])
+
 (defNew [&prop :String textFile]
-    // TODO parse it out
-    )
+    (let [s (Stream.fromFile textFile)
+            &mut lastHeader ""]
+        // TODO could be whileLet
+        (loop
+            (case (s.takeLine)
+                ((Some "DAILY")
+                    (set lastHeader "DAILY"))
+                ((Some "BONUS")
+                    (set lastHeader "BONUS"))
+                ((Some "TODO")
+                    (set lastHeader "TODO"))
+                ((when (apply = (concat ["-"] (line.split ""))) (Some line))
+                    (continue))
+                ((Some line)
+                    (.push
+                        (case lastHeader
+                            ("DAILY" dailyEntries)
+                            ("BONUS" bonusEntries)
+                            ("TODO" todoEntries)
+                            (otherwise (throw "bad header")))
+                        (object
+                            type
+                                (case lastHeader
+                                    ("BONUS" Bonus)
+                                    ("TODO" Todo)
+                                    ("DAILY"
+                                        (Daily 
+                                            (case (line.split ":")
+                                                ([noColon] (collect (range 7)))
+                                                ([::&mut preColon ...afterColon]
+                                                    (set line (afterColon.join ":"))
+                                                    (filter
+                                                        [
+                                                            // disambiguate Th from T:
+                                                            (when (contains preColon "Th") {(set preColon (StringTools.replace preColon "Th" "")) 4})
+                                                            (when (contains preColon "S") 0)
+                                                            (when (contains preColon "M") 1)
+                                                            (when (contains preColon "T") 2)
+                                                            (when (contains preColon "W") 3)
+                                                            (when (contains preColon "F") 5)
+                                                            (when (contains preColon "S") 6)
+                                                        ]))
+                                                (otherwise (throw "bad line")))))
+                                    (otherwise (throw "bad header")))
+                            labels
+                                (for l (line.split "/")
+                                    (object
+                                        label (StringTools.replace l "|" "")
+                                        points (count (l.split "") ->c (= c "|")))))))
+                (otherwise (break))))))
+
+(method :Void save []
+    (File.saveContent textFile 
+        // TODO stringify the entries
+        ""))

@@ -2,4 +2,4 @@
 (method &override :Void update [:Float elapsed] (super.update elapsed))
 
 (prop &mut :HabitModel model null)
-(method setModel [m] (set model m))
+(method setModel [m] (set model ~m))
