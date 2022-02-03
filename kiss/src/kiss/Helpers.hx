@@ -231,7 +231,7 @@ class Helpers {
                     for (idx in 0...exps.length) {
                         var exp = exps[idx];
                         switch (exp.def) {
-                            case Symbol(_):
+                            case Symbol(_) | MetaExp("mut", {pos: _, def: Symbol(_)}):
                                 expNames.push(exp);
                             case ListRestExp(name):
                                 if (restExpIndex > -1) {
