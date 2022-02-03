@@ -1,0 +1,3 @@
+(defNew [&prop :String textFile]
+    // TODO parse it out
+    )
