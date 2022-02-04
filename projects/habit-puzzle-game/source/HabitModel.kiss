@@ -80,3 +80,9 @@
     (+= content (.join (map todoEntries stringify) "\n") "\n")
     (File.saveContent textFile 
         content))
+
+// With rotating entries, the active one is the first one with the lowest score:
+(function :EntryLabel activeLabel [:Entry e]
+    (let [lowScore (apply min (for label e.labels label.points))]
+        (doFor label e.labels (when (= lowScore label.points) (return label)))
+        (throw "no active?!")))
