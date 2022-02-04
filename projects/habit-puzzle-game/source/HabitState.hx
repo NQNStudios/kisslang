@@ -10,6 +10,7 @@ import kiss.Prelude;
 import kiss.List;
 import kiss_tools.KeyShortcutHandler;
 import HabitModel;
+import flixel.input.keyboard.FlxKey;
 
 @:build(kiss.Kiss.build())
 class HabitState extends FlxState {}

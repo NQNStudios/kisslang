@@ -1,19 +1,18 @@
 (method &override :Void create [] (super.create))
-(method &override :Void update [:Float elapsed] (super.update elapsed))
+(method &override :Void update [:Float elapsed]
+    (super.update elapsed)
+    (let [:FlxKey id (FlxG.keys.firstJustPressed)]
+        (unless (= id -1)
+            (shortcutHandler.handleKey (.toLowerCase (id.toString))))))
 
 (prop &mut :FlxTypedGroup<FlxText> entryTexts null)
-(prop &mut :KeyShortcutHandler<EntryLabel> shortcutHandler null)
+(prop &mut :KeyShortcutHandler<Entry> shortcutHandler null)
 
 (prop &mut :HabitModel model null)
 (method setModel [m]
     (set model m)
     (set shortcutHandler (new KeyShortcutHandler))
-    (doFor e (the Array<Entry> (concat m.dailyEntries m.bonusEntries m.todoEntries))
-        (let [label (HabitModel.activeLabel e)]
-            (shortcutHandler.registerItem label.label label)))
 
-    ~shortcutHandler.rootMap
-    
     (when entryTexts (remove entryTexts))
     (set entryTexts (new FlxTypedGroup))
     (set textY 0)
@@ -23,7 +22,28 @@
     (map m.bonusEntries makeText)
     (set color FlxColor.YELLOW)
     (map m.todoEntries makeText)
-    (add entryTexts))
+    (add entryTexts)
+
+    (doFor e (the Array<Entry> (concat m.dailyEntries m.bonusEntries m.todoEntries))
+        (let [label (HabitModel.activeLabel e)]
+            (shortcutHandler.registerItem label.label e)))
+
+    **(set shortcutHandler.onBadKey ->:Void [_ _] {})
+    (set shortcutHandler.onSelectItem ->:Void [:Entry e]
+        (let [label (HabitModel.activeLabel e)]
+            **(TODO reveal a piece of the current puzzle)
+            (+= label.points 1)
+            (case e.type
+                (Todo
+                    (m.todoEntries.remove e))
+                (Bonus)
+                ((Daily _)
+                    (set e.doneToday true))
+                (otherwise (throw "bad type")))
+            (m.save)
+            (setModel m)
+            (shortcutHandler.start)))
+    (shortcutHandler.start))
 
 (prop &mut textY 0)
 (prop &mut :FlxColor color null)

@@ -25,6 +25,7 @@
                             ("TODO" todoEntries)
                             (otherwise (throw "bad header")))
                         (object
+                            doneToday false
                             type
                                 (case lastHeader
                                     ("BONUS" Bonus)
@@ -90,5 +91,5 @@
 (function isActive [:Entry e]
     (case e.type
         ((Daily days)
-            (contains days (.getDay (Date.now))))
+            (and !e.doneToday (contains days (.getDay (Date.now)))))
         (otherwise true)))

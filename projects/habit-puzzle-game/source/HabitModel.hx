@@ -18,7 +18,8 @@ typedef EntryLabel = {
 
 typedef Entry = {
     type: EntryType,
-    labels: Array<EntryLabel>
+    labels: Array<EntryLabel>,
+    doneToday: Bool
 };
 
 @:build(kiss.Kiss.build())
