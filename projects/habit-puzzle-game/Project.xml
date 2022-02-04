@@ -33,6 +33,7 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
+	<haxelib name="haxe-strings" />
 	<haxelib name="kiss" />
 	<haxelib name="kiss-tools" />
 
