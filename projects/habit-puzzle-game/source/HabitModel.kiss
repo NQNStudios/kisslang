@@ -1,6 +1,7 @@
 (prop :Array<Entry> dailyEntries [])
 (prop :Array<Entry> bonusEntries [])
 (prop :Array<Entry> todoEntries [])
+(prop :Array<RewardFile> rewardFiles [])
 
 (defNew [&prop :String textFile]
     (let [s (Stream.fromFile textFile)
@@ -14,9 +15,18 @@
                     (set lastHeader "BONUS"))
                 ((Some "TODO")
                     (set lastHeader "TODO"))
+                ((Some "FILES")
+                    (set lastHeader "FILES"))
                 ((when (apply = (concat ["-"] (line.split ""))) (Some line))
                     (continue))
                 ((Some "") (continue))
+                // Types won't unify with the next case, so this is its own:
+                ((when (= lastHeader "FILES") (Some line))
+                    (rewardFiles.push
+                        (let [parts (line.split " ")
+                                startingPoints (Std.parseInt (parts.pop))
+                                path (parts.join " ")]
+                            (objectWith path startingPoints))))
                 ((Some line)
                     (.push
                         (case lastHeader
@@ -72,6 +82,9 @@
         "")$(.join (for label e.labels
                         "${label.label} $(* "|" label.points)") "/")")
 
+(function :String stringifyRewardFile [:RewardFile rewardFile]
+    "${rewardFile.path} ${rewardFile.startingPoints}")
+
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
     (+= content (.join (map dailyEntries stringify) "\n") "\n")
@@ -79,6 +92,8 @@
     (+= content (.join (map bonusEntries stringify) "\n") "\n")
     (+= content "\nTODO\n----\n")
     (+= content (.join (map todoEntries stringify) "\n") "\n")
+    (+= content "\nFILES\n-----\n")
+    (+= content (.join (map rewardFiles stringifyRewardFile) "\n") "\n")
     (File.saveContent textFile 
         content))
 

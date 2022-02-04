@@ -22,5 +22,10 @@ typedef Entry = {
     doneToday: Bool
 };
 
+typedef RewardFile = {
+    path: String,
+    startingPoints: Int
+};
+
 @:build(kiss.Kiss.build())
 class HabitModel {}
