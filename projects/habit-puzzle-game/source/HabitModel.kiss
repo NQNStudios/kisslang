@@ -54,7 +54,15 @@
                                         points (count (l.split "") ->c (= c "|")))))))
                 (otherwise (break))))))
 
+(function :String stringify [:Entry e]
+    "")
+
 (method :Void save []
+    (localVar &mut content "DAILY\n-----\n")
+    (+= content (.join (map dailyEntries stringify) "\n") "\n")
+    (+= content "BONUS\n-----\n")
+    (+= content (.join (map bonusEntries stringify) "\n") "\n")
+    (+= content "TODO\n-----\n")
+    (+= content (.join (map todoEntries stringify) "\n") "\n")
     (File.saveContent textFile 
-        // TODO stringify the entries
-        ""))
+        content))
