@@ -12,5 +12,6 @@ class Main extends Sprite
 		addChild(new FlxGame(0, 0, HabitState, 1, 60, 60, true));
 		var t:HabitState = cast FlxG.state;
 		t.setModel(new HabitModel(Sys.args()[0]));
+		t.model.save();
 	}
 }

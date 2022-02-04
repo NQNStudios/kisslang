@@ -16,6 +16,7 @@
                     (set lastHeader "TODO"))
                 ((when (apply = (concat ["-"] (line.split ""))) (Some line))
                     (continue))
+                ((Some "") (continue))
                 ((Some line)
                     (.push
                         (case lastHeader
@@ -34,35 +35,48 @@
                                                 ([noColon] (collect (range 7)))
                                                 ([::&mut preColon ...afterColon]
                                                     (set line (afterColon.join ":"))
-                                                    (filter
+                                                    (sort (filter
                                                         [
-                                                            // disambiguate Th from T:
+                                                            // disambiguate Th from T and Su from S:
                                                             (when (contains preColon "Th") {(set preColon (StringTools.replace preColon "Th" "")) 4})
-                                                            (when (contains preColon "S") 0)
+                                                            (when (contains preColon "Su") {(set preColon (StringTools.replace preColon "Su" "")) 0})
                                                             (when (contains preColon "M") 1)
                                                             (when (contains preColon "T") 2)
                                                             (when (contains preColon "W") 3)
                                                             (when (contains preColon "F") 5)
                                                             (when (contains preColon "S") 6)
-                                                        ]))
+                                                            
+                                                        ])))
                                                 (otherwise (throw "bad line")))))
                                     (otherwise (throw "bad header")))
                             labels
                                 (for l (line.split "/")
                                     (object
-                                        label (StringTools.replace l "|" "")
+                                        label (StringTools.trim (StringTools.replace l "|" ""))
                                         points (count (l.split "") ->c (= c "|")))))))
                 (otherwise (break))))))
 
 (function :String stringify [:Entry e]
-    "")
+    "$(ifLet [(when !(= days.length 7) (Daily days)) e.type]
+            (+ (.join (for day days
+                (case day
+                    (0 "Su")
+                    (1 "M")
+                    (2 "T")
+                    (3 "W")
+                    (4 "Th")
+                    (5 "F")
+                    (6 "S")
+                    (otherwise (throw "bad day")))) "") ": ")
+        "")$(.join (for label e.labels
+                        "${label.label} $(* "|" label.points)") "/")")
 
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
     (+= content (.join (map dailyEntries stringify) "\n") "\n")
-    (+= content "BONUS\n-----\n")
+    (+= content "\nBONUS\n-----\n")
     (+= content (.join (map bonusEntries stringify) "\n") "\n")
-    (+= content "TODO\n-----\n")
+    (+= content "\nTODO\n----\n")
     (+= content (.join (map todoEntries stringify) "\n") "\n")
     (File.saveContent textFile 
         content))
