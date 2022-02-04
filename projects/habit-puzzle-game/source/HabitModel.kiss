@@ -67,6 +67,9 @@
                                         points (count (l.split "") ->c (= c "|")))))))
                 (otherwise (break))))))
 
+(method :Int totalPoints []
+    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries bonusEntries todoEntries)) e.labels)) l.points)))
+
 (function :String stringify [:Entry e]
     "$(ifLet [(when !(= days.length 7) (Daily days)) e.type]
             (+ (.join (for day days

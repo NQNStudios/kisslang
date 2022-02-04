@@ -11,6 +11,7 @@
 (prop &mut :HabitModel model null)
 (method setModel [m]
     (set model m)
+    ~(m.totalPoints)
     (set shortcutHandler (new KeyShortcutHandler))
 
     (when entryTexts (remove entryTexts))
