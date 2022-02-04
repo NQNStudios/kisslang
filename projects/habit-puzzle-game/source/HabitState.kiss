@@ -1,7 +1,36 @@
 (method &override :Void create [] (super.create))
 (method &override :Void update [:Float elapsed] (super.update elapsed))
 
+(prop &mut :FlxTypedGroup<FlxText> entryTexts null)
+(prop &mut :KeyShortcutHandler<EntryLabel> shortcutHandler null)
+
 (prop &mut :HabitModel model null)
 (method setModel [m]
     (set model m)
-    (doFor e model.bonusEntries ~(HabitModel.activeLabel e)))
+    (set shortcutHandler (new KeyShortcutHandler))
+    (doFor e (the Array<Entry> (concat m.dailyEntries m.bonusEntries m.todoEntries))
+        (let [label (HabitModel.activeLabel e)]
+            (shortcutHandler.registerItem label.label label)))
+
+    ~shortcutHandler.rootMap
+    
+    (when entryTexts (remove entryTexts))
+    (set entryTexts (new FlxTypedGroup))
+    (set textY 0)
+    (set color FlxColor.ORANGE)
+    (map (filter m.dailyEntries HabitModel.isActive) makeText)
+    (set color FlxColor.WHITE)
+    (map m.bonusEntries makeText)
+    (set color FlxColor.YELLOW)
+    (map m.todoEntries makeText)
+    (add entryTexts))
+
+(prop &mut textY 0)
+(prop &mut :FlxColor color null)
+
+(method makeText [:Entry e]
+    (let [label (HabitModel.activeLabel e)
+            text (new FlxText 0 textY 0 (+ label.label (* label.points "+")))]
+        (set text.color color)
+        (+= textY text.height)
+        (entryTexts.add text)))

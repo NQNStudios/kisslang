@@ -86,3 +86,9 @@
     (let [lowScore (apply min (for label e.labels label.points))]
         (doFor label e.labels (when (= lowScore label.points) (return label)))
         (throw "no active?!")))
+
+(function isActive [:Entry e]
+    (case e.type
+        ((Daily days)
+            (contains days (.getDay (Date.now))))
+        (otherwise true)))
