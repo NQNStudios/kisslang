@@ -6,7 +6,7 @@ import kiss.Stream;
 import sys.io.File;
 
 enum EntryType {
-    Daily(daysOfWeek:Array<Int>);
+    Daily(daysOfWeek:Array<Int>, lastDayDone:String);
     Bonus;
     Todo;
 }
@@ -19,7 +19,6 @@ typedef EntryLabel = {
 typedef Entry = {
     type: EntryType,
     labels: Array<EntryLabel>,
-    doneToday: Bool
 };
 
 typedef RewardFile = {

@@ -35,17 +35,22 @@
                             ("TODO" todoEntries)
                             (otherwise (throw "bad header")))
                         (object
-                            doneToday false
                             type
                                 (case lastHeader
                                     ("BONUS" Bonus)
                                     ("TODO" Todo)
                                     ("DAILY"
-                                        (Daily 
-                                            (case (line.split ":")
-                                                ([noColon] (collect (range 7)))
-                                                ([::&mut preColon ...afterColon]
-                                                    (set line (afterColon.join ":"))
+                                        (case (line.split ":")
+                                            ([noColon]
+                                                (Daily
+                                                    // all days of week
+                                                    (collect (range 7))
+                                                    // never done before
+                                                    ""))
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ":"))
+                                                (Daily 
+                                                    // Days of week specified by abbreviation:
                                                     (sort (filter
                                                         [
                                                             // disambiguate Th from T and Su from S:
@@ -57,8 +62,12 @@
                                                             (when (contains preColon "F") 5)
                                                             (when (contains preColon "S") 6)
                                                             
-                                                        ])))
-                                                (otherwise (throw "bad line")))))
+                                                        ]))
+                                                    // Last date completed after that:
+                                                    (ifLet [[days date] (preColon.split " ")]
+                                                            date
+                                                        "")))
+                                            (otherwise (throw "bad line"))))
                                     (otherwise (throw "bad header")))
                             labels
                                 (for l (line.split "/")
@@ -71,17 +80,21 @@
     (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries bonusEntries todoEntries)) e.labels)) l.points)))
 
 (function :String stringify [:Entry e]
-    "$(ifLet [(when !(= days.length 7) (Daily days)) e.type]
-            (+ (.join (for day days
-                (case day
-                    (0 "Su")
-                    (1 "M")
-                    (2 "T")
-                    (3 "W")
-                    (4 "Th")
-                    (5 "F")
-                    (6 "S")
-                    (otherwise (throw "bad day")))) "") ": ")
+    "$(ifLet [(Daily days lastDayDone) e.type]
+            (+
+                (.join (for day days
+                    (case day
+                        (0 "Su")
+                        (1 "M")
+                        (2 "T")
+                        (3 "W")
+                        (4 "Th")
+                        (5 "F")
+                        (6 "S")
+                        (otherwise (throw "bad day")))) "")
+                " "
+                lastDayDone
+                ": ")
         "")$(.join (for label e.labels
                         "${label.label} $(* "|" label.points)") "/")")
 
@@ -106,8 +119,11 @@
         (doFor label e.labels (when (= lowScore label.points) (return label)))
         (throw "no active?!")))
 
+(function todayString []
+    (let [d (Date.now)] "$(d.getDate)-$(+ 1 (d.getMonth))-$(d.getFullYear)"))
+
 (function isActive [:Entry e]
     (case e.type
-        ((Daily days)
-            (and !e.doneToday (contains days (.getDay (Date.now)))))
+        ((Daily days lastDayDone)
+            (and !(= lastDayDone (todayString)) (contains days (.getDay (Date.now)))))
         (otherwise true)))
