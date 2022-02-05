@@ -77,13 +77,13 @@
     (add entryTexts)
 
     (doFor e (the Array<Entry> (concat m.dailyEntries m.bonusEntries m.todoEntries))
-        (let [label (HabitModel.activeLabel e)]
-            (shortcutHandler.registerItem label.label e)))
+        (when (HabitModel.isActive e)
+            (let [label (HabitModel.activeLabel e)]
+                (shortcutHandler.registerItem label.label e))))
 
     (set shortcutHandler.onBadKey ->:Void [_ _] {})
     (set shortcutHandler.onSelectItem ->:Void [:Entry e]
         (let [label (HabitModel.activeLabel e)]
-            **(TODO reveal a piece of the current puzzle)
             (+= label.points 1)
             (case e.type
                 (Todo
