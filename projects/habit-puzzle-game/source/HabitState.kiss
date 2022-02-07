@@ -14,8 +14,8 @@
 
 (prop &mut :HabitModel model null)
 
-(var PUZZLE_WIDTH 15)
-(var PUZZLE_HEIGHT 10)
+(var PUZZLE_WIDTH 4)
+(var PUZZLE_HEIGHT 4)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxSprite rewardSprite null)
 
@@ -25,12 +25,12 @@
 
     (let [p (m.totalPoints)
             &mut i 0
-            &mut currentRewardFile (first m.rewardFiles)]
+            &mut currentRewardFile null]
         // Find, load, and add the current reward image as big as possible:
-        (until (< p currentRewardFile.startingPoints)
+        (while (>= p .startingPoints (nth m.rewardFiles i))
+            (set currentRewardFile (nth m.rewardFiles i))
             (if (>= ++i m.rewardFiles.length)
-                    (break)
-                (set currentRewardFile (nth m.rewardFiles i))))
+                    (break)))
         (when rewardSprite
             (remove rewardSprite))
         (set rewardSprite (new FlxSprite 0 0 (BitmapData.fromFile (joinPath (Path.directory m.textFile) currentRewardFile.path))))
@@ -58,8 +58,8 @@
             // Cover it up with (TOTAL_PIECES - p) black squares placed randomly by choosing and removing from a zipped coordinate list
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))]
                 (r.shuffle blockerPoints)
-                (doFor i (range (- (+ TOTAL_PIECES currentRewardFile.startingPoints) p))
-                    (let [pos (nth blockerPoints i)
+                (doFor i (range (- ~(+ TOTAL_PIECES currentRewardFile.startingPoints) ~p))
+                    (let [pos (nth blockerPoints ~i)
                             s (new FlxSprite pos.x pos.y)]
                         (s.makeGraphic (Math.ceil PIECE_WIDTH) (Math.ceil PIECE_HEIGHT) FlxColor.BLACK)
                         (rewardBlockers.add s))))))
