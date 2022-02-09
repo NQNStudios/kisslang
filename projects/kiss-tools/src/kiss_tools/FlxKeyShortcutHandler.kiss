@@ -24,6 +24,7 @@
 
 (defNew []
     (super)
+    (set cancelKey "escape")
     // TODO generic error handlers
     )
 
