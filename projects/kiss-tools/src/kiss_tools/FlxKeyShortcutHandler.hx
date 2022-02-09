@@ -1,3 +1,5 @@
+#if flixel
+
 package kiss_tools;
 
 import kiss.Prelude;
@@ -8,3 +10,4 @@ import flixel.FlxG;
 
 @:build(kiss.Kiss.build())
 class FlxKeyShortcutHandler<T> extends KeyShortcutHandler<T> {}
+#end
