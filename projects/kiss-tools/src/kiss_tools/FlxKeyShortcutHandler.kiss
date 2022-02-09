@@ -1,0 +1,39 @@
+(var KEY_MAP [
+    =>"ZERO" "0"
+    =>"ONE" "1"
+    =>"TWO" "2"
+    =>"THREE" "3"
+    =>"FOUR" "4"
+    =>"FIVE" "5"
+    =>"SIX" "6"
+    =>"SEVEN" "7"
+    =>"EIGHT" "8"
+    =>"NINE" "9"
+    =>"NUMPADZERO" "0"
+    =>"NUMPADONE" "1"
+    =>"NUMPADTWO" "2"
+    =>"NUMPADTHREE" "3"
+    =>"NUMPADFOUR" "4"
+    =>"NUMPADFIVE" "5"
+    =>"NUMPADSIX" "6"
+    =>"NUMPADSEVEN" "7"
+    =>"NUMPADEIGHT" "8"
+    =>"NUMPADNINE" "9"
+    // TODO there are probably other keys worth converting
+])
+
+(defNew []
+    (super)
+    // TODO generic error handlers
+    )
+
+// automatically pass the last pressed key to handle key
+(method update []
+    (let [:FlxKey id (FlxG.keys.firstJustPressed)]
+        (unless (= id -1)
+            (handleKey
+                (case (id.toString)
+                    ((when (KEY_MAP.exists key) key)
+                        (dictGet KEY_MAP key))
+                    (key (.toLowerCase key))
+                    (otherwise (throw "FlxKey.toString returned null!")))))))        

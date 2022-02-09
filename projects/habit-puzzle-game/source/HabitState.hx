@@ -12,9 +12,8 @@ import flixel.math.FlxRandom;
 import flixel.math.FlxPoint;
 import kiss.Prelude;
 import kiss.List;
-import kiss_tools.KeyShortcutHandler;
+import kiss_tools.FlxKeyShortcutHandler;
 import HabitModel;
-import flixel.input.keyboard.FlxKey;
 import hx.strings.Strings;
 
 @:build(kiss.Kiss.build())
