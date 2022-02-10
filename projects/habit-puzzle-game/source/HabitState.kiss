@@ -57,8 +57,8 @@
             // Cover it up with (TOTAL_PIECES - p) black squares placed randomly by choosing and removing from a zipped coordinate list
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))]
                 (r.shuffle blockerPoints)
-                (doFor i (range (- ~(+ TOTAL_PIECES currentRewardFile.startingPoints) ~p))
-                    (let [pos (nth blockerPoints ~i)
+                (doFor i (range (- (+ TOTAL_PIECES currentRewardFile.startingPoints) p))
+                    (let [pos (nth blockerPoints i)
                             s (new FlxSprite pos.x pos.y)]
                         (s.makeGraphic (Math.ceil PIECE_WIDTH) (Math.ceil PIECE_HEIGHT) FlxColor.BLACK)
                         (rewardBlockers.add s))))))
