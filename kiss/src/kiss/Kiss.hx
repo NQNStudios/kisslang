@@ -116,6 +116,7 @@ class Kiss {
                 "zipKeep" => Symbol("Prelude.zipKeep"),
                 "zipDrop" => Symbol("Prelude.zipDrop"),
                 "zipThrow" => Symbol("Prelude.zipThrow"),
+                "intersect" => Symbol("Prelude.intersect"),
                 "joinPath" => Symbol("Prelude.joinPath"),
                 "readDirectory" => Symbol("Prelude.readDirectory"),
                 "substr" => Symbol("Prelude.substr"),

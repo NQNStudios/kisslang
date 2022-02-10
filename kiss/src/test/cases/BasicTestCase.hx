@@ -335,6 +335,10 @@ class BasicTestCase extends Test {
     function testContains() {
         _testContains();
     }
+
+    function testIntersect() {
+        _testIntersect();
+    }
 }
 
 class BasicObject {

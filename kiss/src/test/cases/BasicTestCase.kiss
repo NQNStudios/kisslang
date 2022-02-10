@@ -606,3 +606,25 @@
     (assert (contains [1 2 3] 1))
     (assert !(contains [1 2 3] 5))
     (Assert.pass))
+
+(function _testIntersect []
+    (let [intersection2d
+                (for i (the Array<Array<Dynamic>> (intersect (.split "abc" "") (.split "xyz" ""))) (i.join ""))
+            intersection3d
+                (for i (the Array<Array<Dynamic>> (intersect (.split "abc" "") (.split "xyz" "") (.split "123" ""))) (i.join ""))]
+        (assert (contains intersection2d "ax"))
+        (assert (contains intersection2d "ay"))
+        (assert (contains intersection2d "az"))
+        (assert (contains intersection2d "bx"))
+        (assert (contains intersection2d "by"))
+        (assert (contains intersection2d "bz"))
+        (assert (contains intersection2d "cx"))
+        (assert (contains intersection2d "cy"))
+        (assert (contains intersection2d "cz"))
+        (assert (contains intersection3d "ax1"))
+        (assert (contains intersection3d "ax3"))
+        (assert (contains intersection3d "bx3"))
+        (assert (contains intersection3d "cy1"))
+        (assert (contains intersection3d "cy3"))
+        )
+    (Assert.pass))

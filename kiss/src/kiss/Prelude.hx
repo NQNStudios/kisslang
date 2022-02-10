@@ -246,6 +246,22 @@ class Prelude {
     public static var zipDrop:Function = Reflect.makeVarArgs(_zip.bind(_, Drop));
     public static var zipThrow:Function = Reflect.makeVarArgs(_zip.bind(_, Throw));
 
+    static function _intersect(iterables:Array<Dynamic>):kiss.List<kiss.List<Dynamic>> {
+        var iterators:Array<Iterator<Dynamic>> = [for (iterable in iterables) iterable.iterator()];
+
+        var intersections:Array<Array<Dynamic>> = [for (elem in iterators.shift()) [elem]];
+        
+        for (iterator in iterators) {
+            intersections = cast _concat([for (elem in iterator) [for (intersection in intersections) intersection.concat([elem])]]);
+        }
+        
+        return intersections;
+    }
+
+    // Return an array of every N-dimensional intersection of elements in N iterables.
+    // Callers should not rely on the order of the intersections
+    public static var intersect:Function = Reflect.makeVarArgs(_intersect);
+
     public static function enumerate(l:kiss.List<Dynamic>, startingIdx = 0):kiss.List<kiss.List<Dynamic>> {
         return zipThrow(range(startingIdx, startingIdx + l.length, 1), l);
     }
