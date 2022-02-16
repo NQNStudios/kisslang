@@ -126,4 +126,14 @@
     (case e.type
         ((Daily days lastDayDone)
             (and !(= lastDayDone (todayString)) (contains days (.getDay (Date.now)))))
+        (Todo (= 0 .points (activeLabel e)))
         (otherwise true)))
+
+(method :Array<Entry> activeDailyEntries []
+    (filter dailyEntries isActive))
+
+(method :Array<Entry> activeBonusEntries []
+    (filter bonusEntries isActive))
+
+(method :Array<Entry> activeTodoEntries []
+    (filter todoEntries isActive))

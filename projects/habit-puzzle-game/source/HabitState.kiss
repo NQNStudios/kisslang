@@ -68,11 +68,11 @@
     (set entryTexts (new FlxTypedGroup))
     (set textY 0)
     (set color FlxColor.ORANGE)
-    (map (filter m.dailyEntries HabitModel.isActive) makeText)
+    (map (m.activeDailyEntries) makeText)
     (set color FlxColor.WHITE)
-    (map m.bonusEntries makeText)
+    (map (m.activeBonusEntries) makeText)
     (set color FlxColor.YELLOW)
-    (map m.todoEntries makeText)
+    (map (m.activeTodoEntries) makeText)
     (add entryTexts)
 
     (doFor e (the Array<Entry> (concat m.dailyEntries m.bonusEntries m.todoEntries))
@@ -84,13 +84,8 @@
     (set shortcutHandler.onSelectItem ->:Void [:Entry e]
         (let [label (HabitModel.activeLabel e)]
             (+= label.points 1)
-            (case e.type
-                (Todo
-                    (m.todoEntries.remove e))
-                (Bonus)
-                ((Daily days lastDayDone)
-                    (set e.type (Daily days (HabitModel.todayString))))
-                (otherwise (throw "bad type")))
+            (whenLet [(Daily days lastDayDone) e.type]
+                (set e.type (Daily days (HabitModel.todayString))))
             (m.save)
             (setModel m)
             (shortcutHandler.start)))
