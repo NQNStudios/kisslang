@@ -134,20 +134,19 @@
                     null)))))
 
 (function :Void showCompileError [errorMessage]
-    (ifLet [errorMessage (.join (filter (errorMessage.split "\n") ->[:String l] (= -1 (l.indexOf "This case is unused"))) "\n")
-                compileErrors (R.distinctMatches
-                                            (R.group
-                                                (R.namedGroup "file"
-                                                    (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
-                                                    (R.escape ".kiss:")
-                                                    (R.repeat R.anyDigit 1) // line
-                                                    (R.escape ":")
-                                                    (R.optional
-                                                        (R.group 
-                                                            (R.repeat R.anyDigit 1) // column
-                                                            (R.escape ":"))))
-                                                (R.repeat R.anyChar 1))
-                                            errorMessage)]
+    (ifLet [compileErrors (R.distinctMatches
+                                        (R.group
+                                            (R.namedGroup "file"
+                                                (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
+                                                (R.escape ".kiss:")
+                                                (R.repeat R.anyDigit 1) // line
+                                                (R.escape ":")
+                                                (R.optional
+                                                    (R.group 
+                                                        (R.repeat R.anyDigit 1) // column
+                                                        (R.escape ":"))))
+                                            (R.repeat R.anyChar 1))
+                                        errorMessage)]
             {
                 (Vscode.window.showErrorMessage errorMessage)
                 (awaitLet [chosen (quickPickMap (for match compileErrors =>match.match match))]

@@ -5,5 +5,6 @@ args.hxml
 -lib kiss-vscode
 -lib kiss-tools
 -lib re-flex
+--macro kiss.Kiss.setup()
 KissConfig
 -js config.js
