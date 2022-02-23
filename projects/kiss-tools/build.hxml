@@ -1,4 +1,0 @@
--lib kiss
--cp src
---main kiss_tools.Main
---interp

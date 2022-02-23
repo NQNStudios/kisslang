@@ -1,6 +1,7 @@
 -lib kiss
 -lib hxnodejs
 -cp src
+--macro kiss.Kiss.setup()
 --main Main
 -js index.js
 --cmd node index.js example-input 5

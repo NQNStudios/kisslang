@@ -38,6 +38,7 @@
 	<haxelib name="flixel" />
 
 	<haxelib name="kiss" />
+	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
 
 	<haxelib name="nat-archive-tool" />
 
