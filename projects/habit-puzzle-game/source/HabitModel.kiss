@@ -1,4 +1,5 @@
 (prop :Array<Entry> dailyEntries [])
+(prop :Array<Entry> intervalEntries [])
 (prop :Array<Entry> bonusEntries [])
 (prop :Array<Entry> todoEntries [])
 (prop :Array<RewardFile> rewardFiles [])
@@ -11,6 +12,8 @@
             (case (s.takeLine)
                 ((Some "DAILY")
                     (set lastHeader "DAILY"))
+                ((Some "INTERVAL")
+                    (set lastHeader "INTERVAL"))
                 ((Some "BONUS")
                     (set lastHeader "BONUS"))
                 ((Some "TODO")
@@ -31,6 +34,7 @@
                     (.push
                         (case lastHeader
                             ("DAILY" dailyEntries)
+                            ("INTERVAL" intervalEntries)
                             ("BONUS" bonusEntries)
                             ("TODO" todoEntries)
                             (otherwise (throw "bad header")))
@@ -68,6 +72,17 @@
                                                             date
                                                         "")))
                                             (otherwise (throw "bad line"))))
+                                    ("INTERVAL"
+                                        (case (line.split ":")
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ":"))
+                                                (case (preColon.split " ")
+                                                    ([days]
+                                                        (Interval (Std.parseInt days) ""))
+                                                    ([days lastDayDone]
+                                                        (Interval (Std.parseInt days) lastDayDone))
+                                                    (otherwise (throw "bad line"))))
+                                            (otherwise (throw "bad line"))))
                                     (otherwise (throw "bad header")))
                             labels
                                 (for l (line.split "/")
@@ -95,7 +110,9 @@
                 " "
                 lastDayDone
                 ": ")
-        "")$(.join (for label e.labels
+        (ifLet [(Interval days lastDayDone) e.type]
+                "$days ${lastDayDone}: "
+            ""))$(.join (for label e.labels
                         "${label.label} $(* "|" label.points)") "/")")
 
 (function :String stringifyRewardFile [:RewardFile rewardFile]
@@ -104,6 +121,8 @@
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
     (+= content (.join (map dailyEntries stringify) "\n") "\n")
+    (+= content "\nINTERVAL\n--------\n")
+    (+= content (.join (map intervalEntries stringify) "\n") "\n")
     (+= content "\nBONUS\n-----\n")
     (+= content (.join (map bonusEntries stringify) "\n") "\n")
     (+= content "\nTODO\n----\n")
@@ -126,11 +145,16 @@
     (case e.type
         ((Daily days lastDayDone)
             (and !(= lastDayDone (todayString)) (contains days (.getDay (Date.now)))))
+        ((Interval days lastDayDone)
+            (or !lastDayDone (<= days #|(DateTime.fromDate(Date.now()) - DateTime.fromString(lastDayDone)).getTotalDays()|#)))
         (Todo (= 0 .points (activeLabel e)))
         (otherwise true)))
 
 (method :Array<Entry> activeDailyEntries []
     (filter dailyEntries isActive))
+
+(method :Array<Entry> activeIntervalEntries []
+    (filter intervalEntries isActive))
 
 (method :Array<Entry> activeBonusEntries []
     (filter bonusEntries isActive))

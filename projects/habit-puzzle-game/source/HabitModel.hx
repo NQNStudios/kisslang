@@ -4,9 +4,11 @@ import kiss.Prelude;
 import kiss.List;
 import kiss.Stream;
 import sys.io.File;
+import datetime.DateTime;
 
 enum EntryType {
     Daily(daysOfWeek:Array<Int>, lastDayDone:String);
+    Interval(days:Int, lastDayDone:String);
     Bonus;
     Todo;
 }
