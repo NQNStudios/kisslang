@@ -9,6 +9,8 @@ import datetime.DateTime;
 enum EntryType {
     Daily(daysOfWeek:Array<Int>, lastDayDone:String);
     Interval(days:Int, lastDayDone:String);
+    // -1 represents the last day of the month, and so on
+    Monthly(daysOfMonth:Array<Int>, lastDayDone:String);
     Bonus;
     Todo;
 }
