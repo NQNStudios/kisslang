@@ -92,7 +92,7 @@
                 (otherwise (break))))))
 
 (method :Int totalPoints []
-    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries bonusEntries todoEntries)) e.labels)) l.points)))
+    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries intervalEntries bonusEntries todoEntries)) e.labels)) l.points)))
 
 (function :String stringify [:Entry e]
     "$(ifLet [(Daily days lastDayDone) e.type]
