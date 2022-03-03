@@ -5,6 +5,7 @@ import kiss.List;
 import kiss.Stream;
 import sys.io.File;
 import datetime.DateTime;
+import datetime.DateTimeInterval;
 
 enum EntryType {
     Daily(daysOfWeek:Array<Int>, lastDayDone:String);

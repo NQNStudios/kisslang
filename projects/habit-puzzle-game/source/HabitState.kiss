@@ -69,6 +69,8 @@
     (set textY 0)
     (set color FlxColor.ORANGE)
     (map (m.activeDailyEntries) makeText)
+    (set color FlxColor.GREEN)
+    (map (m.activeMonthlyEntries) makeText)
     (set color FlxColor.BLUE)
     (map (m.activeIntervalEntries) makeText)
     (set color FlxColor.WHITE)
@@ -77,7 +79,7 @@
     (map (m.activeTodoEntries) makeText)
     (add entryTexts)
 
-    (doFor e (the Array<Entry> (concat m.dailyEntries m.intervalEntries m.bonusEntries m.todoEntries))
+    (doFor e (the Array<Entry> (concat m.dailyEntries m.monthlyEntries m.intervalEntries m.bonusEntries m.todoEntries))
         (when (HabitModel.isActive e)
             (let [label (HabitModel.activeLabel e)]
                 (shortcutHandler.registerItem label.label e))))
@@ -88,6 +90,8 @@
             (+= label.points 1)
             (whenLet [(Daily days lastDayDone) e.type]
                 (set e.type (Daily days (HabitModel.todayString))))
+            (whenLet [(Monthly days lastDayDone) e.type]
+                (set e.type (Monthly days (.toString (DateTime.now)))))
             (whenLet [(Interval days lastDayDone) e.type]
                 (set e.type (Interval days (.toString (DateTime.now)))))
             (m.save)

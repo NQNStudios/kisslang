@@ -1,4 +1,5 @@
 (prop :Array<Entry> dailyEntries [])
+(prop :Array<Entry> monthlyEntries [])
 (prop :Array<Entry> intervalEntries [])
 (prop :Array<Entry> bonusEntries [])
 (prop :Array<Entry> todoEntries [])
@@ -12,6 +13,8 @@
             (case (s.takeLine)
                 ((Some "DAILY")
                     (set lastHeader "DAILY"))
+                ((Some "MONTHLY")
+                    (set lastHeader "MONTHLY"))
                 ((Some "INTERVAL")
                     (set lastHeader "INTERVAL"))
                 ((Some "BONUS")
@@ -34,6 +37,7 @@
                     (.push
                         (case lastHeader
                             ("DAILY" dailyEntries)
+                            ("MONTHLY" monthlyEntries)
                             ("INTERVAL" intervalEntries)
                             ("BONUS" bonusEntries)
                             ("TODO" todoEntries)
@@ -72,10 +76,18 @@
                                                             date
                                                         "")))
                                             (otherwise (throw "bad line"))))
-                                    ("INTERVAL"
-                                        (case (line.split ":")
+                                    ("MONTHLY"
+                                        (case (line.split ": ")
                                             ([::&mut preColon ...afterColon]
-                                                (set line (afterColon.join ":"))
+                                                (set line (afterColon.join ": "))
+                                                (Monthly 
+                                                    // Days of month can be positive (1-31) or negative (-1 to -31)
+                                                    (map (.split (first (preColon.split " ")) ",") Std.parseInt)
+                                                    // Last date completed after that:
+                                                    (ifLet [[::days ...date] (preColon.split " ")]
+                                                            (date.join " ")
+                                                        "")))
+                                            (otherwise (throw "bad line"))))
                                     ("INTERVAL"
                                         (case (line.split ": ")
                                             ([::&mut preColon ...afterColon]
@@ -96,7 +108,7 @@
                 (otherwise (break))))))
 
 (method :Int totalPoints []
-    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries intervalEntries bonusEntries todoEntries)) e.labels)) l.points)))
+    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries monthlyEntries intervalEntries bonusEntries todoEntries)) e.labels)) l.points)))
 
 (function :String stringify [:Entry e]
     "$(case e.type
@@ -115,6 +127,8 @@
                 " "
                 lastDayDone
                 ": "))
+        ((Monthly days lastDayDone)
+            "$(days.join ",") ${lastDayDone}: ")
         ((Interval days lastDayDone)
             "$days ${lastDayDone}: ")
         (otherwise ""))$(.join (for label e.labels
@@ -126,6 +140,8 @@
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
     (+= content (.join (map dailyEntries stringify) "\n") "\n")
+    (+= content "\nMONTHLY\n--------\n")
+    (+= content (.join (map monthlyEntries stringify) "\n") "\n")
     (+= content "\nINTERVAL\n--------\n")
     (+= content (.join (map intervalEntries stringify) "\n") "\n")
     (+= content "\nBONUS\n-----\n")
@@ -150,6 +166,23 @@
     (case e.type
         ((Daily days lastDayDone)
             (and !(= lastDayDone (todayString)) (contains days (.getDay (Date.now)))))
+        ((Monthly days lastDayDone)
+            // TODO logic
+            (let [&mut nextDay
+                        (DateTime.fromDate (Date.now))
+                    oneDayInterval (DateTimeInterval.create (DateTime.make null null 1) (DateTime.make null null 2))
+                    dayToEndSearch
+                        (if lastDayDone
+                                (DateTime.fromString lastDayDone)
+                            (let [now (DateTime.fromDate (Date.now))]
+                                (until (= 1 (now.getDay)) #|now -= oneDayInterval;|#)
+                                now))]
+                (until (and (= (nextDay.getDay) (dayToEndSearch.getDay)) (= (nextDay.getMonth) (dayToEndSearch.getMonth)) (= (nextDay.getYear) (dayToEndSearch.getYear)))
+                    (let [daysInMonth (DateTime.daysInMonth (nextDay.getMonth) (nextDay.isLeapYear))
+                            adjustedDays (for day days (% (+ daysInMonth day) daysInMonth))]
+                        (when (contains adjustedDays (nextDay.getDay)) (return true)))
+                    #|nextDay -= oneDayInterval|#)
+                (return false)))
         ((Interval days lastDayDone)
             (or !lastDayDone (<= days #|(DateTime.fromDate(Date.now()) - DateTime.fromString(lastDayDone)).getTotalDays()|#)))
         (Todo (= 0 .points (activeLabel e)))
@@ -157,6 +190,9 @@
 
 (method :Array<Entry> activeDailyEntries []
     (filter dailyEntries isActive))
+
+(method :Array<Entry> activeMonthlyEntries []
+    (filter monthlyEntries isActive))
 
 (method :Array<Entry> activeIntervalEntries []
     (filter intervalEntries isActive))
