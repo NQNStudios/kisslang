@@ -76,14 +76,18 @@
                                         (case (line.split ":")
                                             ([::&mut preColon ...afterColon]
                                                 (set line (afterColon.join ":"))
+                                    ("INTERVAL"
+                                        (case (line.split ": ")
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ": "))
                                                 (case (preColon.split " ")
                                                     ([days]
                                                         (Interval (Std.parseInt days) ""))
-                                                    ([days lastDayDone]
-                                                        (Interval (Std.parseInt days) lastDayDone))
-                                                    (otherwise (throw "bad line"))))
-                                            (otherwise (throw "bad line"))))
-                                    (otherwise (throw "bad header")))
+                                                    ([::days ...lastDayDone]
+                                                        (Interval (Std.parseInt days) (lastDayDone.join " ")))
+                                                    (otherwise (throw "bad interval habit: $line"))))
+                                            (otherwise (throw "bad interval habit: $line"))))
+                                    (otherwise (throw "bad header: $lastHeader")))
                             labels
                                 (for l (line.split "/")
                                     (object
@@ -95,7 +99,8 @@
     (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries intervalEntries bonusEntries todoEntries)) e.labels)) l.points)))
 
 (function :String stringify [:Entry e]
-    "$(ifLet [(Daily days lastDayDone) e.type]
+    "$(case e.type
+        ((Daily days lastDayDone) 
             (+
                 (.join (for day days
                     (case day
@@ -109,10 +114,10 @@
                         (otherwise (throw "bad day")))) "")
                 " "
                 lastDayDone
-                ": ")
-        (ifLet [(Interval days lastDayDone) e.type]
-                "$days ${lastDayDone}: "
-            ""))$(.join (for label e.labels
+                ": "))
+        ((Interval days lastDayDone)
+            "$days ${lastDayDone}: ")
+        (otherwise ""))$(.join (for label e.labels
                         "${label.label} $(* "|" label.points)") "/")")
 
 (function :String stringifyRewardFile [:RewardFile rewardFile]
