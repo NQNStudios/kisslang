@@ -100,6 +100,8 @@
             // install all of the user's Node dependencies:
             (when (FileSystem.exists (joinPath activeConfigDir "package.json"))
                 (npmSafeTrySpawnSync ["npm" "install"] handleConfigFailure))
+            // install built-in node dependencies:
+            (npmSafeTrySpawnSync ["npm" "install" "jsdom"] handleConfigFailure) 
             // Run the haxe compiler:
             (trySpawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir) handleConfigFailure)
 

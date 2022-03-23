@@ -250,3 +250,9 @@
     (var :Array<KTxt2Conversion> conversions [])
 
     (function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion)))
+
+
+(function quickWebview []
+    (let [dom (new JSDOM "<!DOCTYPE html><p>Hello world</p>")
+            document dom.window.document]
+        document))

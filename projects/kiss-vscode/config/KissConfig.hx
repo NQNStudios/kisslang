@@ -15,6 +15,7 @@ import sys.FileSystem;
 import ktxt2.KTxt2;
 import re_flex.R;
 import kiss_tools.KeyShortcutHandler;
+import JSDomExterns;
 
 using haxe.io.Path;
 using StringTools;
