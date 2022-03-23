@@ -13,6 +13,16 @@
 (var &mut commandsDir "")
 (var &mut :KissConfig config null)
 
+(function npmSafeTrySpawnSync [:Array<String> cmd handleConfigFailure]
+    (let [program
+                (if (= "Windows" (Sys.systemName))
+                        {
+                            (cmd.insert 0 "/c")
+                            "cmd.exe"
+                        }
+                    (cmd.shift))]
+        (trySpawnSync program cmd (object cwd activeConfigDir) handleConfigFailure)))
+
 (function :Void tryLoadConfig [&opt :Bool force :Bool fallbackToDefault :String _]
     (let [handleConfigFailure
                 ->errorMessage {
@@ -87,11 +97,9 @@
                         (joinPath activeConfigDir folder)))
             // install all Haxe dependencies:
             (trySpawnSync "haxelib" ["install" "all" "--always"] (object cwd activeConfigDir) handleConfigFailure)
-            // install all Node dependencies:
+            // install all of the user's Node dependencies:
             (when (FileSystem.exists (joinPath activeConfigDir "package.json"))
-                (if (= "Windows" (Sys.systemName))
-                        (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (object cwd activeConfigDir) handleConfigFailure)
-                    (trySpawnSync "npm" ["install"] (object cwd activeConfigDir) handleConfigFailure)))
+                (npmSafeTrySpawnSync ["npm" "install"] handleConfigFailure))
             // Run the haxe compiler:
             (trySpawnSync "haxe" ["build.hxml"] (object cwd activeConfigDir) handleConfigFailure)
 
