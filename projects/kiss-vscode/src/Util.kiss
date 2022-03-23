@@ -114,7 +114,7 @@
                         (openFile dirOrFile)))))))
 
 // This has to be a macro so it can return from tryLoadConfig
-// TODO this macro should use gensyms
+// TODO this macro should use gensym
 (defMacro trySpawnSync [command args options onError]
     `(let [command ,command
             args ,args

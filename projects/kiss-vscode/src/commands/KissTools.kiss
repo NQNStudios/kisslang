@@ -49,4 +49,4 @@ class ${className} {}
         "${base}.${correspondingExt}"))
 
 (function showCorrespondingFile [&opt _]
-    (showTextDocument (Uri.file (correspondingFile activeTextEditor.document.fileName))))
+    (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor))))

@@ -76,9 +76,12 @@
 (var &mut :String selectedTextBeforeShortcut null)
 (var &mut :Disposable keyListener null)
 
-(function :Void closeShortcutPanel []
+(function :Void cancelOrFinishShortcutPanel []
     (set documentBeforeShortcut null)
     (set selectedTextBeforeShortcut null)
+    (closeShortcutPanel))
+
+(function :Void closeShortcutPanel []
     (when shortcutPanel
         (keyListener.dispose)
         (shortcutPanel.dispose)
@@ -165,7 +168,7 @@
     (set shortcutHandler.cancelKey "Escape")
     (set shortcutHandler.onSelectPrefixMap showShortcutPanel)
     (set shortcutHandler.onSelectItem runChosenCommand)
-    (set shortcutHandler.onFinishOrCancel closeShortcutPanel)
+    (set shortcutHandler.onFinishOrCancel cancelOrFinishShortcutPanel)
     (set shortcutHandler.onBadKey ->:Void [key map] (warningMessage "$key is not mapped to a shortcut in $map"))
     (set shortcutHandler.onBadShortcut ->:Void [key otherKey] (warningMessage "$key conflicts with $otherKey"))
 
