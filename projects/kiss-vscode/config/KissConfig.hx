@@ -16,11 +16,17 @@ import ktxt2.KTxt2;
 import re_flex.R;
 import kiss_tools.KeyShortcutHandler;
 import JSDomExterns;
+import haxe.Constraints;
+import js.html.Document;
+import js.node.Timers;
 
 using haxe.io.Path;
 using StringTools;
 
 typedef Command = (String) -> Void;
+
+typedef QuickWebviewSetup = (Document) -> Void;
+typedef QuickWebviewUpdate = (Document, Float, Function) -> Void;
 
 @:expose
 @:build(kiss.Kiss.buildAll(["KissConfig.kiss", "Config.kiss"]))
