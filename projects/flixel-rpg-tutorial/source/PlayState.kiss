@@ -29,7 +29,8 @@
         ("enemy"
             (enemies.add (new Enemy (+ entity.x 4) entity.y REGULAR)))
         ("boss"
-            (enemies.add (new Enemy (+ entity.x 4) entity.y BOSS)))))
+            (enemies.add (new Enemy (+ entity.x 4) entity.y BOSS)))
+        (otherwise)))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
