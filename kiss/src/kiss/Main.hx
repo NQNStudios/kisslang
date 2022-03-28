@@ -34,6 +34,8 @@ class Main {
                 convert(args);
             case "new-project":
                 newProject(args);
+            case "new-flixel-project":
+                newFlixelProject(args);
             case "implement":
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
@@ -91,15 +93,30 @@ class Main {
         File.saveContent(newFilePath, newFileContent);
     }
 
+    static function _makeFolderForNewProject(templateDir:String, templateFolder:Array<String>, workingDir:String, projectName:String, pkg:String) {
+        var fullTemplateFolderPath = Path.join([templateDir, "template"].concat(templateFolder));
+        var templateFolderInNewProject = [for (part in templateFolder) if (part == "template") pkg else part];
+        var newFolderPath = Path.join([workingDir, projectName].concat(templateFolderInNewProject));
+        FileSystem.createDirectory(newFolderPath);
+
+        for (fileOrFolder in FileSystem.readDirectory(fullTemplateFolderPath)) {
+            if (FileSystem.isDirectory(Path.join([fullTemplateFolderPath, fileOrFolder]))) {
+                _makeFolderForNewProject(templateDir, templateFolder.concat([fileOrFolder]), workingDir, projectName, pkg);
+            } else {
+                _makeFileForNewProject(templateDir, templateFolder.concat([fileOrFolder]), workingDir, projectName, pkg);
+            }
+        }
+    }
+
     static function newProject(args:Array<String>) {
         var kissLibPath = new Process("haxelib", ["libpath", "kiss"]).stdout.readAll().toString().trim();
-        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissLibPath);
         var name = promptFor("name");
-        // TODO put the prompted description in a README.md
+        // TODO put the prompted name and description in a README.md
         var pkg = name.replace("-", "_");
         var haxelibJson = {
             "name": name,
             "contributors": promptFor("authors (comma-separated)").split(",").map(StringTools.trim),
+            // TODO can make the default URL actually point to the projects subdirectory... but only want that functionality if the working dir is in kisslang/projects
             "url": promptFor("url", "https://github.com/NQNStudios/kisslang"),
             "license": promptFor("license", "LGPL"),
             "tags": {
@@ -117,12 +134,48 @@ class Main {
             }
         };
         var workingDir = Sys.args().pop();
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissLibPath, _, workingDir, name, pkg);
         FileSystem.createDirectory(Path.join([workingDir, name, "src", pkg]));
-        makeFileForNewProject(["src", "template", "Main.hx"], workingDir, name, pkg);
-        makeFileForNewProject(["src", "template", "Main.kiss"], workingDir, name, pkg);
-        makeFileForNewProject(["build.hxml"], workingDir, name, pkg);
-        makeFileForNewProject(["test.sh"], workingDir, name, pkg);
+        makeFileForNewProject(["src", "template", "Main.hx"]);
+        makeFileForNewProject(["src", "template", "Main.kiss"]);
+        makeFileForNewProject(["build.hxml"]);
+        makeFileForNewProject(["test.sh"]);
         File.saveContent(Path.join([workingDir, name, 'haxelib.json']), Json.stringify(haxelibJson, null, "\t"));
+    }
+
+    static function newFlixelProject(args:Array<String>) {
+        var title = promptFor("title");
+        var company = promptFor("creator/studio");
+        var width = Std.parseInt(promptFor("window width", "1280"));
+        var height = Std.parseInt(promptFor("window height", "720"));
+        var background = promptFor("background color", "#000000");
+
+        var kissFlixelLibPath = new Process("haxelib", ["libpath", "kiss-flixel"]).stdout.readAll().toString().trim();
+        var workingDir = Sys.args().pop();
+        FileSystem.createDirectory(Path.join([workingDir, title]));
+
+        // Substitute the specified values into the Project.xml:
+        var projectXml:Xml = Xml.parse(File.getContent(Path.join([kissFlixelLibPath, "template", "Project.xml"])));
+        var root = projectXml.elements().next();
+
+        var firstAppElement = Lambda.find(root, (node) -> node.nodeType == Xml.Element && node.nodeName == 'app');
+        firstAppElement.set("title", title);
+        firstAppElement.set("file", title);
+        firstAppElement.set("company", company);
+
+        var firstWindowElement = Lambda.find(root, (node) -> node.nodeType == Xml.Element && node.nodeName == 'window');
+        firstWindowElement.set("width", '$width');
+        firstWindowElement.set("height", '$height');
+        firstWindowElement.set("background", background);
+
+        File.saveContent(Path.join([workingDir, title, 'Project.xml']), projectXml.toString());
+        
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissFlixelLibPath, _, workingDir, title, "");
+        var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissFlixelLibPath, _, workingDir, title, "");
+        makeFolderForNewProject([".vscode"]);
+        makeFolderForNewProject(["assets"]);
+        makeFolderForNewProject(["source"]);
+        makeFileForNewProject(["hxformat.json"]);
     }
 
     static function convert(args:Array<String>) {
