@@ -2,6 +2,7 @@
 -lib uuid
 -lib tink_macro
 -lib tink_json
+-lib haxe-strings
 -cp kiss/src
 -cp cloner/src
 -D analyzer-optimize
