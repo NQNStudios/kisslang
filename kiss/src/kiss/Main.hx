@@ -83,9 +83,8 @@ class Main {
         return input;
     }
 
-    static function makeFileForNewProject(templateFile:Array<String>, workingDir:String, projectName:String, pkg:String) {
-        var kissLibPath = new Process("haxelib", ["libpath", "kiss"]).stdout.readAll().toString().trim();
-        var fullTemplateFilePath = Path.join([kissLibPath, "template"].concat(templateFile));
+    static function _makeFileForNewProject(templateDir:String, templateFile:Array<String>, workingDir:String, projectName:String, pkg:String) {
+        var fullTemplateFilePath = Path.join([templateDir, "template"].concat(templateFile));
         var newFileContent = File.getContent(fullTemplateFilePath).replace("template", pkg);
         var templateFileInNewProject = [for (part in templateFile) if (part == "template") pkg else part];
         var newFilePath = Path.join([workingDir, projectName].concat(templateFileInNewProject));
@@ -93,6 +92,8 @@ class Main {
     }
 
     static function newProject(args:Array<String>) {
+        var kissLibPath = new Process("haxelib", ["libpath", "kiss"]).stdout.readAll().toString().trim();
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissLibPath);
         var name = promptFor("name");
         // TODO put the prompted description in a README.md
         var pkg = name.replace("-", "_");
