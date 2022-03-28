@@ -1,7 +1,7 @@
 (defMacroVar maxInt 1000000000)
 (defMacroVar maxStringLength 20)
 (defMacroVar maxExps 4)
-(defMacroVar maxDepth 14)
+(defMacroVar maxDepth 13)
 
 (defAlias &ident nd (+ 1 macroDepth))
 
