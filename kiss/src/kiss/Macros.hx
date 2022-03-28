@@ -1126,12 +1126,15 @@ class Macros {
             var funcName = if (last) "lastIndexOf" else "indexOf";
             wholeExp.checkNumArgs(2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');
             var b = wholeExp.expBuilder();
-            return b.callSymbol("case", [
+            var cases = [
                 b.callField(funcName, exps.shift(), exps),
                 b.callSymbol("-1", [b.symbol("haxe.ds.Option.None")]),
                 b.callSymbol("other", [b.callSymbol("haxe.ds.Option.Some", [b.symbol("other")])]),
-                b.callSymbol("null", [b.callSymbol("throw", [b.str("Haxe indexOf is broken")])])
-            ]);
+            ];
+            if (!(Context.defined('cs') || Context.defined('cpp'))) {
+                cases.push(b.callSymbol("null", [b.callSymbol("throw", [b.str("Haxe indexOf is broken")])]));
+            }
+            return b.callSymbol("case", cases);
         }
         macros["indexOf"] = indexOfMacro.bind(false);
         macros["lastIndexOf"] = indexOfMacro.bind(true);
