@@ -1,4 +1,4 @@
-package hollywoo_flixel;
+package kiss_flixel;
 
 import kiss.Prelude;
 import kiss.List;

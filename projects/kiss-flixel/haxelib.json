@@ -1,11 +1,10 @@
 {
-	"name": "hollywoo-flixel",
+	"name": "kiss-flixel",
 	"description": "",
 	"classPath": "src/",
 	"dependencies": {
 		"kiss": "",
-		"kiss-flixel": "",
-		"hollywoo": ""
+		"flixel": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
