@@ -304,9 +304,25 @@ class SpecialForms {
                     null;
             };
 
+            var exp = k.withoutListWrapping().convert(args[0]);
+
+            // On C#, value types (specifically Float and Int) cannot be null, so they cannot be compared with null.
+            // Therefore a null case doesn't need to be added--and will cause a compile failure if it is.
+            // TODO also c++?
+            var canCompareNull = if (Context.defined('cs')) {
+                // TODO can locals from let bindings and localVar be gathered and passed to this? Would be difficult and maybe require a separate stack in KissState for each (begin) conversion
+                switch (exp.typeof()) {
+                    case Success(TAbstract(ref, [])) if (["Int", "Float"].indexOf(ref.get().name) != -1):
+                        false;
+                    case Failure(_):
+                        false;
+                    default: true;
+                }
+            } else true;
+
             var cases = args.slice(1);
             // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.
-            if (!isTupleCase) {
+            if (!isTupleCase && canCompareNull) {
                 var nullExpr = defaultExpr;
                 var idx = 0;
                 for (arg in cases) {
@@ -325,10 +341,12 @@ class SpecialForms {
                 }
 
                 var nullCase = b.callSymbol("null", [b.raw(nullExpr.toString())]);
+                
+
                 cases.insert(0, nullCase);
             }
 
-            ESwitch(k.withoutListWrapping().convert(args[0]), cases.map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
+            ESwitch(exp, cases.map(Helpers.makeSwitchCase.bind(_, k)), defaultExpr).withMacroPosOf(wholeExp);
         };
 
         // Type check syntax:
