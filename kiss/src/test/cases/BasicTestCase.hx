@@ -324,8 +324,12 @@ class BasicTestCase extends Test {
     }
 
     function testEval() {
+        #if (sys || hxnodejs)
         _testEvalStatic();
         _testEval();
+        #else
+        Assert.pass();
+        #end
     }
 
     function testCaseOnNull() {
