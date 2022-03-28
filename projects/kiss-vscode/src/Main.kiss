@@ -1,5 +1,7 @@
-// This also loads Util.kiss:
-(load "commands/ExtensionTools.kiss")
+(#if test
+        (load "Util.kiss")
+    // This also loads Util.kiss:
+    (load "commands/ExtensionTools.kiss"))
 
 (function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
 (function userConfigDir []
@@ -22,6 +24,8 @@
                         }
                     (cmd.shift))]
         (trySpawnSync program cmd (object cwd activeConfigDir) handleConfigFailure)))
+
+(#when test (var :String->Void warningMessage Prelude.printStr))
 
 (function :Void tryLoadConfig [&opt :Bool force :Bool fallbackToDefault :String _]
     (let [handleConfigFailure
@@ -122,7 +126,8 @@
     (let [uniqueConfigFile (joinPath activeConfigDir "$(.toShort (Uuid.v4)).js")]
         (File.copy file uniqueConfigFile)
         (set config (the KissConfig .KissConfig (Node.require uniqueConfigFile)))
-        (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s))
+        (#unless test
+            (set Prelude.printStr ->:Void s (Vscode.window.showInformationMessage s)))
         (set config.tryLoadConfig ->[&opt _] (tryLoadConfig true false))
         (set config.extensionPath extensionPath)
         (config.prepareInterp)
