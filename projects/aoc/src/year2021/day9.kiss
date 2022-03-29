@@ -50,7 +50,7 @@
 (function :Map<String,Int> basinAround [:String lowPoint file &opt :Map<String,Int> basinAlready :Map<String,Int> allPoints :Map<String,Int> pointsToCheck]
     (set allPoints (or allPoints (pointMap file)))
     (set pointsToCheck (or pointsToCheck (pointMap file)))
-    (set basinAlready (or basinAlready (new Map)))
+    (set basinAlready (or basinAlready (new Map<String,Int>)))
     (dictSet basinAlready lowPoint (dictGet allPoints lowPoint))
     (pointsToCheck.remove lowPoint)
     
