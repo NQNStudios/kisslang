@@ -179,7 +179,7 @@
     // If the last value is falsy it can still be returned without breaking
     // the expected behavior of or -- which also allows for the (or <optional arg> <default value>)
     // idiom for empty arrays and strings
-    (Assert.equals (.toString []) (.toString (or null [])))
+    (Assert.equals (Std.string []) (Std.string (or null [])))
     (Assert.equals "" (or null [] "")))
 
 (function _testAnd []
