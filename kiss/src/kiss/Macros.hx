@@ -236,71 +236,49 @@ class Macros {
         macros["cond"] = cond.bind("cond", "if");
         macros["#cond"] = cond.bind("#cond", "#if");
 
-        // (or... ) uses (cond... ) under the hood
-        macros["or"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
+        function _or(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
+            wholeExp.checkNumArgs(1, null, "(or <v1> <values...>)");
             var b = wholeExp.expBuilder();
 
             var uniqueVarSymbol = b.symbol();
-            var lastValue = args.pop();
+            var firstVal = args.shift();
 
-            b.begin([
-                b.call(b.symbol("localVar"), [
-                    b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
-                    b.symbol("null")
-                ]),
-                b.call(
-                    b.symbol("cond"), [
-                        for (arg in args) {
-                            b.call(
-                                b.call(b.symbol("set"), [
-                                    uniqueVarSymbol,
-                                    arg
-                                ]), [
-                                    uniqueVarSymbol
-                                ]);
-                        }
-                    ].concat([
-                        b.call(
-                            b.symbol("true"), [
-                                lastValue
-                            ])
-                    ]))
-            ]);
+            var body = if (args.length > 0) {
+                [
+                    b.callSymbol("if", [uniqueVarSymbol, uniqueVarSymbol, _or(wholeExp, args, k)])
+                ];
+            } else {
+                // If nothing is truthy, return the last one
+                [uniqueVarSymbol];
+            };
+
+            return b.let([b.typed("Dynamic", uniqueVarSymbol), firstVal], body);
         };
+       
 
-        // (and... uses (cond... ) and (not ...) under the hood)
-        macros["and"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, null, "(and [v1] [v2] [values...])");
+        macros["or"] = _or;
+
+        function _and(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
+            wholeExp.checkNumArgs(1, null, "(and <v1> <values...>)");
             var b = wholeExp.expBuilder();
 
             var uniqueVarSymbol = b.symbol();
+            var firstVal = args.shift();
 
-            var condCases = [
-                for (arg in args) {
-                    b.call(
-                        b.call(
-                            b.symbol("not"), [
-                                b.call(
-                                    b.symbol("set"), [uniqueVarSymbol, arg])
-                            ]), [
-                                b.symbol("null")
-                            ]);
-                }
-            ];
-            condCases.push(b.call(b.symbol("true"), [uniqueVarSymbol]));
+            var body = if (args.length > 0) {
+                [
+                    b.callSymbol("if", [uniqueVarSymbol, _and(wholeExp, args, k), uniqueVarSymbol])
+                ];
+            } else {
+                // If nothing is truthy, return the last one
+                [uniqueVarSymbol];
+            };
 
-            b.begin([
-                b.call(
-                    b.symbol("localVar"), [
-                        b.meta("mut", b.typed("Dynamic", uniqueVarSymbol)),
-                        b.symbol("null")
-                    ]),
-                b.call(
-                    b.symbol("cond"),
-                    condCases)
-            ]);
-        };
+            return b.let([b.typed("Dynamic", uniqueVarSymbol), firstVal], body);
+
+        }
+
+        macros["and"] = _and;
 
         function arraySet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var b = wholeExp.expBuilder();

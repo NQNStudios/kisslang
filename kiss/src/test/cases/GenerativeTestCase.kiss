@@ -80,7 +80,11 @@
         ])))
 
 (function _testTruthy []
+    // Expressions that have failed in the past:
+    (Assert.isTrue ?(or false (and 642565506 905012177) "vaxricnakvc" [431724544 383128908 868813810] 169132392 "" ["ftmlkbdx" "vdaziji" "zm"]))
+    // 10 new expressions:
     (macroRepeat (Assert.isTrue ?(randomTruthyExp)) 10))
 
 (function _testFalsy []
+    // 10 new expressions:
     (macroRepeat (Assert.isFalse ?(randomFalsyExp)) 10))
