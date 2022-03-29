@@ -182,9 +182,10 @@
     (Assert.equals (.toString []) (.toString (or null [])))
     (Assert.equals "" (or null [] "")))
 
-(var myAnd1 (and 5 6))
-(var myAnd2 (and false 5 6))
-(var myAnd3 (and 5 false 6))
+(function _testAnd []
+    (Assert.equals 6 (and 5 6))
+    (Assert.isFalse ?(and false 5 6))
+    (Assert.isFalse ?(and 5 false 6)))
 
 (function mySetLocal []
     (localVar &mut loc "one thing")

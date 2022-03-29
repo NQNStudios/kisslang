@@ -168,9 +168,7 @@ class BasicTestCase extends Test {
     }
 
     function testAnd() {
-        Assert.equals(6, BasicTestCase.myAnd1);
-        Assert.equals(null, BasicTestCase.myAnd2);
-        Assert.equals(null, BasicTestCase.myAnd3);
+        _testAnd();
     }
 
     function testNot() {
