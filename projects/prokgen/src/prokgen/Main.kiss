@@ -1,0 +1,13 @@
+(let [r (new ProkRandom)
+        :Array<Dynamic> generators []]
+    (generators.push (new IntGen))
+    (generators.push (new FloatGen))
+    (generators.push (new BoolGen))
+    (generators.push (new ArrayGen<Int> (new IntGen) 5 10))
+    (doFor g generators (g.use r))
+    (let [:Array<Dynamic> aList (for g generators (g.makeRandom))
+            :Array<Dynamic> bList (for g generators (g.makeRandom))
+            :Array<Dynamic> cList (for i (range generators.length) (.combine (nth generators i) (nth aList i) (nth bList i)))]
+        ~aList
+        ~bList
+        ~cList))

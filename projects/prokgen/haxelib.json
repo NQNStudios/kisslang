@@ -1,0 +1,17 @@
+{
+	"main": "prokgen.Main",
+	"name": "prokgen",
+	"description": "Generalized genetic generation for Haxe classes",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}

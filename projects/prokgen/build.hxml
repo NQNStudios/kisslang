@@ -1,0 +1,4 @@
+-lib kiss
+-cp src
+--main prokgen.Main
+--interp
