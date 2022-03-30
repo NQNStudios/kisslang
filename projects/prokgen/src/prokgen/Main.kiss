@@ -10,4 +10,5 @@
             :Array<Dynamic> cList (for i (range generators.length) (.combine (nth generators i) (nth aList i) (nth bList i)))]
         ~aList
         ~bList
-        ~cList))
+        ~cList)
+    ~(HighNumbers.generate))
