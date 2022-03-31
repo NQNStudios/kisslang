@@ -8,7 +8,8 @@
     (let [:Array<Dynamic> aList (for g generators (g.makeRandom))
             :Array<Dynamic> bList (for g generators (g.makeRandom))
             :Array<Dynamic> cList (for i (range generators.length) (.combine (nth generators i) (nth aList i) (nth bList i)))]
-        ~aList
-        ~bList
-        ~cList)
-    ~(HighNumbers.generate))
+        // TODO assert that no infinities or nans appear in any of the three lists, flattened:
+        aList
+        bList
+        cList)
+    ~(HighNumbers.generate (new ProkRandom)))

@@ -9,10 +9,14 @@ class HighNumbers {
     var iList:Array<Int>;
     var fList:Array<Float>;
 
-    static var iGen:IntGen = new IntGen(-1000, 1000);
-    static var fGen:FloatGen = new FloatGen(-1000, 100);
-    static var iListGen:ArrayGen<Int> = new ArrayGen<Int>(new IntGen(-1000, 1000), 0, 10);
-    static var fListGen:ArrayGen<Float> = new ArrayGen<Float>(new FloatGen(-1000, 1000), 0, 10);
+    static var iGen = new IntGen(-1000, 1000);
+    static var fGen = new FloatGen(-1000, 100);
+    static var iListGen = new ArrayGen<Int>(new IntGen(-1000, 1000), 0, 10);
+    static var fListGen = new ArrayGen<Float>(new FloatGen(-1000, 1000), 0, 10);
+
+    function toString() {
+        return '$i $f $iList $fList';
+    }
 
     function genScore() {
         var sum:Float = i + f;

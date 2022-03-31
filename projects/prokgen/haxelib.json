@@ -4,7 +4,8 @@
 	"description": "Generalized genetic generation for Haxe classes",
 	"classPath": "src/",
 	"dependencies": {
-		"kiss": ""
+		"kiss": "",
+		"tink_macro": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
