@@ -12,4 +12,4 @@
         aList
         bList
         cList)
-    ~(HighNumbers.generate (new ProkRandom)))
+    ~(HighNumbers.generate (new ProkRandom) 5000))

@@ -103,6 +103,7 @@ class Generable {
         }];
 
         var genLines = [];
+        var combineLines = [];
         for (name => type in instanceFields) {
             var generatorName = if (generatorsByFieldType.exists(type)) {
                 generatorsByFieldType[type];
@@ -119,6 +120,7 @@ class Generable {
             }
             
             genLines.push(macro $i{name} = $i{generatorName}.makeRandom());
+            combineLines.push(macro $i{name} = $i{generatorName}.combine(Reflect.field(parent1, $v{name}), Reflect.field(parent2, $v{name})));
         }
 
         // TODO when generating fields, make sure they are handled alphabetically so seeded generation is deterministic, not dependent on Map iterator order
@@ -132,6 +134,23 @@ class Generable {
             }),
             pos: Context.getLocalClass().get().pos
         }
+
+        var combineSpecimenField = {
+            name: "_combine",
+            access: [APrivate],
+            kind: FFun({
+                ret: null,
+                args: [{
+                    "name": "parent1"
+                }, {
+                    "name": "parent2"
+                }],
+                expr: macro $b{combineLines}
+            }),
+            pos: Context.getLocalClass().get().pos
+        }
+        
+        var localClass = Context.getLocalClass().get();
         
         // TODO create a population and evolve it
         var generateField = {
@@ -139,21 +158,49 @@ class Generable {
             access: [AStatic, APublic],
             kind: FFun({
                 ret: null,
-                // TODO accept a ProkRandom arg
                 args: [{
                     name: "r"
+                }, {
+                    name: "minScore"
+                }, {
+                    name: "maxGenerations",
+                    value: macro 1000
+                }, {
+                    name: "numElite",
+                    value: macro 50
+                }, {
+                    name: "numCulled",
+                    value: macro 50
                 }],
                 expr: macro {
-                    var inst = Type.createEmptyInstance(HighNumbers);
                     $b{useLines}
-                    inst._generate();
-                    return inst;
+                    var population = [for (i in 0... numElite + numCulled) Type.createEmptyInstance($i{localClass.name})];
+                    for (specimen in population) specimen._generate();
+                    
+                    for (gen in 0... maxGenerations) {
+                        population.sort((a, b) -> Math.round(b.genScore() - a.genScore()));
+                        trace(population);
+                        if (population[0].genScore() >= minScore) return population[0];
+                        population = population.slice(0, numElite);
+                        for (_ in 0... numCulled) {
+                            var combinedSpecimen = Type.createEmptyInstance($i{localClass.name});
+                            // Could weight by scores?
+                            var index1 = r.int(0, population.length - 1);
+                            var parent1 = population[index1];
+                            var parent2 = population[r.int(0, population.length - 1, [index1])];
+                            combinedSpecimen._combine(parent1, parent2);
+                            population.push(combinedSpecimen);
+                        }
+                    }
+
+                    throw 'Failed to reach minimum score in $maxGenerations generations.';
                 }
             }),
-            pos: Context.getLocalClass().get().pos
+            pos: localClass.pos
         };
 
         fields.push(generateSpecimenField);
+        fields.push(combineSpecimenField);
         fields.push(generateField);
 
         return fields;
