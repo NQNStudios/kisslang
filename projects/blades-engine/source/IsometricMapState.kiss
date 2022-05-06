@@ -1,0 +1,62 @@
+// TODO make these variables
+(var FLOOR_WIDTH 46)
+(var FLOOR_HEIGHT 32)
+(var SPRITE_HEIGHT 55)
+(var SPRITE_PADDING 1)
+
+(prop :Array<FlxSprite> floorTiles [])
+
+(method &override :Void create []
+    (super.create)
+    // TODO load from a more accessible path
+    (let [bitmapData (BitmapData.fromFile "Data/Terrain Graphics/G796.png")
+            spriteSheet (.loadGraphic (new FlxSprite) (FlxGraphic.fromBitmapData bitmapData))]
+        (spriteSheet.replaceColor FlxColor.WHITE FlxColor.TRANSPARENT)
+        (let [sheetWidth (/ (- spriteSheet.frameWidth SPRITE_PADDING) (+ SPRITE_PADDING FLOOR_WIDTH))
+                sheetHeight (/ (- spriteSheet.frameHeight SPRITE_PADDING) (+ SPRITE_PADDING SPRITE_HEIGHT))]
+            (doFor row (range sheetHeight)
+                (doFor col (range sheetWidth)
+                    (floorTiles.push (let [tile (spriteSheet.clone)]
+                                        (set tile.clipRect (new FlxRect 
+                                                                (+ SPRITE_PADDING (* col (+ SPRITE_PADDING FLOOR_WIDTH)))
+                                                                (+ SPRITE_PADDING (* col (+ SPRITE_PADDING SPRITE_HEIGHT)))
+                                                                FLOOR_WIDTH 
+                                                                SPRITE_HEIGHT))
+                                        tile))))))
+    
+    (addSpriteLayer ~(for row (range 5) (collect (range 5)))))
+
+(method :Void addSpriteLayer [:Array<Array<Int>> tiles]
+    (let [&mut rowStartX 0
+            &mut rowStartY 0]
+        (doFor row tiles
+            (let [&mut x rowStartX
+                    &mut y rowStartY]
+                (doFor tile row
+                    (let [tileSprite (.clone ~(nth floorTiles tile))]
+                        (set tileSprite.x x)
+                        (set tileSprite.y y)
+                        (add tileSprite))
+                    (+= x (/ FLOOR_WIDTH 2))
+                    (+= y (/ FLOOR_HEIGHT 2))))
+
+            (-= rowStartX (/ FLOOR_WIDTH 2))
+            (+= rowStartY (/ FLOOR_HEIGHT 2)))))
+
+(var CAMERA_SPEED 100)
+
+(method &override :Void update [:Float elapsed]
+    (super.update elapsed)
+    
+    (let [&mut cameraMovement (new FlxVector 0 0)]
+        (when (= 0 FlxG.mouse.screenX)
+            (set cameraMovement.x -1))
+        (when (= 0 FlxG.mouse.screenY)
+            (set cameraMovement.y -1))
+        (when (= (- FlxG.width 1) FlxG.mouse.screenX)
+            (set cameraMovement.x 1))
+        (when (= (- FlxG.height 1) FlxG.mouse.screenY)
+            (set cameraMovement.y 1))
+        (set cameraMovement (cameraMovement.truncate 1))
+        (set cameraMovement (cameraMovement.scale (* elapsed CAMERA_SPEED)))
+        (set FlxG.camera.scroll (FlxG.camera.scroll.add cameraMovement.x cameraMovement.y))))
