@@ -176,6 +176,7 @@ class Main {
         makeFolderForNewProject(["assets"]);
         makeFolderForNewProject(["source"]);
         makeFileForNewProject(["hxformat.json"]);
+        makeFileForNewProject([".gitignore"]);
     }
 
     static function convert(args:Array<String>) {
