@@ -19,12 +19,12 @@
                     (floorTiles.push (let [tile (spriteSheet.clone)]
                                         (set tile.clipRect (new FlxRect 
                                                                 (+ SPRITE_PADDING (* col (+ SPRITE_PADDING FLOOR_WIDTH)))
-                                                                (+ SPRITE_PADDING (* col (+ SPRITE_PADDING SPRITE_HEIGHT)))
+                                                                (+ SPRITE_PADDING (* row (+ SPRITE_PADDING SPRITE_HEIGHT)))
                                                                 FLOOR_WIDTH 
                                                                 SPRITE_HEIGHT))
                                         tile))))))
     
-    (addSpriteLayer ~(for row (range 5) (collect (range 5)))))
+    (addSpriteLayer (for row (range 5) (collect (range 5)))))
 
 (method :Void addSpriteLayer [:Array<Array<Int>> tiles]
     (let [&mut rowStartX 0
@@ -33,9 +33,9 @@
             (let [&mut x rowStartX
                     &mut y rowStartY]
                 (doFor tile row
-                    (let [tileSprite (.clone ~(nth floorTiles tile))]
-                        (set tileSprite.x x)
-                        (set tileSprite.y y)
+                    (let [tileSprite (.clone (nth floorTiles tile))]
+                        (set tileSprite.x (- x tileSprite.clipRect.x))
+                        (set tileSprite.y (- y tileSprite.clipRect.y))
                         (add tileSprite))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
