@@ -82,10 +82,17 @@ class Macros {
         destructiveVersion("*", "*=");
         destructiveVersion("/", "/=");
 
-        // These shouldn't be ident aliases because they are common variable names
         var opAliases = [
+            // These shouldn't be ident aliases because they are common variable names
             "min" => "Prelude.min",
-            "max" => "Prelude.max"
+            "max" => "Prelude.max",
+            // These can't be ident aliases because they would supercede the typed call macros that wrap them:
+            "zip" => "Prelude.zipThrow",
+            "zipThrow" => "Prelude.zipThrow",
+            "zipKeep" => "Prelude.zipKeep",
+            "zipDrop" => "Prelude.zipDrop",
+            "concat" => "Prelude.concat",
+            "intersect" => "Prelude.intersect",
         ];
 
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
@@ -1175,6 +1182,20 @@ class Macros {
             body.push(b.callField("evalKiss", interpSymbol, [exps[0]]));
             b.let(bindings, body);
         };
+
+        function typedCallMacro(name:String, symbol:String, type:String) {
+            macros[name] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+                wholeExp.checkNumArgs(2, null, '($name <lists...>)');
+                var b = wholeExp.expBuilder();
+                b.callSymbol("the", [b.symbol(type), b.callSymbol('Prelude.$symbol', exps)]);
+            };
+        }
+        typedCallMacro("zip", "zipThrow", "Array<Array<Dynamic>>");
+        typedCallMacro("zipKeep", "zipKeep", "Array<Array<Dynamic>>");
+        typedCallMacro("zipDrop", "zipDrop", "Array<Array<Dynamic>>");
+        typedCallMacro("zipThrow", "zipThrow", "Array<Array<Dynamic>>");
+        typedCallMacro("intersect", "intersect", "Array<Array<Dynamic>>");
+        typedCallMacro("concat", "concat", "Array<Dynamic>");
 
         return macros;
     }

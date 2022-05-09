@@ -610,9 +610,9 @@
 
 (function _testIntersect []
     (let [intersection2d
-                (for i (the Array<Array<Dynamic>> (intersect (.split "abc" "") (.split "xyz" ""))) (i.join ""))
+                (for i (intersect (.split "abc" "") (.split "xyz" "")) (i.join ""))
             intersection3d
-                (for i (the Array<Array<Dynamic>> (intersect (.split "abc" "") (.split "xyz" "") (.split "123" ""))) (i.join ""))]
+                (for i (intersect (.split "abc" "") (.split "xyz" "") (.split "123" "")) (i.join ""))]
         (assert (contains intersection2d "ax"))
         (assert (contains intersection2d "ay"))
         (assert (contains intersection2d "az"))

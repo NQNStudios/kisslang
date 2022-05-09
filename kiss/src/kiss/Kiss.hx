@@ -111,16 +111,16 @@ class Kiss {
                 // These ones *probably* won't conflict with variables and might be passed as functions
                 "chooseRandom" => Symbol("Prelude.chooseRandom"),
                 // These ones *probably* won't conflict with variables and might commonly be used with (apply) because they are variadic
-                "concat" => Symbol("Prelude.concat"),
-                "zip" => Symbol("Prelude.zipThrow"),
-                "zipKeep" => Symbol("Prelude.zipKeep"),
-                "zipDrop" => Symbol("Prelude.zipDrop"),
-                "zipThrow" => Symbol("Prelude.zipThrow"),
-                "intersect" => Symbol("Prelude.intersect"),
                 "joinPath" => Symbol("Prelude.joinPath"),
                 "readDirectory" => Symbol("Prelude.readDirectory"),
                 "substr" => Symbol("Prelude.substr"),
                 "isListExp" => Symbol("Prelude.isListExp")
+                /* zip functions used to live here as aliases but now they are macros that also
+                apply (the Array<Array<Dynamic>>) to the result */
+                /* intersect used to live here as an alias but now it is in a macro that also
+                applies (the Array<Array<Dynamic>>) to the result */
+                /* concat used to live here as an alias but now it is in a macro that also
+                applies (the Array<Dynamic>) to the result */
             ],
             fieldList: [],
             fieldDict: new Map(),
