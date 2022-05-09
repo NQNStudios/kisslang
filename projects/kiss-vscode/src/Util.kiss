@@ -123,7 +123,7 @@
         (withValueOrInputBox dir
             (set dir (dir.replace "\\" "/"))
             (when (dir.endsWith "/") (set dir (substr dir 0 -1)))
-            (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (concat [".."] (sys.FileSystem.readDirectory dir)))]
+            (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (cast (concat [".."] (sys.FileSystem.readDirectory dir))))]
                 (let [dirOrFile
                             (case dirOrFile
                                 (".."
