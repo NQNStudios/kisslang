@@ -123,12 +123,16 @@
 
 (function exportSourceAndOutputFiles [document]
     (let [:String ktxt2FullFilename document.fileName
-			[sourceText outputText] (KTxt2.extractFileContents (Stream.fromFile ktxt2FullFilename) ->message (errorMessage message))
             ktxt2Directory (ktxt2FullFilename.directory)
             ktxt2Filename (ktxt2FullFilename.withoutDirectory)
             [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
             sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
             outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
-        (File.saveContent sourceFilename sourceText)
-		(File.saveContent outputFilename outputText)
-		(print "Export for $(document.fileName.withoutDirectory) succeeded.")))
+		(when (= sourceExt outputExt)
+		 	(let [m "Source and output extension cannot be the same in $ktxt2Filename"]
+				(errorMessage m)
+				(throw m)))
+		(let [[sourceText outputText] (KTxt2.extractFileContents (Stream.fromFile ktxt2FullFilename) ->message (errorMessage message))]
+			(File.saveContent sourceFilename sourceText)
+			(File.saveContent outputFilename outputText)
+			(print "Export for $(document.fileName.withoutDirectory) succeeded."))))
