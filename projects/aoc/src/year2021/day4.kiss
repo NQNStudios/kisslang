@@ -28,9 +28,9 @@
 
 (function :Bool boardWon [:Board board]
     (let [:Array<Array<Option<Int>>> linesOfFive 
-                (concat
+                (cast (concat
                     board.called
-                    (for x (range 5) (for row board.called (nth row x))))]
+                    (for x (range 5) (for row board.called (nth row x)))))]
         (doFor line linesOfFive
             (let [&mut won true]
                 (doFor square line
