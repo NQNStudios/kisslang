@@ -21,7 +21,9 @@
             endCursorPos -1
             lastSearch ""
             outputTerminator ""
-            sourceBlockChanged null)))
+            sourceBlockChanged null
+            showSourceBlocks true
+            showOutputBlocks true)))
 
 (function :Void setState [:EditorState state]
     (_vscode.setState state))
@@ -314,7 +316,7 @@
                     "${text}$outputTerminator"))
         text))
 
-(function blockElements [source output locked idx]
+(function blockElements [source output locked idx showSourceBlocks showOutputBlocks]
     (let [outerDiv (document.createElement "div")
             :js.html.Element sourceDiv (cast (document.createElement "div"))
             :js.html.Element outputDiv (cast (document.createElement "div"))
@@ -341,11 +343,11 @@
         (content.appendChild blockLinkBefore)
         (content.appendChild (document.createElement "br"))
 
-        (monacoEditor sourceDiv "width: 50%;" source /* TODO get the real extension of the source file: */ "txt" locked
-            ->editor (replaceSourceBlock (nth ktxt2Elements idx) idx (.replace (editor.getValue) "\r" "")))
+        (when showSourceBlocks (monacoEditor sourceDiv (if showOutputBlocks "width: 50%;" "flex-grow: 1;") source /* TODO get the real extension of the source file: */ "txt" locked
+            ->editor (replaceSourceBlock (nth ktxt2Elements idx) idx (.replace (editor.getValue) "\r" ""))))
 
-        (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
-            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (withOutputTerminator (.replace (editor.getValue) "\r" ""))))
+        (when showOutputBlocks (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
+            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (withOutputTerminator (.replace (editor.getValue) "\r" "")))))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")
@@ -357,12 +359,13 @@
         (outerDiv.appendChild sourceDiv)
 
         // Link that attempts automatic conversion of the source in a block:
-        (unless locked
-            (set convertLink.innerHTML ">")
-            (convertLink.setAttribute "style" "width: 2ch;")
-            (convertLink.addEventListener "click"
-                ->(tryAutoConvert (nth ktxt2Elements idx)))
-            (outerDiv.appendChild convertLink))
+        (when (and showSourceBlocks showOutputBlocks)
+            (unless locked
+                (set convertLink.innerHTML ">")
+                (convertLink.setAttribute "style" "width: 2ch;")
+                (convertLink.addEventListener "click"
+                    ->(tryAutoConvert (nth ktxt2Elements idx)))
+                (outerDiv.appendChild convertLink)))
 
         (outerDiv.appendChild outputDiv)
 
@@ -426,30 +429,76 @@
                     (content.appendChild help)
                     (content.appendChild explanation)
                     (content.appendChild terminatorEditor))
-                (when (< 0 elementScrollY)
-                    (let [upLink (document.createElement "a")
-                            topLink (document.createElement "a")]
-                        (set upLink.innerHTML "^ ")
-                        (set topLink.innerHTML "^^^")
-                        (upLink.addEventListener "click" pageUp)
-                        (topLink.addEventListener "click" pageTop)
-                        (content.appendChild upLink)
-                        (content.appendChild topLink)))
-                (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
-                    (case element
-                        ((Block (objectWith source output outputLocked))
-                            (blockElements source output outputLocked idx))
-                        (otherwise (throw "shouldn't happen"))))
-                (when (> (- ktxt2Elements.length 1) (+ elementScrollY SCROLL_AMOUNT))
-                    (let [downLink (document.createElement "a")
-                            bottomLink (document.createElement "a")]
-                        (set downLink.innerHTML "v ")
-                        (set bottomLink.innerHTML "vvv")
-                        (downLink.addEventListener "click" pageDown)
-                        (bottomLink.addEventListener "click" pageBottom)
-                        (content.appendChild downLink)
-                        (content.appendChild bottomLink)))
-                (set updatingContent false)
+                // Radio buttons for focusing on just source or output column:
+                (let [:Array<js.html.InputElement> showRadioButtons (for _ (range 3) (cast (document.createElement "input")))
+                        :Array<js.html.LabelElement> labelElements (for _ (range 3) (cast (document.createElement "label")))
+                        [allRadioButton sourceRadioButton outputRadioButton] showRadioButtons
+                        [allLabel sourceLabel outputLabel] labelElements]
+                    (set allRadioButton.value "all")
+                    (set allRadioButton.id "all")
+                    (allRadioButton.addEventListener "change"
+                        ->_ {(changeState s
+                                (set s.showSourceBlocks true)
+                                (set s.showOutputBlocks true)) (updateContent "change shown columns")})
+                    (set allLabel.innerHTML "Show Both")
+                    (set allLabel.htmlFor "all")
+                    (set sourceRadioButton.value "source")
+                    (set sourceRadioButton.id "source")
+                    (sourceRadioButton.addEventListener "change"
+                        ->_ {(changeState s
+                                (set s.showSourceBlocks true)
+                                (set s.showOutputBlocks false)) (updateContent "change shown columns")})
+                    (set sourceLabel.innerHTML "Show Source Only")
+                    (set sourceLabel.htmlFor "source")
+                    (set outputRadioButton.value "output")
+                    (set outputRadioButton.id "output")
+                    (outputRadioButton.addEventListener "change"
+                        ->_ {(changeState s
+                                (set s.showSourceBlocks false)
+                                (set s.showOutputBlocks true)) (updateContent "change shown columns")})
+                    (set outputLabel.innerHTML "Show Output Only")
+                    (set outputLabel.htmlFor "output")
+                    (doFor b showRadioButtons
+                        (set b.type "radio")
+                        (set b.name "showRadioButton"))
+                    (content.appendChild allRadioButton)
+                    (content.appendChild allLabel)
+                    (content.appendChild sourceRadioButton)
+                    (content.appendChild sourceLabel)
+                    (content.appendChild outputRadioButton)
+                    (content.appendChild outputLabel)
+                    (content.appendChild (document.createElement "br"))
+                    (when (< 0 elementScrollY)
+                        (let [upLink (document.createElement "a")
+                                topLink (document.createElement "a")]
+                            (set upLink.innerHTML "^ ")
+                            (set topLink.innerHTML "^^^")
+                            (upLink.addEventListener "click" pageUp)
+                            (topLink.addEventListener "click" pageTop)
+                            (content.appendChild upLink)
+                            (content.appendChild topLink)))
+                    (whenLet [(objectWith showSourceBlocks showOutputBlocks) (getState)]
+                        (cond ((and showSourceBlocks showOutputBlocks)
+                                    (set allRadioButton.checked true))
+                                (showSourceBlocks
+                                    (set sourceRadioButton.checked true))
+                                (showOutputBlocks
+                                    (set outputRadioButton.checked true)))
+                        (doFor [idx element] (.slice (collect (enumerate ktxt2Elements)) elementScrollY (+ elementScrollY PAGE_SIZE))
+                            (case element
+                                ((Block (objectWith source output outputLocked))
+                                    (blockElements source output outputLocked idx showSourceBlocks showOutputBlocks))
+                                (otherwise (throw "shouldn't happen")))))
+                    (when (> (- ktxt2Elements.length 1) (+ elementScrollY SCROLL_AMOUNT))
+                        (let [downLink (document.createElement "a")
+                                bottomLink (document.createElement "a")]
+                            (set downLink.innerHTML "v ")
+                            (set bottomLink.innerHTML "vvv")
+                            (downLink.addEventListener "click" pageDown)
+                            (bottomLink.addEventListener "click" pageBottom)
+                            (content.appendChild downLink)
+                            (content.appendChild bottomLink)))
+                    (set updatingContent false))
             }
         (catch [error] (print "Error updating ktxt2 editor: ${error}"))))
 

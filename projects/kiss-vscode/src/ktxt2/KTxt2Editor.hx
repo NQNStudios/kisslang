@@ -27,7 +27,9 @@ typedef EditorState = {
     endCursorPos:Int,
     lastSearch:String,
     outputTerminator:String,
-    sourceBlockChanged:Null<Int>
+    sourceBlockChanged:Null<Int>,
+    showSourceBlocks:Bool,
+    showOutputBlocks:Bool
 };
 
 typedef Disposable = {
