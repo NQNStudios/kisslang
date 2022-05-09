@@ -138,3 +138,7 @@
 				(+ (substr text 0 -1) "↵"))
 			(true
 				text))))
+
+// Apply special chars in the middle of a block, and insert them at the end
+(function :String normalizeSpecialChars [:String text]
+    (insertSpecialChars (applySpecialChars text)))

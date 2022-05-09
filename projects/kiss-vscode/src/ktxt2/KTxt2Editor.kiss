@@ -261,7 +261,7 @@
 (function joinBlocks [element nextElement]
     (assertLet [(Block (object sourceStart start source source1 output output1 outputLocked lock1)) element
                     (Block (object outputEnd end source source2 output output2 outputLocked lock2)) nextElement
-                    text "${source1}${source2}${KTxt2.unlockedStart}${output1}${output2}"]
+                    text "$(KTxt2.normalizeSpecialChars "${source1}${source2}")${KTxt2.unlockedStart}$(KTxt2.normalizeSpecialChars "${output1}${output2}")"]
         (unless (or lock1 lock2)
             (postMessage (objectWith [type "replace"] start end text)))))
 
