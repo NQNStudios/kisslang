@@ -22,7 +22,7 @@
             (for x (inclusiveRange line.x1 line.x2) [x line.y1]))
         // Diagonal lines:
         (part2
-            (zipThrow (inclusiveRange line.x1 line.x2) (inclusiveRange line.y1 line.y2)))
+            (cast (zipThrow (inclusiveRange line.x1 line.x2) (inclusiveRange line.y1 line.y2))))
         (true
             [])))
 
