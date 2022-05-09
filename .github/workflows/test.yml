@@ -24,7 +24,7 @@ jobs:
           - KISS_PROJECT=kiss-vscode
           - KISS_PROJECT=nat-archive-tool
           - KISS_PROJECT=nat-flixel-desktop-playground
-          - KISS_PROJECT=habit-puzzle-game-flixel-desktop
+          - KISS_PROJECT=flixel-desktop-habit-puzzle-game
           - KISS_PROJECT=pdf-salad
           - KISS_PROJECT=leet-code
           - KISS_PROJECT=sched
