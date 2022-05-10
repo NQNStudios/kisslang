@@ -32,6 +32,8 @@ typedef EditorState = {
     showOutputBlocks:Bool
 };
 
+typedef EditAction: Void->Void;
+
 typedef Disposable = {
     dispose:Void->Void
 };

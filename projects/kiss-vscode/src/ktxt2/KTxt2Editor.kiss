@@ -3,6 +3,7 @@
 (var &mut :Document document)
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
+(var &mut :Array<EditAction> editActions)
 
 // Because monaco editors are expensive, the editor can't have an infinite number open at a time
 (var PAGE_SIZE 24)
