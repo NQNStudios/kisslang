@@ -15,7 +15,9 @@ using StringTools;
 
 typedef MessageToEditor = {
     type:String,
-    ?text:String
+    ?text:String,
+    ?start:Int,
+    ?end:Int
 };
 
 typedef EditorState = {
@@ -32,7 +34,7 @@ typedef EditorState = {
     showOutputBlocks:Bool
 };
 
-typedef EditAction: Void->Void;
+typedef EditAction = Void->Void;
 
 typedef Disposable = {
     dispose:Void->Void

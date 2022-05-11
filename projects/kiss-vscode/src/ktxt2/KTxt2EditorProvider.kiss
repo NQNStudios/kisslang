@@ -15,17 +15,20 @@
 	(unless (document.getText)
 		(File.saveContent document.fileName KTxt2.emptyBlock)
 		**(makeEdit
-			->edit (edit.insert document.uri (streamPosToDocumentPos (object absoluteChar 0)) KTxt2.emptyBlock)))
+			->edit (edit.insert document.uri (streamPosToDocumentPos 0) KTxt2.emptyBlock)))
     (set webviewPanel.webview.options (object enableScripts true))
     (set webviewPanel.webview.html (htmlForWebview webviewPanel.webview))
-    (let [updateWebview
+    (let [&mut simpleReplace 0
+			updateWebview
 				->(webviewPanel.webview.postMessage (object type "update" text (document.getText)))
 			changeDocumentSubscription
 				(Vscode.workspace.onDidChangeTextDocument
-					->e (when (= (e.document.uri.toString) (document.uri.toString)) 
-							(updateWebview)))
-			streamPosToDocumentPos ->pos (document.positionAt pos.absoluteChar)
-			streamPosToOffsetDocumentPos ->[pos offset] (document.positionAt (+ offset pos.absoluteChar))
+					->e (when (and e.contentChanges (= (e.document.uri.toString) (document.uri.toString)))
+					  		(if (< 0 simpleReplace)
+									(-= simpleReplace 1)
+								{(updateWebview) null})))
+			streamPosToDocumentPos ->pos (document.positionAt pos)
+			streamPosToOffsetDocumentPos ->[pos offset] (document.positionAt (+ offset pos))
 			rangeFromStartEnd ->[start end] (new Range (streamPosToDocumentPos start) (streamPosToDocumentPos end))
 			makeEdit
 				->[:WorkspaceEdit->Void builder]
@@ -40,6 +43,15 @@
 				(case (the MessageFromEditor e)
 					((object type "print" text message)
 						(infoMessage message))
+					// Simple edits to source and output textboxes don't require reloading the HTML structure:
+					((objectWith [type "simpleReplace"] text start end)
+					 	(+= simpleReplace 1)
+						(awaitLet [result (makeEdit
+											->edit
+												(edit.replace document.uri (rangeFromStartEnd start end) (KTxt2.insertSpecialChars text)))]
+							(if result
+									{(webviewPanel.webview.postMessage (objectWith [type "simpleReplaceDone"] text start end)) 0}
+								{**(errorMessage "simpleReplace promise resolved false (which I think means failure)!!") 0})))
 					((objectWith [type "replace"] text start end)
 						(makeEdit
 							->edit (edit.replace document.uri (rangeFromStartEnd start end) (KTxt2.insertSpecialChars text))))
@@ -122,17 +134,18 @@
 			</html>"))
 
 (function exportSourceAndOutputFiles [document]
-    (let [:String ktxt2FullFilename document.fileName
-            ktxt2Directory (ktxt2FullFilename.directory)
-            ktxt2Filename (ktxt2FullFilename.withoutDirectory)
-            [baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
-            sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
-            outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
-		(when (= sourceExt outputExt)
-		 	(let [m "Source and output extension cannot be the same in $ktxt2Filename"]
-				(errorMessage m)
-				(throw m)))
-		(let [[sourceText outputText] (KTxt2.extractFileContents (Stream.fromFile ktxt2FullFilename) ->message (errorMessage message))]
-			(File.saveContent sourceFilename sourceText)
-			(File.saveContent outputFilename outputText)
-			(print "Export for $(document.fileName.withoutDirectory) succeeded."))))
+    (try 
+		(let [:String ktxt2FullFilename document.fileName
+				ktxt2Directory (ktxt2FullFilename.directory)
+				ktxt2Filename (ktxt2FullFilename.withoutDirectory)
+				[baseFilename sourceExt outputExt ktxt2Ext] (ktxt2Filename.split ".")
+				sourceFilename (joinPath ktxt2Directory "${baseFilename}.${sourceExt}")
+				outputFilename (joinPath ktxt2Directory "${baseFilename}.${outputExt}")]
+			(when (= sourceExt outputExt)
+				(let [m "Source and output extension cannot be the same in $ktxt2Filename"]
+					(errorMessage m)
+					(throw m)))
+			(let [[sourceText outputText] (KTxt2.extractFileContents (Stream.fromFile ktxt2FullFilename) ->message (errorMessage message))]
+				(File.saveContent sourceFilename sourceText)
+				(File.saveContent outputFilename outputText)) 0)
+		(catch [e] (errorMessage "Export for $(document.fileName.withoutDirectory) failed: $e") 0)))

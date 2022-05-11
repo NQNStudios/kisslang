@@ -14,13 +14,13 @@ using StringTools;
 typedef MessageFromEditor = {
     type:String,
     ?text:String,
-    ?start:kiss.Stream.Position,
-    ?end:kiss.Stream.Position,
-    ?position:kiss.Stream.Position,
+    ?start:Int,
+    ?end:Int,
+    ?position:Int,
     ?source:String,
     ?output:String,
-    ?outputStart:kiss.Stream.Position,
-    ?outputEnd:kiss.Stream.Position
+    ?outputStart:Int,
+    ?outputEnd:Int
 };
 
 @:build(kiss.Kiss.build())

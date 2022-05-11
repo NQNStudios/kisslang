@@ -11,11 +11,11 @@ typedef KTxt2Block = {
     source:String,
     output:String,
     outputLocked:Bool,
-    // kiss.Stream.Positions:
-    sourceStart:Position,
-    sourceEnd:Position,
-    outputStart:Position,
-    outputEnd:Position
+    // absoluteChar ints:
+    sourceStart:Int,
+    sourceEnd:Int,
+    outputStart:Int,
+    outputEnd:Int
 };
 
 typedef KTxt2Comment = {

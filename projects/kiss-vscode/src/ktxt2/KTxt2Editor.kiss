@@ -1,9 +1,12 @@
+(defMacro printErrors [&body body]
+    `(try {,@body 0} (catch [e] (print "error $e") 0)))
+
 (var &mut :VSCodeAPI _vscode)
 (var &mut :Window window)
 (var &mut :Document document)
 (var &mut :Element content)
 (var &mut :Array<KTxt2Element> ktxt2Elements)
-(var &mut :Array<EditAction> editActions)
+(var &mut :Int lastEditActionElementIdx -1)
 
 // Because monaco editors are expensive, the editor can't have an infinite number open at a time
 (var PAGE_SIZE 24)
@@ -45,6 +48,9 @@
     (window.addEventListener "message"
         ->:Void event
             (case (the MessageToEditor event.data)
+                ((objectWith [type "simpleReplaceDone"] text start end)
+                    (changeState s
+                        (set s.text (+ (substr s.text 0 start) text (substr s.text end)))))
                 ((objectWith [type "update"] text)
                     // Either create the first EditorState, or get the last one
                     (changeState newState
@@ -123,36 +129,44 @@
             }
         (window.setTimeout ->(whenMonacoIsAvailable doThis) MONACO_CHECK_MILLI)))
 
-(var &mut :Map<Int,Int> editTimeoutHandles (new Map))
-(var EDIT_TIMEOUT_MILLI 4000)
+(var &mut :Array<Int> editTimeoutHandle [])
+(var EDIT_TIMEOUT_MILLI 2000)
 (var EXPORT_TIMEOUT_MILLI 10000)
 (var &mut :Array<Int> exportTimeoutHandle [])
-(function :Void addEditTimeout [idx :Void->Void handler]
-    (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
-        (window.clearTimeout activeTimeoutForIndex))
-    (whenLet [[activeExportTimeout] exportTimeoutHandle]
-        (window.clearTimeout activeExportTimeout))
-    (dictSet editTimeoutHandles
-        idx
-        (window.setTimeout
-            ->{
-                (editTimeoutHandles.remove idx)
-                (handler)
-            }
-            EDIT_TIMEOUT_MILLI))
-    (set exportTimeoutHandle
-        [
-            (window.setTimeout ->{
-                (set exportTimeoutHandle [])
-                (export)
-            }
-            EXPORT_TIMEOUT_MILLI)
-        ]))
-(function :Void skipEditTimeout [idx :Void->Void handler]
-    (whenLet [activeTimeoutForIndex (dictGet editTimeoutHandles idx)]
-        (window.clearTimeout activeTimeoutForIndex)
-        (editTimeoutHandles.remove idx)
-        (handler)))
+
+(function :Void addEditTimeout [&opt idx :EditAction action]
+    (printErrors
+        (localVar &mut thisTimeoutHandle null)
+        (when idx
+            (when action
+                (when (= idx lastEditActionElementIdx)
+                    (whenLet [[activeEditTimeout] editTimeoutHandle]
+                        (set thisTimeoutHandle activeEditTimeout)
+                        (window.clearTimeout activeEditTimeout))))
+            (set lastEditActionElementIdx idx))
+        
+        (whenLet [[activeExportTimeout] exportTimeoutHandle]
+            (window.clearTimeout activeExportTimeout))
+        (set editTimeoutHandle
+            [
+                (window.setTimeout
+                    ->(printErrors
+                        (when (= thisTimeoutHandle (first editTimeoutHandle))
+                            (set editTimeoutHandle []))
+                        (when action
+                            (action))
+                        (set lastEditActionElementIdx -1))
+                    EDIT_TIMEOUT_MILLI)
+            ])
+        (set exportTimeoutHandle
+            [
+                (window.setTimeout
+                    ->{
+                        (set exportTimeoutHandle [])
+                        (export)
+                    }
+                    EXPORT_TIMEOUT_MILLI)
+            ])))
 
 (var &mut :Dynamic activeEditor)
 (var &mut :Array<Dynamic> editors [])
@@ -182,7 +196,6 @@
                 ->editor (addEditTimeout eIdx ->(updateBlock editor))]
         (updateSize)
         (eventSubscriptions.push (e.onDidFocusEditorText (activateEditor eIdx)))
-        (eventSubscriptions.push (e.onDidBlurEditorText ->(skipEditTimeout eIdx ->(updateBlock e))))
         (eventSubscriptions.push (e.onDidChangeCursorPosition
             ->evt
                 (when (Range.isEmpty (activeEditor.getSelection))
@@ -191,8 +204,7 @@
                         (set s.endCursorPos -1))
 
                     // Delay updating the block
-                    (when (dictGet editTimeoutHandles eIdx)
-                        (onChange e)))))
+                    (when editTimeoutHandle (addEditTimeout eIdx)))))
         (eventSubscriptions.push (e.onDidChangeCursorSelection
             ->evt {
                 (changeState s
@@ -200,8 +212,7 @@
                     (set s.endCursorPos (.getOffsetAt (e.getModel) (evt.selection.getEndPosition))))
                 
                 // Delay updating the block
-                (when (dictGet editTimeoutHandles eIdx)
-                    (onChange e))
+                (when editTimeoutHandle (addEditTimeout eIdx))
             }))
         (eventSubscriptions.push (e.onDidBlurEditorText (deactivateEditor eIdx)))
         (eventSubscriptions.push (e.onDidContentSizeChange updateSize))
@@ -275,18 +286,60 @@
         (s.dropString oldTerminator)
         (postMessage (objectWith [type "replace" text terminator end (s.position)] start))))
 
-(function replaceSourceBlock [element idx newText]
-    (changeState s (set s.sourceBlockChanged idx))
+(function blockObj [element]
     (case element
-        ((Block (object source text sourceStart start sourceEnd end))
-            (postMessage (object type "replace" text newText start start end end)))
+        ((Block obj) obj)
         (otherwise (throw "element $element is not a block"))))
 
-(function replaceOutputBlock [element newText]
-    (case element
-        ((Block (object output text outputStart start outputEnd end))
-            (postMessage (object type "replace" text newText start start end end)))
-        (otherwise (throw "element $element is not a block"))))
+(function updateFollowingBlocks [changingSource idx newText]
+    (let [element (nth ktxt2Elements idx)
+            b (blockObj element)
+            oldText
+                (if changingSource
+                        b.source
+                    b.output)
+            deltaLength
+                (- newText.length oldText.length)]
+        (if changingSource
+                {
+                    (set b.source newText)
+                    (+= b.sourceEnd deltaLength)
+                    (+= b.outputStart deltaLength)
+                    (+= b.outputEnd deltaLength)
+                }
+            {
+                    (set b.output newText)
+                    (+= b.outputEnd deltaLength)
+            })
+            (setNth ktxt2Elements idx (Block b))
+            (doFor [idx element] (enumerate (ktxt2Elements.slice (+ idx 1)) (+ idx 1))
+                (let [b (blockObj element)]
+                    (+= b.sourceStart deltaLength)
+                    (+= b.sourceEnd deltaLength)
+                    (+= b.outputStart deltaLength)
+                    (+= b.outputEnd deltaLength)
+                    (setNth ktxt2Elements idx (Block b))))))
+
+(function simpleReplace [text start end]
+    (printErrors 
+        (postMessage (objectWith [type "simpleReplace"] text start end))))
+
+(function replaceSourceBlock [idx newText]
+    (let [element (nth ktxt2Elements idx)]
+        (changeState s (set s.sourceBlockChanged idx))
+        (case element
+            ((Block (object source text sourceStart start sourceEnd end))
+                (simpleReplace newText start end))
+            (otherwise (throw "element $element is not a block")))
+        (updateFollowingBlocks true idx newText)))
+
+(function replaceOutputBlock [idx newText]
+    (let [element (nth ktxt2Elements idx)]
+        (case element
+            ((Block (object output text outputStart start outputEnd end))
+                (simpleReplace newText start end))
+            (otherwise (throw "element $element is not a block")))
+        (updateFollowingBlocks false idx newText)))
 
 (function deleteEntireBlock [element]
     (case element
@@ -345,10 +398,10 @@
         (content.appendChild (document.createElement "br"))
 
         (when showSourceBlocks (monacoEditor sourceDiv (if showOutputBlocks "width: 50%;" "flex-grow: 1;") source /* TODO get the real extension of the source file: */ "txt" locked
-            ->editor (replaceSourceBlock (nth ktxt2Elements idx) idx (.replace (editor.getValue) "\r" ""))))
+            ->editor (replaceSourceBlock idx (.replace (editor.getValue) "\r" ""))))
 
         (when showOutputBlocks (monacoEditor outputDiv "flex-grow: 1;" output /* TODO get the real extension of the output file: */ "txt" locked
-            ->editor (replaceOutputBlock (nth ktxt2Elements idx) (withOutputTerminator (.replace (editor.getValue) "\r" "")))))
+            ->editor (replaceOutputBlock idx (withOutputTerminator (.replace (editor.getValue) "\r" "")))))
 
         // Link that will delete the whole block:
         (set xLink.innerHTML "x")

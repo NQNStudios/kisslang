@@ -37,10 +37,10 @@
                                 (elements.push (Comment (object text comment start start end end)))))*/
                         (fileStream.dropChars blockStartEnd.length)
                         (when (fileStream.isEmpty) (break))
-                        (let [sourceStartPosition (fileStream.position)
+                        (let [sourceStartPosition .absoluteChar (fileStream.position)
                                 sourceBlock (fileStream.expect "A chunk of source text followed by one of $outputStarts"
                                                 ->(fileStream.takeUntilOneOf outputStarts))
-                                sourceEndPosition (fileStream.position)]
+                                sourceEndPosition .absoluteChar (fileStream.position)]
                             (set block.source sourceBlock)
                             (set block.sourceStart sourceStartPosition)
                             (set block.sourceEnd sourceEndPosition))
@@ -51,10 +51,10 @@
                                 (unlockedStart false)
                                 (otherwise
                                     (throw "Expected one of $outputStarts"))))
-                        (let [outputStartPosition (fileStream.position)
+                        (let [outputStartPosition .absoluteChar (fileStream.position)
                                 outputBlock (fileStream.expect "A chunk of output text followed by $blockStartEnd"
                                                 ->(fileStream.takeUntilOneOf [blockStartEnd]))
-                                outputEndPosition (fileStream.position)]
+                                outputEndPosition .absoluteChar (fileStream.position)]
                             (fileStream.dropChars blockStartEnd.length)
                             (set block.output outputBlock)
                             (set block.outputStart outputStartPosition)
