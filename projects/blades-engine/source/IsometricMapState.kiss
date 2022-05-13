@@ -9,7 +9,7 @@
 (method &override :Void create []
     (super.create)
     // TODO load from a more accessible path
-    (let [bitmapData (BitmapData.fromFile "Data/Terrain Graphics/G796.png")
+    (let [bitmapData (Bmp.loadBitmapData "Data/Terrain Graphics/G796.bmp")
             spriteSheet (.loadGraphic (new FlxSprite) (FlxGraphic.fromBitmapData bitmapData))]
         (spriteSheet.replaceColor FlxColor.WHITE FlxColor.TRANSPARENT)
         (let [sheetWidth (/ (- spriteSheet.frameWidth SPRITE_PADDING) (+ SPRITE_PADDING FLOOR_WIDTH))
