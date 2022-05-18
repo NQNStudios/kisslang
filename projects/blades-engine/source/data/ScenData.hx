@@ -10,6 +10,34 @@ class ScenData {
     public function new() {}
 
     public var floorData:Map<Int, FloorData> = [];
+    public var terrainData:Map<Int, TerrainData> = [];
+
+    static var failed:Array<String> = [];
+    static var passed = 0;
+    static function assert(e:Bool, msg="") {
+        if (!e) {
+            failed.push(msg);
+        } else {
+            passed++;
+        };
+    }
+
+    // Core data unit tests:
+    public function test() {
+        failed = [];
+        passed = 0;
+
+        assert(floorData[129].name == "Floor", "floors can import other floors' data");
+        assert(terrainData[12].name == "Door", "door is door");
+
+        trace('$passed assertions passed');
+        if (failed.length > 0) {
+            trace('Assertions failed: $failed');
+            Sys.exit(1);
+        }
+
+    }
+
 
     public function load(file:String) {
         var scenDataLines = File.getContent(file).replace("\r", "\n").split("\n");
@@ -29,6 +57,8 @@ class ScenData {
             switch (defining) {
                 case "floor":
                     floorData[id] = data;
+                case "terrain":
+                    terrainData[id] = data;
                 default:
             }
             data = data.clone();
@@ -38,6 +68,8 @@ class ScenData {
             data = switch (type) {
                 case "floor":
                     new FloorData();
+                case "terrain":
+                    new TerrainData();
                 default:
                     null;
             };
@@ -67,12 +99,17 @@ class ScenData {
                 if (line.startsWith("begindefine")) {
                     line = "beginDefine('" + line.replace("begindefine", "").replace(" ", "',").replace(";", ");");
                 } else if (line.startsWith("fl_")) {
-                    line = line.replace("fl_", "data.");
+                    line = "data." + line.substr(3);
+                } else if (line.startsWith("te_")) {
+                    line = "data." + line.substr(3);
                 } else if (line == "clear;") {
                     line = "clear();";
                 }
-                trace(line);
-                interp.execute(parser.parseString(line));
+                try {
+                    interp.execute(parser.parseString(line));
+                } catch (e) {
+                    trace('line `$line` failed because $e');
+                } 
             }
         }
 

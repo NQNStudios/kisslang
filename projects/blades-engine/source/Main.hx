@@ -10,6 +10,11 @@ class Main extends Sprite
 	{
 		var scenData = new ScenData();
 		scenData.load("Data/corescendata.txt");
+		scenData.load("Data/corescendata2.txt");
+		
+		scenData.test();
+
+
 		super();
 		// addChild(new FlxGame(0, 0, IsometricMapState));
 	}

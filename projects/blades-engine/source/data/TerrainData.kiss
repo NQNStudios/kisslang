@@ -1,0 +1,45 @@
+(var HILL_DIR_MAP
+    #|[
+        19 => Up(West),
+        20 => Up(SouthWest),
+        21 => Up(South),
+        22 => Up(SouthEast),
+        23 => Up(East),
+        24 => Up(NorthEast),
+        25 => Up(North),
+        26 => Up(NorthWest),
+        27 => Down(SouthEast),
+        28 => Down(NorthEast),
+        29 => Down(NorthWest),
+        30 => Down(SouthWest)
+    ]|#)
+
+(var BEAM_DIR_MAP
+    #|[
+        32 => North,
+        33 => West,
+        34 => South,
+        35 => East
+    ]|#)
+
+(method specialProperty []
+    (case special_property
+        ((when (<= 0 prop 8) prop)
+            (Floor (FloorSpecialProperty.createEnumIndex prop)))
+        ((when (HILL_DIR_MAP.exists prop) prop)
+            (Hill (dictGet HILL_DIR_MAP prop)))
+        (31 (Beam SwapTerrainWhenHit))
+        ((when (BEAM_DIR_MAP.exists prop) prop)
+            (Beam
+                (Fire
+                    (dictGet BEAM_DIR_MAP prop))))
+        (36 (Beam (Mirror BackSlash)))
+        (37 (Beam (Mirror ForwardSlash)))
+        (38 (Beam PowerSource))
+        (39 Sign)
+        (40 Container)
+        (41 Table)
+        (42 ShimmerLightAndDark)
+        (43 (Waterfall South))
+        (44 (Waterfall East))
+        (45 QuickFlammable)))
