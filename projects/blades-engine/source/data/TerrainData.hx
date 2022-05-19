@@ -6,6 +6,7 @@ using Reflect;
 import data.FloorData;
 
 import flixel.input.keyboard.FlxKey;
+import kiss.Prelude;
 
 enum Direction {
     North;
@@ -58,6 +59,7 @@ enum TerrainSpecialProperty {
     QuickFlammable;
 }
 
+@:build(kiss.Kiss.build())
 class TerrainData {
     public function new() {}
     

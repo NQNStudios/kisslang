@@ -29,11 +29,9 @@ class ScenData {
 
         assert(floorData[95].name == "Floor", "floor is floor");
         assert(floorData[95].which_sheet == 704, "floor gets the right spritesheet");
-        trace(floorData[129]);
         assert(floorData[129].name == "Floor", "floors can import other floors' data");
         assert(floorData[129].which_sheet == 704, "floors can import other floors' data");
         assert(floorData[129].specialProperty() == BlockedToNPCs, "blocked special property becomes enum");
-        trace(terrainData[12].name);
         assert(terrainData[12].name == "Door", "door is door");
 
         trace('$passed assertions passed');

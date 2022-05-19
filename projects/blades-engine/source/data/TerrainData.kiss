@@ -42,4 +42,5 @@
         (42 ShimmerLightAndDark)
         (43 (Waterfall South))
         (44 (Waterfall East))
-        (45 QuickFlammable)))
+        (45 QuickFlammable)
+        (otherwise (throw "undefined special_property"))))
