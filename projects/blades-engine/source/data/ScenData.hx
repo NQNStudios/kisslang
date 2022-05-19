@@ -4,6 +4,7 @@ import hscript.Parser;
 import hscript.Interp;
 import sys.io.File;
 
+using Reflect;
 using StringTools;
 
 class ScenData {
@@ -11,6 +12,7 @@ class ScenData {
 
     public var floorData:Map<Int, FloorData> = [];
     public var terrainData:Map<Int, TerrainData> = [];
+    public var creatureData:Map<Int, CreatureData> = [];
 
     static var failed:Array<String> = [];
     static var passed = 0;
@@ -33,6 +35,10 @@ class ScenData {
         assert(floorData[129].which_sheet == 704, "floors can import other floors' data");
         assert(floorData[129].specialProperty() == BlockedToNPCs, "blocked special property becomes enum");
         assert(terrainData[12].name == "Door", "door is door");
+        assert(terrainData[404].name == "Hitching Post", "multi-token name string");
+
+        assert(creatureData[23].field("start_item")[2] == 55, "array properties (nephil starter item)");
+        assert(creatureData[23].field("start_item_chance")[2] == 100, "array properties (nephil starter item)");
 
         trace('$passed assertions passed');
         if (failed.length > 0) {
@@ -59,6 +65,8 @@ class ScenData {
                     floorData;
                 case "terrain":
                     terrainData;
+                case "creature":
+                    creatureData;
                 default:
                     null;
             };
@@ -80,6 +88,8 @@ class ScenData {
                     new FloorData();
                 case "terrain":
                     new TerrainData();
+                case "creature":
+                    new CreatureData();
                 default:
                     null;
             };
@@ -120,11 +130,28 @@ class ScenData {
                     line = "data." + line.substr(3);
                 } else if (line.startsWith("te_")) {
                     line = "data." + line.substr(3);
+                } else if (line.startsWith("cr_")) {
+                    line = "data." + line.substr(3);
                 } else if (line == "clear;") {
                     line = "clear();";
                 } else if (line.startsWith("import =")) {
                     line = "_" + line.replace("=", "(").replace(";", ");");
                 }
+
+                // Wrap array assignments:
+                if (line.startsWith("data.")) {
+                    var tokens = line.split(" ");
+                    var isString = false;
+                    for (token in tokens) {
+                        if (token.indexOf('"') != -1)
+                            isString = true;
+                    }
+                    // <thing> = <value> or <thing> <index> = <value>
+                    if (!isString && tokens.length > 3) {
+                        line = tokens[0] + '[${tokens[1]}] = ' + tokens[3];
+                    }
+                }
+
                 try {
                     interp.execute(parser.parseString(line));
                 } catch (e) {
