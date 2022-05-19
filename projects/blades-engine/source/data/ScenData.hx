@@ -49,19 +49,25 @@ class ScenData {
         var data:Dynamic = null;
         interp.variables["data"] = null;
 
+        function mapFor(type:String):Map<Int,Dynamic> {
+            return switch (type) {
+                case "floor":
+                    floorData;
+                case "terrain":
+                    terrainData;
+                default:
+                    null;
+            };
+        }
+
         function commitData() {
             data = interp.variables["data"];
             if (data == null) return;
             trace(data);
             
-            switch (defining) {
-                case "floor":
-                    floorData[id] = data;
-                case "terrain":
-                    terrainData[id] = data;
-                default:
-            }
+            mapFor(defining)[id] = data;
             data = data.clone();
+            interp.variables["data"] = data;
         }
         function clear(?type:String) {
             if (type == null) type = defining;
@@ -73,6 +79,7 @@ class ScenData {
                 default:
                     null;
             };
+            interp.variables["data"] = data;
         }
         function beginDefine(type, tid) {
             commitData();

@@ -33,7 +33,7 @@ class FloorData {
     
     public function clone():FloorData {
         var fd = new FloorData();
-        for (field in FloorData.getClassFields()) {
+        for (field in FloorData.getInstanceFields()) {
             fd.setField(field, this.field(field));
         }
         return fd;
