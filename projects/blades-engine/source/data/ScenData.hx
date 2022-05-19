@@ -1,5 +1,6 @@
 package data;
 
+import haxe.iterators.DynamicAccessIterator;
 import hscript.Parser;
 import hscript.Interp;
 import sys.io.File;
@@ -13,6 +14,7 @@ class ScenData {
     public var floorData:Map<Int, FloorData> = [];
     public var terrainData:Map<Int, TerrainData> = [];
     public var creatureData:Map<Int, CreatureData> = [];
+    public var itemData:Map<Int, ItemData> = [];
 
     static var failed:Array<String> = [];
     static var passed = 0;
@@ -67,6 +69,8 @@ class ScenData {
                     terrainData;
                 case "creature":
                     creatureData;
+                case "item":
+                    itemData;
                 default:
                     null;
             };
@@ -75,7 +79,6 @@ class ScenData {
         function commitData() {
             data = interp.variables["data"];
             if (data == null) return;
-            trace(data);
             
             mapFor(defining)[id] = data;
             data = data.clone();
@@ -90,6 +93,8 @@ class ScenData {
                     new TerrainData();
                 case "creature":
                     new CreatureData();
+                case "item":
+                    new ItemData();
                 default:
                     null;
             };
@@ -131,6 +136,8 @@ class ScenData {
                 } else if (line.startsWith("te_")) {
                     line = "data." + line.substr(3);
                 } else if (line.startsWith("cr_")) {
+                    line = "data." + line.substr(3);
+                } else if (line.startsWith("it_")) {
                     line = "data." + line.substr(3);
                 } else if (line == "clear;") {
                     line = "clear();";
