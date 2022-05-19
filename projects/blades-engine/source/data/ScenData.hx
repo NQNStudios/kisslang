@@ -27,12 +27,18 @@ class ScenData {
         failed = [];
         passed = 0;
 
+        assert(floorData[95].name == "Floor", "floor is floor");
+        assert(floorData[95].which_sheet == 704, "floor gets the right spritesheet");
+        trace(floorData[129]);
         assert(floorData[129].name == "Floor", "floors can import other floors' data");
+        assert(floorData[129].which_sheet == 704, "floors can import other floors' data");
+        assert(floorData[129].specialProperty() == BlockedToNPCs, "blocked special property becomes enum");
+        trace(terrainData[12].name);
         assert(terrainData[12].name == "Door", "door is door");
 
         trace('$passed assertions passed');
         if (failed.length > 0) {
-            trace('Assertions failed: $failed');
+            trace('${failed.length} assertions failed: $failed');
             Sys.exit(1);
         }
 
@@ -92,9 +98,16 @@ class ScenData {
             defining = type;
             id = tid;
         }
+
+        function _import(id) {
+            data = mapFor(defining)[id].clone();
+            interp.variables["data"] = data;
+        }
+
         interp.variables["beginDefine"] = beginDefine;
         interp.variables["beginscendatascript"] = null;
         interp.variables["clear"] = clear;
+        interp.variables["_import"] = _import;
 
         for (line in scenDataLines) {
             var commentIndex = line.indexOf("//");
@@ -111,6 +124,8 @@ class ScenData {
                     line = "data." + line.substr(3);
                 } else if (line == "clear;") {
                     line = "clear();";
+                } else if (line.startsWith("import =")) {
+                    line = "_" + line.replace("=", "(").replace(";", ");");
                 }
                 try {
                     interp.execute(parser.parseString(line));
