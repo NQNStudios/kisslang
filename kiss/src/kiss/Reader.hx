@@ -35,7 +35,7 @@ class Reader {
         // and also handles string interpolation cases like "${exp}moreString"
         readTable["{"] = (stream:Stream, k) -> CallExp(Symbol("begin").withPos(stream.position()), readExpArray(stream, "}", k));
 
-        readTable['"'] = readString;
+        readTable['"'] = readString.bind(_, _, false);
         readTable["#"] = readRawString;
 
         // Special symbols that wouldn't read as symbols, but should:
@@ -339,8 +339,8 @@ class Reader {
         };
     }
 
-    // Read a string literal
-    static function readString(stream:Stream, k:KissState) {
+    // Read a string literal OR a shell section which supports interpolation
+    static function readString(stream:Stream, k:KissState, shell = false) {
         var pos = stream.position();
         var stringParts:Array<ReaderExp> = [];
         var currentStringPart = "";
@@ -348,6 +348,16 @@ class Reader {
         function endCurrentStringPart() {
             stringParts.push(StrExp(currentStringPart).withPos(pos));
             currentStringPart = "";
+        }
+
+        var terminator = if (shell) "```" else '"';
+        var escapes = ["$" => "$"];
+        if (!shell) {
+            escapes['\\'] = '\\';
+            escapes['t'] = '\t';
+            escapes['n'] = '\n';
+            escapes['r'] = '\r';
+            escapes['"'] = '"';
         }
 
         do {
@@ -374,24 +384,13 @@ class Reader {
                     stringParts.push(interpExpression);
                 case '\\':
                     var escapeSequence = stream.expect('valid escape sequence', () -> stream.takeChars(1));
-                    switch (escapeSequence) {
-                        case '\\':
-                            currentStringPart += "\\";
-                        case 't':
-                            currentStringPart += "\t";
-                        case 'n':
-                            currentStringPart += "\n";
-                        case 'r':
-                            currentStringPart += "\r";
-                        case '"':
-                            currentStringPart += '"';
-                        case '$':
-                            currentStringPart += '$';
-                        default:
-                            stream.error('unsupported escape sequence \\$escapeSequence');
-                            return null;
+                    if (escapes.exists(escapeSequence)) {
+                        currentStringPart += escapes[escapeSequence];
+                    } else {
+                        stream.error('unsupported escape sequence \\$escapeSequence');
+                        return null;
                     }
-                case '"':
+                case t if (t == terminator):
                     endCurrentStringPart();
                     return if (stringParts.length == 1) {
                         stringParts[0].def;
