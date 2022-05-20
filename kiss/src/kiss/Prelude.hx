@@ -643,6 +643,30 @@ class Prelude {
         return assertProcess("haxelib", ["libpath", haxelibName]).trim();
     }
 
+    public static function shellExecute(script:String, shell:String) {
+        #if (sys || hxnodejs)
+        if (shell.length == 0) {
+            shell = if (Sys.systemName() == "Windows") "cmd /c" else "bash";
+        }
+
+        var tempScript = 'tempScript.${shell.split(" ")[0]}';
+        File.saveContent(tempScript, script);
+        try {
+            if (Sys.systemName() != "Windows") tempScript = joinPath(Sys.getCwd(), tempScript);
+            var parts = shell.split(" ").concat([tempScript]);
+            var shell = parts.shift();
+            assertProcess(shell, parts);
+            FileSystem.deleteFile(tempScript);
+        } catch (e) {
+            FileSystem.deleteFile(tempScript);
+            throw e;
+        }
+
+        #else
+        throw "Can't run a shell script on this target.";
+        #end
+    }
+
     public static function filter<T>(l:Iterable<T>, ?p:(T) -> Bool):kiss.List<T> {
         if (p == null)
             p = Prelude.truthy;

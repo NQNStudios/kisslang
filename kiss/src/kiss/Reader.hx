@@ -8,6 +8,7 @@ import kiss.ReaderExp;
 using kiss.Reader;
 using kiss.Stream;
 using kiss.Helpers;
+using StringTools;
 
 class UnmatchedBracketSignal {
     public var type:String;
@@ -106,6 +107,21 @@ class Reader {
         readTable["`"] = (stream:Stream, k) -> Quasiquote(assertRead(stream, k));
         readTable[","] = (stream:Stream, k) -> Unquote(assertRead(stream, k));
         readTable[",@"] = (stream:Stream, k) -> UnquoteList(assertRead(stream, k));
+
+        // Command line syntax:
+        readTable["```"] = (stream:Stream, k) -> {
+            var shell = switch (stream.takeLine()) {
+                case Some(shell): shell;
+                default: "";
+            };
+            var pos = stream.position();
+            var script = readString(stream, k, true).withPos(pos);
+            CallExp(
+                Symbol("Prelude.shellExecute").withPos(pos), [
+                    script,
+                    StrExp(shell).withPos(pos)
+                ]);
+        };
 
         // Lambda arrow syntaxes:
         //     ->[args] body
@@ -363,7 +379,9 @@ class Reader {
         do {
             var next = switch (stream.takeChars(1)) {
                 case Some(c): c;
-                default: throw new StreamError(pos, 'Unterminated string literal. Expected "');
+                default: 
+                    var type = if (shell) "shell block" else "string literal";
+                    throw new StreamError(pos, 'Unterminated $type. Expected $terminator');
             }
 
             switch (next) {
@@ -390,14 +408,27 @@ class Reader {
                         stream.error('unsupported escape sequence \\$escapeSequence');
                         return null;
                     }
-                case t if (t == terminator):
-                    endCurrentStringPart();
-                    return if (stringParts.length == 1) {
-                        stringParts[0].def;
+                case t if (terminator.startsWith(t)):
+                    if (terminator.length == 1 ||
+                        switch (stream.takeChars(terminator.length - 1)) {
+                            case Some(rest) if (rest == terminator.substr(1)):
+                                true;
+                            case Some(other):
+                                stream.putBackString(other);
+                                false;
+                            default:
+                                throw new StreamError(pos, 'Unterminated shell block. Expected $terminator');
+                        }) {
+                        endCurrentStringPart();
+                        return if (stringParts.length == 1) {
+                            stringParts[0].def;
+                        } else {
+                            var b = stringParts[0].expBuilder();
+                            b.the(b.symbol("String"), b.callSymbol("+", stringParts)).def;
+                        };
                     } else {
-                        var b = stringParts[0].expBuilder();
-                        b.the(b.symbol("String"), b.callSymbol("+", stringParts)).def;
-                    };
+                        currentStringPart += t;
+                    }
                 default:
                     currentStringPart += next;
             }
