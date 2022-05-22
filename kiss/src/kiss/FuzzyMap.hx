@@ -21,6 +21,10 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
     }
 
     static var threshold = 0.4;
+    public static function fuzzyMatchScore(key:String, fuzzySearchKey:String) {
+        return 1 - (key.toLowerCase().getLevenshteinDistance(fuzzySearchKey.toLowerCase()) / Math.max(key.length, fuzzySearchKey.length));
+    }
+
     function bestMatch(fuzzySearchKey:String, ?throwIfNone=true):String {
         if (this.exists(fuzzySearchKey)) return fuzzySearchKey;
 
@@ -28,7 +32,7 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         var bestKey = null;
 
         for (key in this.keys()) {
-            var score = 1 - (key.toLowerCase().getLevenshteinDistance(fuzzySearchKey.toLowerCase()) / Math.max(key.length, fuzzySearchKey.length));
+            var score = fuzzyMatchScore(key, fuzzySearchKey);
             if (score > bestScore) {
                 bestScore = score;
                 bestKey = key;
