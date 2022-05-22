@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 # pip install -r requirements.txt
-usage = 'python transcribe-voice-track.py <?wav filename>'
+usage = 'python transcribe-voice-track.py <wav filenames...> '
+
+# https://towardsdatascience.com/speech-recognition-with-timestamps-934ede4234b2
+# If you don't get results, try re-exporting as Signed 16-bit PCM
 
 import util
 import wave
@@ -29,16 +32,19 @@ if not os.path.exists(model_path):
     with ZipFile(model_zip_path, "r") as zip_file:
         zip_file.extractall('models')
 
-audio_filename = util.arg(1, usage)
-wf = wave.open(audio_filename, "rb")
-
 model = Model(model_path)
-rec = KaldiRecognizer(model, wf.getframerate())
-rec.SetWords(True)
 
-frames = 4000
-while True:
+audio_filenames = util.args(1, usage)
+for audio_filename in audio_filenames:
+    wf = wave.open(audio_filename, "rb")
+
+    rec = KaldiRecognizer(model, wf.getframerate())
+    rec.SetWords(True)
+
+    frames = 4000
+    
     # Mix channels together if the input is stereo
+    # or the sample width is incompatible
     if wf.getnchannels() == 2:
         wf.close()
         mono_filename = '.'.join(audio_filename.split('.')[:-1]) + '_mono.wav'
@@ -72,9 +78,3 @@ while True:
             lines[text].append({'start': words[0]['start'], 'end': words[-1]['end']})
             print(f'{text}: {words[0]["start"]} {words[-1]["end"]}')
         json.dump(lines, f)
-
-    frames = input(f"Try different frames num? (was {frames}) (press ENTER to quit): ")
-    if len(frames) == 0:
-        sys.exit(0)
-    else:
-        frames = int(frames)
