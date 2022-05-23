@@ -747,6 +747,18 @@ class Macros {
         }
 
         macros["awaitLet"] = awaitLet;
+        
+        macros["whileLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(2, null, "(whileLet [<bindings...>] <body...>)");
+            var b = wholeExp.expBuilder();
+            return b.callSymbol("loop", [
+                b.callSymbol("ifLet", [
+                    exps[0],
+                        b.begin(exps.slice(1)),
+                    b.callSymbol("break", [])
+                ])
+            ]);
+        };
 
         // TODO test defNew
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {

@@ -4,6 +4,7 @@ import utest.Test;
 import utest.Assert;
 import kiss.Prelude;
 import kiss.List;
+import kiss.Stream;
 import haxe.ds.Option;
 
 using StringTools;
@@ -340,6 +341,10 @@ class BasicTestCase extends Test {
 
     function testIntersect() {
         _testIntersect();
+    }
+
+    function testWhileLet() {
+        _testWhileLet();
     }
 }
 

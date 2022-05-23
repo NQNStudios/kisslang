@@ -629,3 +629,11 @@
         (assert (contains intersection3d "cy3"))
         )
     (Assert.pass))
+
+(function _testWhileLet []
+    (let [&mut idx 0
+            lines ["a" "b" "c"]
+            stream (Stream.fromString "a\nb\nc")]
+        (whileLet [(Some line) (stream.takeLine)]
+            (Assert.equals (nth lines idx) line)
+            (+= idx 1))))
