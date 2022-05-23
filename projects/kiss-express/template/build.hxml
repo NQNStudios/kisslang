@@ -1,0 +1,8 @@
+-lib kiss
+-lib express
+-lib kiss-express
+-cp src
+--macro kiss.Kiss.setup()
+--main template.Main
+--js index.js
+--cmd node index.js

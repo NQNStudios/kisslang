@@ -36,6 +36,8 @@ class Main {
                 newProject(args);
             case "new-flixel-project":
                 newFlixelProject(args);
+            case "new-express-project":
+                newExpressProject(args);
             case "implement":
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
@@ -169,7 +171,6 @@ class Main {
         firstWindowElement.set("background", background);
 
         File.saveContent(Path.join([workingDir, title, 'Project.xml']), projectXml.toString());
-        
         var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissFlixelLibPath, _, workingDir, title, "");
         var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissFlixelLibPath, _, workingDir, title, "");
         makeFolderForNewProject([".vscode"]);
@@ -177,6 +178,27 @@ class Main {
         makeFolderForNewProject(["source"]);
         makeFileForNewProject(["hxformat.json"]);
         makeFileForNewProject([".gitignore"]);
+    }
+
+    static function newExpressProject(args:Array<String>) {
+        var title = promptFor("title");
+        var pkg = title.replace("-", "_");
+        var kissExpressLibPath = new Process("haxelib", ["libpath", "kiss-express"]).stdout.readAll().toString().trim();
+        var workingDir = Sys.args().pop();
+        var projectDir = Path.join([workingDir, title]);
+        FileSystem.createDirectory(projectDir);
+
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissExpressLibPath, _, workingDir, title, pkg);
+        var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissExpressLibPath, _, workingDir, title, pkg);
+        makeFolderForNewProject(["src", "template"]);
+        makeFileForNewProject([".gitignore"]);
+        makeFileForNewProject(["build.hxml"]);
+        makeFileForNewProject(["package.json"]);
+        var packageFile = Path.join([projectDir, "package.json"]);
+        var packageJson = Json.parse(File.getContent(packageFile));
+        packageJson.title = title;
+        File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        makeFileForNewProject(["test.sh"]);
     }
 
     static function convert(args:Array<String>) {
