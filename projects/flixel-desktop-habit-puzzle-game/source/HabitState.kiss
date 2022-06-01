@@ -79,7 +79,7 @@
     (map (m.activeTodoEntries) makeText)
     (add entryTexts)
 
-    (doFor e (the Array<Entry> (concat m.dailyEntries m.monthlyEntries m.intervalEntries m.bonusEntries m.todoEntries))
+    (doFor e (m.allEntries)
         (when (HabitModel.isActive e)
             (let [label (HabitModel.activeLabel e)]
                 (shortcutHandler.registerItem label.label e))))

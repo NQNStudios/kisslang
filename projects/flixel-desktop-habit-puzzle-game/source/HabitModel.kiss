@@ -107,8 +107,11 @@
                                         points (count (l.split "") ->c (= c "|")))))))
                 (otherwise (break))))))
 
+(method :Array<Entry> allEntries []
+    (cast (concat dailyEntries monthlyEntries intervalEntries bonusEntries todoEntries)))
+
 (method :Int totalPoints []
-    (apply + (for l (flatten (for e (the Array<Entry> (concat dailyEntries monthlyEntries intervalEntries bonusEntries todoEntries)) e.labels)) l.points)))
+    (apply + (for l (flatten (for e (allEntries) e.labels)) l.points)))
 
 (function :String stringify [:Entry e]
     "$(case e.type
@@ -174,7 +177,7 @@
                     dayToEndSearch
                         (if lastDayDone
                                 (DateTime.fromString lastDayDone)
-                            (let [now (DateTime.fromDate (Date.now))]
+                            (let [&mut now (DateTime.fromDate (Date.now))]
                                 (until (= 1 (now.getDay)) #|now -= oneDayInterval;|#)
                                 now))]
                 (until (and (= (nextDay.getDay) (dayToEndSearch.getDay)) (= (nextDay.getMonth) (dayToEndSearch.getMonth)) (= (nextDay.getYear) (dayToEndSearch.getYear)))
