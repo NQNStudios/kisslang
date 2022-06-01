@@ -355,20 +355,20 @@ class Kiss {
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
             case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff)):
-                var field = fieldForms[ff](exp, args, k);
+                var field = fieldForms[ff](exp, args.copy(), k);
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
                 none; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 macroUsed = true;
-                var expanded = macros[mac](exp, args, k);
+                var expanded = macros[mac](exp, args.copy(), k);
                 if (expanded != null) {
                     convert(expanded);
                 } else {
                     none;
                 };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
-                specialForms[specialForm](exp, args, k);
+                specialForms[specialForm](exp, args.copy(), k);
             case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
                 convert(CallExp(k.callAliases[alias].withPosOf(exp), args).withPosOf(exp));
             case CallExp(func, args):
