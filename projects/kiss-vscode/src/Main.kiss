@@ -30,9 +30,13 @@
 (function :Void tryLoadConfig [&opt :Bool force :Bool fallbackToDefault :String _]
     (let [handleConfigFailure
                 ->errorMessage {
-                    (FileSystem.deleteDirectory activeConfigDir)
-                    (when (FileSystem.exists lastConfigDir)
-                        (FileSystem.rename lastConfigDir activeConfigDir))
+                    (try
+                        {
+                            (FileSystem.deleteDirectory activeConfigDir)
+                            (when (FileSystem.exists lastConfigDir)
+                                (FileSystem.rename lastConfigDir activeConfigDir))
+                        }
+                        (catch [e] (throw "failed to delete bad config: $e")))
                     // When user config fails to build, use the default
                     // Counterintuitively, this unless is correct:
                     (unless fallbackToDefault
@@ -66,17 +70,18 @@
             (#unless test
                 (unless force
                     (let [oldConfigFile (joinPath activeConfigDir "config.js")]
-                        (when (let [mTime
-                                        ->file (.getTime .mtime (FileSystem.stat file))
-                                    oldFileMTime
-                                        (mTime oldConfigFile)
-                                    userConfigMTime
-                                        (let [foldersToCheck [(userConfigDir) builtinConfigDir]]
-                                            (when commandsDir
-                                                (foldersToCheck.push commandsDir))
-                                            (apply max
-                                                (map (apply concat (map foldersToCheck readDirectory)) mTime)))]
-                                (> oldFileMTime userConfigMTime))
+                        (when (and (FileSystem.exists oldConfigFile) 
+                                (let [mTime
+                                            ->file (.getTime .mtime (FileSystem.stat file))
+                                        oldFileMTime
+                                            (mTime oldConfigFile)
+                                        userConfigMTime
+                                            (let [foldersToCheck [(userConfigDir) builtinConfigDir]]
+                                                (when commandsDir
+                                                    (foldersToCheck.push commandsDir))
+                                                (apply max
+                                                    (map (apply concat (map foldersToCheck readDirectory)) mTime)))]
+                                    (> oldFileMTime userConfigMTime)))
                             (requireConfigJs oldConfigFile)
                             (Vscode.window.showInformationMessage "Config loaded successfully!")
                             (return)))))
