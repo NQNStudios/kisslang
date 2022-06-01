@@ -4,6 +4,7 @@ KISS_PROJECT=${KISS_PROJECT:-$1}
 KISS_PROJECT=${KISS_PROJECT:-aoc}
 
 ./test-env.sh
+(cd projects/$KISS_PROJECT && haxelib install all --always)
 
 # If project folder contains "flixel-", test that its code compiles for HTML5 and C++
 if [[ $KISS_PROJECT == *flixel-* ]]
@@ -34,6 +35,5 @@ then
     fi
 # Test other projects with their test.sh file
 else
-    (cd projects/$KISS_PROJECT && haxelib install all --always)
     (cd projects/$KISS_PROJECT && ./test.sh "${@:2}")
 fi
