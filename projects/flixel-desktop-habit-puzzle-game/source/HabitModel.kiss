@@ -173,7 +173,7 @@
             // TODO logic
             (let [&mut nextDay
                         (DateTime.fromDate (Date.now))
-                    oneDayInterval (DateTimeInterval.create (DateTime.make null null 1) (DateTime.make null null 2))
+                    oneDayInterval (DateTimeInterval.create (DateTime.make 1970 1 1) (DateTime.make 1970 1 2))
                     dayToEndSearch
                         (if lastDayDone
                                 (DateTime.fromString lastDayDone)

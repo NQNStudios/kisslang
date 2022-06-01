@@ -100,7 +100,7 @@
     (shortcutHandler.start))
 
 (prop &mut textY 0)
-(prop &mut :FlxColor color null)
+(prop &mut :FlxColor color FlxColor.BLACK)
 
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)
