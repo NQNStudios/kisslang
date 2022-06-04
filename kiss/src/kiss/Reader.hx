@@ -162,7 +162,7 @@ class Reader {
                     argsExp = b.list([]);
                     bodyExp = firstExp;
                 default:
-                    throw CompileError.fromExp(firstExp, "first expression after -> should be [args...], arg, (exp) or {body}, or one of those prefixed with :Void");
+                    throw KissError.fromExp(firstExp, "first expression after -> should be [args...], arg, (exp) or {body}, or one of those prefixed with :Void");
             }
             if (!returnsValue) {
                 argsExp = TypedExp("Void", argsExp).withPosOf(argsExp);

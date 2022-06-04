@@ -5,7 +5,7 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.Helpers;
 import kiss.Stream;
-import kiss.CompileError;
+import kiss.KissError;
 import kiss.Kiss;
 
 using kiss.Kiss;
@@ -23,7 +23,7 @@ class FieldForms {
         function renameAndDeprecate(oldName:String, newName:String) {
             var form = map[oldName];
             map[oldName] = (wholeExp, args, k) -> {
-                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                KissError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
                 form(wholeExp, args, k);
             }
             map[newName] = form;

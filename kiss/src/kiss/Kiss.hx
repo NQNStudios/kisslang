@@ -11,7 +11,7 @@ import kiss.ReaderExp;
 import kiss.FieldForms;
 import kiss.SpecialForms;
 import kiss.Macros;
-import kiss.CompileError;
+import kiss.KissError;
 import kiss.cloner.Cloner;
 
 using kiss.Kiss;
@@ -169,7 +169,7 @@ class Kiss {
             Sys.stderr().writeString(err + "\n");
             Sys.exit(1);
             return null;
-        } catch (err:CompileError) {
+        } catch (err:KissError) {
             Sys.stderr().writeString(err + "\n");
             Sys.exit(1);
             return null;
@@ -238,7 +238,7 @@ class Kiss {
                     // If no main function is defined manually, Kiss expressions at the top of a file will be put in a main function.
                     // If a main function IS defined, this will result in an error
                     if (k.fieldDict.exists("main")) {
-                        throw CompileError.fromExp(topLevelBegin, '$kissFile has expressions outside of field definitions, but already defines its own main function.');
+                        throw KissError.fromExp(topLevelBegin, '$kissFile has expressions outside of field definitions, but already defines its own main function.');
                     }
                     var b = topLevelBegin.expBuilder();
                     // This doesn't need to be added to the fieldDict because all code generation is done
@@ -386,7 +386,7 @@ class Kiss {
                 try {
                     Context.parse(name, exp.macroPos());
                 } catch (err:haxe.Exception) {
-                    throw CompileError.fromExp(exp, "invalid symbol");
+                    throw KissError.fromExp(exp, "invalid symbol");
                 };
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
@@ -436,7 +436,7 @@ class Kiss {
                 try {
                     Context.parse(code, exp.macroPos());
                 } catch (err:Exception) {
-                    throw CompileError.fromExp(exp, 'Haxe parse error: $err');
+                    throw KissError.fromExp(exp, 'Haxe parse error: $err');
                 };
             case FieldExp(field, innerExp):
                 EField(convert(innerExp), field).withMacroPosOf(exp);
@@ -448,7 +448,7 @@ class Kiss {
                     Helpers.evalUnquotes($v{innerExp}).def;
                 };
             default:
-                throw CompileError.fromExp(exp, 'conversion not implemented');
+                throw KissError.fromExp(exp, 'conversion not implemented');
         };
         #if test
         // Sys.println(expr.toString()); // For very fine-grained codegen inspection--slows compilation a lot.
@@ -461,7 +461,7 @@ class Kiss {
         copy.macros[m] = (wholeExp:ReaderExp, exps, k) -> {
             var b = wholeExp.expBuilder();
             // have this throw during macroEXPANSION, not before (so assertThrows will catch it)
-            b.throwCompileError('$m is unavailable in macros because $reason');
+            b.throwKissError('$m is unavailable in macros because $reason');
         };
     }
 
@@ -497,7 +497,7 @@ class Kiss {
                 case Symbol(varName) if (k.macroVars.exists(varName)):
                     var b = wholeExp.expBuilder();
                     // have this throw during macroEXPANSION, not before (so assertThrows will catch it)
-                    copy.convert(b.throwCompileError('If you intend to change macroVar $varName, use setMacroVar instead. If not, rename your local variable for clarity.'));
+                    copy.convert(b.throwKissError('If you intend to change macroVar $varName, use setMacroVar instead. If not, rename your local variable for clarity.'));
                 default:
                     setLocal(wholeExp, exps, copy);
             };

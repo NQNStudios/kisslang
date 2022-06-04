@@ -5,7 +5,7 @@ import haxe.macro.Context;
 import kiss.Reader;
 import kiss.ReaderExp;
 import kiss.Kiss;
-import kiss.CompileError;
+import kiss.KissError;
 import kiss.CompilerTools;
 import uuid.Uuid;
 import hscript.Parser;
@@ -28,7 +28,7 @@ class Macros {
         function renameAndDeprecate(oldName:String, newName:String) {
             var form = macros[oldName];
             macros[oldName] = (wholeExp, args, k) -> {
-                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                KissError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
                 form(wholeExp, args, k);
             }
             macros[newName] = form;
@@ -41,7 +41,7 @@ class Macros {
                 case StrExp(otherKissFile):
                     Kiss.load(otherKissFile, k);
                 default:
-                    throw CompileError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
+                    throw KissError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
             };
         };
 
@@ -52,13 +52,13 @@ class Macros {
                 case StrExp(libName):
                     Prelude.libPath(libName);
                 default:
-                    throw CompileError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
+                    throw KissError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
             };
             switch (args[1].def) {
                 case StrExp(otherKissFile):
                     Kiss.load(otherKissFile, k, libPath);
                 default:
-                    throw CompileError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
+                    throw KissError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
             };
         };
 
@@ -174,7 +174,7 @@ class Macros {
                     elseExp;
                 }
             } catch (e) {
-                throw CompileError.fromExp(conditionExp, 'condition for #if threw error $e');
+                throw KissError.fromExp(conditionExp, 'condition for #if threw error $e');
             }
         };
 
@@ -197,7 +197,7 @@ class Macros {
                         matchBodySymbols.push(gensym);
                         caseArgs.push(b.call(pattern, [gensym]));
                     default:
-                        throw CompileError.fromExp(exp, "invalid pattern expression for #case");
+                        throw KissError.fromExp(exp, "invalid pattern expression for #case");
                 }
             }
 
@@ -216,7 +216,7 @@ class Macros {
                 #end
                 return caseInterp.evalHaxe(hscriptStr);
             } catch (e) {
-                throw CompileError.fromExp(caseExp, '#case evaluation threw error $e');
+                throw KissError.fromExp(caseExp, '#case evaluation threw error $e');
             }
         }
 
@@ -360,11 +360,11 @@ class Macros {
                                 case StrExp(s):
                                     s;
                                 default:
-                                    throw CompileError.fromExp(s, 'initiator list of $formName must only contain strings');
+                                    throw KissError.fromExp(s, 'initiator list of $formName must only contain strings');
                             }
                     ];
                 default:
-                    throw CompileError.fromExp(exp, 'first argument to $formName should be a String or list of strings');
+                    throw KissError.fromExp(exp, 'first argument to $formName should be a String or list of strings');
             };
         }
 
@@ -373,15 +373,15 @@ class Macros {
 
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
-                default: throw CompileError.fromExp(exps[0], "macro name should be a symbol");
+                default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
             };
 
             var argList = switch (exps[1].def) {
                 case ListExp(macroArgs): macroArgs;
                 case CallExp(_, _):
-                    throw CompileError.fromExp(exps[1], 'expected a macro argument list. Change the parens () to brackets []');
+                    throw KissError.fromExp(exps[1], 'expected a macro argument list. Change the parens () to brackets []');
                 default:
-                    throw CompileError.fromExp(exps[1], 'expected a macro argument list');
+                    throw KissError.fromExp(exps[1], 'expected a macro argument list');
             };
 
             // This is similar to &opt and &rest processing done by Helpers.makeFunction()
@@ -401,7 +401,7 @@ class Macros {
             var builderName:String = null;
             for (arg in argList) {
                 if (restIndex != -1) {
-                    throw CompileError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
+                    throw KissError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
                 }
                 switch (arg.def) {
                     case Symbol(name):
@@ -417,7 +417,7 @@ class Macros {
                         if (builderName == null) {
                             builderName = name;
                         } else {
-                            throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
+                            throw KissError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
                         }
                     case MetaExp("opt", {pos: _, def: Symbol(name)}):
                         argNames.push(name);
@@ -426,7 +426,7 @@ class Macros {
                         ++maxArgs;
                     case MetaExp("rest", {pos: _, def: Symbol(name)}):
                         if (name == "body") {
-                            CompileError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
+                            KissError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
                         }
                         argNames.push(name);
                         macroCallForm += ' [$name...]';
@@ -439,7 +439,7 @@ class Macros {
                         requireRest = true;
                         maxArgs = null;
                     default:
-                        throw CompileError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest or &builder");
+                        throw KissError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest or &builder");
                 }
             }
 
@@ -467,7 +467,7 @@ class Macros {
                 if (innerArgNames.length > 0) {
                     var restArgs = innerExps.slice(restIndex);
                     if (requireRest && restArgs.length == 0) {
-                        throw CompileError.fromExp(wholeExp, 'Macro $name requires one or more expression for &body');
+                        throw KissError.fromExp(wholeExp, 'Macro $name requires one or more expression for &body');
                     }
                     args[innerArgNames.shift()] = restArgs;
                 }
@@ -475,11 +475,11 @@ class Macros {
                 try {
                     // Return the macro expansion:
                     return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
-                } catch (error:CompileError) {
+                } catch (error:KissError) {
                     throw error;
                 } catch (error:Dynamic) {
                     // TODO this could print the hscript, with some refactoring
-                    throw CompileError.fromExp(wholeExp, 'Macro expansion error: $error');
+                    throw KissError.fromExp(wholeExp, 'Macro expansion error: $error');
                 };
             };
 
@@ -492,7 +492,7 @@ class Macros {
 
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
-                default: throw CompileError.fromExp(exps[0], "macro name should be a symbol");
+                default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
             };
 
             k.macros.remove(name);
@@ -525,7 +525,7 @@ class Macros {
 
             var streamArgName = null;
             var builderArgName = null;
-            var messageForBadArgs = CompileError.fromExp(exps[1], 'expected an argument list for a reader macro, like [stream] or [stream &builder b]');
+            var messageForBadArgs = KissError.fromExp(exps[1], 'expected an argument list for a reader macro, like [stream] or [stream &builder b]');
             switch (exps[1].def) {
                 case ListExp(args):
                     for (arg in args) {
@@ -536,7 +536,7 @@ class Macros {
                                 if (builderArgName == null) {
                                     builderArgName = b;
                                 } else {
-                                    throw CompileError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderArgName');
+                                    throw KissError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderArgName');
                                 }
                             default:
                                 throw messageForBadArgs;
@@ -560,8 +560,8 @@ class Macros {
                         Helpers.runAtCompileTime(body, k, evalArgs).def;
                     } catch (err) {
                         var expForError = Symbol(s).withPos(startingPos);
-                        CompileError.warnFromExp(wholeExp, 'Error from this reader macro');
-                        throw CompileError.fromExp(expForError, '$err');
+                        KissError.warnFromExp(wholeExp, 'Error from this reader macro');
+                        throw KissError.fromExp(expForError, '$err');
                     }
                 };
             }
@@ -604,7 +604,7 @@ class Macros {
         var aliasMap:Map<String, ReaderExpDef> = null;
 
         function getAliasName(k:KissState, nameExpWithMeta:ReaderExp, formName:String):String {
-            var error = CompileError.fromExp(nameExpWithMeta, 'first argument to $formName should be &call [alias] or &ident [alias]');
+            var error = KissError.fromExp(nameExpWithMeta, 'first argument to $formName should be &call [alias] or &ident [alias]');
             var nameExp = switch (nameExpWithMeta.def) {
                 case MetaExp("call", nameExp):
                     aliasMap = k.callAliases;
@@ -807,7 +807,7 @@ class Macros {
                                 propertySetExps.push(
                                     b.call(b.symbol("set"), [b.field(name, b.symbol("this")), b.symbol(name)]));
                             default:
-                                throw CompileError.fromExp(arg, "invalid use of &prop in defNew");
+                                throw KissError.fromExp(arg, "invalid use of &prop in defNew");
                         }
                     default:
                         argList.push(arg);
@@ -899,7 +899,7 @@ class Macros {
                         objectExps.push(exp);
                         objectExps.push(exp);
                     default:
-                        throw CompileError.fromExp(exp, "invalid expression in (objectWith)");
+                        throw KissError.fromExp(exp, "invalid expression in (objectWith)");
                 }
             }
 
@@ -913,7 +913,7 @@ class Macros {
             var blockName = try {
                 exps[0].symbolNameValue();
             } catch (notSymbolError:String) {
-                throw CompileError.fromExp(wholeExp, notSymbolError);
+                throw KissError.fromExp(wholeExp, notSymbolError);
             }
             k.collectedBlocks[blockName] = [];
             // TODO some assertion that the coder hasn't defined over another macro (also should apply to defMacro)
@@ -929,11 +929,11 @@ class Macros {
             var blockName = try {
                 exps[0].symbolNameValue();
             } catch (notSymbolError:String) {
-                throw CompileError.fromExp(wholeExp, notSymbolError);
+                throw KissError.fromExp(wholeExp, notSymbolError);
             }
             var b = wholeExp.expBuilder();
             if (!k.collectedBlocks.exists(blockName)) {
-                throw CompileError.fromExp(wholeExp, 'no blocks for $blockName were collected. Try adding (collectBlocks ${blockName}) at the start of the file.');
+                throw KissError.fromExp(wholeExp, 'no blocks for $blockName were collected. Try adding (collectBlocks ${blockName}) at the start of the file.');
             }
             b.begin(k.collectedBlocks[blockName]);
         };
@@ -980,11 +980,11 @@ class Macros {
                                 return b.begin(body);
                             }
                         default:
-                            throw CompileError.fromExp(patternExp, "bad exprCase pattern expression");
+                            throw KissError.fromExp(patternExp, "bad exprCase pattern expression");
                     }
                 }
 
-                throw CompileError.fromExp(wholeExp, 'expression ${toMatch.def.toString()} matches no pattern in exprCase');
+                throw KissError.fromExp(wholeExp, 'expression ${toMatch.def.toString()} matches no pattern in exprCase');
             };
 
             return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("__interp__")]);
@@ -1012,7 +1012,7 @@ class Macros {
 
             var allowedLangs = EnumTools.getConstructors(CompileLang);
             if (allowedLangs.indexOf(lang) == -1) {
-                throw CompileError.fromExp(langExp, 'unsupported lang for #extern: $originalLang should be one of $allowedLangs');
+                throw KissError.fromExp(langExp, 'unsupported lang for #extern: $originalLang should be one of $allowedLangs');
             }
             var langArg = EnumTools.createByName(CompileLang, lang);
 
@@ -1026,13 +1026,13 @@ class Macros {
                 case ListExp(_):
                 // Let the next switch handle the binding list
                 default:
-                    throw CompileError.fromExp(nextArg, "second argument to #extern can either be a CompileArgs object or a list of typed bindings");
+                    throw KissError.fromExp(nextArg, "second argument to #extern can either be a CompileArgs object or a list of typed bindings");
             }
             switch (nextArg.def) {
                 case ListExp(_):
                     bindingListExp = nextArg;
                 default:
-                    throw CompileError.fromExp(nextArg, "#extern requires a list of typed bindings");
+                    throw KissError.fromExp(nextArg, "#extern requires a list of typed bindings");
             }
 
             var compileArgs:CompilationArgs = if (compileArgsExp != null) {
@@ -1052,7 +1052,7 @@ class Macros {
                     case TypedExp(_type, symbol = {pos: _, def: Symbol(name)}):
                         type = _type;
                         symbol;
-                    default: throw CompileError.fromExp(bindingList[idx], "name in #extern binding list must be a typed symbol");
+                    default: throw KissError.fromExp(bindingList[idx], "name in #extern binding list must be a typed symbol");
                 };
                 switch (bindingList[idx + 1].def) {
                     // _ in the value position of the #extern binding list will reuse the name as the value
@@ -1279,7 +1279,7 @@ class Macros {
             // key-value expressions, quasiquotes, unquotes, or UnquoteLists. This function can be expanded
             // later if those features are ever needed.
             default:
-                throw CompileError.fromExp(pattern, "unsupported pattern for exprCase");
+                throw KissError.fromExp(pattern, "unsupported pattern for exprCase");
         }
     }
 
@@ -1299,7 +1299,7 @@ class Macros {
                     }
                 ]);
             default:
-                throw CompileError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
+                throw KissError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
         };
     }
 }

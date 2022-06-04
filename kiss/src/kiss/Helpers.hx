@@ -7,7 +7,7 @@ import hscript.Parser;
 import hscript.Interp;
 import kiss.Reader;
 import kiss.ReaderExp;
-import kiss.CompileError;
+import kiss.KissError;
 import kiss.Kiss;
 import kiss.SpecialForms;
 import kiss.Prelude;
@@ -56,7 +56,7 @@ class Helpers {
                 if (from == null) {
                     throw errorMessage;
                 } else {
-                    throw CompileError.fromExp(from, errorMessage);
+                    throw KissError.fromExp(from, errorMessage);
                 }
         };
     }
@@ -70,7 +70,7 @@ class Helpers {
             if (from == null) {
                 throw errorMessage;
             } else {
-                throw CompileError.fromExp(from, errorMessage);
+                throw KissError.fromExp(from, errorMessage);
             };
         }
         try {
@@ -105,7 +105,7 @@ class Helpers {
             case MetaExp(_, nameExp) | TypedExp(_, nameExp):
                 varName(formName, nameExp);
             default:
-                throw CompileError.fromExp(nameExp, 'The first argument to $formName should be a $nameType name, :Typed $nameType name, and/or &meta $nameType name.');
+                throw KissError.fromExp(nameExp, 'The first argument to $formName should be a $nameType name, :Typed $nameType name, and/or &meta $nameType name.');
         };
     }
 
@@ -126,12 +126,12 @@ class Helpers {
 
         function makeFuncArg(funcArg:ReaderExp):FunctionArg {
             if (restProcessed) {
-                throw CompileError.fromExp(funcArg, "cannot declare more arguments after a &rest argument");
+                throw KissError.fromExp(funcArg, "cannot declare more arguments after a &rest argument");
             }
             return switch (funcArg.def) {
                 case MetaExp("rest", innerFuncArg):
                     if (funcName == "") {
-                        throw CompileError.fromExp(funcArg, "lambda does not support &rest arguments");
+                        throw KissError.fromExp(funcArg, "lambda does not support &rest arguments");
                     }
 
                     // rest arguments define a Kiss special form with the function's name that wraps
@@ -161,7 +161,7 @@ class Helpers {
                             case Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)}):
                                 name;
                             default:
-                                throw CompileError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
+                                throw KissError.fromExp(funcArg, 'function argument should be a symbol or typed symbol');
                         },
                         type: switch (funcArg.def) {
                             case TypedExp(type, _):
@@ -195,9 +195,9 @@ class Helpers {
                 case ListExp(funcArgs):
                     funcArgs.map(makeFuncArg);
                 case CallExp(_, _):
-                    throw CompileError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
+                    throw KissError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
                 default:
-                    throw CompileError.fromExp(argList, 'expected an argument list');
+                    throw KissError.fromExp(argList, 'expected an argument list');
             },
             expr: expr
         }
@@ -216,17 +216,17 @@ class Helpers {
                 case CallExp({pos: _, def: Symbol("when")}, whenExps):
                     patternExp.checkNumArgs(2, 2, "(when <guard> <pattern>)");
                     if (guard != null)
-                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
+                        throw KissError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
                     guard = macro Prelude.truthy(${k.convert(whenExps[0])});
                     makeSwitchPattern(whenExps[1]);
                 case CallExp({pos: _, def: Symbol("unless")}, whenExps):
                     patternExp.checkNumArgs(2, 2, "(unless <guard> <pattern>)");
                     if (guard != null)
-                        throw CompileError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
+                        throw KissError.fromExp(caseExp, "case pattern can only have one `when` or `unless` guard");
                     guard = macro !Prelude.truthy(${k.convert(whenExps[0])});
                     makeSwitchPattern(whenExps[1]);
                 case ListEatingExp(exps) if (exps.length == 0):
-                    throw CompileError.fromExp(patternExp, "list-eating pattern should not be empty");
+                    throw KissError.fromExp(patternExp, "list-eating pattern should not be empty");
                 case ListEatingExp(exps):
                     for (idx in 0...exps.length) {
                         var exp = exps[idx];
@@ -235,21 +235,21 @@ class Helpers {
                                 expNames.push(exp);
                             case ListRestExp(name):
                                 if (restExpIndex > -1) {
-                                    throw CompileError.fromExp(patternExp, "list-eating pattern cannot have multiple ... or ...[restVar] expressions");
+                                    throw KissError.fromExp(patternExp, "list-eating pattern cannot have multiple ... or ...[restVar] expressions");
                                 }
                                 restExpIndex = idx;
                                 restExpName = name;
                             default:
-                                throw CompileError.fromExp(exp, "list-eating pattern can only contain symbols, ..., or ...[restVar]");
+                                throw KissError.fromExp(exp, "list-eating pattern can only contain symbols, ..., or ...[restVar]");
                         }
                     }
 
                     if (restExpIndex == -1) {
-                        throw CompileError.fromExp(patternExp, "list-eating pattern is missing ... or ...[restVar]");
+                        throw KissError.fromExp(patternExp, "list-eating pattern is missing ... or ...[restVar]");
                     }
 
                     if (expNames.length == 0) {
-                        throw CompileError.fromExp(patternExp, "list-eating pattern must match at least one single element");
+                        throw KissError.fromExp(patternExp, "list-eating pattern must match at least one single element");
                     }
 
                     var b = patternExp.expBuilder();
@@ -300,12 +300,12 @@ class Helpers {
                     guard: guard
                 };
             default:
-                throw CompileError.fromExp(caseExp, "case expressions for (case...) must take the form ([pattern] [body...])");
+                throw KissError.fromExp(caseExp, "case expressions for (case...) must take the form ([pattern] [body...])");
         }
     }
 
     /**
-        Throw a CompileError if the given expression has the wrong number of arguments
+        Throw a KissError if the given expression has the wrong number of arguments
     **/
     public static function checkNumArgs(wholeExp:ReaderExp, min:Null<Int>, max:Null<Int>, ?expectedForm:String) {
         if (expectedForm == null) {
@@ -324,13 +324,13 @@ class Helpers {
 
         var args = switch (wholeExp.def) {
             case CallExp(_, args): args;
-            default: throw CompileError.fromExp(wholeExp, "Can only check number of args in a CallExp");
+            default: throw KissError.fromExp(wholeExp, "Can only check number of args in a CallExp");
         };
 
         if (min != null && args.length < min) {
-            throw CompileError.fromExp(wholeExp, 'Not enough arguments. Expected $expectedForm');
+            throw KissError.fromExp(wholeExp, 'Not enough arguments. Expected $expectedForm');
         } else if (max != null && args.length > max) {
-            throw CompileError.fromExp(wholeExp, 'Too many arguments. Expected $expectedForm');
+            throw KissError.fromExp(wholeExp, 'Too many arguments. Expected $expectedForm');
         }
     }
 
@@ -353,7 +353,7 @@ class Helpers {
             case None:
                 None;
             default:
-                throw CompileError.fromExp(exp, 'cannot remove type annotations');
+                throw KissError.fromExp(exp, 'cannot remove type annotations');
         };
         return def.withPosOf(exp);
     }
@@ -391,7 +391,7 @@ class Helpers {
         var parsed = try {
             parser.parseString(code);
         } catch (e) {
-            throw CompileError.fromExp(exp, 'macro-time hscript parsing failed with $e:\n$code');
+            throw KissError.fromExp(exp, 'macro-time hscript parsing failed with $e:\n$code');
         };
         return parsed;
     }
@@ -420,7 +420,7 @@ class Helpers {
             k.macroVars[name] = value;
             interp.variables.set(name, value);
         });
-        interp.variables.set("CompileError", CompileError);
+        interp.variables.set("KissError", KissError);
 
         function innerRunAtCompileTimeDynamic(innerExp:ReaderExp) {
             // in case macroVars have changed
@@ -432,7 +432,7 @@ class Helpers {
             var value = interp.publicExprReturn(compileTimeHScript(innerExp, k));
             interp.setLocals(locals);
             if (value == null) {
-                throw CompileError.fromExp(exp, "compile-time evaluation returned null");
+                throw KissError.fromExp(exp, "compile-time evaluation returned null");
             }
             return value;
         }
@@ -455,7 +455,7 @@ class Helpers {
         }
         var value:Dynamic = interp.execute(parsed);
         if (value == null) {
-            throw CompileError.fromExp(exp, "compile-time evaluation returned null");
+            throw KissError.fromExp(exp, "compile-time evaluation returned null");
         }
         return value;
     }
@@ -486,7 +486,7 @@ class Helpers {
         } else if (e.pos != null && e.def != null) {
             (e : ReaderExp);
         } else {
-            throw CompileError.fromExp(source, 'Value $e cannot be used as a Kiss expression');
+            throw KissError.fromExp(source, 'Value $e cannot be used as a Kiss expression');
         }
     }
 
@@ -516,7 +516,7 @@ class Helpers {
                             case ListExp(elements):
                                 elements;
                             default:
-                                throw CompileError.fromExp(listToInsert, ",@ can only be used with lists");
+                                throw KissError.fromExp(listToInsert, ",@ can only be used with lists");
                         };
                     };
                     for (el in newElements) {
@@ -550,7 +550,7 @@ class Helpers {
            case MetaExp(meta, innerExp):
                 MetaExp(meta, recurse(innerExp));
             default:
-                throw CompileError.fromExp(exp, 'unquote evaluation not implemented');
+                throw KissError.fromExp(exp, 'unquote evaluation not implemented');
         };
         return def.withPosOf(exp);
     }
@@ -608,9 +608,9 @@ class Helpers {
             begin: (exps:Array<ReaderExp>) -> callSymbol("begin", exps),
             let: (bindings:Array<ReaderExp>, body:Array<ReaderExp>) -> callSymbol("let", [list(bindings)].concat(body)),
             objectWith: objectWith,
-            throwCompileError: (reason:String) -> {
+            throwKissError: (reason:String) -> {
                 callSymbol("throw", [
-                    callSymbol("CompileError.fromExpStr", [
+                    callSymbol("KissError.fromExpStr", [
                         // pos
                         objectWith([
                             _symbol("file"), str(posRef.pos.file),
@@ -633,7 +633,7 @@ class Helpers {
             case ListExp(argExps):
                 argExps;
             default:
-                throw CompileError.fromExp(exp, '$forThis arg list should be a list expression');
+                throw KissError.fromExp(exp, '$forThis arg list should be a list expression');
         };
     }
 
@@ -642,7 +642,7 @@ class Helpers {
             case ListExp(bindingExps) if ((allowEmpty || bindingExps.length > 0) && bindingExps.length % 2 == 0):
                 bindingExps;
             default:
-                throw CompileError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
+                throw KissError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
         };
     }
 }

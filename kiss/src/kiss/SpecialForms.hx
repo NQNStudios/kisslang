@@ -24,7 +24,7 @@ class SpecialForms {
         function renameAndDeprecate(oldName:String, newName:String) {
             var form = map[oldName];
             map[oldName] = (wholeExp, args, k) -> {
-                CompileError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
+                KissError.warnFromExp(wholeExp, '$oldName has been renamed to $newName and deprecated');
                 form(wholeExp, args, k);
             }
             map[newName] = form;
@@ -83,7 +83,7 @@ class SpecialForms {
         // Declare anonymous objects
         map["object"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             if (args.length % 2 != 0) {
-                throw CompileError.fromExp(wholeExp, "(object [field bindings]...) must have an even number of arguments");
+                throw KissError.fromExp(wholeExp, "(object [field bindings]...) must have an even number of arguments");
             }
             EObjectDecl([
                 for (pair in args.groups(2))
@@ -92,8 +92,8 @@ class SpecialForms {
                         field: switch (pair[0].def) {
                             case Symbol(name): name;
                             case TypedExp(_,
-                                {pos: _, def: Symbol(_)}): throw CompileError.fromExp(pair[0], "type specification on anonymous objects will be ignored");
-                            default: throw CompileError.fromExp(pair[0], "first expression in anonymous object field binding should be a plain symbol");
+                                {pos: _, def: Symbol(_)}): throw KissError.fromExp(pair[0], "type specification on anonymous objects will be ignored");
+                            default: throw KissError.fromExp(pair[0], "first expression in anonymous object field binding should be a plain symbol");
                         },
                         expr: k.convert(pair[1])
                     }
@@ -104,7 +104,7 @@ class SpecialForms {
             wholeExp.checkNumArgs(1, null, '(new [type] [constructorArgs...])');
             var classType = switch (args[0].def) {
                 case Symbol(name): name;
-                default: throw CompileError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');
+                default: throw KissError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');
             };
             ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(k.convert)).withMacroPosOf(wholeExp);
         };
@@ -121,7 +121,7 @@ class SpecialForms {
                 case KeyValueExp(_, valueNameExp):
                     varName(valueNameExp);
                 default:
-                    throw CompileError.fromExp(nameExp, 'expected a symbol, typed symbol, or keyed symbol for variable name in a var binding');
+                    throw KissError.fromExp(nameExp, 'expected a symbol, typed symbol, or keyed symbol for variable name in a var binding');
             };
         }
 
@@ -174,7 +174,7 @@ class SpecialForms {
                                 }, k, if (isFinal == false) false else null)
                         ]);
                     default:
-                        throw CompileError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
+                        throw KissError.fromExp(namesExp, "Can only bind variables to a symbol or list of symbols for destructuring");
                 };
             };
         }
@@ -196,7 +196,7 @@ class SpecialForms {
 
             var body = args.slice(1);
             if (body.length == 0) {
-                throw CompileError.fromArgs(args, '(let....) expression needs a body');
+                throw KissError.fromArgs(args, '(let....) expression needs a body');
             }
 
             EBlock([
@@ -337,7 +337,7 @@ class SpecialForms {
                 }
 
                 if (nullExpr == null) {
-                    throw CompileError.fromExp(wholeExp, "Unmatched pattern: null");
+                    throw KissError.fromExp(wholeExp, "Unmatched pattern: null");
                 }
 
                 var nullCase = b.callSymbol("null", [b.raw(nullExpr.toString())]);
@@ -357,13 +357,13 @@ class SpecialForms {
             if (args.length == 3) {
                 pkg = switch (args.shift().def) {
                     case Symbol(pkg): pkg;
-                    default: throw CompileError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid haxe package');
+                    default: throw KissError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid haxe package');
                 };
                 whichArg = "second";
             }
             var type = switch (args[0].def) {
                 case Symbol(type): type;
-                default: throw CompileError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid type');
+                default: throw KissError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid type');
             };
             if (pkg.length > 0)
                 type = pkg + "." + type;
@@ -387,7 +387,7 @@ class SpecialForms {
                                             def: Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)})
                                         }
                                     ]): name;
-                                    default: throw CompileError.fromExp(catchArgs[0], 'first argument to (catch... ) should be a one-element argument list');
+                                    default: throw KissError.fromExp(catchArgs[0], 'first argument to (catch... ) should be a one-element argument list');
                                 },
                                 type: switch (catchArgs[0].def) {
                                     case ListExp([{pos: _, def: TypedExp(type, _)}]):
@@ -397,7 +397,7 @@ class SpecialForms {
                                 expr: k.convert(CallExp(Symbol("begin").withPos(catchArgs[1].pos), catchArgs.slice(1)).withPos(catchArgs[1].pos))
                             };
                         default:
-                            throw CompileError.fromExp(catchKissExp,
+                            throw KissError.fromExp(catchKissExp,
                                 'expressions following the first expression in a (try... ) should all be (catch [[error]] [body...]) expressions');
                     }
                 }
@@ -406,7 +406,7 @@ class SpecialForms {
 
         map["throw"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             if (args.length != 1) {
-                throw CompileError.fromExp(wholeExp, 'throw expression should only throw one value');
+                throw KissError.fromExp(wholeExp, 'throw expression should only throw one value');
             }
             EThrow(k.convert(args[0])).withMacroPosOf(wholeExp);
         };
@@ -446,7 +446,7 @@ class SpecialForms {
                     case Symbol(typePath):
                         t = Helpers.parseComplexType(typePath, args[1]);
                     default:
-                        throw CompileError.fromExp(args[1], 'second argument to cast should be a type path symbol');
+                        throw KissError.fromExp(args[1], 'second argument to cast should be a type path symbol');
                 }
             }
             ECast(e, t).withMacroPosOf(wholeExp);

@@ -45,7 +45,7 @@ class KissInterp extends Interp {
         #end
 
         #if macro
-        variables.set("CompileError", kiss.CompileError);
+        variables.set("KissError", kiss.KissError);
         #end
 
         // Might eventually need to simulate types in the namespace:
