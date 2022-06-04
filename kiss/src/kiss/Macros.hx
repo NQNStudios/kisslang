@@ -119,8 +119,8 @@ class Macros {
                 ]);
         };
 
+        k.doc("range", 1, 3, '(range <?min> <max> <?step>)');
         macros["range"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(1, 3, '(range [?min] [max] [?step])');
             var b = wholeExp.expBuilder();
             var min = if (exps.length > 1) exps[0] else b.symbol("0");
             var max = if (exps.length > 1) exps[1] else exps[0];
