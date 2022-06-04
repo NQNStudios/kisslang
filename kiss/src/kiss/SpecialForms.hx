@@ -18,7 +18,7 @@ using tink.MacroApi;
 typedef SpecialFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Expr;
 
 class SpecialForms {
-    public static function builtins() {
+    public static function builtins(k:KissState) {
         var map:Map<String, SpecialFormFunction> = [];
 
         function renameAndDeprecate(oldName:String, newName:String) {
@@ -28,6 +28,7 @@ class SpecialForms {
                 form(wholeExp, args, k);
             }
             map[newName] = form;
+            k.formDocs[newName] = k.formDocs[oldName];
         }
 
         map["begin"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
@@ -47,8 +48,8 @@ class SpecialForms {
         function arrayAccess(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
             return EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
+        k.doc("nth", 2, 2, "(nth [list] [idx])");
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(nth [list] [idx])");
             arrayAccess(wholeExp, args, k);
         };
         map["dictGet"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {

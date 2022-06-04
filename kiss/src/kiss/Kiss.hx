@@ -22,6 +22,13 @@ using haxe.io.Path;
 
 typedef ExprConversion = (ReaderExp) -> Expr;
 
+typedef FormDoc = {
+    minArgs:Null<Int>,
+    maxArgs:Null<Int>,
+    ?expectedForm:String,
+    ?doc:String
+};
+
 typedef KissState = {
     className:String,
     file:String,
@@ -32,6 +39,8 @@ typedef KissState = {
     fieldForms:Map<String, FieldFormFunction>,
     specialForms:Map<String, SpecialFormFunction>,
     macros:Map<String, MacroFunction>,
+    formDocs:Map<String, FormDoc>,
+    doc:(String, Null<Int>, Null<Int>, ?String, ?String)->Void,
     wrapListExps:Bool,
     loadedFiles:Map<String, Null<ReaderExp>>,
     callAliases:Map<String, ReaderExpDef>,
@@ -59,9 +68,11 @@ class Kiss {
             startOfLineReadTable: new ReadTable(),
             startOfFileReadTable: new ReadTable(),
             endOfFileReadTable: new ReadTable(),
-            fieldForms: FieldForms.builtins(),
-            specialForms: SpecialForms.builtins(),
-            macros: Macros.builtins(),
+            fieldForms: new Map(),
+            specialForms: null,
+            macros: null,
+            formDocs: new Map(),
+            doc: null,
             wrapListExps: true,
             loadedFiles: new Map<String, ReaderExp>(),
             // Helpful built-in aliases
@@ -130,6 +141,20 @@ class Kiss {
             collectedBlocks: new Map(),
             inStaticFunction: false
         };
+
+        k.doc = (form:String, minArgs:Null<Int>, maxArgs:Null<Int>, expectedForm = "", doc = "") -> {
+            k.formDocs[form] = {
+                minArgs: minArgs,
+                maxArgs: maxArgs,
+                expectedForm: expectedForm,
+                doc: doc
+            };
+            return;
+        };
+
+        FieldForms.addBuiltins(k);
+        k.specialForms = SpecialForms.builtins(k);
+        k.macros = Macros.builtins(k);
 
         return k;
     }
@@ -333,8 +358,19 @@ class Kiss {
         var macros = k.macros;
         var fieldForms = k.fieldForms;
         var specialForms = k.specialForms;
+        var formDocs = k.formDocs;
+
         // Bind the table arguments of this function for easy recursive calling/passing
         var convert = readerExpToHaxeExpr.bind(_, k);
+
+        function checkNumArgs(form:String) {
+            if (formDocs.exists(form)) {
+                var docs = formDocs[form];
+                // null docs can get passed around by renameAndDeprecate functions. a check here is more DRY
+                if (docs != null)
+                    exp.checkNumArgs(docs.minArgs, docs.maxArgs, docs.expectedForm);
+            }
+        }
 
         if (k.hscript)
             exp = Helpers.removeTypeAnnotations(exp);
@@ -355,11 +391,13 @@ class Kiss {
             case StrExp(s):
                 EConst(CString(s)).withMacroPosOf(exp);
             case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff)):
+                checkNumArgs(ff);
                 var field = fieldForms[ff](exp, args.copy(), k);
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
                 none; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
+                checkNumArgs(mac);    
                 macroUsed = true;
                 var expanded = macros[mac](exp, args.copy(), k);
                 if (expanded != null) {
@@ -368,6 +406,7 @@ class Kiss {
                     none;
                 };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
+                checkNumArgs(specialForm);    
                 specialForms[specialForm](exp, args.copy(), k);
             case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
                 convert(CallExp(k.callAliases[alias].withPosOf(exp), args).withPosOf(exp));

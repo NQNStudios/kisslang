@@ -22,7 +22,7 @@ using tink.MacroApi;
 typedef MacroFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Null<ReaderExp>;
 
 class Macros {
-    public static function builtins() {
+    public static function builtins(k:KissState) {
         var macros:Map<String, MacroFunction> = [];
 
         function renameAndDeprecate(oldName:String, newName:String) {
@@ -32,6 +32,7 @@ class Macros {
                 form(wholeExp, args, k);
             }
             macros[newName] = form;
+            k.formDocs[newName] = k.formDocs[oldName];
         }
 
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
@@ -265,8 +266,8 @@ class Macros {
 
         macros["or"] = _or;
 
+        k.doc("and", 1, null, "(and <v1> <values...>)");
         function _and(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
-            wholeExp.checkNumArgs(1, null, "(and <v1> <values...>)");
             var b = wholeExp.expBuilder();
 
             var uniqueVarSymbol = b.symbol();

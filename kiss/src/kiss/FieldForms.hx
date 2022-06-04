@@ -17,7 +17,7 @@ using StringTools;
 typedef FieldFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Field;
 
 class FieldForms {
-    public static function builtins() {
+    public static function addBuiltins(k:KissState) {
         var map:Map<String, FieldFormFunction> = [];
 
         function renameAndDeprecate(oldName:String, newName:String) {
@@ -27,17 +27,14 @@ class FieldForms {
                 form(wholeExp, args, k);
             }
             map[newName] = form;
+            k.formDocs[newName] = k.formDocs[oldName];
         }
 
-        map["defvar"] = varOrProperty.bind("var");
-        renameAndDeprecate("defvar", "var");
-        map["defprop"] = varOrProperty.bind("prop");
-        renameAndDeprecate("defprop", "prop");
+        varOrProperty("var", k);
+        varOrProperty("prop", k);
 
-        map["defun"] = funcOrMethod.bind("function");
-        renameAndDeprecate("defun", "function");
-        map["defmethod"] = funcOrMethod.bind("method");
-        renameAndDeprecate("defmethod", "method");
+        funcOrMethod("function", k);
+        funcOrMethod("method", k);
 
         return map;
     }
@@ -98,45 +95,48 @@ class FieldForms {
         }
     }
 
-    static function varOrProperty(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
-        wholeExp.checkNumArgs(1, 3, '($formName [optional: &mut] [optional :type] [variable] [optional value])');
+    static function varOrProperty(formName:String, k:KissState) {
+        k.doc(formName, 1, 3, '($formName [optional: &mut] [optional :type] [variable] [optional value])');
+        k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var name = Helpers.varName(formName, args[0]);
+            var access = fieldAccess(formName, name, args[0]);
 
-        var name = Helpers.varName(formName, args[0]);
-        var access = fieldAccess(formName, name, args[0]);
-
-        return {
-            name: name,
-            access: access,
-            kind: FVar(Helpers.explicitType(args[0]), if (args.length > 1) k.convert(args[1]) else null),
-            pos: wholeExp.macroPos()
-        };
+            ({
+                name: name,
+                access: access,
+                kind: FVar(Helpers.explicitType(args[0]), if (args.length > 1) k.convert(args[1]) else null),
+                pos: wholeExp.macroPos()
+            } : Field);
+        }
     }
 
-    static function funcOrMethod(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Field {
-        wholeExp.checkNumArgs(2, null, '($formName [optional :type] [name] [[argNames...]] [body...])');
+    static function funcOrMethod(formName:String, k:KissState) {
+        k.doc(formName, 2, null, '($formName [optional &dynamic] [optional :type] [name] [[argNames...]] [body...])');
+        k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
 
-        var name = Helpers.varName(formName, args[0]);
-        var access = fieldAccess(formName, name, args[0]);
-        var inStaticFunction = access.indexOf(AStatic) != -1;
-        var returnsValue = !isVoid(args[0]);
+            var name = Helpers.varName(formName, args[0]);
+            var access = fieldAccess(formName, name, args[0]);
+            var inStaticFunction = access.indexOf(AStatic) != -1;
+            var returnsValue = !isVoid(args[0]);
 
-        var wasInStatic = k.inStaticFunction;
+            var wasInStatic = k.inStaticFunction;
 
-        var f = {
-            name: name,
-            access: access,
-            kind: FFun(
-                Helpers.makeFunction(
-                    args[0],
-                    returnsValue,
-                    args[1],
-                    args.slice(2),
-                    k.forStaticFunction(inStaticFunction),
-                    formName)),
-            pos: wholeExp.macroPos()
-        };
+            var f:Field = {
+                name: name,
+                access: access,
+                kind: FFun(
+                    Helpers.makeFunction(
+                        args[0],
+                        returnsValue,
+                        args[1],
+                        args.slice(2),
+                        k.forStaticFunction(inStaticFunction),
+                        formName)),
+                pos: wholeExp.macroPos()
+            };
 
-        k = k.forStaticFunction(wasInStatic);
-        return f;
+            k = k.forStaticFunction(wasInStatic);
+            return f;
+        }
     }
 }
