@@ -691,6 +691,15 @@ class Prelude {
         return str.substr(negIdx(startIdx), negIdx(endIdx));
     }
 
+    public static function runtimeInsertAssertionMessage(message:String, error:String) {
+        var colonIdx = 0;
+        for (_ in 0...4) {
+            colonIdx = error.indexOf(":", colonIdx) + 1;
+        }
+        colonIdx += 1;
+        return error.substr(0, colonIdx) + message + error.substr(colonIdx);
+    }
+
     public static var newLine = "\n";
     public static var backSlash = "\\";
     public static var doubleQuote = "\"";

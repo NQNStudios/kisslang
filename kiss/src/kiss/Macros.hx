@@ -309,11 +309,11 @@ class Macros {
             wholeExp.checkNumArgs(1, 2, "(assert [expression] [message])");
             var b = wholeExp.expBuilder();
             var expression = exps[0];
-            var basicMessage = 'Assertion ${expression.def.toString()} failed';
+            var failureError = KissError.fromExp(wholeExp, "").toString(AssertionFail);
             var messageExp = if (exps.length > 1) {
-                b.callSymbol("+", [b.str(basicMessage + ": "), exps[1]]);
+                exps[1];
             } else {
-                b.str(basicMessage);
+                b.str("");
             };
             var letVal = b.symbol();
             b.callSymbol("let", [
@@ -324,7 +324,9 @@ class Macros {
                 b.callSymbol("if", [
                     letVal,
                     letVal,
-                    b.callSymbol("throw", [messageExp])
+                    b.callSymbol("throw", [
+                        b.callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, b.str(failureError)])
+                    ])
                 ])
             ]);
         };
