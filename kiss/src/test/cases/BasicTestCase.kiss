@@ -9,8 +9,18 @@
 // (var) declares static variables
 (var message "Howdy")
 
-// #| ... |# parses and injects raw Haxe code
-(var mathResult #|5 + 6 * 3|#) // Order of operations will apply
+(function _testHaxeInsertion []
+    // #| ... |# parses and injects raw Haxe code.
+    // Order of operations will apply
+    (Assert.equals 23 #|5 + 6 * 3|#)
+    // #{ ... }# parses and injects a raw Haxe block. It is preferred over #| |# 
+    (let [&mut a 5 &mut b 6]
+        #{
+            a += 6; b += 5;
+        }#
+        (Assert.equals 11 a)
+        (Assert.equals 11 b)))
+
 
 // (function) declares static functions
 (function myFloor [num] 
@@ -327,7 +337,7 @@
     (try
             (assert false (+ "false " "should " "have " "been " "true"))
         (catch [:String message]
-            (Assert.equals "kiss/src/test/cases/BasicTestCase.kiss:328:13: Assertion failed: false should have been true
+            (Assert.equals "kiss/src/test/cases/BasicTestCase.kiss:338:13: Assertion failed: false should have been true
 From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" message)))
     
     (assert true)

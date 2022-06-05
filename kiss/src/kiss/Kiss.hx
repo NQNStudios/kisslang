@@ -438,6 +438,12 @@ class Kiss {
                 } catch (err:Exception) {
                     throw KissError.fromExp(exp, 'Haxe parse error: $err');
                 };
+            case RawHaxeBlock(code):
+                try {
+                    Context.parse('{$code}', exp.macroPos());
+                } catch (err:Exception) {
+                    throw KissError.fromExp(exp, 'Haxe parse error: $err');
+                };
             case FieldExp(field, innerExp):
                 EField(convert(innerExp), field).withMacroPosOf(exp);
             case KeyValueExp(keyExp, valueExp):

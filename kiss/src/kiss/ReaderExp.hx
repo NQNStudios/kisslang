@@ -12,7 +12,8 @@ enum ReaderExpDef {
     ListExp(exps:Array<ReaderExp>); // [v1 v2 v3]
     StrExp(s:String); // "literal"
     Symbol(name:String); // s
-    RawHaxe(code:String); // #| haxeCode() |#
+    RawHaxe(code:String); // #| haxeCode() |# // deprecated!
+    RawHaxeBlock(code:String); // #{ haxeCode(); moreHaxeCode(); }#
     TypedExp(path:String, exp:ReaderExp); // :Type [exp]
     MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
     FieldExp(field:String, exp:ReaderExp); // .field [exp]

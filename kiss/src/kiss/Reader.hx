@@ -68,7 +68,17 @@ class Reader {
             CallExp(Symbol("quote").withPos(stream.position()), [assertRead(stream, k)]);
         };
 
-        readTable["#|"] = (stream:Stream, k) -> RawHaxe(stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#")));
+        readTable["#|"] = (stream:Stream, k) -> {
+            var pos = stream.position();
+            var haxe = stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#"));
+            var def = RawHaxe(haxe);
+            KissError.warnFromExp(def.withPos(pos), '#|rawHaxe()|# expressions are deprecated because they only parse one statement and ignore the rest. Try this: #{$haxe}#');
+            def;
+        };
+
+        readTable["#{"] = (stream:Stream, k) -> {
+            RawHaxeBlock(stream.expect("closing }#", () -> stream.takeUntilAndDrop("}#")));
+        };
 
         readTable[":"] = (stream:Stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));
 
@@ -495,8 +505,11 @@ class Reader {
             case RawHaxe(code):
                 // #| haxeCode() |#
                 '#| $code |#';
+            case RawHaxeBlock(code):
+                // #{ haxeCode(); moreHaxeCode(); }#
+                '#{ $code }#';
             case TypedExp(path, exp):
-                // :type [exp]
+                // :Type [exp]
                 ':$path ${exp.def.toString()}';
             case MetaExp(meta, exp):
                 // &meta

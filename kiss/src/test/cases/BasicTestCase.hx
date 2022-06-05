@@ -16,7 +16,7 @@ class BasicTestCase extends Test {
     }
 
     function testHaxeInsertion() {
-        Assert.equals(23, BasicTestCase.mathResult);
+        _testHaxeInsertion();
     }
 
     function testStaticFunction() {
