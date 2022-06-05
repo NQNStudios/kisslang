@@ -1099,7 +1099,7 @@ class Macros {
         };
 
         // Time a block's evaluation
-        k.doc("measureTime",1, null, "(time <body...>)");
+        k.doc("measureTime",1, null, "(measureTime <body...>)");
         macros["measureTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
 
