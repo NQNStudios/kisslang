@@ -1,10 +1,8 @@
 .vscode
 bin/*.map
-bin/*.js
-!bin/bundle.js
-!bin/ktxt2editor.js
-node_modules/
 src
+node_modules/
+!node_modules/monaco-editor/min/
 build.hxml
 _activeConfig/
 _lastActiveConfig/
