@@ -346,6 +346,10 @@ class BasicTestCase extends Test {
     function testWhileLet() {
         _testWhileLet();
     }
+
+    function testTrace() {
+        _testTrace();
+    }
 }
 
 class BasicObject {

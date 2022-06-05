@@ -398,12 +398,17 @@ class Prelude {
 
     public static var printStr:(String) -> Void = _printStr;
 
-    public static function print<T>(v:T, label = ""):T {
+    public static function withLabel(v:Any, label = "") {
         var toPrint = label;
         if (label.length > 0) {
             toPrint += ": ";
         }
         toPrint += Std.string(v);
+        return toPrint;
+    }
+
+    public static function print<T>(v:T, label = ""):T {
+        var toPrint = withLabel(v, label);
         printStr(toPrint);
         return v;
     }

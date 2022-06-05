@@ -449,6 +449,22 @@ class SpecialForms {
             ECast(e, t).withMacroPosOf(wholeExp);
         }
 
+        k.doc("trace", 1, 2, "(trace <value> <?label>)");
+        map["trace"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            var label = if (exps.length > 1) exps[1] else b.str("");
+            var label = k.convert(label);
+            EBlock([
+                EVars([
+                    toVar(b.symbol("v"), exps[0], k)
+                ]).withMacroPosOf(wholeExp),
+                ECall(EConst(CIdent("trace")).withMacroPosOf(wholeExp), [
+                    macro kiss.Prelude.withLabel(v, $label)
+                ]).withMacroPosOf(wholeExp),
+                k.convert(exps[0])
+            ]).withMacroPosOf(wholeExp);
+        };
+
         return map;
     }
     

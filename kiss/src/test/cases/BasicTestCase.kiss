@@ -638,3 +638,6 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (whileLet [(Some line) (stream.takeLine)]
             (Assert.equals (nth lines idx) line)
             (+= idx 1))))
+
+(function _testTrace []
+    (Assert.equals 5 (trace 5 "num")))
