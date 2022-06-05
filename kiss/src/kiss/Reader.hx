@@ -91,7 +91,7 @@ class Reader {
             var pos = stream.position();
             var expToPrint = assertRead(stream, k);
             var expToPrintRepresentation = StrExp(Reader.toString(expToPrint.def)).withPos(pos);
-            CallExp(Symbol("trace").withPos(pos), [expToPrint, expToPrintRepresentation]);
+            CallExp(Symbol("print").withPos(pos), [expToPrint, expToPrintRepresentation]);
         }
 
         // Helpful for defining predicates to pass to Haxe functions:
