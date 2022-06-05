@@ -640,4 +640,5 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
             (+= idx 1))))
 
 (function _testTrace []
-    (Assert.equals 5 (trace 5 "num")))
+    (Assert.equals 5 (trace 5 "num"))
+    (Assert.equals 5 ~5))
