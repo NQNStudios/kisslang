@@ -48,12 +48,12 @@ class SpecialForms {
         function arrayAccess(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
             return EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
-        k.doc("nth", 2, 2, "(nth [list] [idx])");
+        k.doc("nth", 2, 2, "(nth <list> <idx>)");
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             arrayAccess(wholeExp, args, k);
         };
+        k.doc("dictGet", 2, 2, "(dictGet <dict> <key>)");
         map["dictGet"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(dictGet [dict] [key])");
             arrayAccess(wholeExp, args, k);
         };
 
@@ -185,8 +185,8 @@ class SpecialForms {
         };
         renameAndDeprecate("deflocal", "localVar");
 
+        k.doc("let", 2, null, "(let [<bindings...>] <body...>)");
         map["let"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(let [[bindings...]] [body...])");
             var bindingList = args[0].bindingList("let");
             var bindingPairs = bindingList.groups(2);
             var varDefs = [];
