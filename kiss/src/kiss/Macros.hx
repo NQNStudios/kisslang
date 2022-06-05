@@ -35,8 +35,8 @@ class Macros {
             k.formDocs[newName] = k.formDocs[oldName];
         }
 
+        k.doc("load", 1, 1, '(load "<file.kiss>")');
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(load "<file.kiss>")');
             switch (args[0].def) {
                 case StrExp(otherKissFile):
                     Kiss.load(otherKissFile, k);
@@ -95,9 +95,8 @@ class Macros {
             "concat" => "Prelude.concat",
             "intersect" => "Prelude.intersect",
         ];
-
+        k.doc("apply", 2, 2, '(apply <func> <argList>)' );
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, 2, '(apply [func] [argList])');
             var b = wholeExp.expBuilder();
 
             var callOn = switch (exps[0].def) {
@@ -146,8 +145,8 @@ class Macros {
         }
 
         // Most conditional compilation macros are based on this macro:
+        k.doc("#if", 2, 3, '(#if <cond> <then> <?else>)' );
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, 3, '(#if [cond] [then] [?else])');
 
             var b = wholeExp.expBuilder();
             var conditionExp = exps.shift();
@@ -296,17 +295,17 @@ class Macros {
                     exps[2]
                 ]);
         }
+        k.doc("setNth", 3, 3, "(setNth <list> <index> <value>)");
         macros["setNth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, "(setNth [list] [index] [value])");
             arraySet(wholeExp, exps, k);
         };
+        k.doc("dictSet", 3, 3, "(dictSet <dict> <key> <value>)");
         macros["dictSet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, 3, "(dictSet [dict] [key] [value])");
             arraySet(wholeExp, exps, k);
         };
 
+        k.doc("assert", 1, 2, "(assert <expression> <message>)");
         macros["assert"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 2, "(assert [expression] [message])");
             var b = wholeExp.expBuilder();
             var expression = exps[0];
             var failureError = KissError.fromExp(wholeExp, "").toString(AssertionFail);
