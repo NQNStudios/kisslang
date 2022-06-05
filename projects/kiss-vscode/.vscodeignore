@@ -1,5 +1,9 @@
 .vscode
 bin/*.map
+bin/*.js
+!bin/bundle.js
+!bin/ktxt2editor.js
+node_modules/
 src
 build.hxml
 _activeConfig/

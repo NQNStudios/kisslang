@@ -1,5 +1,5 @@
 {
-	"main": "bin/extension.js",
+	"main": "bin/bundle.js",
 	"name": "kiss-vscode",
 	"description": "Kiss language plugin",
 	"repository": {
@@ -103,5 +103,8 @@
 	"displayName": "kiss-vscode",
 	"dependencies": {
 		"monaco-editor": "^0.29.1"
+	},
+	"devDependencies": {
+		"esbuild": "^0.14.42"
 	}
 }

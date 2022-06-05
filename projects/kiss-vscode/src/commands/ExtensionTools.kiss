@@ -23,6 +23,7 @@
             }
         {
             (trySpawnSync "npm" ["install"] (options) forceUpdateFailure)
+            (trySpawnSync "npx" ["esbuild" "./bin/extension.js" "--bundle" "--outfile=bin/bundle.js" "--external:vscode" "--format=cjs" "--platform=node"] (options) forceUpdateFailure)
             (trySpawnSync "vsce" ["package"] (options) forceUpdateFailure)
         })
     (awaitLet [_ (executeCommand 
