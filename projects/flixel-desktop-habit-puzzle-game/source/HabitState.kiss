@@ -26,6 +26,7 @@
             &mut i 0
             &mut currentRewardFile null]
         // Find, load, and add the current reward image as big as possible:
+        (set currentRewardFile (nth m.rewardFiles 0))
         (while (> p .startingPoints (nth m.rewardFiles i))
             (set currentRewardFile (nth m.rewardFiles i))
             (if (>= ++i m.rewardFiles.length)
