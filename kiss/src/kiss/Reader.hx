@@ -72,7 +72,10 @@ class Reader {
             var pos = stream.position();
             var haxe = stream.expect("closing |#", () -> stream.takeUntilAndDrop("|#"));
             var def = RawHaxe(haxe);
-            KissError.warnFromExp(def.withPos(pos), '#|rawHaxe()|# expressions are deprecated because they only parse one statement and ignore the rest. Try this: #{$haxe}#');
+            var haxeWithSemi = haxe.trim();
+            if (!haxeWithSemi.endsWith(";"))
+                haxeWithSemi += ";";
+            KissError.warnFromExp(def.withPos(pos), '#|rawHaxe()|# expressions are deprecated because they only parse one statement and ignore the rest. Try this: #{$haxeWithSemi}#');
             def;
         };
 
