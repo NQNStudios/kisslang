@@ -399,6 +399,9 @@ class Reader {
                     endCurrentStringPart();
                     var wrapInIf = false;
                     var firstAfterDollar = stream.expect('interpolation expression', () -> stream.peekChars(1));
+                    if (firstAfterDollar == '"') {
+                        throw new StreamError(pos, "$ at end of string should be prefixed with \\ or followed by an expression to interpolate");
+                    }
                     if (firstAfterDollar == "?") {
                         wrapInIf = true;
                         stream.dropChars(1);
