@@ -1,9 +1,9 @@
-package data;
+package data.blades;
 
 using Type;
 using Reflect;
 
-import data.FloorData;
+import data.blades.FloorData;
 
 import flixel.input.keyboard.FlxKey;
 import kiss.Prelude;

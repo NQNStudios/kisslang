@@ -3,7 +3,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app version="0.0.1" title="blades-engine" main="Main" file="blades-engine" company="NQNStudios"/>
+	<app version="0.0.1" title="iso-rpg-engine" main="Main" file="iso-rpg-engine" company="NQNStudios"/>
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html fileor you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
 	<app preloader="flixel.system.FlxPreloader"/>

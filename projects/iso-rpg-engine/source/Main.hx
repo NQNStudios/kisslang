@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxGame;
 import openfl.display.Sprite;
-import data.ScenData;
+import data.blades.ScenData;
 
 class Main extends Sprite
 {
@@ -16,6 +16,6 @@ class Main extends Sprite
 
 
 		super();
-		// addChild(new FlxGame(0, 0, IsometricMapState));
+		addChild(new FlxGame(0, 0, IsometricMapState));
 	}
 }

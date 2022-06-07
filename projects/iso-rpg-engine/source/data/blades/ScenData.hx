@@ -1,4 +1,4 @@
-package data;
+package data.blades;
 
 import haxe.iterators.DynamicAccessIterator;
 import hscript.Parser;
