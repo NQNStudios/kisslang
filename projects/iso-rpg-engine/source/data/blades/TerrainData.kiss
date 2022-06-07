@@ -1,5 +1,5 @@
 (var HILL_DIR_MAP
-    #|[
+    #{[
         19 => Up(West),
         20 => Up(SouthWest),
         21 => Up(South),
@@ -12,15 +12,15 @@
         28 => Down(NorthEast),
         29 => Down(NorthWest),
         30 => Down(SouthWest)
-    ]|#)
+    ];}#)
 
 (var BEAM_DIR_MAP
-    #|[
+    #{[
         32 => North,
         33 => West,
         34 => South,
         35 => East
-    ]|#)
+    ];}#)
 
 (method specialProperty []
     (case special_property
