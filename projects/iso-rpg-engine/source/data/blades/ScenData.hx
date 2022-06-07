@@ -4,17 +4,80 @@ import haxe.iterators.DynamicAccessIterator;
 import hscript.Parser;
 import hscript.Interp;
 import sys.io.File;
+import sys.FileSystem;
+import flixel.FlxSprite;
+import flixel.util.FlxColor;
 
 using Reflect;
 using StringTools;
+using haxe.io.Path;
 
 class ScenData {
-    public function new() {}
+    private function new() {}
 
     public var floorData:Map<Int, FloorData> = [];
     public var terrainData:Map<Int, TerrainData> = [];
     public var creatureData:Map<Int, CreatureData> = [];
     public var itemData:Map<Int, ItemData> = [];
+
+    private var spriteSheets:Map<Int, FlxSprite> = [];
+
+    private var data = "";
+
+    public static function coreData() {
+        var d = new ScenData();
+
+        // TODO find the proper data path with the currently installed BoA depending on mac/windows
+        d.data = "Data";
+
+        // load core data:
+		d.load('${d.data}/corescendata.txt');
+		d.load('${d.data}/corescendata2.txt');
+  
+		d.test();
+        
+        return d;
+    }
+
+    private function floorOrTerrainSpriteSheet(num:Int) {
+        if (spriteSheets.exists(num)) {
+            return spriteSheets[num];
+        }
+
+        var path = '$data/Terrain Graphics/G$num.bmp';
+        spriteSheets[num] = SpriteSheet.fromSimpleBmp(path, 46, 55);
+        return spriteSheets[num];
+    }
+
+    public function floorSprite(floorId:Int) {
+        if (!floorData.exists(floorId)) {
+            var s = new FlxSprite(0, 0);
+            s.makeGraphic(46, 55, FlxColor.TRANSPARENT);
+            return s;
+        }        
+
+        var fd = floorData[floorId];
+
+        var sprite = floorOrTerrainSpriteSheet(fd.which_sheet).clone();
+        sprite.animation.frameIndex = fd.which_icon;
+
+        // TODO if it's animated add the animations
+
+        return sprite;
+    }
+    
+    public function terrainSprite(terrainId:Int) {
+        var td = terrainData[terrainId];
+
+        var sprite = floorOrTerrainSpriteSheet(td.which_sheet).clone();
+        sprite.animation.frameIndex = td.which_icon;
+
+        // TODO if it's a tall terrain combine it with the upper sprite and set its origin to offset y
+
+        // TODO if it's animated add the animations
+
+        return sprite;
+    }
 
     static var failed:Array<String> = [];
     static var passed = 0;

@@ -3,22 +3,21 @@
 (var FLOOR_HEIGHT 32)
 (var SPRITE_HEIGHT 55)
 (prop :Array<FlxSprite> floorTiles [])
+(prop &mut :ScenData data null)
 
 (method &override :Void create []
     (super.create)
-    // TODO load from a more accessible path
-    (let [spriteSheet (data.blades.SpriteSheet.fromSimpleBmp "Data/Terrain Graphics/G796.bmp" FLOOR_WIDTH SPRITE_HEIGHT)]
-        (addSpriteLayer (for row (range 5) (collect (range 5))) spriteSheet)))
+    (set data (ScenData.coreData))
+    (addFloorLayer (groups (collect (range 255)) 32)))
 
-(method :Void addSpriteLayer [:Array<Array<Int>> tiles :FlxSprite spriteSheet]
+(method :Void addFloorLayer [:Array<Array<Int>> tiles]
     (let [&mut rowStartX 0
             &mut rowStartY 0]
         (doFor row tiles
             (let [&mut x rowStartX
                     &mut y rowStartY]
                 (doFor tile row
-                    (let [tileSprite (.clone spriteSheet)]
-                        (set tileSprite.animation.frameIndex tile)
+                    (let [tileSprite (data.floorSprite tile)]
                         (set tileSprite.x x)
                         (set tileSprite.y y)
                         (add tileSprite))
