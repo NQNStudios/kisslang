@@ -93,6 +93,17 @@ class ScenData {
         sprite.animation.frameIndex = td.which_icon;
 
         // TODO if it's a tall terrain combine it with the upper sprite and set its origin to offset y
+        if (td.second_icon != -1) {
+            var upperSprite = sheet.clone();
+            upperSprite.animation.frameIndex = td.second_icon;
+
+            var tallerSprite = new FlxSprite(0, 0);
+            tallerSprite.makeGraphic(46, 110, FlxColor.TRANSPARENT, true);
+            tallerSprite.stamp(upperSprite, 0, 0);
+            tallerSprite.stamp(sprite, 0, 55);
+
+            return tallerSprite;
+        }
 
         // TODO if it's animated add the animations
 

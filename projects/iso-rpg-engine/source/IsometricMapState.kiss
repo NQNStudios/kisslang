@@ -40,6 +40,8 @@
                     (let [tileSprite (data.terrainSprite tile)]
                         (set tileSprite.x x)
                         (set tileSprite.y y)
+                        (when (> tileSprite.height SPRITE_HEIGHT)
+                            (-= tileSprite.y SPRITE_HEIGHT))
                         (add tileSprite))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
