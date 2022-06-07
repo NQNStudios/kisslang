@@ -1,0 +1,24 @@
+// make a clean spritesheet the way Flixel wants it (no borders)
+(function :FlxSprite fromSimpleBmp [file :Int frameWidth :Int frameHeight]
+    (let [oBmp (Bmp.loadBitmapData file)
+            oWidth oBmp.width
+            oHeight oBmp.height
+            columns (/ (- oWidth 1) (+ frameWidth 1))
+            rows (/ (- oHeight 1) (+ frameHeight 1))
+            width (* frameWidth columns)
+            height (* frameHeight rows)
+            bmp (new BitmapData (Std.int width) (Std.int height))
+            spriteSheet (new FlxSprite)]
+        (doFor row (range rows)
+            (doFor col (range columns)
+                (bmp.copyPixels oBmp (new Rectangle
+                                        (+ 1 (* col (+ 1 frameWidth)))
+                                        (+ 1 (* row (+ 1 frameHeight)))
+                                        frameWidth
+                                        frameHeight)
+                                    (new Point (* col frameWidth) (* row frameHeight)))))
+        (spriteSheet.loadGraphic (FlxGraphic.fromBitmapData bmp) true frameWidth frameHeight)
+        (spriteSheet.replaceColor FlxColor.WHITE FlxColor.TRANSPARENT)
+        spriteSheet))
+
+// TODO some of the sprite sheets mix multiple frame sizes (i.e. character sheets)
