@@ -7,6 +7,7 @@ import data.blades.FloorData;
 
 import flixel.input.keyboard.FlxKey;
 import kiss.Prelude;
+import kiss.Kiss;
 
 enum Direction {
     North;
@@ -59,7 +60,6 @@ enum TerrainSpecialProperty {
     QuickFlammable;
 }
 
-@:build(kiss.Kiss.build())
 class TerrainData {
     public function new() {}
     
@@ -92,6 +92,29 @@ class TerrainData {
     private var move_block_w:Int = 0;
     private var move_block_s:Int = 0;
     private var move_block_e:Int = 0;
+
+    static var HILL_DIR_MAP = [
+        19 => Up(West),
+        20 => Up(SouthWest),
+        21 => Up(South),
+        22 => Up(SouthEast),
+        23 => Up(East),
+        24 => Up(NorthEast),
+        25 => Up(North),
+        26 => Up(NorthWest),
+        27 => Down(SouthEast),
+        28 => Down(NorthEast),
+        29 => Down(NorthWest),
+        30 => Down(SouthWest)
+    ];
+
+    static var BEAM_DIR_MAP = [
+        32 => North,
+        33 => West,
+        34 => South,
+        35 => East
+    ];
+
     public function moveBlock(dir:Direction) {
         return if (full_move_block == 1) {
             true;
@@ -201,6 +224,29 @@ class TerrainData {
         return can_look_at == 1;
     }
     private var special_property:Int = 0;
+    function specialProperty() {
+        return Kiss.exp('(case special_property
+                            ((when (<= 0 prop 8) prop)
+                                (Floor (FloorSpecialProperty.createEnumIndex prop)))
+                            ((when (HILL_DIR_MAP.exists prop) prop)
+                                (Hill (dictGet HILL_DIR_MAP prop)))
+                            (31 (Beam SwapTerrainWhenHit))
+                            ((when (BEAM_DIR_MAP.exists prop) prop)
+                                (Beam
+                                    (Fire
+                                        (dictGet BEAM_DIR_MAP prop))))
+                            (36 (Beam (Mirror BackSlash)))
+                            (37 (Beam (Mirror ForwardSlash)))
+                            (38 (Beam PowerSource))
+                            (39 Sign)
+                            (40 Container)
+                            (41 Table)
+                            (42 ShimmerLightAndDark)
+                            (43 (Waterfall South))
+                            (44 (Waterfall East))
+                            (45 QuickFlammable)
+                            (otherwise (throw "undefined special_property")))');
+    }
     // specialProperty() defined in .kiss file
 
     public var special_strength:Int = 0;
