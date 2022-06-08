@@ -5,7 +5,9 @@ import haxe.Exception;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.ExprTools;
+import haxe.macro.PositionTools;
 import haxe.io.Path;
+import sys.io.File;
 import kiss.Stream;
 import kiss.Reader;
 import kiss.ReaderExp;
@@ -208,19 +210,25 @@ class Kiss {
     #end
     public static macro function exp(kissCode:ExprOf<String>) {
         var pos = kissCode.pos;
+        var pos = PositionTools.getInfos(pos);
+        trace(pos);
         var kissCode = ExprTools.getValue(kissCode);
-        /*
-        var lineNumber = 
+
+        var content = File.getContent(pos.file).substr(0, pos.min);
+        var lines:kiss.List<String> = content.split('\n');
+        var lineNumber = lines.length;
+        var column = lines[-1].length + 1;
+        trace(lines[-1]);
         var pos = {
             file: pos.file,
             absoluteChar: pos.min,
-            line: lineNumber;
-            column: 
+            line: lineNumber,
+            column: column
         };
-        */
+        
         return _try(() -> {
             var exp = null;
-            var stream = Stream.fromString(kissCode/*, pos*/);
+            var stream = Stream.fromString(kissCode, pos);
             var k = defaultKissState();
             Reader.readAndProcess(stream, k, (nextExp) -> {
                 if (exp == null) {
