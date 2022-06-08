@@ -50,8 +50,18 @@ class Stream {
     }
     #end
 
-    public static function fromString(content:String) {
-        return new Stream("string", content);
+    public static function fromString(content:String, position:Position = null) {
+        var file = "string";
+        if (position != null) {
+            file = position.file;
+        } 
+        var s = new Stream(file, content);
+        if (position != null) {
+            s.line = position.line;
+            s.column = position.column;
+            s.absoluteChar = position.absoluteChar;
+        }
+        return s;
     }
 
     private function new(file:String, content:String) {

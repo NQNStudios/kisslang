@@ -4,6 +4,7 @@ package kiss;
 import haxe.Exception;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.ExprTools;
 import haxe.io.Path;
 import kiss.Stream;
 import kiss.Reader;
@@ -56,8 +57,10 @@ typedef KissState = {
     collectedBlocks:Map<String, Array<ReaderExp>>,
     inStaticFunction:Bool
 };
+#end
 
 class Kiss {
+    #if macro
     public static function defaultKissState():KissState {
         var className = Context.getLocalClass().get().name;
 
@@ -202,7 +205,34 @@ class Kiss {
       
         return macro {};
     }
-
+    #end
+    public static macro function exp(kissCode:ExprOf<String>) {
+        var pos = kissCode.pos;
+        var kissCode = ExprTools.getValue(kissCode);
+        /*
+        var lineNumber = 
+        var pos = {
+            file: pos.file,
+            absoluteChar: pos.min,
+            line: lineNumber;
+            column: 
+        };
+        */
+        return _try(() -> {
+            var exp = null;
+            var stream = Stream.fromString(kissCode/*, pos*/);
+            var k = defaultKissState();
+            Reader.readAndProcess(stream, k, (nextExp) -> {
+                if (exp == null) {
+                    exp = readerExpToHaxeExpr(nextExp, k);
+                } else {
+                    throw KissError.fromExp(nextExp, "can't have multiple top-level expressions in Kiss.exp() input");
+                }
+            });
+            return exp;
+        });
+    }
+    #if macro
     /**
         Build macro: add fields to a class from a corresponding .kiss file
     **/
@@ -535,5 +565,5 @@ class Kiss {
     public static function convert(k:KissState, exp:ReaderExp) {
         return readerExpToHaxeExpr(exp, k);
     }
+    #end
 }
-#end

@@ -6,6 +6,7 @@ import kiss.Prelude;
 import kiss.List;
 import kiss.Stream;
 import haxe.ds.Option;
+import kiss.Kiss;
 
 using StringTools;
 
@@ -17,6 +18,10 @@ class BasicTestCase extends Test {
 
     function testHaxeInsertion() {
         _testHaxeInsertion();
+    }
+
+    function testKissInsertion() {
+        Assert.equals(10, Kiss.exp('(+ 5 2 3)'));
     }
 
     function testStaticFunction() {
