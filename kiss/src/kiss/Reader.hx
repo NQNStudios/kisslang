@@ -28,7 +28,10 @@ class Reader {
     public static function builtins() {
         var readTable:ReadTable = [];
 
-        readTable["("] = (stream, k) -> CallExp(assertRead(stream, k), readExpArray(stream, ")", k));
+        readTable["("] = (stream, k) -> {
+            var pos = stream.position();
+            CallExp(assertRead(stream, k), readExpArray(stream, ")", k, pos));
+        };
         readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
         readTable["[::"] = (stream, k) -> ListEatingExp(readExpArray(stream, "]", k));
         readTable["..."] = (stream, k) -> ListRestExp(nextToken(stream, "name for list-eating rest exp", true));
@@ -286,9 +289,10 @@ class Reader {
         }
     }
 
-    public static function readExpArray(stream:Stream, end:String, k:KissState):Array<ReaderExp> {
+    public static function readExpArray(stream:Stream, end:String, k:KissState, startingPos=null):Array<ReaderExp> {
         var array = [];
-        var startingPos = stream.position();
+        if (startingPos == null)
+            startingPos = stream.position();
         while (!stream.startsWith(end)) {
             stream.dropWhitespace();
             if (!stream.startsWith(end)) {
