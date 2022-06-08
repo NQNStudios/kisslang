@@ -211,14 +211,12 @@ class Kiss {
     public static macro function exp(kissCode:ExprOf<String>) {
         var pos = kissCode.pos;
         var pos = PositionTools.getInfos(pos);
-        trace(pos);
         var kissCode = ExprTools.getValue(kissCode);
 
         var content = File.getContent(pos.file).substr(0, pos.min);
         var lines:kiss.List<String> = content.split('\n');
         var lineNumber = lines.length;
         var column = lines[-1].length + 1;
-        trace(lines[-1]);
         var pos = {
             file: pos.file,
             absoluteChar: pos.min,
