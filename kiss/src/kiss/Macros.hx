@@ -44,10 +44,8 @@ class Macros {
                     throw KissError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
             };
         };
-
+        k.doc("loadFrom", 2, 2, '(loadFrom "<haxelib name>" "<file.kiss>")');
         macros["loadFrom"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, '(loadFrom "<haxelib name>" "<file.kiss>")');
-
             var libPath = switch (args[0].def) {
                 case StrExp(libName):
                     Prelude.libPath(libName);
@@ -63,8 +61,8 @@ class Macros {
         };
 
         function destructiveVersion(op:String, assignOp:String) {
+            k.doc(assignOp, 2, null, '($assignOp <var> <v1> <values...>)');
             macros[assignOp] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-                wholeExp.checkNumArgs(2, null, '($assignOp [var] [v1] [values...])');
                 var b = wholeExp.expBuilder();
                 b.call(
                     b.symbol("set"), [
@@ -98,7 +96,6 @@ class Macros {
         k.doc("apply", 2, 2, '(apply <func> <argList>)' );
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             var b = wholeExp.expBuilder();
-
             var callOn = switch (exps[0].def) {
                 case FieldExp(field, exp):
                     exp;
@@ -147,7 +144,6 @@ class Macros {
         // Most conditional compilation macros are based on this macro:
         k.doc("#if", 2, 3, '(#if <cond> <then> <?else>)' );
         macros["#if"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-
             var b = wholeExp.expBuilder();
             var conditionExp = exps.shift();
             var thenExp = exps.shift();
@@ -178,10 +174,9 @@ class Macros {
         };
 
         // But not this one:
+        k.doc("#case", 2, null, '(#case <expression> <cases...> <optional: (otherwise <default>)>)');
         macros["#case"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
-            wholeExp.checkNumArgs(2, null, '(#case [expression] [cases...] [optional: (otherwise [default])])');
             var b = wholeExp.expBuilder();
-
             var caseVar = exps.shift();
             var matchPatterns = [];
             var matchBodies = [];
@@ -239,7 +234,6 @@ class Macros {
         macros["unless"] = bodyIf.bind("unless", "if", true);
         macros["#when"] = bodyIf.bind("#when", "#if", false);
         macros["#unless"] = bodyIf.bind("#unless", "#if", true);
-
         macros["cond"] = cond.bind("cond", "if");
         macros["#cond"] = cond.bind("#cond", "#if");
 
@@ -268,7 +262,6 @@ class Macros {
         k.doc("and", 1, null, "(and <v1> <values...>)");
         function _and(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             var b = wholeExp.expBuilder();
-
             var uniqueVarSymbol = b.symbol();
             var firstVal = args.shift();
 
@@ -329,9 +322,8 @@ class Macros {
                 ])
             ]);
         };
-
+        k.doc("assertThrows", 1, 2, "(assertThrows <expression> <message>)");
         macros["assertThrows"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 2, "(assertThrows [expression] [message])");
             var b = wholeExp.expBuilder();
             var expression = exps[0];
             var basicMessage = '${expression.def.toString()} should have thrown an error';
@@ -368,10 +360,9 @@ class Macros {
                     throw KissError.fromExp(exp, 'first argument to $formName should be a String or list of strings');
             };
         }
-
+        
+        k.doc("defmacro", 3, null, '(defMacro <name> [<args...>] <body...>)');
         macros["defmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defMacro [name] [[args...]] [body...])');
-
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
@@ -488,9 +479,8 @@ class Macros {
         };
         renameAndDeprecate("defmacro", "defMacro");
 
+        k.doc("undefmacro", 1, 1, '(undefMacro <name>)');
         macros["undefmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(undefMacro [name])');
-
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
@@ -501,8 +491,8 @@ class Macros {
         };
         renameAndDeprecate("undefmacro", "undefMacro");
 
+        k.doc("defreadermacro", 3, null, '(defReaderMacro <optional &start> <"<startingString>" or [<startingStrings...>]> [<streamArgName>] <body...>)');
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, '(defReaderMacro [optional &start] ["[startingString]" or [startingStrings...]] [[streamArgName]] [body...])');
 
             // reader macros declared in the form (defreadermacro &start ...) will only be applied
             // at the beginning of lines
@@ -571,8 +561,8 @@ class Macros {
         };
         renameAndDeprecate("defreadermacro", "defReaderMacro");
 
+        k.doc("undefreadermacro", 1, 1, '(undefReaderMacro <optional &start> ["<startingString>" or <startingStrings...>])');
         macros["undefreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(undefReaderMacro [optional &start] ["[startingString]" or [startingStrings...]])');
             // reader macros undeclared in the form (undefReaderMacro &start ...) will be removed from the table
             // for reader macros that must be at the beginning of lines
             // at the beginning of lines
@@ -624,8 +614,8 @@ class Macros {
             };
         }
 
+        k.doc("defalias", 2, 2, "(defAlias <<&call or &ident> whenItsThis> <makeItThis>)");
         macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(defAlias [[&call or &ident] whenItsThis] [makeItThis])");
             var name = getAliasName(k, exps[0], "defAlias");
 
             aliasMap[name] = exps[1].def;
@@ -633,8 +623,8 @@ class Macros {
         };
         renameAndDeprecate("defalias", "defAlias");
 
+        k.doc("undefalias", 1, 1, "(undefAlias <<&call or &ident> alias>)");
         macros["undefalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, "(undefAlias [[&call or &ident] alias])");
             var name = getAliasName(k, exps[0], "undefAlias");
 
             aliasMap.remove(name);
@@ -648,7 +638,7 @@ class Macros {
             var thenExpStr = if (assertLet) "<body...>" else "<thenExp>";
             var elseExpStr = if (assertLet) "" else " <?elseExp>";
             var maxArgs = if (assertLet) null else 3;
-            wholeExp.checkNumArgs(2, maxArgs, '($funcName [<enum bindings...>] ${thenExpStr}${elseExpStr})');
+            k.doc(funcName, 2, maxArgs, '($funcName [<enum bindings...>] ${thenExpStr}${elseExpStr})');
             var b = wholeExp.expBuilder();
 
             var bindingList = exps[0].bindingList(funcName);
@@ -681,11 +671,10 @@ class Macros {
                 ])
             ]);
         }
-
         macros["ifLet"] = ifLet.bind(false);
 
+        k.doc('whenLet', 2, null, "(whenLet [<enum bindings...>] <body...>)");
         macros["whenLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(whenLet [[enum bindings...]] [body...])");
             var b = wholeExp.expBuilder();
             b.callSymbol("ifLet", [
                 exps[0],
@@ -694,8 +683,8 @@ class Macros {
             ]);
         };
 
+        k.doc("unlessLet", 2, null, "(unlessLet [<enum bindings...>] <body...>)");
         macros["unlessLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(unlessLet [[enum bindings...]] [body...])");
             var b = wholeExp.expBuilder();
             b.callSymbol("ifLet", [
                 exps[0],
@@ -706,8 +695,8 @@ class Macros {
 
         macros["assertLet"] = ifLet.bind(true);
 
+        k.doc("awaitLet", 2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");
         function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");
             
             var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
@@ -747,11 +736,11 @@ class Macros {
                 rejectionHandler
             ]);
         }
-
+       
         macros["awaitLet"] = awaitLet;
         
+        k.doc("whileLet", 2, null, "(whileLet [<bindings...>] <body...>)");
         macros["whileLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(whileLet [<bindings...>] <body...>)");
             var b = wholeExp.expBuilder();
             return b.callSymbol("loop", [
                 b.callSymbol("ifLet", [
@@ -763,9 +752,8 @@ class Macros {
         };
 
         // TODO test defNew
+        k.doc("defnew", 1, null, "(defNew [<args...>] [<optional property bindings...>] <optional body...>");
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(defNew [[args...]] [[optional property bindings...]] [optional body...]");
-
             var args = exps.shift();
             var bindingList = [];
 
@@ -826,14 +814,14 @@ class Macros {
         };
         renameAndDeprecate("defnew", "defNew");
 
+        k.doc("collect", 1, 1, "(collect <iterator or iterable>)");
         macros["collect"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, "(collect [iterator or iterable])");
             var b = wholeExp.expBuilder();
             b.call(b.symbol("for"), [b.symbol("elem"), exps[0], b.symbol("elem")]);
         };
 
         function once(macroName:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(1, null, '($macroName [body...])');
+            k.doc(macroName, 1, null, '($macroName <body...>)');
             var b = wholeExp.expBuilder();
             var flag = b.symbol();
             // define the field:
@@ -844,9 +832,8 @@ class Macros {
         macros["once"] = once.bind("var");
         macros["oncePerInstance"] = once.bind("prop");
 
+        k.doc("defMacroVar", 2, 2, "(defMacroVar <name> <value>)");
         macros["defMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(defMacroVar <name> <value>)");
-
             var name = exps[0].symbolNameValue();
 
             k.macroVars[name] = Helpers.runAtCompileTimeDynamic(exps[1], k);
@@ -854,17 +841,16 @@ class Macros {
             return null;
         };
 
+        k.doc("setMacroVar",2, 2, "(setMacroVar <name> <value>)");
         macros["setMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(setMacroVar <name> <value>)");
-
             var name = exps[0].symbolName().withPosOf(exps[0]);
             var b = wholeExp.expBuilder();
             
             return b.callSymbol("_setMacroVar", [name, exps[1]]);
         };
 
+        k.doc("defMacroFunction", 3, null, "(defMacroFunction <name> [<args>] <body...>)");
         macros["defMacroFunction"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, "(defMacroFunction <name> [<args>] <body...>)");
             var b = wholeExp.expBuilder();
             var name = exps[0].symbolNameValue();
             var lambdaExp = b.callSymbol("lambda", [exps[1]].concat(exps.slice(2)));
@@ -879,13 +865,13 @@ class Macros {
         // Replace "try" with this in a try-catch statement to let all exceptions throw
         // their original call stacks. This is more convenient for debugging than trying to
         // comment out the "try" and its catches, and re-balance parens
+        k.doc("letThrow", 1, null, "(letThrow <thing> <catches...>)");
         macros["letThrow"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(letThrow <thing> <catches...>)");
             exps[0];
         };
 
+        k.doc("objectWith", 1, null, "(objectWith <?[<bindings...>]> <fieldNames...>)");
         macros["objectWith"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(objectWith <?[bindings...]> <fieldNames...>)");
             var objectExps = try {
                 var l = Helpers.bindingList(exps[0], "field bindings for objectWith", true);
                 exps.shift();
@@ -909,8 +895,8 @@ class Macros {
         }
 
         // Macro for triggering collection of expressions throughout a Kiss file, to inject them later with collectedBlocks
+        k.doc("collectBlocks", 1, 2, "(collectBlocks <block symbol> <?expression to inline instead of the blocks>)");
         macros["collectBlocks"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 2, "(collectBlocks <block symbol> <?expression to inline instead of the blocks>)");
             var blockName = try {
                 exps[0].symbolNameValue();
             } catch (notSymbolError:String) {
@@ -925,8 +911,8 @@ class Macros {
             null;
         };
 
+        k.doc("collectedBlocks", 1, 1, "(collectedBlocks <block symbol>)");
         macros["collectedBlocks"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, "(collectedBlocks <block symbol>)");
             var blockName = try {
                 exps[0].symbolNameValue();
             } catch (notSymbolError:String) {
@@ -939,8 +925,8 @@ class Macros {
             b.begin(k.collectedBlocks[blockName]);
         };
 
+        k.doc("clamp", 2, 3, "(clamp <expr> <min or null> <?max or null>)");
         macros["clamp"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, "(clamp <expr> <min or null> <?max or null>)");
             var b = wholeExp.expBuilder();
             var maxExp = if (exps.length == 3) exps.pop() else b.symbol("null");
             var expToSet = exps.shift();
@@ -966,10 +952,9 @@ class Macros {
 
         // The wildest code in Kiss to date
         // TODO test exprCase!!
+        k.doc("exprCase", 2, null, "(exprCase <expr> <pattern callExps...>)");
         macros["exprCase"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(exprCase [expr] [pattern callExps...])");
             var toMatch = exps.shift();
-
             var b = wholeExp.expBuilder();
             var functionKey = Uuid.v4();
 
@@ -992,8 +977,8 @@ class Macros {
         };
 
         // Maybe the NEW wildest code in Kiss?
+        k.doc("#extern", 4, null, "(#extern <BodyType> <lang> <?compileArgs object> [<typed bindings...>] <body...>)");
         macros["#extern"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(4, null, "(#extern <BodyType> <lang> <?compileArgs object> [<typed bindings...>] <body...>)");
             var b = wholeExp.expBuilder();
 
             // Skip all extern code generation if -D no-extern is provided to the compiler
@@ -1094,8 +1079,8 @@ class Macros {
                 ]));
         };
 
+        k.doc("countingLambda", 3, null, "(countingLambda <countVar> [<argsNames...>] <body...>)");
         macros["countingLambda"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(3, null, "(countingLambda <countVar> [<argsNames...>] <body...>)");
             var b = wholeExp.expBuilder();
 
             var countVarSymbol = exps[0];
@@ -1114,8 +1099,8 @@ class Macros {
         };
 
         // Time a block's evaluation
+        k.doc("measureTime",1, null, "(time <body...>)");
         macros["measureTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(time <body...>)");
             var b = wholeExp.expBuilder();
 
             return b.callSymbol("haxe.Timer.measure", [b.callSymbol("lambda", [b.list([])].concat(exps))]);
@@ -1123,7 +1108,7 @@ class Macros {
 
         function indexOfMacro(last:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var funcName = if (last) "lastIndexOf" else "indexOf";
-            wholeExp.checkNumArgs(2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');
+            k.doc(funcName, 2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');
             var b = wholeExp.expBuilder();
             var cases = [
                 b.callField(funcName, exps.shift(), exps),
@@ -1139,15 +1124,15 @@ class Macros {
         macros["lastIndexOf"] = indexOfMacro.bind(true);
 
         // contains is a macro so it can be called on either an Array or a String
+        k.doc("contains", 2, 2, '(contains <string or list> <snippet or element>)');
         macros["contains"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, '(contains <string or list> <snippet or element>)');
             var b = wholeExp.expBuilder();
             return b.not(b.callSymbol("=", [b.symbol("-1"), b.callField("indexOf", exps[0], [exps[1]])]));
         }
 
         // Under the hood, quoted expressions are just Kiss strings for a KissInterp
+        k.doc("quote", 1, 1, '(quote <exp>)');
         macros["quote"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(quote <exp>)');
             var b = wholeExp.expBuilder();
             return b.str(Reader.toString(exps[0].def));
         };
@@ -1157,8 +1142,8 @@ class Macros {
         // This is all complicated, and language- and platform-dependent. And slow, because it converts Kiss to HScript at runtime.
         // When (eval) is used in a static function, it cannot access instance variables.
         // (eval) should not be used for serious purposes.
+        k.doc("eval", 1, 1, '(eval <exp>)');
         macros["eval"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(eval <exp>)');
             var b = wholeExp.expBuilder();
             var className = Context.getLocalClass().toString();
             var classSymbol = b.symbol(className);
@@ -1199,7 +1184,7 @@ class Macros {
 
         function typedCallMacro(name:String, symbol:String, type:String) {
             macros[name] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
-                wholeExp.checkNumArgs(2, null, '($name <lists...>)');
+                k.doc(name, 2, null, '($name <lists...>)');
                 var b = wholeExp.expBuilder();
                 b.callSymbol("the", [b.symbol(type), b.callSymbol('Prelude.$symbol', exps)]);
             };
@@ -1285,6 +1270,7 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
+    
     static function cond(formName:String, underlyingIf:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
         wholeExp.checkNumArgs(1, null, '($formName [cases...])');
         var b = wholeExp.expBuilder();
