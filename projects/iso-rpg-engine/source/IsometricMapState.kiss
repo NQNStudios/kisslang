@@ -57,13 +57,13 @@
     (super.update elapsed)
     
     (let [&mut cameraMovement (new FlxVector 0 0)]
-        (when (= 0 FlxG.mouse.screenX)
+        (when (or (= 0 FlxG.mouse.screenX) FlxG.keys.pressed.LEFT)
             (set cameraMovement.x -1))
-        (when (= 0 FlxG.mouse.screenY)
+        (when (or (= 0 FlxG.mouse.screenY) FlxG.keys.pressed.UP)
             (set cameraMovement.y -1))
-        (when (= (- FlxG.width 1) FlxG.mouse.screenX)
+        (when (or (= (- FlxG.width 1) FlxG.mouse.screenX) FlxG.keys.pressed.RIGHT) 
             (set cameraMovement.x 1))
-        (when (= (- FlxG.height 1) FlxG.mouse.screenY)
+        (when (or (= (- FlxG.height 1) FlxG.mouse.screenY) FlxG.keys.pressed.DOWN)
             (set cameraMovement.y 1))
         (set cameraMovement (cameraMovement.truncate 1))
         (set cameraMovement (cameraMovement.scale (* elapsed CAMERA_SPEED)))
