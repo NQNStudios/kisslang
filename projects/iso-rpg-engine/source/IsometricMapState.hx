@@ -7,6 +7,7 @@ import flixel.math.FlxRect;
 import flixel.math.FlxVector;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
+import flixel.input.mouse.FlxMouseEventManager;
 
 import flash.display.BitmapData;
 

@@ -14,6 +14,9 @@
                                 (collect (range 512)))
                             32 Keep)))
 
+(var SELECTED_COLOR FlxColor.LIME)
+(var NORMAL_COLOR FlxColor.WHITE)
+
 (method :Void addFloorLayer [:Array<Array<Int>> tiles]
     (let [&mut rowStartX 0
             &mut rowStartY 0]
@@ -24,6 +27,12 @@
                     (let [tileSprite (data.floorSprite tile)]
                         (set tileSprite.x x)
                         (set tileSprite.y y)
+                        (FlxMouseEventManager.add tileSprite
+                            // handle click on floor:
+                            ->downTS {}
+                            ->upTS {}
+                            ->overTS (set overTS.color SELECTED_COLOR)
+                            ->outTS (set outTS.color NORMAL_COLOR))
                         (add tileSprite))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
@@ -44,12 +53,17 @@
                         (set tileSprite.y y)
                         (when (> tileSprite.height SPRITE_HEIGHT)
                             (-= tileSprite.y SPRITE_HEIGHT))
+                        (FlxMouseEventManager.add tileSprite
+                            // Handle click on terrain:
+                            ->downTS {}
+                            ->upTS {}
+                            ->overTS (set overTS.color SELECTED_COLOR)
+                            ->outTS (set outTS.color NORMAL_COLOR))
                         (add tileSprite))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
             (-= rowStartX (/ FLOOR_WIDTH 2))
             (+= rowStartY (/ FLOOR_HEIGHT 2)))))
-
 
 (var CAMERA_SPEED 500)
 
