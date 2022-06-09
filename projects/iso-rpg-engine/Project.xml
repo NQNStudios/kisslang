@@ -30,7 +30,8 @@
 	<set value="export" name="BUILD_DIR"/>
 	<source path="source"/>
 	<assets path="assets"/>
-	<assets path="Data"/>
+	<assets path="Data" if="debug"/>
+	<assets path="Blades of Avernum Scenarios" if="debug"/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 

@@ -8,6 +8,12 @@
 (method &override :Void create []
     (super.create)
     (set data (ScenData.coreData))
+
+    (Scenario.test)
+
+    (let [valleydy (Scenario.fromBasFile "Blades of Avernum Scenarios/Valley of Dying Things/valleydy.bas")]
+        ~valleydy)
+
     (addFloorLayer (groups (collect (range 255)) 32 Keep))
     (addTerrainLayer (groups (concat
                                 (for _ (range 255) -1)
