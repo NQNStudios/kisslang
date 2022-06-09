@@ -15,4 +15,4 @@ import kiss.Prelude;
 import data.blades.ScenData;
 
 @:build(kiss.Kiss.build())
-class IsometricMapState<FloorData, TerrainData, EntityData, ItemData> extends FlxState {}
+class BladesMapState extends FlxState {}
