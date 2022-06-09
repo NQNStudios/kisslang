@@ -35,4 +35,15 @@ class ByteStream {
         position += 2;
         return int;
     }
+
+    // Read a C-style 0-terminated ascii string
+    public function readCString():String {
+        var string = "";
+        while (true) {
+            var next = readByte();
+            if (next == 0) break;
+            else string += String.fromCharCode(next);
+        }
+        return string;
+    }
 }
