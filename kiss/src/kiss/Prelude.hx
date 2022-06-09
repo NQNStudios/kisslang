@@ -169,7 +169,7 @@ class Prelude {
         return sorted;
     }
 
-    public static function groups<T>(a:Array<T>, size, extraHandling = Drop):kiss.List<kiss.List<T>> {
+    public static function groups<T>(a:Array<T>, size, extraHandling = Throw):kiss.List<kiss.List<T>> {
         var numFullGroups = Math.floor(a.length / size);
         var fullGroups = [
             for (num in 0...numFullGroups) {
