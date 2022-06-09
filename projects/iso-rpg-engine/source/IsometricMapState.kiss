@@ -8,11 +8,11 @@
 (method &override :Void create []
     (super.create)
     (set data (ScenData.coreData))
-    (addFloorLayer (groups (collect (range 255)) 32))
+    (addFloorLayer (groups (collect (range 255)) 32 Keep))
     (addTerrainLayer (groups (concat
                                 (for _ (range 255) -1)
                                 (collect (range 512)))
-                            32)))
+                            32 Keep)))
 
 (method :Void addFloorLayer [:Array<Array<Int>> tiles]
     (let [&mut rowStartX 0
@@ -30,6 +30,8 @@
             (-= rowStartX (/ FLOOR_WIDTH 2))
             (+= rowStartY (/ FLOOR_HEIGHT 2)))))
 
+// TODO creatures and items need to be added when their floor and terrain tiles are
+// added, to preserve Z order
 (method :Void addTerrainLayer [:Array<Array<Int>> tiles]
     (let [&mut rowStartX 0
             &mut rowStartY 0]
