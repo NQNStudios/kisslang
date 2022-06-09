@@ -58,8 +58,8 @@ class SpecialForms {
         };
 
         function makeQuickNth(idx:Int, name:String) {
+            k.doc(name, 1, 1, '($name <list>)');
             map[name] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-                wholeExp.checkNumArgs(1, 1, '($name [list])');
                 EArray(k.convert(args[0]), macro $v{idx}).withMacroPosOf(wholeExp);
             };
         }
@@ -75,8 +75,8 @@ class SpecialForms {
         makeQuickNth(9, "tenth");
         makeQuickNth(-1, "last");
 
+        k.doc("rest", 1, 1, '(rest <list>)');
         map["rest"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(rest [list])');
             macro ${k.convert(args[0])}.slice(1);
         };
 
@@ -100,8 +100,8 @@ class SpecialForms {
             ]).withMacroPosOf(wholeExp);
         };
 
+        k.doc("new", 1, null, '(new <type> <constructorArgs...>)');
         map["new"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, '(new [type] [constructorArgs...])');
             var classType = switch (args[0].def) {
                 case Symbol(name): name;
                 default: throw KissError.fromExp(args[0], 'first arg in (new [type] ...) should be a class to instantiate');
@@ -109,8 +109,8 @@ class SpecialForms {
             ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(k.convert)).withMacroPosOf(wholeExp);
         };
 
+        k.doc("set", 2, 2, "(set <variable> <value>)");
         map["set"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 2, "(set [variable] [value])");
             EBinop(OpAssign, k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
         };
 
@@ -179,8 +179,8 @@ class SpecialForms {
             };
         }
 
+        k.doc("deflocal", 2, 3, "(localVar <optional :type> <variable> <optional: &mut> <value>)");
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, "(localVar [optional :type] [variable] [optional: &mut] [value])");
             EVars(toVars(args[0], args[1], k)).withMacroPosOf(wholeExp);
         };
         renameAndDeprecate("deflocal", "localVar");
@@ -205,8 +205,8 @@ class SpecialForms {
             ]).withMacroPosOf(wholeExp);
         };
 
+        k.doc("lambda", 2, null, "(lambda [<argsNames...>] <body...>)");
         map["lambda"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, null, "(lambda [<argsNames...>] <body...>)");
             var returnsValue = switch (args[0].def) {
                 case TypedExp("Void", argNames):
                     args[0] = argNames;
@@ -216,9 +216,8 @@ class SpecialForms {
             }
             EFunction(FAnonymous, Helpers.makeFunction(null, returnsValue, args[0], args.slice(1), k, "lambda")).withMacroPosOf(wholeExp);
         };
-
+    
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
-            wholeExp.checkNumArgs(3, null, '($formName [varName or [varNames...] or =>keyName valueName] [list] [body...])');
             var uniqueVarName = "_" + Uuid.v4().toShort();
             var namesExp = args[0];
             var listExp = args[1];
@@ -244,14 +243,14 @@ class SpecialForms {
             EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
         };
 
+        k.doc("loop", 1, null, '(loop <body...>)');
         map["loop"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, '(loop <body...>)');
             EWhile(macro true, k.convert(wholeExp.expBuilder().begin(args)), true).withMacroPosOf(wholeExp);
         };
 
+        
         function whileForm(invert:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
             var funcName = if (invert) "until" else "while";
-            wholeExp.checkNumArgs(2, null, '($funcName <condition> <body...>)');
             var b = wholeExp.expBuilder();
             var cond = k.convert(b.callSymbol("Prelude.truthy", [args[0]]));
             if (invert) cond = macro !$cond;
@@ -261,23 +260,24 @@ class SpecialForms {
         map["while"] = whileForm.bind(false);
         map["until"] = whileForm.bind(true);
 
-        map["return"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(0, 1, '(return [?value])');
+        k.doc("return", 0, 1, '(return <?value>)');
+        map["return"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {    
             var returnExpr = if (args.length == 1) k.convert(args[0]) else null;
             EReturn(returnExpr).withMacroPosOf(wholeExp);
         };
-
-        map["break"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(0, 0, "(break)");
+        
+        k.doc("break", 0, 0, "(break)");
+        map["break"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {   
             EBreak.withMacroPosOf(wholeExp);
         };
 
+        k.doc("continue", 0, 0, "(continue)");
         map["continue"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(0, 0, "(continue)");
             EContinue.withMacroPosOf(wholeExp);
         };
 
         // (case... ) for switch
+        k.doc("case", 2, null, '(case <expression> <cases...> <optional: (otherwise <default>)>)');
         map["case"] = (wholeExp:ReaderExp, args:kiss.List<ReaderExp>, k:KissState) -> {
             // Most Lisps don't enforce covering all possible patterns with (case...), but Kiss does,
             // because pattern coverage is a useful feature of Haxe that Kiss can easily bring along.
@@ -286,7 +286,6 @@ class SpecialForms {
 
             // Therefore only one case is required in a case statement, because one case could be enough
             // to cover all patterns.
-            wholeExp.checkNumArgs(2, null, '(case [expression] [cases...] [optional: (otherwise [default])])');
             var args:kiss.List<ReaderExp> = args.copy();
 
             var isTupleCase = switch (args[0].def) {
@@ -350,8 +349,8 @@ class SpecialForms {
         };
 
         // Type check syntax:
+        k.doc("the", 2, 3, '(the <?package> <type> <value>)');
         map["the"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, '(the <?package> <type> <value>)');
             var pkg = "";
             var whichArg = "first";
             if (args.length == 3) {
@@ -370,10 +369,9 @@ class SpecialForms {
             ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, args[0])).withMacroPosOf(wholeExp);
         };
 
+        k.doc("try", 1, null, "(try <thing> <catches...>)");
         map["try"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, null, "(try <thing> <catches...>)");
             var tryKissExp = args[0];
-
             var catchKissExps = args.slice(1);
             ETry(k.convert(tryKissExp), [
                 for (catchKissExp in catchKissExps) {
@@ -411,9 +409,8 @@ class SpecialForms {
             EThrow(k.convert(args[0])).withMacroPosOf(wholeExp);
         };
 
+        k.doc("if", 2, 3, '(if <cond> <then> <?else>)');
         map["if"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(2, 3, '(if [cond] [then] [?else])');
-
             var condition = macro Prelude.truthy(${k.convert(args[0])});
             var thenExp = k.convert(args[1]);
             var elseExp = if (args.length > 2) {
@@ -430,15 +427,15 @@ class SpecialForms {
                 $elseExp;
         };
 
+        k.doc("not", 1, 1, '(not <value>)');
         map["not"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 1, '(not [value])');
             var condition = k.convert(args[0]);
             var truthyExp = macro Prelude.truthy($condition);
             macro !$truthyExp;
         };
 
+        k.doc("cast", 1, 2, '(cast <value> <optional type>)');
         map["cast"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            wholeExp.checkNumArgs(1, 2, '(cast <value> <optional type>)');
             var e = k.convert(args[0]);
             var t = null;
             if (args.length > 1) {
@@ -454,9 +451,9 @@ class SpecialForms {
 
         return map;
     }
-
+    
     public static function caseOr(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
-        wholeExp.checkNumArgs(2, null, "(or [v1] [v2] [values...])");
+        wholeExp.checkNumArgs(2, null, "(or <v1> <v2> <values...>)");
         return if (args.length == 2) {
             macro ${k.convert(args[0])} | ${k.convert(args[1])};
         } else {
