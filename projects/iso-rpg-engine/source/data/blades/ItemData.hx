@@ -37,7 +37,11 @@ class ItemData {
     public function clone():ItemData {
         var id = new ItemData();
         for (field in ItemData.getInstanceFields()) {
-            id.setField(field, this.field(field));
+            try {    
+                id.setField(field, this.field(field));
+            } catch (e) {
+                // can't set functions in c++
+            }
         }
         return id;
     }

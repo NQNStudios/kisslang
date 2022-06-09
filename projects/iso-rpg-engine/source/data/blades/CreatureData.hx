@@ -121,7 +121,11 @@ class CreatureData {
     public function clone():CreatureData {
         var cd = new CreatureData();
         for (field in CreatureData.getInstanceFields()) {
-            cd.setField(field, this.field(field));
+            try {    
+                cd.setField(field, this.field(field));
+            } catch (e) {
+                // can't set functions in c++
+            }
         }
         return cd;
     }

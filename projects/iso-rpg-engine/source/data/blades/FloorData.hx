@@ -34,7 +34,11 @@ class FloorData {
     public function clone():FloorData {
         var fd = new FloorData();
         for (field in FloorData.getInstanceFields()) {
-            fd.setField(field, this.field(field));
+            try {    
+                fd.setField(field, this.field(field));
+            } catch (e) {
+                // can't set functions in c++
+            }
         }
         return fd;
     }

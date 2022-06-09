@@ -255,9 +255,10 @@ class ScenData {
 
                 try {
                     interp.execute(parser.parseString(line));
-                } catch (e) {
+                }
+                catch (e) {
                     trace('line `$line` failed because $e');
-                } 
+                }
             }
         }
 

@@ -66,7 +66,11 @@ class TerrainData {
     public function clone():TerrainData {
         var td = new TerrainData();
         for (field in TerrainData.getInstanceFields()) {
-            td.setField(field, this.field(field));
+            try {    
+                td.setField(field, this.field(field));
+            } catch (e) {
+                // can't set functions in c++
+            }
         }
         return td;
     }
