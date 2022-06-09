@@ -50,11 +50,14 @@ class ScenData {
         return spriteSheets[num];
     }
 
+    var es:FlxSprite = null;
     function emptySprite() {
-        var s = new FlxSprite(0, 0);
-        s.makeGraphic(46, 55, FlxColor.TRANSPARENT);
-        s.alpha = 0;
-        return s;
+        if (es == null) {
+            es = new FlxSprite(0, 0);
+            es.makeGraphic(46, 55, FlxColor.TRANSPARENT);
+            es.alpha = 0;
+        }
+        return es;
     }
 
     public function floorSprite(floorId:Int) {
@@ -68,8 +71,8 @@ class ScenData {
         if (sheet == null) {
             return emptySprite();
         }
-        var sprite = sheet.clone();
-
+        var sprite = new FlxSprite();
+        sprite.loadGraphicFromSprite(sheet);
         sprite.animation.frameIndex = fd.which_icon;
 
         // TODO if it's animated add the animations
@@ -89,12 +92,14 @@ class ScenData {
         if (sheet == null) {
             return emptySprite();
         }
-        var sprite = sheet.clone();
+        var sprite = new FlxSprite();
+        sprite.loadGraphicFromSprite(sheet);
         sprite.animation.frameIndex = td.which_icon;
 
         // TODO if it's a tall terrain combine it with the upper sprite and set its origin to offset y
         if (td.second_icon != -1) {
-            var upperSprite = sheet.clone();
+            var upperSprite = new FlxSprite();
+            upperSprite.loadGraphicFromSprite(sheet);
             upperSprite.animation.frameIndex = td.second_icon;
 
             var tallerSprite = new FlxSprite(0, 0);
