@@ -1,82 +1,50 @@
 package;
 
-import sys.io.File;
-import haxe.io.Bytes;
+import kiss.ByteStream;
 import flash.display.BitmapData;
 import flixel.util.FlxColor;
 
-typedef ByteStream = {
-    bytes:Bytes,
-    position:Int
-};
-
 class Bmp {
-    static function getByteStream(file:String):ByteStream {
-        return {
-            bytes: File.getBytes(file),
-            position:0
-        };
-    }
-
-    static function readByte(bytes:ByteStream):Int {
-        return bytes.bytes.get(bytes.position++);
-    }
-
-    static function readInt32(bytes:ByteStream):Int {
-        var int = bytes.bytes.getInt32(bytes.position);
-        bytes.position += 4;
-        return int;
-    }
-
-    static function readUInt32(bytes:ByteStream):Int {
-        var int = readInt32(bytes);
-        return if (int < 0) cast (4294967296 + cast int) else int; 
-    }
-
-    static function readUInt16(bytes:ByteStream):Int {
-        var int = bytes.bytes.getUInt16(bytes.position);
-        bytes.position += 2;
-        return int;
-    }
+    
 
     static function checkHeader(bytes:ByteStream) {
         // 42 4D
-        if (readByte(bytes) != 66 || readByte(bytes) != 77)
+        if (bytes.readByte() != 66 || bytes.readByte() != 77)
             throw 'Bad bmp header!';
     }
 
     public static function loadBitmapData(bmpFile:String) {
-        var stream = getByteStream(bmpFile);
+        var stream = ByteStream.fromFile(bmpFile);
         checkHeader(stream);
         
-        var fileSize = readUInt32(stream);
-        var fileReserved = readUInt32(stream);
-        var fileOffBits = readUInt32(stream);
+        var fileSize = stream.readUInt32();
+        var fileReserved = stream.readUInt32();
+        var fileOffBits = stream.readUInt32();
 
-        var imgSize = readUInt32(stream);
+        var imgSize = stream.readUInt32();
 
-        var imgWidth = readInt32(stream);
-        var imgHeight = readInt32(stream);
+        var imgWidth = stream.readInt32();
+        var imgHeight = stream.readInt32();
 
-        var planes = readUInt16(stream);
-        var bitsPerPixel = readUInt16(stream);
+        var planes = stream.readUInt16();
+        var bitsPerPixel = stream.readUInt16();
 
-        var compression = readUInt32(stream);
-        var sizeImage = readUInt32(stream);
+        var compression = stream.readUInt32();
+        var sizeImage = stream.readUInt32();
 
-        var xPixelsPerMeter = readInt32(stream);
-        var yPixelsPerMeter = readInt32(stream);
+        var xPixelsPerMeter = stream.readInt32();
+        var yPixelsPerMeter = stream.readInt32();
 
-        var colorsUsed = readUInt32(stream);
-        var colorsImportant = readUInt32(stream);
+        var colorsUsed = stream.readUInt32();
+        var colorsImportant = stream.readUInt32();
 
         var colors:Array<FlxColor> = [];
 
         for (c in 0...colorsUsed) {
-            var blue = readByte(stream);
-            var green = readByte(stream);
-            var red = readByte(stream);
-            var _ = readByte(stream);
+            var blue = stream.readByte();
+            var green = stream.readByte();
+            var red = stream.readByte();
+            var _ = stream.readByte();
             colors.push(FlxColor.fromRGB(red, green, blue));
         }
 
@@ -88,11 +56,11 @@ class Bmp {
         var rowPadding:Int = cast (sizeImage - (realHeight * imgWidth)) / realHeight;
         for (_ in 0... realHeight) {
             for (x in 0... imgWidth) {
-                var colorIdx = readByte(stream);
+                var colorIdx = stream.readByte();
                 data.setPixel(x, realHeight-1-y, colors[colorIdx]);
             }
             for (_ in 0... rowPadding) {
-                readByte(stream);
+                stream.readByte();
             }
 
             y += dy;
