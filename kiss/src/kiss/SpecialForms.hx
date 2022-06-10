@@ -46,9 +46,13 @@ class SpecialForms {
         };
 
         function arrayAccess(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
-            return EArray(k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
+            var exp = k.convert(args[0]);
+            for (dimension in 1...args.length) {
+                exp = EArray(exp, k.convert(args[dimension])).withMacroPosOf(wholeExp);
+            }
+            return exp;
         };
-        k.doc("nth", 2, 2, "(nth <list> <idx>)");
+        k.doc("nth", 2, null, "(nth <list> <idx> <?n-dimensional indices...>)");
         map["nth"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             arrayAccess(wholeExp, args, k);
         };
