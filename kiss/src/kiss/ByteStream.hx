@@ -6,12 +6,13 @@ import haxe.io.Bytes;
 class ByteStream {
     var bytes = Bytes.alloc(0);
     var position = 0;
-
+    var file = "";
     function new () {}
 
     public static function fromFile(file) {
         var s = new ByteStream();
         s.bytes = File.getBytes(file);
+        s.file = file;
         return s;
     }
 
@@ -37,13 +38,38 @@ class ByteStream {
     }
 
     // Read a C-style 0-terminated ascii string
-    public function readCString():String {
+    public function readCString(maxLength = 0):String {
         var string = "";
-        while (true) {
+        var pos = position;
+        var _maxBytes = if (maxLength <= 0) bytes.length - position else maxLength; // TODO test this for off-by-one error
+        for (idx in 0..._maxBytes) {
             var next = readByte();
-            if (next == 0) break;
+            if (next == 0) {
+                if (maxLength > 0)
+                    paddingBytes(_maxBytes - idx);
+                return string;
+            }
             else string += String.fromCharCode(next);
         }
-        return string;
+        if (maxLength <= 0) {
+            throw 'C String starting at byte $pos in $file ends in unexpected EOF';
+        } else {
+            throw 'C String starting at byte $pos in $file is longer than $maxLength bytes: $string';
+        }
+    }
+
+    public function skipZeros() {
+        while (readByte() == 0) {}
+        
+        position--;
+    }
+
+    public function unknownBytes(num:Int) {
+        trace('Warning: ignoring $num unknown bytes starting at $position in $file');
+        paddingBytes(num);
+    }
+
+    public function paddingBytes(num) {
+        for (_ in 0...num) readByte();
     }
 }
