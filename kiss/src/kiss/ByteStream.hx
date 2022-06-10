@@ -3,11 +3,18 @@ package kiss;
 import sys.io.File;
 import haxe.io.Bytes;
 
+using StringTools;
+
 class ByteStream {
     var bytes = Bytes.alloc(0);
     var position = 0;
     var file = "";
     function new () {}
+
+    function posToPrint(?pos:Int) {
+        if (pos == null) pos = position;
+        return 'position $pos (0x${pos.hex()})';
+    }
 
     public static function fromFile(file) {
         var s = new ByteStream();
@@ -41,20 +48,20 @@ class ByteStream {
     public function readCString(maxLength = 0):String {
         var string = "";
         var pos = position;
-        var _maxBytes = if (maxLength <= 0) bytes.length - position else maxLength; // TODO test this for off-by-one error
+        var _maxBytes = if (maxLength <= 0) bytes.length - position else maxLength + 1; // TODO test this for off-by-one error
         for (idx in 0..._maxBytes) {
             var next = readByte();
             if (next == 0) {
                 if (maxLength > 0)
-                    paddingBytes(_maxBytes - idx);
+                    paddingBytes(_maxBytes - idx - 1);
                 return string;
             }
             else string += String.fromCharCode(next);
         }
         if (maxLength <= 0) {
-            throw 'C String starting at byte $pos in $file ends in unexpected EOF';
+            throw 'C String starting at ${posToPrint()} in $file ends in unexpected EOF';
         } else {
-            throw 'C String starting at byte $pos in $file is longer than $maxLength bytes: $string';
+            throw 'C String starting at ${posToPrint()} in $file is longer than $maxLength bytes: $string';
         }
     }
 
@@ -65,11 +72,30 @@ class ByteStream {
     }
 
     public function unknownBytes(num:Int) {
-        trace('Warning: ignoring $num unknown bytes starting at $position in $file');
+        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint()} in $file');
         paddingBytes(num);
     }
 
     public function paddingBytes(num) {
         for (_ in 0...num) readByte();
+    }
+
+    public function paddingUntil(pos:String) {
+        var nextPos = Std.parseInt(pos);
+        if (nextPos <= position) {
+            throw 'given position $pos ($nextPos) is <= stream ${posToPrint()} in $file';
+        }
+        paddingBytes(nextPos - position);
+        return nextPos - position;
+    }
+
+    public function unknownUntil(pos:String) {
+        var startPos = position;
+        var num = paddingUntil(pos);
+        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint(startPos)} in $file');
+    }
+
+    public function tracePosition() {
+        trace('$file: ${posToPrint()}');
     }
 }
