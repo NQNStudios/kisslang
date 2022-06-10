@@ -61,6 +61,8 @@ class ScenData {
     }
 
     public function floorSprite(floorId:Int) {
+        if (!(floorId >= 0 && floorId < 256))
+            throw 'floor $floorId is out of range';
         if (!floorData.exists(floorId)) {
             return emptySprite();
         }        
@@ -81,6 +83,8 @@ class ScenData {
     }
     
     public function terrainSprite(terrainId:Int) {
+        if (!(terrainId >= 0 && terrainId < 512))
+            throw 'terrain $terrainId is out of range';
         if (!terrainData.exists(terrainId)) {
             var s = new FlxSprite(0, 0);
             s.makeGraphic(46, 55, FlxColor.TRANSPARENT);

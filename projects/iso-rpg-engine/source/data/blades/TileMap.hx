@@ -6,10 +6,10 @@ class TileMap {
     // TODO might need encapsulation
     public var floorCodes:TileArray<Int>;
     public var floorHeights:TileArray<Int>;
-    private var terrainCodes:TileArray<Int>;
+    public var terrainCodes:TileArray<Int>;
 
-    private var width = 0;
-    private var height = 0;
+    public var width = 0;
+    public var height = 0;
 
     public var name = "";
 

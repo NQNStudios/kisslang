@@ -14,6 +14,7 @@ import flash.display.BitmapData;
 import kiss.Prelude;
 import data.blades.ScenData;
 import data.blades.Scenario;
+import data.blades.TileMap;
 
 @:build(kiss.Kiss.build())
 class BladesMapState extends FlxState {}

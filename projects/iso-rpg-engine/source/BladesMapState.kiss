@@ -12,60 +12,55 @@
     (Scenario.test)
 
     (let [valleydy (Scenario.fromBasFile "Blades of Avernum Scenarios/Valley of Dying Things/valleydy.bas")]
-        ~valleydy)
-
-    (addFloorLayer (groups (collect (range 255)) 32 Keep))
-    (addTerrainLayer (groups (concat
-                                (for _ (range 255) -1)
-                                (collect (range 512)))
-                            32 Keep)))
+        (addSprites 
+            // 2D nth >:)
+            (nth valleydy.outdoorSections 0 0))))
 
 (var SELECTED_COLOR FlxColor.LIME)
 (var NORMAL_COLOR FlxColor.WHITE)
+(var CLIFF_HEIGHT 22)
 
-(method :Void addFloorLayer [:Array<Array<Int>> tiles]
+(method :Void addSprites [:TileMap map]
     (let [&mut rowStartX 0
             &mut rowStartY 0]
-        (doFor row tiles
+        (doFor tileY (range map.height)
             (let [&mut x rowStartX
                     &mut y rowStartY]
-                (doFor tile row
-                    (let [tileSprite (data.floorSprite tile)]
-                        (set tileSprite.x x)
-                        (set tileSprite.y y)
-                        (FlxMouseEventManager.add tileSprite
-                            // handle click on floor:
-                            ->downTS {}
-                            ->upTS {}
-                            ->overTS (set overTS.color SELECTED_COLOR)
-                            ->outTS (set outTS.color NORMAL_COLOR))
-                        (add tileSprite))
-                    (+= x (/ FLOOR_WIDTH 2))
-                    (+= y (/ FLOOR_HEIGHT 2))))
-            (-= rowStartX (/ FLOOR_WIDTH 2))
-            (+= rowStartY (/ FLOOR_HEIGHT 2)))))
+                (doFor tileX (range map.width)
+                    (let [height (nth map.floorHeights tileX tileY)
+                            floor (nth map.floorCodes tileX tileY)
+                            terrain (nth map.terrainCodes tileX tileY)
+                            yOffset (* CLIFF_HEIGHT height)]
+                        // First add the floor
+                        (let [tileSprite (data.floorSprite floor)]
+                            // TODO add cliffs if it's higher than the one in front of it
+                            (set tileSprite.x x)
+                            (set tileSprite.y (- y yOffset))
+                            (FlxMouseEventManager.add tileSprite
+                                // handle click on floor:
+                                ->downTS {}
+                                ->upTS {}
+                                ->overTS (set overTS.color SELECTED_COLOR)
+                                ->outTS (set outTS.color NORMAL_COLOR))
+                            (add tileSprite))
 
-// TODO creatures and items need to be added when their floor and terrain tiles are
-// added, to preserve Z order
-(method :Void addTerrainLayer [:Array<Array<Int>> tiles]
-    (let [&mut rowStartX 0
-            &mut rowStartY 0]
-        (doFor row tiles
-            (let [&mut x rowStartX
-                    &mut y rowStartY]
-                (doFor tile row
-                    (let [tileSprite (data.terrainSprite tile)]
-                        (set tileSprite.x x)
-                        (set tileSprite.y y)
-                        (when (> tileSprite.height SPRITE_HEIGHT)
-                            (-= tileSprite.y SPRITE_HEIGHT))
-                        (FlxMouseEventManager.add tileSprite
-                            // Handle click on terrain:
-                            ->downTS {}
-                            ->upTS {}
-                            ->overTS (set overTS.color SELECTED_COLOR)
-                            ->outTS (set outTS.color NORMAL_COLOR))
-                        (add tileSprite))
+                        // TODO add any items
+
+                        // TODO add any characters
+
+                        // TODO the wall sprites will be from different sheets defined by town/outdoor section
+                        (let [tileSprite (data.terrainSprite terrain)]
+                            (set tileSprite.x x)
+                            (set tileSprite.y (- y yOffset))
+                            (when (> tileSprite.height SPRITE_HEIGHT)
+                                (-= tileSprite.y SPRITE_HEIGHT))
+                            (FlxMouseEventManager.add tileSprite
+                                // Handle click on terrain:
+                                ->downTS {}
+                                ->upTS {}
+                                ->overTS (set overTS.color SELECTED_COLOR)
+                                ->outTS (set outTS.color NORMAL_COLOR))
+                            (add tileSprite)))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
             (-= rowStartX (/ FLOOR_WIDTH 2))

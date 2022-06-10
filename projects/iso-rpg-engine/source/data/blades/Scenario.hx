@@ -108,18 +108,28 @@ class Scenario {
                 var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19));
                 trace(sec.name);
 
-                for (y in 0...outdoorHeight) {
-                    for (x in 0...outdoorWidth) {
+                for (x in 0...outdoorWidth) {
+                    for (y in 0...outdoorHeight) {
                         sec.setFloor(x, y, stream.readByte());
                     }
                 }
 
                 // floor heights
-                for (y in 0...outdoorHeight) {
-                    for (x in 0...outdoorWidth) {
+                for (x in 0...outdoorWidth) {
+                    for (y in 0...outdoorHeight) {
                         sec.setFloorHeight(x, y, stream.readByte());
                     }
                 }
+
+                // 1 byte of padding to align the int16s
+                // terrain
+                for (x in 0...outdoorWidth) {
+                    for (y in 0...outdoorHeight) {
+                        // these are big-endian
+                        sec.setTerrain(x, y, 256 * stream.readByte() + stream.readByte());
+                    }
+                }
+
                 stream.tracePosition();
                 // TODO all the other outdoor section stuff
                 
