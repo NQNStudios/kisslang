@@ -7,8 +7,8 @@ import data.blades.TileMap;
 using StringTools;
 
 class Scenario {
-    public var outdoorSections:TileArray<TileMap>;
-    public var towns:Array<TileMap>;
+    public var outdoorSections:TileArray<TileMap> = [];
+    public var towns:Array<TileMap> = [];
     public var name = "";
     public var description1 = "";
     public var description2 = "";
@@ -93,8 +93,45 @@ class Scenario {
                 stream.readCString(16*16-1)];
         }];
 
+        // After the intro paragpraphs there are a lot of unknown bytes that could possibly be metadata of the first outdoor section's tiles
         // 1D30 08 is the first outdoor section
+        stream.unknownUntil("0x1D38");
 
+        // outdoor section rows
+        for (y in 0...outdoorHeight) {
+            scen.outdoorSections[y] = [];
+            for (x in 0...outdoorWidth) {
+                var outdoorWidth = 48;
+                var outdoorHeight = 48;
+
+                // section name, max length 21, followed by floor tile columns
+                var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19));
+                trace(sec.name);
+
+                for (y in 0...outdoorHeight) {
+                    for (x in 0...outdoorWidth) {
+                        sec.setFloor(x, y, stream.readByte());
+                    }
+                }
+
+                // floor heights
+                for (y in 0...outdoorHeight) {
+                    for (x in 0...outdoorWidth) {
+                        sec.setFloorHeight(x, y, stream.readByte());
+                    }
+                }
+                stream.tracePosition();
+                // TODO all the other outdoor section stuff
+                
+                scen.outdoorSections[x][y] = sec;
+                // TODO don't, obviously:
+                break;
+            }
+            // TODO don't, obviously:
+            break;
+        }
+
+        // TODO all the other stuff
         return scen;
     }
 }
