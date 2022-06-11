@@ -34,15 +34,16 @@
                         // First add the floor
                         (let [tileSprite (data.floorSprite floor)]
                             // TODO add cliffs if it's higher than the one in front of it
-                            (set tileSprite.x x)
-                            (set tileSprite.y (- y yOffset))
-                            (FlxMouseEventManager.add tileSprite
-                                // handle click on floor:
-                                ->downTS {}
-                                ->upTS {}
-                                ->overTS (set overTS.color SELECTED_COLOR)
-                                ->outTS (set outTS.color NORMAL_COLOR))
-                            (add tileSprite))
+                            (when tileSprite
+                                (set tileSprite.x x)
+                                (set tileSprite.y (- y yOffset))
+                                (FlxMouseEventManager.add tileSprite
+                                    // handle click on floor:
+                                    ->downTS {}
+                                    ->upTS {}
+                                    ->overTS (set overTS.color SELECTED_COLOR)
+                                    ->outTS (set outTS.color NORMAL_COLOR))
+                                (add tileSprite)))
 
                         // TODO add any items
 
@@ -50,17 +51,16 @@
 
                         // TODO the wall sprites will be from different sheets defined by town/outdoor section
                         (let [tileSprite (data.terrainSprite terrain)]
-                            (set tileSprite.x x)
-                            (set tileSprite.y (- y yOffset))
-                            (when (> tileSprite.height SPRITE_HEIGHT)
-                                (-= tileSprite.y SPRITE_HEIGHT))
-                            (FlxMouseEventManager.add tileSprite
-                                // Handle click on terrain:
-                                ->downTS {}
-                                ->upTS {}
-                                ->overTS (set overTS.color SELECTED_COLOR)
-                                ->outTS (set outTS.color NORMAL_COLOR))
-                            (add tileSprite)))
+                            (when tileSprite
+                                (+= tileSprite.x x)
+                                (+= tileSprite.y (- y yOffset))
+                                (FlxMouseEventManager.add tileSprite
+                                    // Handle click on terrain:
+                                    ->downTS {}
+                                    ->upTS {}
+                                    ->overTS (set overTS.color SELECTED_COLOR)
+                                    ->outTS (set outTS.color NORMAL_COLOR))
+                                (add tileSprite))))
                     (+= x (/ FLOOR_WIDTH 2))
                     (+= y (/ FLOOR_HEIGHT 2))))
             (-= rowStartX (/ FLOOR_WIDTH 2))

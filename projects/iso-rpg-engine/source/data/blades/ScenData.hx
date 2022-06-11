@@ -50,28 +50,18 @@ class ScenData {
         return spriteSheets[num];
     }
 
-    var es:FlxSprite = null;
-    function emptySprite() {
-        if (es == null) {
-            es = new FlxSprite(0, 0);
-            es.makeGraphic(46, 55, FlxColor.TRANSPARENT);
-            es.alpha = 0;
-        }
-        return es;
-    }
-
     public function floorSprite(floorId:Int) {
         if (!(floorId >= 0 && floorId < 256))
             throw 'floor $floorId is out of range';
         if (!floorData.exists(floorId)) {
-            return emptySprite();
+            return null;
         }        
 
         var fd = floorData[floorId];
 
         var sheet = floorOrTerrainSpriteSheet(fd.which_sheet);
         if (sheet == null) {
-            return emptySprite();
+            return null;
         }
         var sprite = new FlxSprite();
         sprite.loadGraphicFromSprite(sheet);
@@ -86,19 +76,20 @@ class ScenData {
         if (!(terrainId >= 0 && terrainId < 512))
             throw 'terrain $terrainId is out of range';
         if (!terrainData.exists(terrainId)) {
-            var s = new FlxSprite(0, 0);
-            s.makeGraphic(46, 55, FlxColor.TRANSPARENT);
-            return s;
+            return null;
         }
         var td = terrainData[terrainId];
 
         var sheet = floorOrTerrainSpriteSheet(td.which_sheet);
         if (sheet == null) {
-            return emptySprite();
+            return null;
         }
         var sprite = new FlxSprite();
         sprite.loadGraphicFromSprite(sheet);
         sprite.animation.frameIndex = td.which_icon;
+
+        sprite.x += td.icon_offset_x;
+        sprite.y += td.icon_offset_y;
 
         // TODO if it's a tall terrain combine it with the upper sprite and set its origin to offset y
         if (td.second_icon != -1) {
@@ -106,11 +97,11 @@ class ScenData {
             upperSprite.loadGraphicFromSprite(sheet);
             upperSprite.animation.frameIndex = td.second_icon;
 
-            var tallerSprite = new FlxSprite(0, 0);
+            var tallerSprite = new FlxSprite(sprite.x, sprite.y);
             tallerSprite.makeGraphic(46, 110, FlxColor.TRANSPARENT, true);
             tallerSprite.stamp(upperSprite, 0, 0);
             tallerSprite.stamp(sprite, 0, 55);
-
+            tallerSprite.y -= 55;
             return tallerSprite;
         }
 
