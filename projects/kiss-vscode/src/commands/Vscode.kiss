@@ -1,5 +1,4 @@
-// Before you use commands in this file:
-/* (loadFrom "kiss-vscode" "src/commands/Vscode.kiss") */
+// This is loaded in every KissConfig
 
 (function userHome [] (or (Sys.getEnv "MSYSHOME") (Sys.getEnv "HOME") (Sys.getEnv "UserProfile")))
 
@@ -30,4 +29,12 @@
 (registerCommand "desired name with [a]ny [b]indings" openKissConfig)
 */
 (function openKissConfig [&opt _]
-    ((openFile "$(userHome)/.kiss/Config.kiss")))
+    // For first-time extension users, create the config folder
+    // based on the default
+    (let [configPath "$(userHome)/.kiss"
+            defaultConfigPath (joinPath extensionPath "config" "default")]
+        (unless (FileSystem.exists configPath)
+            (FileSystem.createDirectory configPath)
+            (doFor file (FileSystem.readDirectory defaultConfigPath)
+                (File.copy "${defaultConfigPath}/$file" "${configPath}/$file")))
+        ((openFile "${configPath}/Config.kiss"))))

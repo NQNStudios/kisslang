@@ -159,6 +159,7 @@
 (loadFrom "kiss-vscode" "src/commands/KissTools.kiss")
 (loadFrom "kiss-vscode" "src/commands/ExtensionTools.kiss")
 (loadFrom "kiss-vscode" "src/commands/KTxt2Tools.kiss")
+(loadFrom "kiss-vscode" "src/commands/Vscode.kiss")
 
 // Provided from Main.kiss via (set):
 (var &mut :Command tryLoadConfig)
@@ -188,6 +189,8 @@
         // ExtensionTools.kiss:
         (registerCommand "${prefix} [u]pdate Kiss-VSCode" updateKissVscode)
         (registerCommand "${prefix} [t]est and [u]pdate Kiss-VSCode" testAndUpdateKissVscode)
+        // Vscode.kiss:
+        (registerCommand "${prefix} edit Kiss-Vscode [c]onfig" openKissConfig)
         // KTxt2.kiss:
         (registerCommand "${ktxt2Prefix} [i]mport input file" importKTxt2InputFile))
         
