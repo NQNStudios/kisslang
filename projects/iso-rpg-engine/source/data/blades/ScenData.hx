@@ -33,6 +33,7 @@ class ScenData {
         // load core data:
 		d.load('${d.data}/corescendata.txt');
 		d.load('${d.data}/corescendata2.txt');
+		d.load('assets/bladesmoddata.txt');
   
 		d.test();
         
@@ -199,6 +200,9 @@ class ScenData {
 
             if (defining != type) {
                 clear(type);
+            }
+            if (mapFor(type).exists(tid)) {
+                data = mapFor(type)[tid];
             }
             interp.variables["data"] = data;
 

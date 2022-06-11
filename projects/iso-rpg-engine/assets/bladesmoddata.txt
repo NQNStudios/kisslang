@@ -1,0 +1,66 @@
+// These 4 corner walls are handled in-engine in the original game.
+// This is my attempt to do the same thing in the scripts where possible,
+// and also by adding some fields to terrain data to make it clear where engine code is needed
+begindefineterrain 6; // nw wall
+	te_icon_offset_y = -10;
+begindefineterrain 7; // ws wall
+	te_which_icon = 0;
+	te_ed_which_icon = 5;
+	te_cutaway_which_sheet = -1;
+	te_full_move_block = 0;
+	te_full_look_block = 0;
+	te_blocks_view_n = 0;
+	te_move_block_s = 1;
+	te_look_block_s = 1;
+	te_blocks_view_s = 1;
+	te_move_block_w = 1;
+	te_look_block_w = 1;
+	te_blocks_view_w = 1;
+begindefineterrain 8; // se wall
+	te_ed_which_icon = 6;
+	te_full_move_block = 0;
+	te_full_look_block = 0;
+	te_blocks_view_w = 0;
+	te_move_block_s = 1;
+	te_look_block_s = 1;
+	te_blocks_view_s = 1;
+	te_move_block_e = 1;
+	te_look_block_e = 1;
+	te_blocks_view_e = 1;
+begindefineterrain 9; // en wall
+	te_ed_which_icon = 7;
+	te_full_move_block = 0;
+	te_full_look_block = 0;
+	te_blocks_view_s = 0;
+	te_move_block_n = 1;
+	te_look_block_n = 1;
+	te_blocks_view_n = 1;
+	te_move_block_e = 1;
+	te_look_block_e = 1;
+	te_blocks_view_e = 1;
+
+// second set of walls
+begindefineterrain 38; 
+	import = 2;
+	te_ed_which_icon = 50;
+begindefineterrain 39; 
+	import = 3;
+	te_ed_which_icon = 51;
+begindefineterrain 40; 
+	import = 4;
+	te_ed_which_icon = 52;
+begindefineterrain 41; 
+	import = 5;
+	te_ed_which_icon = 53;
+begindefineterrain 42; 
+	import = 6;
+	te_ed_which_icon = 54;
+begindefineterrain 43; 
+	import = 7;
+	te_ed_which_icon = 55;
+begindefineterrain 44; 
+	import = 8;
+	te_ed_which_icon = 56;
+begindefineterrain 45; 
+	import = 9;
+	te_ed_which_icon = 57;
