@@ -514,7 +514,7 @@ class Reader {
                 name;
             case RawHaxe(code):
                 // #| haxeCode() |#
-                '#| $code |#';
+                '#{ $code }#';
             case RawHaxeBlock(code):
                 // #{ haxeCode(); moreHaxeCode(); }#
                 '#{ $code }#';

@@ -4,7 +4,7 @@
     (let [key (stream.expect "passport key" (lambda [] (stream.takeUntilAndDrop ":")))
                 value (stream.expect "passport value" (lambda [] (stream.takeUntilOneOf [" " "\n"] true)))]
         (dictSet pp key value))
-    (if (= #|"\n\n"|# (try (stream.expect "paragraph break" (lambda [] (stream.peekChars 2))) (catch [e] "")))
+    (if (= "\n\n" (try (stream.expect "paragraph break" (lambda [] (stream.peekChars 2))) (catch [e] "")))
             (begin (stream.dropWhitespace) pp)
         (begin (stream.dropWhitespace) (readPassport stream pp))))
 

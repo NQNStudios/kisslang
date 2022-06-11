@@ -3,7 +3,7 @@
 (function :FerrySquare emptySeat [:Array<FerrySquare> n :SeatsChanged changed]
     // Empty seats with completely empty neighbors, fill up
     (cond
-        ((= true (apply = (for neighbor n #|neighbor != fullSeat|#)))
+        ((= true (apply = (for neighbor n #{neighbor != fullSeat}#)))
             (set changed.changed true)
             fullSeat)
         (true emptySeat)))
@@ -11,7 +11,7 @@
 (function :FerrySquare fullSeat [:Array<FerrySquare> n :SeatsChanged changed]
     // Full seats with 4 or more full neighbors become empty
     (cond
-        ((<= 4 (count n (lambda [neighbor] #|neighbor == fullSeat|#)))
+        ((<= 4 (count n (lambda [neighbor] #{neighbor == fullSeat}#)))
             (set changed.changed true)
             emptySeat)
         (true fullSeat)))
@@ -43,7 +43,7 @@
         (for :Array<FerrySquare> row state
             (apply +
                 (for :FerrySquare seat row
-                    (if #|seat == fullSeat|# 1 0))))))
+                    (if #{seat == fullSeat}# 1 0))))))
 
 (defReaderMacro "L" [stream] `emptySeat)
 (defReaderMacro "#" [stream] `fullSeat)
@@ -51,4 +51,4 @@
 (undefReaderMacro "...")
 
 (defReaderMacro &start "" [stream]
-    `(state.push ,(ReaderExp.ListExp (readExpArray stream #|"\n"|#))))
+    `(state.push ,(ReaderExp.ListExp (readExpArray stream "\n"))))

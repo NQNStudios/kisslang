@@ -178,16 +178,16 @@
                         (if lastDayDone
                                 (DateTime.fromString lastDayDone)
                             (let [&mut now (DateTime.fromDate (Date.now))]
-                                (until (= 1 (now.getDay)) #|now -= oneDayInterval;|#)
+                                (until (= 1 (now.getDay)) #{now -= oneDayInterval;}#)
                                 now))]
                 (until (and (= (nextDay.getDay) (dayToEndSearch.getDay)) (= (nextDay.getMonth) (dayToEndSearch.getMonth)) (= (nextDay.getYear) (dayToEndSearch.getYear)))
                     (let [daysInMonth (DateTime.daysInMonth (nextDay.getMonth) (nextDay.isLeapYear))
                             adjustedDays (for day days (% (+ daysInMonth day) daysInMonth))]
                         (when (contains adjustedDays (nextDay.getDay)) (return true)))
-                    #|nextDay -= oneDayInterval|#)
+                    #{nextDay -= oneDayInterval}#)
                 (return false)))
         ((Interval days lastDayDone)
-            (or !lastDayDone (<= days #|(DateTime.fromDate(Date.now()) - DateTime.fromString(lastDayDone)).getTotalDays()|#)))
+            (or !lastDayDone (<= days #{(DateTime.fromDate(Date.now()) - DateTime.fromString(lastDayDone)).getTotalDays()}#)))
         (Todo (= 0 .points (activeLabel e)))
         (otherwise true)))
 

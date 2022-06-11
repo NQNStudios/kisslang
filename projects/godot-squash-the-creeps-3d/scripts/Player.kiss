@@ -18,7 +18,7 @@
         (when !(= direction Vector3.ZERO)
             (set direction (direction.normalized))
             // TODO for some reason, the Vector3 addition operator is only found when used in a raw haxe expr:
-            (pivot.lookAt #|translation + direction|# Vector3.UP))
+            (pivot.lookAt #{translation + direction}# Vector3.UP))
 
         (set _velocity.x (* direction.x speed))
         (set _velocity.z (* direction.z speed))

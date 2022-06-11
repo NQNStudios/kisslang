@@ -34,4 +34,4 @@
     (if (stream.isEmpty)
             null
         `(,(b.symbol (stream.expect "a ship command" ->(stream.takeChars 1)))
-            ,(b.symbol (stream.expect "a number argument" ->(stream.takeUntilAndDrop #|"\n"|#))))))
+            ,(b.symbol (stream.expect "a number argument" ->(stream.takeUntilAndDrop "\n"))))))

@@ -8,10 +8,10 @@
     (.filter
         (for paragraph
             (.split 
-                (.replace (File.getContent file) #|"\r"|# "")
-                #|"\n\n"|#)
+                (.replace (File.getContent file) "\r" "")
+                "\n\n")
                 (.filter
-                    (paragraph.split #|"\n"|#)
+                    (paragraph.split "\n")
                     (lambda [line] (< 0 line.length))))
         (lambda [lines] (< 0 lines.length))))
 

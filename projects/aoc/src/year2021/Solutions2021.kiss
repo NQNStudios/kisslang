@@ -4,7 +4,7 @@
     `(let [theMap ,theMap key ,key amount ,amount &mut count (dictGet theMap key)]
         (unless count
             (dictSet theMap key (set count (Int64Helper.fromFloat 0))))
-        (dictSet theMap key #|count + amount|#)))
+        (dictSet theMap key #{count + amount}#)))
 
 // Remove and return an arbitrary key-value pair from the given Map
 (function :Array<Dynamic> dictShift [:Map<String,Dynamic> m]

@@ -9,7 +9,7 @@
         (doFor age list
             (let [count (dictGet theMap age)
                     one (Int64Helper.fromFloat 1)]
-            (dictSet theMap age #|count + one|#)))
+            (dictSet theMap age #{count + one}#)))
         theMap))
 
 (function :Map<Int,Int64> stepAgeMap [:Map<Int,Int64> theMap]
