@@ -214,31 +214,34 @@ class Macros {
             }
         }
 
-        function bodyIf(formName:String, underlyingIf:String, negated:Bool, wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
-            wholeExp.checkNumArgs(2, null, '($formName [condition] [body...])');
-            var b = wholeExp.expBuilder();
-            var condition = if (negated) {
-                b.call(
-                    b.symbol("not"), [
-                        args[0]
-                    ]);
-            } else {
-                args[0];
-            }
-            return b.call(b.symbol(underlyingIf), [
-                condition,
-                b.begin(args.slice(1))
-            ]);
+        function addBodyIf(keywordName:String, underlyingIf:String, negated:Bool) {
+            k.doc(keywordName, 2, null, '($keywordName <condition> <body...>)');
+            macros[keywordName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k) -> {
+                var b = wholeExp.expBuilder();
+                var condition = if (negated) {
+                    b.call(
+                        b.symbol("not"), [
+                            args[0]
+                        ]);
+                } else {
+                    args[0];
+                }
+                return b.call(b.symbol(underlyingIf), [
+                    condition,
+                    b.begin(args.slice(1))
+                ]);
+            };
         }
-        macros["when"] = bodyIf.bind("when", "if", false);
-        macros["unless"] = bodyIf.bind("unless", "if", true);
-        macros["#when"] = bodyIf.bind("#when", "#if", false);
-        macros["#unless"] = bodyIf.bind("#unless", "#if", true);
-        macros["cond"] = cond.bind("cond", "if");
-        macros["#cond"] = cond.bind("#cond", "#if");
+        addBodyIf("when", "if", false);
+        addBodyIf("unless", "if", true);
+        addBodyIf("#when", "#if", false);
+        addBodyIf("#unless", "#if", true);
+        
+        addCond(k, macros, "cond", "if");
+        addCond(k, macros, "#cond", "#if");
 
+        k.doc("or", 1, null, "(or <v1> <values...>)");
         function _or(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
-            wholeExp.checkNumArgs(1, null, "(or <v1> <values...>)");
             var b = wholeExp.expBuilder();
 
             var uniqueVarSymbol = b.symbol();
@@ -400,9 +403,9 @@ class Macros {
                         argNames.push(name);
                         if (optIndex == -1) {
                             ++minArgs;
-                            macroCallForm += ' [$name]';
+                            macroCallForm += ' <$name>';
                         } else {
-                            macroCallForm += ' [?$name]';
+                            macroCallForm += ' <?$name>';
                         }
                         ++maxArgs;
                     case MetaExp("builder", {pos: _, def: Symbol(name)}):
@@ -413,7 +416,7 @@ class Macros {
                         }
                     case MetaExp("opt", {pos: _, def: Symbol(name)}):
                         argNames.push(name);
-                        macroCallForm += ' [?$name]';
+                        macroCallForm += ' <?$name>';
                         optIndex = maxArgs;
                         ++maxArgs;
                     case MetaExp("rest", {pos: _, def: Symbol(name)}):
@@ -421,12 +424,12 @@ class Macros {
                             KissError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
                         }
                         argNames.push(name);
-                        macroCallForm += ' [$name...]';
+                        macroCallForm += ' <$name...>';
                         restIndex = maxArgs;
                         maxArgs = null;
                     case MetaExp("body", {pos: _, def: Symbol(name)}):
                         argNames.push(name);
-                        macroCallForm += ' [$name...]';
+                        macroCallForm += ' <$name...>';
                         restIndex = maxArgs;
                         requireRest = true;
                         maxArgs = null;
@@ -441,8 +444,8 @@ class Macros {
             if (restIndex == -1)
                 restIndex = optIndex;
 
+            k.doc(name, minArgs, maxArgs, macroCallForm);
             macros[name] = (wholeExp:ReaderExp, innerExps:Array<ReaderExp>, k:KissState) -> {
-                wholeExp.checkNumArgs(minArgs, maxArgs, macroCallForm);
                 var b = wholeExp.expBuilder();
                 var innerArgNames = argNames.copy();
 
@@ -1270,23 +1273,25 @@ class Macros {
     }
 
     // cond expands telescopically into a nested if expression
-    
-    static function cond(formName:String, underlyingIf:String, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-        wholeExp.checkNumArgs(1, null, '($formName [cases...])');
-        var b = wholeExp.expBuilder();
-        return switch (exps[0].def) {
-            case CallExp(condition, body):
-                b.call(b.symbol(underlyingIf), [
-                    condition,
-                    b.begin(body),
-                    if (exps.length > 1) {
-                        cond(formName, underlyingIf, b.callSymbol(formName, exps.slice(1)), exps.slice(1), k);
-                    } else {
-                        b.symbol("null");
-                    }
-                ]);
-            default:
-                throw KissError.fromExp(exps[0], 'top-level expression of (cond... ) must be a call list starting with a condition expression');
-        };
+    static function addCond(k:KissState, macros:Map<String,MacroFunction>, formName:String, underlyingIf:String) {
+        k.doc(formName, 1, null, '($formName (<condition> <body...>) <more cases...>)');
+        function cond (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            var b = wholeExp.expBuilder();
+            return switch (exps[0].def) {
+                case CallExp(condition, body):
+                    b.call(b.symbol(underlyingIf), [
+                        condition,
+                        b.begin(body),
+                        if (exps.length > 1) {
+                            cond(b.callSymbol(formName, exps.slice(1)), exps.slice(1), k);
+                        } else {
+                            b.symbol("null");
+                        }
+                    ]);
+                default:
+                    throw KissError.fromExp(exps[0], 'top-level expression of ($formName... ) must be a call list starting with a condition expression');
+            };
+        }
+        macros[formName] = cond;
     }
 }

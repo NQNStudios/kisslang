@@ -473,7 +473,7 @@ class SpecialForms {
     }
     
     public static function caseOr(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
-        wholeExp.checkNumArgs(2, null, "(or <v1> <v2> <values...>)");
+        wholeExp.checkNumArgs(2, null, "(or <pattern1> <pattern2> <patterns...>)");
         return if (args.length == 2) {
             macro ${k.convert(args[0])} | ${k.convert(args[1])};
         } else {
@@ -482,7 +482,7 @@ class SpecialForms {
     };
 
     public static function caseAs(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
-        wholeExp.checkNumArgs(2, 2, "(as [name] [pattern])");
+        wholeExp.checkNumArgs(2, 2, "(as <name> <pattern>)");
         return macro ${k.convert(args[0])} = ${k.convert(args[1])};
     };
 }
