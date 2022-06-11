@@ -89,6 +89,19 @@ class ScenData {
         sprite.loadGraphicFromSprite(sheet);
         sprite.animation.frameIndex = td.which_icon;
 
+
+        // ADDED: stamp an icon on another one (for corner walls)
+        if (td.stamp_icon != -1) {
+            var stampSprite = new FlxSprite();
+            stampSprite.loadGraphicFromSprite(sheet);
+            stampSprite.animation.frameIndex = td.stamp_icon;
+            var stampedSprite = new FlxSprite(-92/4, -110/4);
+            stampedSprite.makeGraphic(92, 110, FlxColor.TRANSPARENT, true);
+            stampedSprite.stamp(sprite, Std.int(92/4)+td.icon_offset_x, Std.int(110/4)+td.icon_offset_y);
+            stampedSprite.stamp(stampSprite, Std.int(92/4)+td.stamp_icon_offset_x, Std.int(110/4)+td.stamp_icon_offset_y);
+            return stampedSprite;
+        }
+
         sprite.x += td.icon_offset_x;
         sprite.y += td.icon_offset_y;
 

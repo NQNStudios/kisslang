@@ -79,14 +79,18 @@ class TerrainData {
     public var default_script:String = "Unused";
     public var which_sheet:Int = 0;
     public var which_icon:Int = 0;
+    public var icon_offset_x:Int = 0;
+    public var icon_offset_y:Int = 0;
+    // ADDED: stamp_icon for handling some corner walls
+    public var stamp_icon:Int = -1;
+    public var stamp_icon_offset_x:Int = 0;
+    public var stamp_icon_offset_y:Int = 0;
     public var icon_adjust:Int = 0;
     public var ed_which_sheet:Int = 0;
     public var ed_which_icon:Int = 0;
     public var cutaway_which_sheet:Int = -1;
     public var cutaway_which_icon:Int = 0;
     public var cutaway_icon_adjust:Int = 0;
-    public var icon_offset_x:Int = 0;
-    public var icon_offset_y:Int = 0;
     public var second_icon:Int = -1;
     public var second_icon_offset_x:Int = 0;
     public var second_icon_offset_y:Int = 0;

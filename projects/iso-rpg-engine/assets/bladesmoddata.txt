@@ -4,40 +4,20 @@
 begindefineterrain 6; // nw wall
 	te_icon_offset_y = -10;
 begindefineterrain 7; // ws wall
-	te_which_icon = 0;
-	te_ed_which_icon = 5;
-	te_cutaway_which_sheet = -1;
-	te_full_move_block = 0;
-	te_full_look_block = 0;
-	te_blocks_view_n = 0;
-	te_move_block_s = 1;
-	te_look_block_s = 1;
-	te_blocks_view_s = 1;
-	te_move_block_w = 1;
-	te_look_block_w = 1;
-	te_blocks_view_w = 1;
+	te_which_icon = 1;
+	te_icon_offset_x = -18;
+	te_icon_offset_y = -12;
+	te_stamp_icon = 0;
+    te_stamp_icon_offset_x = 0;
 begindefineterrain 8; // se wall
-	te_ed_which_icon = 6;
-	te_full_move_block = 0;
-	te_full_look_block = 0;
-	te_blocks_view_w = 0;
-	te_move_block_s = 1;
-	te_look_block_s = 1;
-	te_blocks_view_s = 1;
-	te_move_block_e = 1;
-	te_look_block_e = 1;
-	te_blocks_view_e = 1;
+	te_which_icon = 0;
+	te_stamp_icon = 1;
+    te_stamp_icon_offset_y = -1;
 begindefineterrain 9; // en wall
-	te_ed_which_icon = 7;
-	te_full_move_block = 0;
-	te_full_look_block = 0;
-	te_blocks_view_s = 0;
-	te_move_block_n = 1;
-	te_look_block_n = 1;
-	te_blocks_view_n = 1;
-	te_move_block_e = 1;
-	te_look_block_e = 1;
-	te_blocks_view_e = 1;
+	te_which_icon = 0;
+	te_icon_offset_x = 18;
+	te_icon_offset_y = -12;
+	te_stamp_icon = 1;
 
 // second set of walls
 begindefineterrain 38; 
