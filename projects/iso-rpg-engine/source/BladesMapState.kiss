@@ -49,8 +49,7 @@
 
                         // TODO add any characters
 
-                        // TODO the wall sprites will be from different sheets defined by town/outdoor section
-                        (let [tileSprite (data.terrainSprite terrain)]
+                        (let [tileSprite (data.terrainSprite terrain (map.wallSheet 1) (map.wallSheet 2))]
                             (when tileSprite
                                 (+= tileSprite.x x)
                                 (+= tileSprite.y (- y yOffset))

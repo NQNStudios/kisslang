@@ -73,7 +73,7 @@ class ScenData {
         return sprite;
     }
     
-    public function terrainSprite(terrainId:Int) {
+    public function terrainSprite(terrainId:Int, wallSheet1:Int, wallSheet2:Int) {
         if (!(terrainId >= 0 && terrainId < 512))
             throw 'terrain $terrainId is out of range';
         if (!terrainData.exists(terrainId)) {
@@ -81,7 +81,15 @@ class ScenData {
         }
         var td = terrainData[terrainId];
 
-        var sheet = floorOrTerrainSpriteSheet(td.which_sheet);
+        var which_sheet = if (td.name == "Wall") {
+            if (terrainId >= 38)
+                wallSheet2;
+            else
+                wallSheet1;
+        } else {
+            td.which_sheet;
+        };
+        var sheet = floorOrTerrainSpriteSheet(which_sheet);
         if (sheet == null) {
             return null;
         }

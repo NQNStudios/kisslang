@@ -104,8 +104,10 @@ class Scenario {
                 var outdoorWidth = 48;
                 var outdoorHeight = 48;
 
+                // TODO above ground/underground?
+
                 // section name, max length 21, followed by floor tile columns
-                var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19));
+                var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19), Outdoors(false));
                 trace(sec.name);
 
                 for (x in 0...outdoorWidth) {
