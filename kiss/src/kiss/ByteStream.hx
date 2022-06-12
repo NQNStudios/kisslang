@@ -72,27 +72,35 @@ class ByteStream {
     }
 
     public function unknownBytes(num:Int) {
-        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint()} in $file');
-        paddingBytes(num);
+        var startPos = position;
+        paddingBytes(num, true);
+        var hexString = [for (p in collectedPadding) p.hex(2)].join(" ");
+        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint(startPos)} in $file: $collectedPadding ($hexString)');
     }
 
-    public function paddingBytes(num) {
-        for (_ in 0...num) readByte();
+    var collectedPadding:Array<Int> = [];
+    public function paddingBytes(num, collect=false) {
+        if (collect)
+            collectedPadding = [for (_ in 0...num) readByte()];
+        else
+            for (_ in 0...num) readByte();
     }
 
-    public function paddingUntil(pos:String) {
+    public function paddingUntil(pos:String, collect=false) {
         var nextPos = Std.parseInt(pos);
+        var startPos = position;
         if (nextPos <= position) {
             throw 'given position $pos ($nextPos) is <= stream ${posToPrint()} in $file';
         }
-        paddingBytes(nextPos - position);
-        return nextPos - position;
+        paddingBytes(nextPos - position, collect);
+        return nextPos - startPos;
     }
 
     public function unknownUntil(pos:String) {
         var startPos = position;
-        var num = paddingUntil(pos);
-        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint(startPos)} in $file');
+        var num = paddingUntil(pos, true);
+        var hexString = [for (p in collectedPadding) p.hex(2)].join(" ");
+        trace('Warning: ignoring $num unknown bytes starting at ${posToPrint(startPos)} in $file: $collectedPadding ($hexString)');
     }
 
     public function tracePosition() {
