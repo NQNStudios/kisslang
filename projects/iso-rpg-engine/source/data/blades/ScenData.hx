@@ -54,7 +54,7 @@ class ScenData {
     public function floorSprite(floorId:Int) {
         if (!(floorId >= 0 && floorId < 256))
             throw 'floor $floorId is out of range';
-        if (!floorData.exists(floorId)) {
+        if (!floorData.exists(floorId) || floorId == 255) {
             return null;
         }        
 
@@ -76,7 +76,7 @@ class ScenData {
     public function terrainSprite(terrainId:Int, wallSheet1:Int, wallSheet2:Int) {
         if (!(terrainId >= 0 && terrainId < 512))
             throw 'terrain $terrainId is out of range';
-        if (!terrainData.exists(terrainId)) {
+        if (!terrainData.exists(terrainId) || terrainId == 1) {
             return null;
         }
         var td = terrainData[terrainId];

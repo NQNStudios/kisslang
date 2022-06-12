@@ -108,7 +108,6 @@ class Scenario {
 
                 // section name, max length 21, followed by floor tile columns
                 var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19), Outdoors(false));
-                trace(sec.name);
 
                 for (x in 0...outdoorWidth) {
                     for (y in 0...outdoorHeight) {
