@@ -52,6 +52,7 @@ class TileMap {
     }
 
     public var type:MapType;
+    public var script = "";
 
     public function setFloor(x, y, code) {
         floorCodes[x][y] = code;

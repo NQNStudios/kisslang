@@ -14,7 +14,7 @@
     (let [valleydy (Scenario.fromBasFile "Blades of Avernum Scenarios/Valley of Dying Things/valleydy.bas")]
         (addSprites 
             // 2D nth >:)
-            (nth valleydy.outdoorSections 0 0))))
+            (nth valleydy.outdoorSections 0 2))))
 
 (var SELECTED_COLOR FlxColor.LIME)
 (var NORMAL_COLOR FlxColor.WHITE)

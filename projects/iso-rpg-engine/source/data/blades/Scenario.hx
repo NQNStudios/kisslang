@@ -43,6 +43,8 @@ class Scenario {
         assert(scen.intro[0][5] == 'Apparently, you are to go to Skylark Vale and investigate a minor plague or disaster or something. They aren\'t specific.', 'problem with ${scen.intro[0][5]}');
         assert(scen.intro[1][2] == "You've just stayed the night in your room at the fort. You had a good night's sleep and a good meal. Now the sun is rising. Finally, it's time to go out and be heroes!", 'problem with ${scen.intro[1][2]}');
         assert(scen.intro[1][3] == "", 'problem with ${scen.intro[1][3]}');
+        assert(scen.outdoorSections[0][0].script == "o00Northweste", 'problem with outdoor scripts[0][0]');
+        assert(scen.outdoorSections[2][2].script == "o22Valley Ent", 'problem with outdoor scripts[2][2]');
 
         trace('$passed assertions passed');
         if (failed.length > 0) {
@@ -97,16 +99,17 @@ class Scenario {
         // 1D30 08 is the first outdoor section
         stream.unknownUntil("0x1D38");
 
+        for (x in 0...outdoorWidth) {
+            scen.outdoorSections[x] = [];
+        }
         // outdoor section rows
         for (y in 0...outdoorHeight) {
-            scen.outdoorSections[y] = [];
             for (x in 0...outdoorWidth) {
                 var outdoorWidth = 48;
                 var outdoorHeight = 48;
 
-                // TODO above ground/underground?
-
-                // section name, max length 21, followed by floor tile columns
+                // section name, max length 19, followed by floor tile columns
+                // the type Outdoors(false) is temporary. the above/underground byte comes at the end
                 var sec = new TileMap(outdoorWidth, outdoorHeight, stream.readCString(19), Outdoors(false));
 
                 for (x in 0...outdoorWidth) {
@@ -132,14 +135,29 @@ class Scenario {
                 }
 
                 stream.tracePosition();
-                // TODO all the other outdoor section stuff
+                
+                // TODO Includes things like area descriptions and sign text.
+                // God, I hope this is a fixed length for all outdoor sections.
+                stream.unknownBytes(3620);
+
+                sec.script = stream.readCString(14);
+                sec.type = switch (stream.readByte()) {
+                    case 0:
+                        Outdoors(true);
+                    case 1:
+                        Outdoors(false);
+                    default:
+                        stream.tracePosition();
+                        throw 'bad byte for aboveground/underground';
+                };
+                stream.paddingBytes(20);
                 
                 scen.outdoorSections[x][y] = sec;
                 // TODO don't, obviously:
-                break;
+                // break;
             }
             // TODO don't, obviously:
-            break;
+            // break;
         }
 
         // TODO all the other stuff
