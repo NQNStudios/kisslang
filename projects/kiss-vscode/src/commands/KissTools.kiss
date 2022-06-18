@@ -50,3 +50,24 @@ class ${className} {}
 
 (function showCorrespondingFile [&opt _]
     (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor))))
+
+(function insertUTestCase [&opt _]
+    (awaitLet [testName (inputBox)]
+        (let [testName
+                "$(.toUpperCase (testName.substr 0 1))$(testName.substr 1)"]
+            (awaitLet [_ (insert 
+    "function test${testName}() {
+        _test${testName}();
+    }
+    ")
+                        _ (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor)))]
+                (let [pos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))]
+                    (awaitLet [_ (insertAt pos
+"
+                        
+(function _test${testName} []
+    (Assert.pass))
+")]
+                        (let [endPos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))]
+                            (activeTextEditor.revealRange (new Range pos endPos))
+                            (set activeTextEditor.selection (new Selection pos endPos)))))))))
