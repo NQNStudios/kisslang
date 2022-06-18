@@ -532,7 +532,7 @@ class Helpers {
     public static function evalUnquotes(exp:ReaderExp, innerRunAtCompileTime:(ReaderExp)->Dynamic):ReaderExp {
         var recurse = evalUnquotes.bind(_, innerRunAtCompileTime);
         var def = switch (exp.def) {
-            case Symbol(_) | StrExp(_) | RawHaxe(_) | RawHaxeBlock:
+            case Symbol(_) | StrExp(_) | RawHaxe(_) | RawHaxeBlock(_):
                 exp.def;
             case CallExp(func, callArgs):
                 CallExp(recurse(func), evalUnquoteLists(callArgs, innerRunAtCompileTime).map(recurse));
