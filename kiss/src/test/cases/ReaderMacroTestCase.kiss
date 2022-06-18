@@ -16,7 +16,7 @@
 (var mySum (pluppers fluffers buffers))
 
 // Read b c directly as strings
-(defReaderMacro ["b" "c"] [stream] #{ReaderExp.StrExp(stream.expect("b, or c", function () stream.takeChars(1)))}#)
+(defReaderMacro ["b" "c"] [stream] #{ReaderExp.StrExp(stream.expect("b, or c", function () stream.takeChars(1)));}#)
 
 (var str1 b)
 (var str2 c)
