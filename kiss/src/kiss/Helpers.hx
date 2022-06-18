@@ -336,7 +336,7 @@ class Helpers {
 
     public static function removeTypeAnnotations(exp:ReaderExp):ReaderExp {
         var def = switch (exp.def) {
-            case Symbol(_) | StrExp(_) | RawHaxe(_) | Quasiquote(_):
+            case Symbol(_) | StrExp(_) | RawHaxe(_) | RawHaxeBlock(_) | Quasiquote(_):
                 exp.def;
             case CallExp(func, callArgs):
                 CallExp(removeTypeAnnotations(func), callArgs.map(removeTypeAnnotations));
