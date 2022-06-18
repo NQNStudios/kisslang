@@ -522,12 +522,11 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (Assert.equals 5 (assertLet [(Some thing) some5] thing))))
 
 (function _testRawString []
-// Test escaped back slash with the raw haxe non-espaced backslash
     (Assert.equals "\\"  #"\"#)
     (Assert.equals "\"#"  ##""#"##))
 
 (function _testKissStrings []
-    (Assert.equals #( "\\\t\r\n\"$"; }# "\\\t\r\n\"\$")
+    (Assert.equals #{ "\\\t\r\n\"$"; }# "\\\t\r\n\"\$")
     (let [str "it's"
             num 3
             l1 ["a" "b" "c"]
