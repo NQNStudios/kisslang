@@ -8,7 +8,7 @@ typedef TownDetails = {
 };
 
 enum MapType {
-    Town(details:TownDetails);
+    Town(underground:Bool, details:TownDetails);
     Outdoors(underground:Bool);
 }
 

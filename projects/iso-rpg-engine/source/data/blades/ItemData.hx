@@ -61,6 +61,7 @@ class ItemData {
     public var encumbrance = 0;
     public var floor_which_sheet = 0;
     public var floor_which_icon = 0;
+    // TODO implement icon adjustments
     public var icon_adjust = 0;
     public var inventory_icon = 0;
     private var ability_1 = -1;

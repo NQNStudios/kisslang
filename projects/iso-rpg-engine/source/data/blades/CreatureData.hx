@@ -219,6 +219,7 @@ class CreatureData {
         return default_courage / 100.0;
     }
     public var which_sheet = 0;
+    // TODO implement icon adjustments
     public var icon_adjust = 0;
     private var small_or_large_template = 0;
     public var which_sheet_upper = -1;

@@ -46,6 +46,7 @@ class FloorData {
     public var name:String = "";
     public var which_sheet:Int = 0;
     public var which_icon:Int = 0;
+    // TODO implement icon adjustments
     public var icon_adjust:Int = 0;
     public var ed_which_sheet:Int = 0;
     public var ed_which_icon:Int = 0;
