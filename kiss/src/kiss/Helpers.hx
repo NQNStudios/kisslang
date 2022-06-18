@@ -532,7 +532,7 @@ class Helpers {
     public static function evalUnquotes(exp:ReaderExp, innerRunAtCompileTime:(ReaderExp)->Dynamic):ReaderExp {
         var recurse = evalUnquotes.bind(_, innerRunAtCompileTime);
         var def = switch (exp.def) {
-            case Symbol(_) | StrExp(_) | RawHaxe(_):
+            case Symbol(_) | StrExp(_) | RawHaxe(_) | RawHaxeBlock:
                 exp.def;
             case CallExp(func, callArgs):
                 CallExp(recurse(func), evalUnquoteLists(callArgs, innerRunAtCompileTime).map(recurse));
@@ -547,7 +547,7 @@ class Helpers {
             case Unquote(innerExp):
                 var unquoteValue:Dynamic = innerRunAtCompileTime(innerExp);
                 compileTimeValueToReaderExp(unquoteValue, exp).def;
-           case MetaExp(meta, innerExp):
+            case MetaExp(meta, innerExp):
                 MetaExp(meta, recurse(innerExp));
             default:
                 throw KissError.fromExp(exp, 'unquote evaluation not implemented');
