@@ -202,6 +202,7 @@ class Macros {
             for (matchBodySymbol in matchBodySymbols) {
                 caseInterp.variables.set(Prelude.symbolNameValue(matchBodySymbol), matchBodies.shift());
             }
+            prepareForConditional(caseInterp, k);
             try {
                 var hscriptStr = Prelude.convertToHScript(caseStr);
                 #if test

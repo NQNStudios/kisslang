@@ -126,7 +126,7 @@
                     dist (Adapters.distribution diffs)]
                 (assert (= 1998 (* (dictGet dist 1) (dictGet dist 3)))))
             (let [memoized (memoize Adapters.arrangementCount)]
-                (set Adapters.arrangementCount #{cast memoized}#))
+                (set Adapters.arrangementCount cast memoized))
             (assert (= "347250213298688" (Int64.toStr (Adapters.arrangementCount adapters 0))))))
 
     (day 11

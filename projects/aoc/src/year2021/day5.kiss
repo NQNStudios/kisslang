@@ -37,4 +37,4 @@
 (function :Int numHotPositions [file &opt :Bool part2]
     (let [theMap (ventsByPos file ?part2)
             two (Int64Helper.fromFloat 2)]
-        (count theMap ->vents #{ vents >= two }#)))
+        (count theMap ->vents #{ vents >= two; }#)))
