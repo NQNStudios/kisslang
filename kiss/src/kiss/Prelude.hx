@@ -364,8 +364,12 @@ class Prelude {
     }
 
     #if (sys || hxnodejs)
-    public static function fsMemoize(func:Function, funcName:String, ?caller:Dynamic):Function {
+    public static function fsMemoize(func:Function, funcName:String, cacheDirectory = "", ?caller:Dynamic):Function {
         var fileName = '${funcName}.memoized';
+        if (cacheDirectory.length > 0) {
+            FileSystem.createDirectory(cacheDirectory);
+            fileName = '$cacheDirectory/$fileName';
+        }
         if (!FileSystem.exists(fileName))
             File.saveContent(fileName, "{}");
 
@@ -539,7 +543,21 @@ class Prelude {
     }
 
     #if (sys || hxnodejs)
-    public static var cachedConvertToHScript:String->String = cast(fsMemoize(convertToHScript, "convertToHScript"));
+    public static function userHome() {
+        var msysHome = Sys.getEnv("MSYSHOME");
+        var home = Sys.getEnv("HOME");
+        var userProfile = Sys.getEnv("UserProfile");
+        return if (msysHome != null)
+            msysHome;
+        else if (home != null)
+            home;
+        else if (userProfile != null)
+            userProfile;
+        else
+            throw "Cannot find user's home directory";
+    }
+
+    public static var cachedConvertToHScript:String->String = cast(fsMemoize(convertToHScript, "convertToHScript", '${userHome()}/.kiss-cache'));
     #end
 
     public static function getTarget():KissTarget {
