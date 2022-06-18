@@ -36,5 +36,7 @@
                 (case (id.toString)
                     ((when (KEY_MAP.exists key) key)
                         (dictGet KEY_MAP key))
+                    ((when FlxG.keys.pressed.SHIFT key)
+                        (.toUpperCase key))
                     (key (.toLowerCase key))
                     (otherwise (throw "FlxKey.toString returned null!")))))))        

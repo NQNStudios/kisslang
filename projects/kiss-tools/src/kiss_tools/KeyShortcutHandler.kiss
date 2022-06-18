@@ -51,7 +51,7 @@
         ((Some _)
             (case (stream.takeUntilAndDrop "]")
                 ((Some newShortcuts)
-                    (extractKeyboardShortcuts str stream (+ shortcuts (newShortcuts.toLowerCase))))
+                    (extractKeyboardShortcuts str stream (+ shortcuts newShortcuts)))
                 (otherwise
                     (tryCallOrThrow onBadShortcut "unclosed [ in $str" str null)
                     "")))

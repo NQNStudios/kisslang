@@ -106,15 +106,17 @@
                                 vscode.ViewColumn.Two
                                 (object
                                     enableScripts true)))
-    (set keyListener (shortcutPanel.webview.onDidReceiveMessage ->:Void key (shortcutHandler.handleKey (the String key))))
+    (set keyListener
+        (shortcutPanel.webview.onDidReceiveMessage
+            ->:Void key (shortcutHandler.handleKey (the String key))))
     (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
     (shortcutPanel.webview.postMessage (object command "focus")))
 
 (function shortcutPanelHtml [:PrefixMap<String> prefixMap]
-    (let [&mut unusedKeys "abcdefghijklmnopqrstuvwxyz1234567890-/"
+    (let [&mut unusedKeys "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-/"
             shortcutParagraphs
                 (for =>key shortcutKey prefixMap
-                    (set unusedKeys (unusedKeys.replace (key.toLowerCase) ""))
+                    (set unusedKeys (unusedKeys.replace key ""))
                     "<p><strong>${key}</strong> - $(case shortcutKey
                                     ((Prefix innerMap)
                                         "$(Lambda.count innerMap) shortcuts")
@@ -143,7 +145,12 @@
                         }
                     });
                     window.addEventListener('keydown', function (e) {
-                        vscode.postMessage(e.key);
+                        var key = e.key;
+                        if (key == 'Shift')
+                            return;
+                        if (key.length == 1 && e.shiftKey)
+                            key = key.toUpperCase();
+                        vscode.postMessage(key);
                     });
                 </script>
             </body>
