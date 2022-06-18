@@ -699,48 +699,60 @@ class Macros {
         macros["assertLet"] = ifLet.bind(true);
 
         k.doc("awaitLet", 2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");
-        function awaitLet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+        function awaitLet(rejectionHandler:ReaderExp->ReaderExp, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             
             var bindingList = exps[0].bindingList("awaitLet");
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
             var b = wholeExp.expBuilder();
 
-            var firstNameStr = firstName.symbolNameValue();
-            var error = b.callSymbol("+", [b.str('awaitLet $firstNameStr rejected promise: '), b.symbol("reason")]);
-            var rejectionHandler = switch (exps[1].def) {
-                case CallExp({pos: _, def: Symbol("catch")}, args):
-                    exps.splice(1,1);
-                    b.callSymbol("lambda", args);
+            if (rejectionHandler == null) {
+                function error(firstName:ReaderExp) {
+                    return b.callSymbol("+", [b.str('awaitLet ${firstName.symbolNameValue()} rejected promise: '), b.symbol("reason")]);
+                }
+                rejectionHandler = switch (exps[1].def) {
+                    case CallExp({pos: _, def: Symbol("catch")}, args):
+                        exps.splice(1,1);
+                        (exp) -> b.callSymbol("lambda", args);
+                    default:
+                        (firstName) -> b.callSymbol("lambda", [
+                            b.list([b.symbol("reason")]),
+                            b.callSymbol("#when", [
+                                b.symbol("vscode"),
+                                b.callSymbol("Vscode.window.showErrorMessage", [error(firstName)]),
+                            ]),
+                            // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
+                            b.callSymbol("throw", [
+                                error(firstName)
+                            ])
+                        ]);
+                }
+            }
+
+            var innerExp = if (bindingList.length == 0) {
+                b.begin(exps.slice(1));
+            } else {
+                awaitLet(rejectionHandler, wholeExp, [b.list(bindingList)].concat(exps.slice(1)), k);
+            };
+            switch(firstName.def) {
+                case MetaExp("sync", firstName):
+                    return b.let([firstName, firstValue], [innerExp]);
+                case MetaExp(other, _):
+                    throw KissError.fromExp(firstName, 'bad meta annotation &$other');
                 default:
-                    b.callSymbol("lambda", [
-                        b.list([b.symbol("reason")]),
-                        b.callSymbol("#when", [
-                            b.symbol("vscode"),
-                            b.callSymbol("Vscode.window.showErrorMessage", [error]),
-                        ]),
-                        // If running VSCode js, this throw will be a no-op but it makes the expression type-unify:
-                        b.callSymbol("throw", [
-                            error
-                        ])
-                    ]);
             }
 
             return b.call(b.field("then", firstValue), [
                 b.callSymbol("lambda", [
                     b.list([firstName]),
-                    if (bindingList.length == 0) {
-                        b.begin(exps.slice(1));
-                    } else {
-                        awaitLet(wholeExp, [b.list(bindingList)].concat(exps.slice(1)), k);
-                    }
+                    innerExp
                 ]),
                 // Handle rejections:
-                rejectionHandler
+                rejectionHandler(firstName)
             ]);
         }
        
-        macros["awaitLet"] = awaitLet;
+        macros["awaitLet"] = awaitLet.bind(null);
         
         k.doc("whileLet", 2, null, "(whileLet [<bindings...>] <body...>)");
         macros["whileLet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {

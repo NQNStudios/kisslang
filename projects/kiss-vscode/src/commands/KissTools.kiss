@@ -52,22 +52,22 @@ class ${className} {}
     (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor))))
 
 (function insertUTestCase [&opt _]
-    (awaitLet [testName (inputBox)]
-        (let [testName
-                "$(.toUpperCase (testName.substr 0 1))$(testName.substr 1)"]
-            (awaitLet [_ (insert 
+    (awaitLet [testName (inputBox)
+                &sync testName
+                    "$(.toUpperCase (testName.substr 0 1))$(testName.substr 1)"
+                _ (insert 
     "function test${testName}() {
         _test${testName}();
     }
     ")
-                        _ (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor)))]
-                (let [pos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))]
-                    (awaitLet [_ (insertAt pos
+                _ (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor)))
+                &sync pos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))
+                _ (insertAt pos
 "
                         
 (function _test${testName} []
     (Assert.pass))
-")]
-                        (let [endPos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))]
-                            (activeTextEditor.revealRange (new Range pos endPos))
-                            (set activeTextEditor.selection (new Selection pos endPos)))))))))
+")
+                &sync endPos (activeTextEditor.document.positionAt .length (activeTextEditor.document.getText))]
+        (activeTextEditor.revealRange (new Range pos endPos))
+        (set activeTextEditor.selection (new Selection pos endPos))))
