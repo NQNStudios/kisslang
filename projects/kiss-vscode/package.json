@@ -8,7 +8,8 @@
 	},
 	"homepage": "https://github.com/NQNStudios/kisslang/blob/master/projects/kiss-vscode/README.md",
 	"categories": [
-		"Programming Languages"
+		"Programming Languages",
+		"Extension Packs"
 	],
 	"publisher": "NQNStudios",
 	"contributes": {
@@ -103,5 +104,8 @@
 	"displayName": "kiss-vscode",
 	"dependencies": {
 		"monaco-editor": "^0.29.1"
-	}
+	},
+	"extensionPack": [
+		"2gua.rainbow-brackets"
+	]
 }
