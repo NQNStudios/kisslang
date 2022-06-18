@@ -355,6 +355,11 @@ class BasicTestCase extends Test {
     function testTrace() {
         _testTrace();
     }
+
+    function testInsertUTestCase() {
+        _testInsertUTestCase();
+    }
+     
 }
 
 class BasicObject {
