@@ -494,6 +494,16 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
     (-= num 5 6)
     (Assert.equals -10 num))
 
+// these declarations have to come before the ifLets to get the type detection correct for issue 64
+(var :String realStringVar "something")
+(var :String nullStringVar null)
+
+(function issue64withArgs [:String realStringArg :String nullStringArg]
+    (unlessLet [something realStringArg]
+            (Assert.fail))
+        (whenLet [something nullStringArg]
+            (Assert.fail)))
+
 (function _testPatternLets []
     (let [some5 (Some 5)
             some6 (Some 6)
@@ -519,7 +529,22 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
             (Assert.equals 2 v))
             
         (assertThrows (assertLet [(Some thing) none] thing))
-        (Assert.equals 5 (assertLet [(Some thing) some5] thing))))
+        (Assert.equals 5 (assertLet [(Some thing) some5] thing)))
+        
+        // Issue #64 regression tests:
+        (whenLet [something null]
+            (Assert.fail))
+        (let [:String realString "something"
+                :String nullString null]
+            (unlessLet [something realString]
+                (Assert.fail))
+            (whenLet [something nullString]
+                (Assert.fail)))
+        (unlessLet [something realStringVar]
+            (Assert.fail))
+        (whenLet [something nullStringVar]
+            (Assert.fail))
+        (issue64withArgs "something" null))
 
 (function _testRawString []
     (Assert.equals "\\"  #"\"#)

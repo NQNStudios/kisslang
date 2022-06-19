@@ -173,6 +173,26 @@ class Helpers {
             };
         }
 
+        var args = switch (argList.def) {
+            case ListExp(funcArgs):
+                funcArgs.map(makeFuncArg);
+            case CallExp(_, _):
+                throw KissError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
+            default:
+                throw KissError.fromExp(argList, 'expected an argument list');
+        };
+
+        var vars = [for (arg in args) {
+            {
+                name: arg.name,
+                type: arg.type
+            }
+        }];
+
+        for (v in vars) {
+            k.typeHints.push(v);
+        }
+
         var expr = if (body.length == 0) {
             EReturn(null).withMacroPosOf(if (name != null) name else argList);
         } else {
@@ -185,20 +205,17 @@ class Helpers {
             };
         }
 
+        for (v in vars) {
+            k.typeHints.remove(v);
+        }
+
         // To make function args immutable by default, we would use (let...) instead of (begin...)
         // to make the body expression.
         // But setting null arguments to default values is so common, and arguments are not settable references,
         // so function args are not immutable.
         return {
             ret: if (name != null) Helpers.explicitType(name) else null,
-            args: switch (argList.def) {
-                case ListExp(funcArgs):
-                    funcArgs.map(makeFuncArg);
-                case CallExp(_, _):
-                    throw KissError.fromExp(argList, 'expected an argument list. Change the parens () to brackets []');
-                default:
-                    throw KissError.fromExp(argList, 'expected an argument list');
-            },
+            args: args,
             expr: expr
         }
     }

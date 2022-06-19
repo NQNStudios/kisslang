@@ -57,7 +57,8 @@ typedef KissState = {
     hscript:Bool,
     macroVars:Map<String, Dynamic>,
     collectedBlocks:Map<String, Array<ReaderExp>>,
-    inStaticFunction:Bool
+    inStaticFunction:Bool,
+    typeHints:Array<Var>
 };
 #end
 
@@ -144,7 +145,8 @@ class Kiss {
             hscript: false,
             macroVars: new Map(),
             collectedBlocks: new Map(),
-            inStaticFunction: false
+            inStaticFunction: false,
+            typeHints: [],
         };
 
         k.doc = (form:String, minArgs:Null<Int>, maxArgs:Null<Int>, expectedForm = "", doc = "") -> {

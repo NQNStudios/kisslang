@@ -101,10 +101,13 @@ class FieldForms {
             var name = Helpers.varName(formName, args[0]);
             var access = fieldAccess(formName, name, args[0]);
 
+            var type = Helpers.explicitType(args[0]);
+            k.typeHints.push({name: name, type: type});
+
             ({
                 name: name,
                 access: access,
-                kind: FVar(Helpers.explicitType(args[0]), if (args.length > 1) k.convert(args[1]) else null),
+                kind: FVar(type, if (args.length > 1) k.convert(args[1]) else null),
                 pos: wholeExp.macroPos()
             } : Field);
         }

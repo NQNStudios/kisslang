@@ -203,10 +203,20 @@ class SpecialForms {
                 throw KissError.fromArgs(args, '(let....) expression needs a body');
             }
 
-            EBlock([
+            for (v in varDefs) {
+                k.typeHints.push(v);
+            }
+
+            var block = EBlock([
                 EVars(varDefs).withMacroPosOf(wholeExp),
                 EBlock(body.map(k.convert)).withMacroPosOf(wholeExp)
             ]).withMacroPosOf(wholeExp);
+
+            for (v in varDefs) {
+                k.typeHints.remove(v);
+            }
+
+            block;
         };
 
         k.doc("lambda", 2, null, "(lambda [<argsNames...>] <body...>)");
@@ -313,11 +323,11 @@ class SpecialForms {
             // On C#, C++, and HashLink, value types (specifically Float and Int) cannot be null, so they cannot be compared with null.
             // Therefore a null case doesn't need to be added--and will cause a compile failure if it is.
             var canCompareNull = if (Context.defined('cs') || Context.defined('cpp') || Context.defined('hl')) {
-                // TODO can locals from let bindings and localVar be gathered and passed to this? Would be difficult and maybe require a separate stack in KissState for each (begin) conversion
-                switch (exp.typeof()) {
-                    case Success(TAbstract(ref, [])) if (["Int", "Float"].indexOf(ref.get().name) != -1):
+                switch (exp.typeof(k.typeHints)) {
+                    case Success(TAbstract(ref, [])) if (["Int", "Float", "Bool"].indexOf(ref.get().name) != -1):
                         false;
                     case Failure(_):
+                        KissError.warnFromExp(args[0], "Can't detect whether expression can be null-checked");
                         false;
                     default: true;
                 }
