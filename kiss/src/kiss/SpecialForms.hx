@@ -324,11 +324,7 @@ class SpecialForms {
 
             // On C#, C++, and HashLink, value types (specifically Float and Int) cannot be null, so they cannot be compared with null.
             // Therefore a null case doesn't need to be added--and will cause a compile failure if it is.
-            var canCompareNull = switch (args[0].def) {
-                // don't try to type [multiple caseArgs]! It will never return!
-                case ListExp(_):
-                    false;
-                default:
+            var canCompareNull = !isTupleCase &&
                     if (Context.defined('cs') || Context.defined('cpp') || Context.defined('hl')) {
                         var type = exp.typeof(k.typeHints);
                         switch (type) {
@@ -342,11 +338,10 @@ class SpecialForms {
                             default: true;
                         }
                     } else true;
-            }
 
             var cases = args.slice(1);
             // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.
-            if (!isTupleCase && canCompareNull) {
+            if (canCompareNull) {
                 var nullExpr = defaultExpr;
                 var idx = 0;
                 for (arg in cases) {
