@@ -1,7 +1,7 @@
 package kiss;
 
-import kiss.KissError;
 #if macro
+import kiss.KissError;
 import kiss.Kiss;
 import kiss.Helpers;
 import sys.FileSystem;
