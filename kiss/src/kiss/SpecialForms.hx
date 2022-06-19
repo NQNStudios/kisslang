@@ -204,7 +204,8 @@ class SpecialForms {
             }
 
             for (v in varDefs) {
-                k.typeHints.push(v);
+                if (v.type != null)
+                    k.typeHints.push(v);
             }
 
             var block = EBlock([
@@ -213,7 +214,8 @@ class SpecialForms {
             ]).withMacroPosOf(wholeExp);
 
             for (v in varDefs) {
-                k.typeHints.remove(v);
+                if (v.type != null)
+                    k.typeHints.remove(v);
             }
 
             block;
@@ -322,16 +324,25 @@ class SpecialForms {
 
             // On C#, C++, and HashLink, value types (specifically Float and Int) cannot be null, so they cannot be compared with null.
             // Therefore a null case doesn't need to be added--and will cause a compile failure if it is.
-            var canCompareNull = if (Context.defined('cs') || Context.defined('cpp') || Context.defined('hl')) {
-                switch (exp.typeof(k.typeHints)) {
-                    case Success(TAbstract(ref, [])) if (["Int", "Float", "Bool"].indexOf(ref.get().name) != -1):
-                        false;
-                    case Failure(_):
-                        KissError.warnFromExp(args[0], "Can't detect whether expression can be null-checked");
-                        false;
-                    default: true;
-                }
-            } else true;
+            var canCompareNull = switch (args[0].def) {
+                // don't try to type [multiple caseArgs]! It will never return!
+                case ListExp(_):
+                    false;
+                default:
+                    if (Context.defined('cs') || Context.defined('cpp') || Context.defined('hl')) {
+                        var type = exp.typeof(k.typeHints);
+                        switch (type) {
+                            case null:
+                                false;
+                            case Success(TAbstract(ref, [])) if (["Int", "Float", "Bool"].indexOf(ref.get().name) != -1):
+                                false;
+                            case Failure(_):
+                                KissError.warnFromExp(args[0], "Can't detect whether expression can be null-checked");
+                                false;
+                            default: true;
+                        }
+                    } else true;
+            }
 
             var cases = args.slice(1);
             // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.

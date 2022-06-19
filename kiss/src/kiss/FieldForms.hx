@@ -102,7 +102,8 @@ class FieldForms {
             var access = fieldAccess(formName, name, args[0]);
 
             var type = Helpers.explicitType(args[0]);
-            k.typeHints.push({name: name, type: type});
+            if (type != null)
+                k.typeHints.push({name: name, type: type});
 
             ({
                 name: name,
