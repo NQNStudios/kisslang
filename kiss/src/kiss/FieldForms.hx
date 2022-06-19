@@ -96,7 +96,7 @@ class FieldForms {
     }
 
     static function varOrProperty(formName:String, k:KissState) {
-        k.doc(formName, 1, 3, '($formName [optional: &mut] [optional :type] [variable] [optional value])');
+        k.doc(formName, 1, 3, '($formName <optional &mut> <optional :Type> <name> <optional value>)');
         k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             var name = Helpers.varName(formName, args[0]);
             var access = fieldAccess(formName, name, args[0]);
@@ -114,7 +114,7 @@ class FieldForms {
     }
 
     static function funcOrMethod(formName:String, k:KissState) {
-        k.doc(formName, 2, null, '($formName [optional &dynamic] [optional :type] [name] [[argNames...]] [body...])');
+        k.doc(formName, 2, null, '($formName <optional &dynamic> <optional :Type> <name> [<argNames...>] <body...>)');
         k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
 
             var name = Helpers.varName(formName, args[0]);
