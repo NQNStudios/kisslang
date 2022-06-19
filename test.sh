@@ -8,8 +8,8 @@ KISS_TARGET=${KISS_TARGET:-interp}
 # If Travis is running tests, basic dependencies need to be installed
 if [ ! -z "$CI_OS_NAME" ]
 then
-    (cd kiss/build-scripts && haxelib install all --always)
-    (cd kiss/build-scripts/$KISS_TARGET && haxelib install all --always)
+    (cd kiss/build-scripts && haxelib install all --always --quiet)
+    (cd kiss/build-scripts/$KISS_TARGET && haxelib install all --always --quiet)
 fi
 
 # Test projects with test-project.sh

@@ -4,7 +4,7 @@ KISS_PROJECT=${KISS_PROJECT:-$1}
 KISS_PROJECT=${KISS_PROJECT:-aoc}
 
 ./test-env.sh
-(cd projects/$KISS_PROJECT && haxelib install all --always)
+(cd projects/$KISS_PROJECT && haxelib install all --always --quiet)
 
 # If project folder contains "flixel-", test that its code compiles for HTML5 and C++
 if [[ $KISS_PROJECT == *flixel-* ]]
@@ -12,12 +12,12 @@ then
     # If running through Travis, install HaxeFlixel with c++ tooling
     if [ ! -z "CI_OS_NAME" ]
     then
-        haxelib install lime
-        haxelib install openfl
-        haxelib install flixel
-        haxelib install flixel-addons
-        haxelib install flixel-ui
-        haxelib install hxcpp
+        haxelib install lime --quiet
+        haxelib install openfl --quiet
+        haxelib install flixel --quiet
+        haxelib install flixel-addons --quiet
+        haxelib install flixel-ui --quiet
+        haxelib install hxcpp --quiet
     fi
 
     # if "desktop-" is in the project name, only test for C++
