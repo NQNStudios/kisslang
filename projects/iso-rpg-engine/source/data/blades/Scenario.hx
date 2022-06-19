@@ -153,12 +153,43 @@ class Scenario {
                 stream.paddingBytes(20);
                 
                 scen.outdoorSections[x][y] = sec;
-                // TODO don't, obviously:
-                // break;
             }
-            // TODO don't, obviously:
-            // break;
         }
+        
+        stream.tracePosition();
+
+        var townIdx = 0;
+        while (true) {
+            var name = stream.readCString();
+            
+            // TODO I'm guessing these zeros identify light level, surface/underground,
+            // creature respawn chance, map size
+            stream.skipZeros();
+
+            var map = new TileMap(48, 48, name, Town(false, {wallSheet1: 601, wallSheet2: 600}));
+
+            
+
+            towns[townIdx++] = map;
+        }
+
+        // 1E274: Fort Talrus (name of town 0)
+
+        // 27866 bytes (medium town, 48x48)
+
+        // 24F4E: Sweetgrove
+
+        // 36826 bytes (large town, 64x64)
+
+        // 2DF28: Blinlock
+
+        // 72922 bytes (medium town, 48x48)
+
+        // well I guess that means they aren't uniform size between small/medium/large...
+
+        // 3FC02: Marralis
+        
+        // (medium town, 48x48)
 
         // TODO all the other stuff
         return scen;
