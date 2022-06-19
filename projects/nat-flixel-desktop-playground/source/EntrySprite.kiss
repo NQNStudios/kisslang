@@ -7,9 +7,8 @@
     [&mut :Bool selected false]
 
     (let [images (readComponent e Images)]
-        (case (dictGet (readComponent e Positions) positionKey)
-            ((object x x y y z z)
-                (super x y)))
+        (whenLet [(objectWith x y z) (dictGet (readComponent e Positions) positionKey)]
+            (super x y))
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
             ->bitmapData {
                 (loadGraphic bitmapData)
