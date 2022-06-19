@@ -1,5 +1,6 @@
 package kiss;
 
+import kiss.KissError;
 #if macro
 import kiss.Kiss;
 import kiss.Helpers;
@@ -52,7 +53,16 @@ class CompilerTools {
      * Compile kiss expressions into a standalone script
      * @return An expression of a function that, when called, executes the script and returns the script output as a string.
      */
-    public static function compileToScript(exps:Array<ReaderExp>, lang:CompileLang, args:CompilationArgs):Expr {
+    public static function compileToScript(exps:Array<ReaderExp>, lang:CompileLang, args:CompilationArgs, ?sourceExp:ReaderExp):Expr {
+        var handleError = (error) -> {
+            var error = 'External compilation error: $error';
+            if (sourceExp != null) {
+                throw KissError.fromExp(sourceExp, error);
+            } else {
+                throw new KissError(exps, error);
+            }
+        }
+
         if (args.outputFolder == null) {
             args.outputFolder = Path.join(["bin", '_kissScript${nextAnonymousScriptId++}']);
         }
@@ -83,7 +93,7 @@ class CompilerTools {
             }
         }
         if (classPathFolders.length == 0) {
-            throw 'compileToScript called by file $moduleFile which is not in a haxelib folder';
+            handleError('compileToScript called by file $moduleFile which is not in a haxelib folder');
         }
         var haxelibPath = classPathFolders.join("/");
 
@@ -105,7 +115,7 @@ class CompilerTools {
             }
         }
 
-        var haxelibSetupOutput = Prelude.assertProcess("haxelib", ["setup"], [""]);
+        var haxelibSetupOutput = Prelude.tryProcess("haxelib", ["setup"], handleError, [""]);
         var messageBeforePath = "haxelib repository is now ";
         var haxelibRepositoryPath = haxelibSetupOutput.substr(haxelibSetupOutput.indexOf(messageBeforePath)).replace(messageBeforePath, "");
 
@@ -167,9 +177,9 @@ class CompilerTools {
                     File.copy(Path.join([haxelibPath, args.langProjectFile]), "package.json");
 
                     if (Sys.systemName() == "Windows") {
-                        Prelude.assertProcess("cmd.exe", ["/c", 'npm', 'install']);
+                        Prelude.tryProcess("cmd.exe", ["/c", 'npm', 'install'], handleError);
                     } else {
-                        Prelude.assertProcess("npm", ['install']);
+                        Prelude.tryProcess("npm", ['install'], handleError);
                     }
 
                     FileSystem.deleteFile("package.json");
@@ -199,7 +209,7 @@ class CompilerTools {
                     // In some cases this might be bad if the virtual environment gets bad
                     // versions of dependencies stuck in it
                     var envFolder = '${args.outputFolder}-env';
-                    Prelude.assertProcess("python", ["-m", "venv", envFolder]);
+                    Prelude.tryProcess("python", ["-m", "venv", envFolder], handleError);
                     var envBinDir = if (Sys.systemName() == "Windows") "Scripts" else "bin";
                     // trace(Prelude.assertProcess("ls", [envFolder]).replace("\n", " "));
                     // trace(Prelude.assertProcess("ls", [Path.join([envFolder, envBinDir])]).replace("\n", " "));
@@ -208,26 +218,26 @@ class CompilerTools {
                     switch (args.langProjectFile.extension()) {
                         case "txt":
                             // the requirements file's original path is fine for this case
-                            Prelude.assertProcess(envPython, ["-m", "pip", "install", "-r", Path.join([haxelibPath, args.langProjectFile])]);
+                            Prelude.tryProcess(envPython, ["-m", "pip", "install", "-r", Path.join([haxelibPath, args.langProjectFile])], handleError);
                         case "py":
                             // python setup.py install
-                            Prelude.assertProcess(envPython, [Path.join([args.outputFolder, args.langProjectFile.withoutDirectory()]), "install"]);
+                            Prelude.tryProcess(envPython, [Path.join([args.outputFolder, args.langProjectFile.withoutDirectory()]), "install"], handleError);
                     }
                 }
         }
 
         // run haxelib install on given hxml and generated hxml
         var hxmlFiles = [buildHxmlFile];
-        Prelude.assertProcess("haxelib", ["install", "--always", buildHxmlFile]);
+        Prelude.tryProcess("haxelib", ["install", "--always", buildHxmlFile], handleError);
         if (args.hxmlFile != null) {
             if (args.skipHaxelibInstall == null || !args.skipHaxelibInstall) {
-                Prelude.assertProcess("haxelib", ["install", "--always", Path.join([haxelibPath, args.hxmlFile])]);
+                Prelude.tryProcess("haxelib", ["install", "--always", Path.join([haxelibPath, args.hxmlFile])], handleError);
             }
             hxmlFiles.push(args.hxmlFile);
         }
 
         // Compile the script
-        Prelude.assertProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)));
+        Prelude.tryProcess("haxe", ["--cwd", args.outputFolder].concat(hxmlFiles.map(Path.withoutDirectory)), handleError);
 
         // return an expression for a lambda that calls new Process() that runs the target-specific file
         var callingCode = 'function (?inputLines:Array<String>) { if (inputLines == null) inputLines = []; return kiss.Prelude.assertProcess("$command", [haxe.io.Path.join(["${args.outputFolder}", "$mainClassName.$scriptExt"])].concat(inputLines)); }';

@@ -1090,7 +1090,7 @@ class Macros {
             b.the(
                 bodyType,
                 b.callSymbol("tink.Json.parse", [
-                    b.call(b.raw(CompilerTools.compileToScript(externExps, langArg, compileArgs).toString()), [b.list(stringifyExpList)])
+                    b.call(b.raw(CompilerTools.compileToScript(externExps, langArg, compileArgs, wholeExp).toString()), [b.list(stringifyExpList)])
                 ]));
         };
 

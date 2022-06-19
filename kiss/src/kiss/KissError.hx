@@ -17,7 +17,7 @@ class KissError {
     var exps:List<ReaderExp>;
     var message:String;
 
-    function new(exps:Array<ReaderExp>, message:String) {
+    public function new(exps:Array<ReaderExp>, message:String) {
         this.exps = exps;
         this.message = message;
     }
