@@ -170,12 +170,31 @@ class CompilerTools {
                             FileSystem.rename(file, newName);
                         }
                     }
+
+                    // Special handling for dts2hx bindings after a finished or failed npm build:
+                    function clearDotHaxelib() {
+                        if (FileSystem.exists(".haxelib")) {
+                            for (externLib in FileSystem.readDirectory(".haxelib")) {
+                                if (FileSystem.exists(Prelude.joinPath(haxelibRepositoryPath, externLib))) {
+                                    Prelude.purgeDirectory(Prelude.joinPath(haxelibRepositoryPath, externLib));
+                                }
+                                move(Prelude.joinPath(".haxelib", externLib), Prelude.joinPath(haxelibRepositoryPath, externLib));
+                            }
+                            Prelude.purgeDirectory(".haxelib");
+                        }
+                    }
+
                     move("package.json", "package.json.temp");
                     move("package-lock.json", "package-lock.json.temp");
                     move("node_modules", "node_modules.temp");
 
                     File.copy(Path.join([haxelibPath, args.langProjectFile]), "package.json");
 
+                    var oldHandleError = handleError;
+                    handleError = (error) -> {
+                        clearDotHaxelib();   
+                        oldHandleError(error);
+                    }
                     if (Sys.systemName() == "Windows") {
                         Prelude.tryProcess("cmd.exe", ["/c", 'npm', 'install'], handleError);
                     } else {
@@ -185,16 +204,8 @@ class CompilerTools {
                     FileSystem.deleteFile("package.json");
                     move("node_modules", Prelude.joinPath(args.outputFolder, "node_modules"));
                     move("package-lock.json", Prelude.joinPath(args.outputFolder, "package-lock.json"));
-                    // Special handling for dts2hx bindings:
-                    if (FileSystem.exists(".haxelib")) {
-                        for (externLib in FileSystem.readDirectory(".haxelib")) {
-                            if (FileSystem.exists(Prelude.joinPath(haxelibRepositoryPath, externLib))) {
-                                Prelude.purgeDirectory(Prelude.joinPath(haxelibRepositoryPath, externLib));
-                            }
-                            move(Prelude.joinPath(".haxelib", externLib), Prelude.joinPath(haxelibRepositoryPath, externLib));
-                        }
-                        Prelude.purgeDirectory(".haxelib");
-                    }
+                    
+                    clearDotHaxelib();
 
                     move("package.json.temp", "package.json");
                     move("package-lock.json.temp", "package-lock.json");
