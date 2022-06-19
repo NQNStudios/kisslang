@@ -581,13 +581,18 @@ class Prelude {
     }
 
     public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true):String {
+        return tryProcess(command, args, (error) -> { throw error; }, inputLines, fullProcess);    
+    }
+    
+    public static function tryProcess(command:String, args:Array<String>, handleError:String->Void, ?inputLines:Array<String>, fullProcess = true):String {
         #if test
         Prelude.print('running $command $args $inputLines from ${Prelude.getTarget()}');
         #end
         if (inputLines != null) {
             for (line in inputLines) {
                 if (line.indexOf("\n") != -1) {
-                    throw 'newline is not allowed in the middle of a process input line: "${line.replace("\n", "\\n")}"';
+                    handleError('newline is not allowed in the middle of a process input line: "${line.replace("\n", "\\n")}"');
+                    return "";
                 }
             }
         }
@@ -608,7 +613,8 @@ class Prelude {
             if (p.wait() == 0) {
                 p.stdout.readall().decode().trim();
             } else {
-                throw 'process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}';
+                handleError('process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}');
+                return "";
             }
         } else {
             // The haxe extern for FileIO.readline() says it's a string, but it's not, it's bytes!
@@ -629,7 +635,8 @@ class Prelude {
             if (p.exitCode() == 0) {
                 p.stdout.readAll().toString().trim();
             } else {
-                throw 'process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}';
+                handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
+                return "";
             }
         } else {
             p.stdout.readLine().toString().trim();
@@ -653,11 +660,13 @@ class Prelude {
                 if (output == null) output = Buffer.alloc(0);
                 var error:Buffer = p.stderr;
                 if (error == null) error = Buffer.alloc(0);
-                throw 'process $command $args failed:\n${output.toString() + error.toString()}';
+                handleError('process $command $args failed:\n${output.toString() + error.toString()}');
+                return "";
         }
         return output;
         #else
-        throw "Can't run a subprocess on this target.";
+        handleError("Can't run a subprocess on this target.");
+        return "";
         #end
     }
 
