@@ -21,7 +21,7 @@
                 (enableMouseDrag)
              }))
     
-    (set mousePressedCallback
+    **(set mousePressedCallback
         ->[self _x _y]
             {
                 (controller.ToggleSelectEntry e)

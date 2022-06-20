@@ -12,10 +12,12 @@ import flixel.addons.ui.FlxInputText;
 import flixel.addons.ui.FlxUIPopup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+using flixel.util.FlxSpriteUtil;
 import flixel.FlxCamera;
 import flixel.math.FlxVector;
+import flixel.math.FlxRect;
 import flixel.addons.plugin.FlxMouseControl;
-
+import flixel.input.mouse.FlxMouseEventManager;
 using StringTools;
 
 @:build(kiss.Kiss.build())

@@ -26,7 +26,7 @@
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
 
-    (prop :FlxGroup entryGroup (new FlxGroup))
+    (prop :FlxTypedGroup<EntrySprite> entryGroup (new FlxTypedGroup<EntrySprite>))
     (add entryGroup)
 
     (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
@@ -34,6 +34,55 @@
     (FlxG.cameras.add uiCamera false)
 
     (set uiGroup.cameras [uiCamera])
+
+    (prop mouseDragCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
+    (set mouseDragCamera.bgColor FlxColor.TRANSPARENT)
+    (FlxG.cameras.add mouseDragCamera false)
+    (prop mouseDragSprite (new FlxSprite 0 0))
+    (prop &mut :FlxPoint mouseDown null)
+    (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT)
+    (set mouseDragSprite.cameras [mouseDragCamera])
+    (add mouseDragSprite)
+    (FlxMouseEventManager.add mouseDragSprite
+        // mouseDown
+        ->s {
+            (set mouseDown (FlxG.mouse.getScreenPosition))
+            (controller.SelectEntries [])
+            (entryGroup.forEach
+                ->entrySprite
+                    (when (.containsPoint (entrySprite.getScreenBounds) (FlxG.mouse.getScreenPosition))
+                        (controller.SelectEntry entrySprite.e)))
+            }
+        // mouseUp
+        ->s {
+                (set mouseDown null)
+                (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
+            }
+        // mouseOver
+        ->s {}
+        // mouseOut
+        ->s {}
+        true
+        true
+        false)
+    (FlxMouseEventManager.setMouseMoveCallback mouseDragSprite
+        ->s (when mouseDown (unless FlxMouseControl.isDragging
+                // draw the selection rectangle
+                (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
+                (let [curPos (FlxG.mouse.getScreenPosition)
+                        x1 (min curPos.x mouseDown.x)
+                        y1 (min curPos.y mouseDown.y)
+                        x2 (max curPos.x mouseDown.x)
+                        y2 (max curPos.y mouseDown.y)
+                        selectWidth (- x2 x1)
+                        selectHeight (- y2 y1)
+                        rectangle (new FlxRect x1 y1 selectWidth selectHeight)]
+                    (mouseDragSprite.drawRect x1 y1 selectWidth selectHeight FlxColor.TRANSPARENT (object color FlxColor.LIME))
+                    // Handle entry selection
+                    (entryGroup.forEach ->entrySprite
+                        (let [overlaps (rectangle.overlaps (entrySprite.getScreenBounds))]
+                            (when !(= overlaps (controller.isSelected entrySprite.e))
+                                (controller.ToggleSelectEntry entrySprite.e))))))))
 
     // make text-only sprites for entries that have no images:
     (archive.addSystem (new TextSpriteSystem))
