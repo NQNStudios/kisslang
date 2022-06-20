@@ -50,6 +50,9 @@
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     
+    (when FlxG.keys.justPressed.ESCAPE
+        (Sys.exit 0))
+
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)
         (typeCommand))

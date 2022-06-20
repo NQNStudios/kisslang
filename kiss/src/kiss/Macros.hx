@@ -305,6 +305,7 @@ class Macros {
             var b = wholeExp.expBuilder();
             var expression = exps[0];
             var failureError = KissError.fromExp(wholeExp, "").toString(AssertionFail);
+            var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
             var messageExp = if (exps.length > 1) {
                 exps[1];
             } else {
@@ -320,7 +321,7 @@ class Macros {
                     letVal,
                     letVal,
                     b.callSymbol("throw", [
-                        b.callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, b.str(failureError)])
+                        b.callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, b.str(failureError), b.int(colonsInPrefix)])
                     ])
                 ])
             ]);

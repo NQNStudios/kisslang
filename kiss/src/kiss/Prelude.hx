@@ -723,9 +723,9 @@ class Prelude {
         return str.substr(negIdx(startIdx), negIdx(endIdx));
     }
 
-    public static function runtimeInsertAssertionMessage(message:String, error:String) {
+    public static function runtimeInsertAssertionMessage(message:String, error:String, colonsInPrefix:Int) {
         var colonIdx = 0;
-        for (_ in 0...4) {
+        for (_ in 0...colonsInPrefix) {
             colonIdx = error.indexOf(":", colonIdx) + 1;
         }
         colonIdx += 1;
