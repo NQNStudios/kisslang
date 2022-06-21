@@ -161,6 +161,33 @@ class Prelude {
     public static var lesserEqual:Function = Reflect.makeVarArgs(_comparison.bind("<="));
     public static var areEqual:Function = Reflect.makeVarArgs(_comparison.bind("=="));
 
+    // Like quickNths but for division. Support int and float output:
+    private static function iFraction (num:Float, denom:Float) {
+        return Std.int(num / denom);
+    }
+    public static var iHalf:Float->Int = iFraction.bind(_, 2);
+    public static var iThird:Float->Int = iFraction.bind(_, 3);
+    public static var iFourth:Float->Int = iFraction.bind(_, 4);
+    public static var iFifth:Float->Int = iFraction.bind(_, 5);
+    public static var iSixth:Float->Int = iFraction.bind(_, 6);
+    public static var iSeventh:Float->Int = iFraction.bind(_, 7);
+    public static var iEighth:Float->Int = iFraction.bind(_, 8);
+    public static var iNinth:Float->Int = iFraction.bind(_, 9);
+    public static var iTenth:Float->Int = iFraction.bind(_, 10);
+    private static function fFraction (num:Float, denom:Float) {
+        return num / denom;
+    }
+    public static var fHalf:Float->Float = fFraction.bind(_, 2);
+    public static var fThird:Float->Float = fFraction.bind(_, 3);
+    public static var fFourth:Float->Float = fFraction.bind(_, 4);
+    public static var fFifth:Float->Float = fFraction.bind(_, 5);
+    public static var fSixth:Float->Float = fFraction.bind(_, 6);
+    public static var fSeventh:Float->Float = fFraction.bind(_, 7);
+    public static var fEighth:Float->Float = fFraction.bind(_, 8);
+    public static var fNinth:Float->Float = fFraction.bind(_, 9);
+    public static var fTenth:Float->Float = fFraction.bind(_, 10);
+
+
     public static function sort<T>(a:Array<T>, ?comp:(T, T) -> Int):kiss.List<T> {
         if (comp == null)
             comp = Reflect.compare;

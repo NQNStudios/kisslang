@@ -681,3 +681,7 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
 // The test here is that this was inserted by insertUTestCase :)
 (function _testInsertUTestCase []
     (Assert.pass))
+
+(function _testQuickFractions []
+    (Assert.equals 0.5 (fHalf 1))
+    (Assert.equals 0 (iHalf 1)))

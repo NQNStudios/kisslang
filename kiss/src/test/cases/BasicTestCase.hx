@@ -359,6 +359,11 @@ class BasicTestCase extends Test {
     function testInsertUTestCase() {
         _testInsertUTestCase();
     }
+
+    function testQuickFractions() {
+        _testQuickFractions();
+    }
+    
      
 }
 
