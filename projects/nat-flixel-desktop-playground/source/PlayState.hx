@@ -14,11 +14,11 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 using flixel.util.FlxSpriteUtil;
 import flixel.FlxCamera;
-import flixel.math.FlxVector;
 import flixel.math.FlxRect;
 import flixel.addons.plugin.FlxMouseControl;
 import flixel.input.mouse.FlxMouseEventManager;
 using StringTools;
+using kiss_flixel.CameraTools;
 
 @:build(kiss.Kiss.build())
 class PlayState extends FlxState implements ArchiveUI {}

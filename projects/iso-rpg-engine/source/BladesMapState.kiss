@@ -78,16 +78,10 @@
     // F1 to toggle fullscreen:
     (when FlxG.keys.justPressed.F1
         (set FlxG.fullscreen !FlxG.fullscreen))
-
-    (let [&mut cameraMovement (new FlxVector 0 0)]
-        (when (or (= 0 FlxG.mouse.screenX) FlxG.keys.pressed.LEFT)
-            (set cameraMovement.x -1))
-        (when (or (= 0 FlxG.mouse.screenY) FlxG.keys.pressed.UP)
-            (set cameraMovement.y -1))
-        (when (or (= (- FlxG.width 1) FlxG.mouse.screenX) FlxG.keys.pressed.RIGHT) 
-            (set cameraMovement.x 1))
-        (when (or (= (- FlxG.height 1) FlxG.mouse.screenY) FlxG.keys.pressed.DOWN)
-            (set cameraMovement.y 1))
-        (set cameraMovement (cameraMovement.truncate 1))
-        (set cameraMovement (cameraMovement.scale (* elapsed CAMERA_SPEED)))
-        (set FlxG.camera.scroll (FlxG.camera.scroll.add cameraMovement.x cameraMovement.y))))
+    (FlxG.camera.updateKeyControl
+        elapsed
+        CAMERA_SPEED
+        ->{FlxG.keys.pressed.LEFT}
+        ->{FlxG.keys.pressed.RIGHT}
+        ->{FlxG.keys.pressed.UP}
+        ->{FlxG.keys.pressed.DOWN}))

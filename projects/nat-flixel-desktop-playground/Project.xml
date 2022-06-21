@@ -40,6 +40,8 @@
 	<haxelib name="kiss" />
 	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
 
+	<haxelib name="kiss-flixel" />
+	
 	<haxelib name="nat-archive-tool" />
 
 	<!--In case you want to use the addons package-->

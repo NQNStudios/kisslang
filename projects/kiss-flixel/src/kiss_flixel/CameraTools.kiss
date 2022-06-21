@@ -1,0 +1,14 @@
+(function updateKeyControl [:FlxCamera camera :Float elapsed :Float speed :Void->Bool leftKey :Void->Bool rightKey :Void->Bool upKey :Void->Bool downKey]
+    (let [scrollAmount (* speed elapsed)
+            &mut :FlxVector movement (new FlxPoint)]
+        (when (leftKey) (-= movement.x 1))
+        (when (rightKey) (+= movement.x 1))
+        (when (upKey) (-= movement.y 1))
+        (when (downKey) (+= movement.y 1))
+        (when (< 0 movement.length)
+            (set movement (movement.normalize)))
+        (movement.scale scrollAmount)
+        (+= camera.scroll.x movement.x)
+        (+= camera.scroll.y movement.y)))
+
+(function updateKeyControl [:FlxCamera camera :Float elapsed :Float speed :Void->Bool leftKey :Void->Bool rightKey :Void->Bool upKey :Void->Bool downKey]
