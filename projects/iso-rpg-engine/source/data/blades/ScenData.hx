@@ -22,7 +22,7 @@ class ScenData {
 
     private var spriteSheets:Map<Int, FlxSprite> = [];
 
-    private var data = "";
+    public var data = "";
 
     public static function coreData() {
         var d = new ScenData();

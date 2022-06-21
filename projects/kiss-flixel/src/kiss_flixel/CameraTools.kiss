@@ -11,4 +11,40 @@
         (+= camera.scroll.x movement.x)
         (+= camera.scroll.y movement.y)))
 
-(function updateKeyControl [:FlxCamera camera :Float elapsed :Float speed :Void->Bool leftKey :Void->Bool rightKey :Void->Bool upKey :Void->Bool downKey]
+// Add a border sprite on top of this camera's viewport, scaling the border to frame the viewport,
+// and downsizing and shifting the viewport to fit within the border's opaque frame
+(function addBorder [:FlxCamera camera :FlxSprite border]
+    (let [borderCamera
+                (new FlxCamera (Std.int camera.x) (Std.int camera.y) camera.width camera.height)
+            :BitmapData borderPixels 
+                (border.updateFramePixels)
+            isTransparent
+                ->c (= c FlxColor.TRANSPARENT)
+            borderHorizontal
+                (borderPixels.getVector (new Rectangle 0 (iHalf border.height) border.width 1))
+            borderVertical
+                (borderPixels.getVector (new Rectangle (iHalf border.width) 0 1 border.height))
+            borderSizeLeft
+                (borderHorizontal.findIndex isTransparent)
+            borderSizeTop
+                (borderVertical.findIndex isTransparent)
+            borderSizeRight
+                (.findIndex (borderHorizontal.reverse) isTransparent)
+            borderSizeBottom
+                (.findIndex (borderVertical.reverse) isTransparent)]
+    (set border.x 0) // It will be 0,0 relative to its own camera
+    (set border.y 0)
+    (border.setGraphicSize camera.width camera.height)
+    (border.updateHitbox)
+    (FlxG.cameras.add borderCamera false)
+    (set border.cameras [borderCamera])
+    (set borderCamera.bgColor FlxColor.TRANSPARENT)
+    (FlxG.state.add border)
+    (let [dx (* border.scale.x borderSizeLeft)
+            dy (* border.scale.y borderSizeTop)]
+        (+= camera.x dx)
+        (+= camera.y dy)
+        (-= camera.width dx (* border.scale.x borderSizeRight))
+        (-= camera.height dx (* border.scale.y borderSizeBottom)))))
+
+// TODO updateMouseBorderControl

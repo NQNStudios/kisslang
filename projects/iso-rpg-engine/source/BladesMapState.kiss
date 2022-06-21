@@ -4,6 +4,7 @@
 (var SPRITE_HEIGHT 55)
 (prop :Array<FlxSprite> floorTiles [])
 (prop &mut :ScenData data null)
+(prop :FlxCamera worldCamera (new FlxCamera))
 
 (method &override :Void create []
     (super.create)
@@ -11,10 +12,20 @@
 
     (Scenario.test)
 
+    (worldCamera.copyFrom FlxG.camera)
+    (FlxG.cameras.add worldCamera)
+
     (let [valleydy (Scenario.fromBasFile "Blades of Avernum Scenarios/Valley of Dying Things/valleydy.bas")]
         (addSprites 
             // 2D nth >:)
-            (nth valleydy.outdoorSections 0 2))))
+            (nth valleydy.outdoorSections 0 2))
+
+        (prop &mut :FlxSprite border (new FlxSprite))
+        (set border (SpriteSheet.fromWholeBmp "${data.data}/Game Graphics/G801.bmp"))
+        (worldCamera.addBorder border)
+        (let [testRed (.makeGraphic (new FlxSprite 0 0) 16 16 FlxColor.RED)]
+            (set testRed.cameras [worldCamera])
+            (add testRed))))
 
 (var SELECTED_COLOR FlxColor.LIME)
 (var NORMAL_COLOR FlxColor.WHITE)
@@ -37,6 +48,7 @@
                             (when tileSprite
                                 (set tileSprite.x x)
                                 (set tileSprite.y (- y yOffset))
+                                (set tileSprite.cameras [worldCamera])
                                 (FlxMouseEventManager.add tileSprite
                                     // handle click on floor:
                                     ->downTS {}
@@ -53,6 +65,7 @@
                             (when tileSprite
                                 (+= tileSprite.x x)
                                 (+= tileSprite.y (- y yOffset))
+                                (set tileSprite.cameras [worldCamera])
                                 (FlxMouseEventManager.add tileSprite
                                     // Handle click on terrain:
                                     ->downTS {}
@@ -78,7 +91,7 @@
     // F1 to toggle fullscreen:
     (when FlxG.keys.justPressed.F1
         (set FlxG.fullscreen !FlxG.fullscreen))
-    (FlxG.camera.updateKeyControl
+    (worldCamera.updateKeyControl
         elapsed
         CAMERA_SPEED
         ->{FlxG.keys.pressed.LEFT}

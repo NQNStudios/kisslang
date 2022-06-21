@@ -21,4 +21,12 @@
         (spriteSheet.replaceColor FlxColor.WHITE FlxColor.TRANSPARENT)
         spriteSheet))
 
+// Grab a whole BMP and add transparency
+(function :FlxSprite fromWholeBmp [file]
+    (let [oBmp (Bmp.loadBitmapData file)
+            sprite (new FlxSprite)]
+        (sprite.loadGraphic (FlxGraphic.fromBitmapData oBmp))
+        (sprite.replaceColor FlxColor.WHITE FlxColor.TRANSPARENT)
+        sprite))
+
 // TODO some of the sprite sheets mix multiple frame sizes (i.e. character sheets)

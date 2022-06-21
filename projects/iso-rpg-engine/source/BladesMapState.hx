@@ -3,6 +3,7 @@ package;
 import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.util.FlxColor;
+import flixel.FlxCamera;
 import flixel.math.FlxRect;
 import flixel.math.FlxVector;
 import flixel.graphics.FlxGraphic;
@@ -14,6 +15,7 @@ import flash.display.BitmapData;
 import kiss.Prelude;
 import data.blades.ScenData;
 import data.blades.Scenario;
+import data.blades.SpriteSheet;
 import data.blades.TileMap;
 
 using kiss_flixel.CameraTools;
