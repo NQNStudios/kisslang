@@ -159,6 +159,7 @@ class Scenario {
         stream.tracePosition();
 
         var townIdx = 0;
+        // TODO find an end condition for this loop
         while (true) {
             var name = stream.readCString();
             
@@ -170,7 +171,10 @@ class Scenario {
 
             
 
-            towns[townIdx++] = map;
+            scen.towns[townIdx++] = map;
+            
+            // TODO don't
+            break;
         }
 
         // 1E274: Fort Talrus (name of town 0)

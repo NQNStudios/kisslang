@@ -29,7 +29,7 @@ class TileMap {
 
     public function wallSheet(num:Int) {
         return switch (type) {
-            case Town(det):
+            case Town(underground, det):
                 if (num == 1)
                     det.wallSheet1;
                 else

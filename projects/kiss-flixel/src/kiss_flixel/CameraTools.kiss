@@ -11,6 +11,8 @@
         (+= camera.scroll.x movement.x)
         (+= camera.scroll.y movement.y)))
 
+(var :Map<FlxCamera,FlxCamera> borderCameras (new Map))
+
 // Add a border sprite on top of this camera's viewport, scaling the border to frame the viewport,
 // and downsizing and shifting the viewport to fit within the border's opaque frame
 (function addBorder [:FlxCamera camera :FlxSprite border]
@@ -37,6 +39,7 @@
     (border.setGraphicSize camera.width camera.height)
     (border.updateHitbox)
     (FlxG.cameras.add borderCamera false)
+    (dictSet borderCameras camera borderCamera)
     (set border.cameras [borderCamera])
     (set borderCamera.bgColor FlxColor.TRANSPARENT)
     (FlxG.state.add border)
@@ -45,6 +48,29 @@
         (+= camera.x dx)
         (+= camera.y dy)
         (-= camera.width dx (* border.scale.x borderSizeRight))
-        (-= camera.height dx (* border.scale.y borderSizeBottom)))))
+        (-= camera.height dy (* border.scale.y borderSizeBottom)))))
 
-// TODO updateMouseBorderControl
+(function updateMouseBorderControl [:FlxCamera camera :Float elapsed :Float speed :Float heightFraction]
+    (let [viewport (ifLet [bc (dictGet borderCameras camera)] bc camera)
+            left viewport.x
+            top viewport.y
+            right (+ viewport.x viewport.width)
+            bottom (+ viewport.y viewport.height)
+            // Use the same margin size for x and y, and calculate it based on height
+            // (in a landscape view, this just makes more sense to me)
+            margin (* viewport.height heightFraction)
+            mPos (FlxG.mouse.getScreenPosition)]
+        (updateKeyControl camera elapsed speed
+            // when the camera takes the whole screen, count the letterbox zones as margin
+            ->(if (= left 0)
+                    (<= mPos.x (+ left margin))
+                (<= left mPos.x (+ left margin)))
+            ->(if (= right FlxG.width)
+                    (<= (- right margin) mPos.x)
+                (<= (- right margin) mPos.x right))
+            ->(if (= top 0)
+                    (<= mPos.y (+ top margin))
+                (<= top mPos.y (+ top margin)))
+            ->(if (= bottom FlxG.height)
+                    (<= (- bottom margin) mPos.y)
+                (<= (- bottom margin) mPos.y bottom)))))
