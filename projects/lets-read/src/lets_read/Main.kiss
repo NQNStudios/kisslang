@@ -1,0 +1,25 @@
+(var THRESHOLD 0.4)
+
+```
+echo "\$(pwd)" > g.txt 
+echo "$(Sys.getCwd)" > g.txt 
+```
+
+(assertLet [[folder realCwd] (Sys.args)
+                folder (joinPath realCwd folder)
+                files (reverse (FileSystem.readDirectory folder))
+                lastFrame (first files)]
+    ```
+    cd $folder && tesseract $lastFrame $(lastFrame.withoutExtension)
+    ```
+    (doFor [after before] (pairs files)
+        ```
+        cd $folder && tesseract $before $(Path.withoutExtension before)
+        ```
+        (let [afterText (File.getContent "${folder}/$(Path.withoutExtension after).txt")
+                beforeText (File.getContent "${folder}/$(Path.withoutExtension before).txt")]
+            (when (or !beforeText
+                    (< THRESHOLD (kiss.FuzzyMap.fuzzyMatchScore afterText beforeText)))
+                ```
+                cd $folder && rm $before
+                ```))))

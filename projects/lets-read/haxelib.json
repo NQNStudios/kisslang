@@ -1,0 +1,17 @@
+{
+	"main": "lets_read.Main",
+	"name": "lets-read",
+	"description": "make pdfs for skimming let's play videos",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
