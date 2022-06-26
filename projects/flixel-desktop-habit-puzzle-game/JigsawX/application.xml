@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="JigsawX" package="net.justinfront.jigsawx" version="1.0.0" company="justinfront" />
+	<app main="jigsawxtargets.hxopenfl.JigsawxOpenfl" path="openfl" file="Jigsawx" />
+	
+	<source path="src" />
+	
+	<haxelib name="openfl" />
+	
+	<assets path="Assets" rename="assets" exclude="openfl.svg" />
+	<icon path="Assets/openfl.svg" />
+	
+</project>

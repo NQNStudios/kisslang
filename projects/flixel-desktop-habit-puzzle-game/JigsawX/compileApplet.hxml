@@ -1,0 +1,16 @@
+
+# loading the images in browser does not work because of security signing stuff 
+# but the appletviewer should work if I could rem the right setup!! 
+-D applet
+-java java
+-main JigsawxJava
+#-resource tablecloth.jpg@tablecloth
+-D haxe3
+--next
+-cmd cd java/src 
+-cmd javac haxe/root/JigsawxJava.java -d ../
+-cmd cd ..
+-debug
+-cmd jar cvf jigsawx.jar *
+-cmd appletviewer jigsawxjava.html
+#-cmd open -a /Applications/Opera.app http://localhost:8080/jigsawxjava.html

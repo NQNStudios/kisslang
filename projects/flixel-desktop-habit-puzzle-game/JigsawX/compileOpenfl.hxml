@@ -1,0 +1,18 @@
+
+#-cmd lime test windows
+#-cmd lime test windows -neko
+#-cmd lime test mac 
+#--next
+-cmd haxelib run nme cpp -bin binNme
+#-cmd lime test mac -neko
+#-cmd lime test linux
+#-cmd lime test linux -neko
+#-cmd lime test ios
+#-cmd lime test ios -simulator
+#-cmd lime test android
+#-cmd lime test blackberry
+#-cmd lime test blackberry   -simulator
+#-cmd lime test tizen
+#-cmd lime test tizen -simulator
+#-cmd lime test flash
+#-cmd lime test html5

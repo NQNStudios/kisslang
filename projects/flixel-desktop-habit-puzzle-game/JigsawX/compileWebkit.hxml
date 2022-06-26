@@ -1,0 +1,17 @@
+# Test options
+-D noVideo
+#-D noRandom
+-cp divtastic
+-main jigsawxtargets.hxjs.JigsawDivtastic
+-js deploy/jigsawdivtastic.js
+# this line excludes JQuery in haxe 2.08
+-D noEmbedJS
+-D haxe3
+# useful for mac users
+--next
+# do by hand in the deploy directory 
+#  zip app.nw *
+# because this line is not working
+#-cmd zip -r deploy/app.nw deploy/jigsawDivtastic.html deploy/package.json deploy/tablecloth.jpg deploy/jigsawdivtastic.js
+--next
+-cmd open -n -a node-webkit "deploy/app.nw"

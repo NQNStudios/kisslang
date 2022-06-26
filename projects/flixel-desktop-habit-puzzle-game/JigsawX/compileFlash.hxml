@@ -1,0 +1,28 @@
+# Compile switches useful for testing
+#-D noVideo
+#-D noRandom
+#-D showCamSource
+#-D videoFeedback
+
+-swf flash/jigsawx_progressiveVideo.swf
+-swf-version 11
+-swf-header 500:500:30:0000000
+-main jigsawxtargets.hxflash.JigsawProgressiveVideo
+
+# useful if your on a mac
+-cmd open -a /Applications/chrome.app flash/jigsawx_progressiveVideo.swf
+
+--next
+
+# Compile switches useful for testing
+#-D noVideo
+#-D noRandom
+#-D showCamSource
+
+-swf flash/jigsawx_webCam.swf
+-swf-version 11
+-swf-header 500:500:30:0000000
+-main jigsawxtargets.hxflash.JigsawWebCam
+
+# Useful if your on a mac
+-cmd open -a /Applications/chrome.app flash/jigsawx_webCam.swf
