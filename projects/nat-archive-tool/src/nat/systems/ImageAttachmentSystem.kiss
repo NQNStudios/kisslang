@@ -3,7 +3,7 @@
 (defNew []
     (super
         ["jpg" "jpeg" "png"]
-        ->[archive e imageFiles]
+        ->[archive e imageFiles &opt ui]
             (unless (hasComponent e Images)
                 (addComponent archive e Images
                     (object

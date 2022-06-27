@@ -8,7 +8,7 @@
         1))
         
 // named method in case a user will want to run it on selectedEntries instead of on media entries
-(method scrapeForImages [archive e]
+(method scrapeForImages [archive e &opt ui]
     (let [:String title
                 (readComponent e Name)
             :Array<String> wikipediaImageUrls
@@ -21,7 +21,9 @@
                                     (.urlDecode (url.withoutDirectory))
                                     // Some symbols shouldn't be decoded because they're invalid in file systems!
                                     "\"" "%22"))]
-                    // TODO do this with ui.displayMessage
+                    // TODO write a macro that either does both print and displayMessage if a ui is available
+                    (when ui
+                        (ui.displayMessage "Downloading $title image: $url"))
                     (print url "downloading")
                     (assertProcess "curl" ["--output" filePath url])
                     filePath)))

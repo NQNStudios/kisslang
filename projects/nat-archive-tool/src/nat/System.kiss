@@ -1,8 +1,8 @@
 (prop :Map<String,Entry> entries (new Map))
 
-(method :Void process [:Archive archive]
+(method :Void process [:Archive archive &opt :ArchiveUI ui]
     (doFor e (entries.iterator)
-        (processEntry archive e)))
+        (processEntry archive e ui)))
 
 (defNew [&prop :EntryChecker canProcessEntry
             &prop :EntryProcessor processEntry]
@@ -17,4 +17,4 @@
             (entries.remove e.id)
             (when onRemoveEntry (onRemoveEntry archive e)))))
 
-// TODO systems may need access to a UI or ArchiveController
+// TODO systems may need access to an ArchiveController

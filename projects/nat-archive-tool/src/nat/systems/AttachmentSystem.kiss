@@ -12,5 +12,5 @@
                         (return true)))
                 false
             }
-        ->[archive e]
-            (processor archive e (filter e.files ->file !(= -1 (extensions.indexOf (file.extension)))))))
+        ->[archive e &opt ui]
+            (processor archive e (filter e.files ->file !(= -1 (extensions.indexOf (file.extension)))) ui)))

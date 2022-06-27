@@ -9,7 +9,7 @@
     (super
         ->[archive e]
             ?(and (tagsMatch archive e tagFilterString) (hasComponent e Images))
-        ->[archive e]
+        ->[archive e &opt ui]
             (unless (sprites.exists e.id)
                 (when !(hasComponent e Positions)
                     (addComponent archive e Positions (new Map)))
@@ -21,7 +21,7 @@
                     (dictSet sprites e.id sprite))))
     
     (set onRemoveEntry
-        ->[archive e]
+        ->[archive e &opt ui]
             {
                 (.kill (dictGet sprites e.id))
                 (sprites.remove e.id)

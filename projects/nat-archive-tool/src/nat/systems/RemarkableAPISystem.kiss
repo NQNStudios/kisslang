@@ -3,7 +3,7 @@
 (defNew [] 
     (super
         ->[archive e] false
-        ->[archive e] null)
+        ->[archive e &opt ui] null)
         
     ~(#extern String js
         (object

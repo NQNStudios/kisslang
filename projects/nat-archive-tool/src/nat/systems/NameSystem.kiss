@@ -6,7 +6,7 @@
 (defNew []
     (super
         ->[archive e] (hasComponent e Name)
-        ->[archive e] (let [name (readComponent e Name)]
+        ->[archive e &opt ui] (let [name (readComponent e Name)]
                              (if (entriesByName.exists (name.toLowerCase))
                                     (.push (dictGet entriesByName (name.toLowerCase)) e)
                                 (dictSet entriesByName (name.toLowerCase) [e]))

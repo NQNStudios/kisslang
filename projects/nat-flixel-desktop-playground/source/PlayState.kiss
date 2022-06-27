@@ -94,7 +94,7 @@
     (prop &mut :EntrySpriteSystem spriteSystem)
     (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
     (archive.addSystem spriteSystem)
-    (archive.processSystems))
+    (archive.processSystems this))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)

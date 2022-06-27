@@ -80,7 +80,7 @@
 
         
 (method handleChanges [:Archive archive :ChangeSet changeSet]
-    (archive.processSystems)
+    (archive.processSystems this)
     (doFor e changeSet
         (print (archive.fullString e))))
 

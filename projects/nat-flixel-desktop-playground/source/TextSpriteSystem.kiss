@@ -6,7 +6,7 @@
     (super
         ->[archive e]
             ?(and !(hasComponent e Images) (hasComponent e Name))
-        ->[archive e]
+        ->[archive e &opt ui]
             {
                 (let [name (readComponent e Name)
                         sprite (new FlxText 0 0 0 name 16)
