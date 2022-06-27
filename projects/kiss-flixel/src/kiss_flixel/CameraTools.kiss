@@ -74,3 +74,10 @@
             ->(if (= bottom FlxG.height)
                     (<= (- bottom margin) mPos.y)
                 (<= (- bottom margin) mPos.y bottom)))))
+
+(function updateScrollWheelZoom [:FlxCamera camera :Float elapsed :Float speed]
+    #{
+        if (FlxG.mouse.wheel != 0) {
+            camera.zoom += (FlxG.mouse.wheel * elapsed * speed);
+        }
+    }#)

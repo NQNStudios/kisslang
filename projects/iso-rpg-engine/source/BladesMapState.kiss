@@ -83,11 +83,7 @@
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     // scroll to zoom:
-    #{
-        if (FlxG.mouse.wheel != 0) {
-            FlxG.camera.zoom += (FlxG.mouse.wheel / 10);
-        }
-    }#
+    (worldCamera.updateScrollWheelZoom elapsed 1)
     // F1 to toggle fullscreen:
     (when FlxG.keys.justPressed.F1
         (set FlxG.fullscreen !FlxG.fullscreen))

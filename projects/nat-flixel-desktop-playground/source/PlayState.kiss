@@ -128,6 +128,9 @@
         ->{FlxG.keys.pressed.UP}
         ->{FlxG.keys.pressed.DOWN})
     (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.15)
+
+    (FlxG.camera.updateScrollWheelZoom elapsed 1)
+
     // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
     (when (> uiGroup.length 0)
         (unless (and textInput textInput.hasFocus)
