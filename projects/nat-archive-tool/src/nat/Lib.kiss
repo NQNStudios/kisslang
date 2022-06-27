@@ -3,8 +3,14 @@
 
 // External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
-(function log [msg]
+(function _log [msg]
     (#when (or test debug) (print msg)))
+
+(defMacro log [ui msg]
+    (withEvalOnce [ui msg]
+        (when ui
+            (ui.displayMessage msg))
+        (_log msg)))
 
 (defMacro hasComponent [e componentType]
     `(.exists .components ,e ,(symbolName componentType)))
@@ -12,7 +18,7 @@
 // Changes to the object returned by (readComponent) will not be saved! Use (withWritableComponents) for making changes
 (defMacro readComponent [e componentType]
     `(let [componentData (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType))]
-        (log (+ "reading " componentData " as " ,(symbolName componentType) " for " .id ,e))
+        (log null (+ "reading " componentData " as " ,(symbolName componentType) " for " .id ,e))
         (the nat.components ,componentType 
             // TODO add to the documentation a hint that macros should use fully qualified type paths so macro caller classes don't need to import everything
             (tink.Json.parse componentData))))
@@ -20,12 +26,12 @@
 // TODO check not overwriting a component
 (defMacro addComponent [archive e componentType c]
     `(withWritableEntry ,archive ,e
-        (log (+ "adding " (the nat.components ,componentType ,c) " as " ,(symbolName componentType) " for " .id ,e))
+        (log null (+ "adding " (the nat.components ,componentType ,c) " as " ,(symbolName componentType) " for " .id ,e))
         (dictSet .components ,e ,(symbolName componentType) (tink.Json.stringify (the nat.components ,componentType ,c)))))
 
 (defMacro removeComponent [archive e componentType]
     `(withWritableEntry ,archive ,e
-        (log (+ "removing " ,(symbolName componentType) " component from " .id ,e))
+        (log null (+ "removing " ,(symbolName componentType) " component from " .id ,e))
         (.remove .components ,e ,(symbolName componentType))))
 
 // Retrieve multiple components from an Entity with mutable access.

@@ -1231,6 +1231,19 @@ class Macros {
         typedCallMacro("intersect", "intersect", "Array<Array<Dynamic>>");
         typedCallMacro("concat", "concat", "Array<Dynamic>");
 
+        k.doc("withEvalOnce", 2, null, "(withEvalOnce [<symbols...>] <body...>)");
+        macros["withEvalOnce"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            var symbols = exps[0].argList("withEvalOnce");
+            var body = exps.slice(1);
+            var bindings = [];
+            for (symbol in symbols) {
+                bindings.push(symbol);
+                bindings.push(Unquote(symbol).withPosOf(symbol));
+            }
+            return Quasiquote(b.let(bindings, body)).withPosOf(wholeExp);
+        };
+
         return macros;
     }
 

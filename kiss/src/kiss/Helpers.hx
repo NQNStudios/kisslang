@@ -369,6 +369,10 @@ class Helpers {
                 FieldExp(field, removeTypeAnnotations(innerExp));
             case KeyValueExp(keyExp, valueExp):
                 KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
+            case Unquote(innerExp):
+                Unquote(removeTypeAnnotations(innerExp));
+            case UnquoteList(innerExp):
+                UnquoteList(removeTypeAnnotations(innerExp));
             case None:
                 None;
             default:
@@ -606,7 +610,11 @@ class Helpers {
         }
         function float(v:Float) {
             return _symbol(Std.string(v));
-        } 
+        }
+        function let(bindings:Array<ReaderExp>, body:Array<ReaderExp>) {
+            return callSymbol("let", [list(bindings)].concat(body));
+        }
+        
         return {
             call: call,
             callSymbol: callSymbol,
@@ -625,7 +633,7 @@ class Helpers {
             field: field,
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
             begin: (exps:Array<ReaderExp>) -> callSymbol("begin", exps),
-            let: (bindings:Array<ReaderExp>, body:Array<ReaderExp>) -> callSymbol("let", [list(bindings)].concat(body)),
+            let: let,
             objectWith: objectWith,
             throwKissError: (reason:String) -> {
                 callSymbol("throw", [
