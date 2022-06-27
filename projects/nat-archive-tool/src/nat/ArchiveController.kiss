@@ -188,6 +188,17 @@
         (flatten (for name names
             (CreateEntry name))))
             
+    (defCommand CreateMediaEntry [medium (Text null) name (Text null)]
+        [(archive.createEntry ->e {
+            (addComponent archive e Name name)
+            (addTags archive e ["media" medium])})])
+
+    (defCommand CreateMediaEntries [medium (Text null) names (VarText null)]
+        // createEntry returns a list, so these lists must be flattened
+        (flatten (for name names
+            (CreateEntry name))))
+
+    // TODO use Tag and VarTag arg types for AddTags and RemoveTags
     (defCommand AddTags [entries (SelectedEntries 1 null)
                             tagsToAdd (VarText null)]
         (doFor e entries

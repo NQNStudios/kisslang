@@ -21,10 +21,7 @@
                                     (.urlDecode (url.withoutDirectory))
                                     // Some symbols shouldn't be decoded because they're invalid in file systems!
                                     "\"" "%22"))]
-                    // TODO write a macro that either does both print and displayMessage if a ui is available
-                    (when ui
-                        (ui.displayMessage "Downloading $title image: $url"))
-                    (print url "downloading")
+                    (log ui "Downloading $title image: $url")
                     (assertProcess "curl" ["--output" filePath url])
                     filePath)))
         // Trigger the creation of a new Images component including the wikipedia images
