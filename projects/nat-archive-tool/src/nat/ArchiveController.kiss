@@ -143,6 +143,9 @@
 (method isSelected [:Entry e]
     !(= -1 (_selectedEntries.indexOf e)))
 
+(method getSelectedEntries []
+    (_selectedEntries.copy))
+
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]
     [&mut :Array<Entry> _selectedEntries []

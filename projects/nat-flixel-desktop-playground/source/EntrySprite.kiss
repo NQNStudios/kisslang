@@ -1,6 +1,7 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
-(defNew [:String positionKey
+(defNew [&prop :EntrySpriteSystem system
+            &prop :String positionKey
             &prop :Archive archive
             &prop :Entry e
             &prop :ArchiveController controller]
@@ -21,15 +22,42 @@
                 (enableMouseDrag)
              }))
     
-    **(set mousePressedCallback
-        ->[self _x _y]
-            {
-                (controller.ToggleSelectEntry e)
-            })
+    (set mouseStartDragCallback
+        ->[self _dx _dy]
+            (doFor sprite ~(system.getSelectedSprites)
+                (unless (= sprite.e.id this.e.id)
+                    (sprite.fixToSprite this))))
+
     (set mouseStopDragCallback
         ->[self _dx _dy]
-            (withWritableComponents archive e [positions Positions]
-                (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0)))))
+            {
+                (savePos)
+                (doFor sprite (system.getSelectedSprites)
+                    (unless (= sprite.e.id this.e.id)
+                        (sprite.endFixToSprite)))
+            }))
+
+(prop &mut :EntrySprite fixedToSprite)
+(prop &mut :FlxPoint fixedOffset)
+
+(method savePos []
+    (withWritableComponents archive e [positions Positions]
+        (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0))))
+
+(method &override :Void update [:Float elapsed] 
+    (super.update elapsed)
+    (when fixedToSprite
+        (set x (+ fixedToSprite.x fixedOffset.x))
+        (set y (+ fixedToSprite.y fixedOffset.y))))
+
+(method fixToSprite [:EntrySprite sprite]
+    (set fixedToSprite sprite)
+    (set fixedOffset (new FlxPoint (- x sprite.x) (- y sprite.y))))
+
+
+(method endFixToSprite []
+    (savePos)
+    (set fixedToSprite null))
 
 (method updateColor []
     (if (controller.isSelected e)

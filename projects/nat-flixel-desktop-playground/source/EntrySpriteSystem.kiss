@@ -16,7 +16,7 @@
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists positionKey)
                         (dictSet positions positionKey (object x 0.0 y 0.0 z 0.0))))
-                (let [sprite (new EntrySprite positionKey archive e controller)]
+                (let [sprite (new EntrySprite this positionKey archive e controller)]
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite))))
     
@@ -28,3 +28,6 @@
                 // When an Entry is hidden, we can bet the user doesn't want it selected anymore
                 (controller.DeSelectEntry e)
             }))
+
+(method getSelectedSprites []
+    (filter (for e (controller.getSelectedEntries) (dictGet sprites e.id))))

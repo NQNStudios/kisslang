@@ -47,11 +47,14 @@
         // mouseDown
         ->s {
             (set mouseDown (FlxG.mouse.getScreenPosition))
-            (controller.SelectEntries [])
-            (entryGroup.forEach
-                ->entrySprite
-                    (when (.containsPoint (entrySprite.getScreenBounds) (FlxG.mouse.getScreenPosition))
-                        (controller.SelectEntry entrySprite.e)))
+            (let [&mut clickedOnSomething false]
+                (entryGroup.forEach
+                    ->entrySprite
+                        (when (.containsPoint (entrySprite.getScreenBounds) (FlxG.mouse.getScreenPosition))
+                            (set clickedOnSomething true)
+                            (unless (controller.isSelected entrySprite.e)
+                                (controller.SelectEntry entrySprite.e))))
+                (unless clickedOnSomething (controller.SelectEntries [])))
             }
         // mouseUp
         ->s {
@@ -62,6 +65,7 @@
         ->s {}
         // mouseOut
         ->s {}
+        // also send events to sprites that overlap the dragging background
         true
         true
         false)
