@@ -3,7 +3,7 @@
 (prop :Map<String,EntrySprite> sprites (new Map))
 
 (defNew [:String tagFilterString
-            :String positionKey
+            &prop :String positionKey
             :PlayState playState
             &prop :ArchiveController controller]
     (super

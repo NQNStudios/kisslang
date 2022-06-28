@@ -7,6 +7,8 @@
 
 	(FlxG.plugins.add (new FlxMouseControl))
     (set FlxG.sound.muteKeys null)
+    (set FlxG.sound.volumeDownKeys null)
+    (set FlxG.sound.volumeUpKeys null)
 
     // TODO find a better way to pass the archiveDir to a HaxeFlixel game
     (let [archiveDir
@@ -95,11 +97,18 @@
     (prop &mut :EntrySpriteSystem spriteSystem)
     (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
     (archive.addSystem spriteSystem)
+    
+    (prop &mut :EntrySpriteDepthSystem spriteDepthSystem)
+    (set spriteDepthSystem (new EntrySpriteDepthSystem this spriteSystem))
+    (archive.addSystem spriteDepthSystem)
+
     (archive.processSystems this)
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
+    
+    (spriteDepthSystem.process archive)
     
     (when FlxG.keys.justPressed.ESCAPE
         (Sys.exit 0))
@@ -132,6 +141,15 @@
     (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.15)
 
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
+
+    // +/- keys to change an entry's z
+    (doFor e (controller.getSelectedEntries)
+        (when FlxG.keys.justPressed.MINUS
+            (withWritableComponents archive e [positions Positions]
+                (-= .z (dictGet positions spriteSystem.positionKey) 1)))
+        (when FlxG.keys.justPressed.PLUS
+            (withWritableComponents archive e [positions Positions]
+                (+= .z (dictGet positions spriteSystem.positionKey) 1))))
 
     // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
     (when (> uiGroup.length 0)
@@ -214,14 +232,15 @@
 
 (var SCROLL_BOUND_MARGIN 200)
 (method handleChanges [:Archive archive :ChangeSet changeSet]
-    (doFor e changeSet
+    (when changeSet
         // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
         (archive.processSystems this)
         // Do a second loop through the systems, so Playground systems that trigger Core systems have their effects processed
         (archive.processSystems this)
 
-        (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN)
+        (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
+    (doFor e changeSet
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
         (when (spriteSystem.entries.exists e.id)

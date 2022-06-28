@@ -43,7 +43,8 @@
 (method savePos []
     (FlxG.camera.extendScrollBounds this PlayState.SCROLL_BOUND_MARGIN)
     (withWritableComponents archive e [positions Positions]
-        (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0))))
+        (let [pos (dictGet positions positionKey)]    
+            (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z pos.z)))))
 
 (method &override :Void update [:Float elapsed] 
     (super.update elapsed)
