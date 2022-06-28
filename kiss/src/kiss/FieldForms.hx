@@ -124,6 +124,13 @@ class FieldForms {
             var returnsValue = !isVoid(args[0]);
 
             var wasInStatic = k.inStaticFunction;
+            var typeParams = switch (args[1].def) {
+                case TypeParams(p):
+                    args.splice(1, 1);    
+                    p;
+                default:
+                    [];
+            } 
 
             var f:Field = {
                 name: name,
@@ -135,7 +142,8 @@ class FieldForms {
                         args[1],
                         args.slice(2),
                         k.forStaticFunction(inStaticFunction),
-                        formName)),
+                        formName,
+                        typeParams)),
                 pos: wholeExp.macroPos()
             };
 

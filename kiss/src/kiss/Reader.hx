@@ -39,6 +39,8 @@ class Reader {
         // and also handles string interpolation cases like "${exp}moreString"
         readTable["{"] = (stream:Stream, k) -> CallExp(Symbol("begin").withPos(stream.position()), readExpArray(stream, "}", k));
 
+        readTable["<>["] = (stream, k) -> TypeParams(readExpArray(stream, "]", k));
+
         readTable['"'] = readString.bind(_, _, false);
         readTable["#"] = readRawString;
 
@@ -499,6 +501,16 @@ class Reader {
             case ListExp(exps):
                 // [v1 v2 v3]
                 var str = '[';
+                str += [
+                    for (exp in exps) {
+                        exp.def.toString();
+                    }
+                ].join(" ");
+                str += ']';
+                str;
+            case TypeParams(exps):
+                // <>[T1 T2 T3]
+                var str = '<>[';
                 str += [
                     for (exp in exps) {
                         exp.def.toString();

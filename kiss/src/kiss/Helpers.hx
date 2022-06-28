@@ -109,13 +109,30 @@ class Helpers {
         };
     }
 
-    // TODO generic type parameter declarations
-    public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState, formName:String):Function {
+    public static function makeTypeParam(param:ReaderExp, ?constraints:Array<ComplexType> = null):TypeParamDecl {
+        if (constraints == null) constraints = [];
+        switch (param.def) {
+            case Symbol(name):
+                return {
+                    name: name,
+                    constraints: constraints
+                };
+            case TypedExp(type, param):
+                constraints.push(parseComplexType(type));
+                return makeTypeParam(param, constraints);
+            default:
+                throw KissError.fromExp(param, "expected <GenericTypeName> or :<Constraint> <GenericTypeName>");
+        }
+    }
+
+    public static function makeFunction(?name:ReaderExp, returnsValue:Bool, argList:ReaderExp, body:List<ReaderExp>, k:KissState, formName:String, typeParams:Array<ReaderExp>):Function {
         var funcName = if (name != null) {
             varName(formName, name, "function");
         } else {
             "";
         };
+
+        var params = [for (p in typeParams) makeTypeParam(p)];
 
         var numArgs = 0;
         // Once the &opt meta appears, all following arguments are optional until &rest
@@ -218,7 +235,8 @@ class Helpers {
         return {
             ret: if (name != null) Helpers.explicitType(name) else null,
             args: args,
-            expr: expr
+            expr: expr,
+            params: params
         };
     }
 

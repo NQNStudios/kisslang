@@ -23,5 +23,6 @@ enum ReaderExpDef {
     UnquoteList(exp:ReaderExp); // ,@[exp]
     ListEatingExp(exps:Array<ReaderExp>); // [::exp exp ...exps exp]
     ListRestExp(name:String); // ...exps or ...
+    TypeParams(types:Array<ReaderExp>); // <>[T :Constraint U :Constraint1 :Constraint2 V]
     None; // not an expression, i.e. (#unless falseCondition exp)
 }

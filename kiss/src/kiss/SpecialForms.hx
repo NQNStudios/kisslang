@@ -230,7 +230,7 @@ class SpecialForms {
                 default:
                     true;
             }
-            EFunction(FAnonymous, Helpers.makeFunction(null, returnsValue, args[0], args.slice(1), k, "lambda")).withMacroPosOf(wholeExp);
+            EFunction(FAnonymous, Helpers.makeFunction(null, returnsValue, args[0], args.slice(1), k, "lambda", [])).withMacroPosOf(wholeExp);
         };
     
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {

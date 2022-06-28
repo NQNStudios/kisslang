@@ -307,7 +307,8 @@ class Kiss {
                             b.list([]),
                             [topLevelBegin],
                             k,
-                            "function")),
+                            "function",
+                            [])),
                         pos: topLevelBegin.macroPos()
                     });
                 }
