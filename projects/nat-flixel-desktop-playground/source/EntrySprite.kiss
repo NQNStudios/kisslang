@@ -41,6 +41,7 @@
 (prop &mut :FlxPoint fixedOffset)
 
 (method savePos []
+    (FlxG.camera.extendScrollBounds this PlayState.SCROLL_BOUND_MARGIN)
     (withWritableComponents archive e [positions Positions]
         (dictSet positions positionKey (object x (cast this.x Float) y (cast this.y Float) z 0.0))))
 

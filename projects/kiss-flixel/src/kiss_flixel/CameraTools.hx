@@ -10,6 +10,9 @@ import flixel.math.FlxPoint;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.util.FlxColor;
+import flixel.FlxObject;
+import flixel.group.FlxGroup;
+import kiss_flixel.GroupTools;
 
 using Lambda;
 

@@ -39,6 +39,7 @@
 
 	<haxelib name="kiss"/>
 	<haxelib name="kiss-flixel"/>
+	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
 
 	<haxelib name="hscript"/>
 

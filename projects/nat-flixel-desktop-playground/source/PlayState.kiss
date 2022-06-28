@@ -1,9 +1,6 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
-// TODO store a map of Entry IDs -> EntrySprites.
 // TODO handleChanges() will need to kill every changed Entry's sprite and make a new one
-// TODO make the EntrySprite constructor assign the entry a serialized position component
-    // maybe by writing a Map<String, Point> positions component so there can be multiple?
 
 (method &override :Void create []
     (super.create)
@@ -98,7 +95,8 @@
     (prop &mut :EntrySpriteSystem spriteSystem)
     (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
     (archive.addSystem spriteSystem)
-    (archive.processSystems this))
+    (archive.processSystems this)
+    (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
@@ -214,13 +212,15 @@
         (set chooseNextEntry _chooseNextEntry)
         (_chooseNextEntry)))
 
-        
+(var SCROLL_BOUND_MARGIN 200)
 (method handleChanges [:Archive archive :ChangeSet changeSet]
     (doFor e changeSet
         // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
         (archive.processSystems this)
         // Do a second loop through the systems, so Playground systems that trigger Core systems have their effects processed
         (archive.processSystems this)
+
+        (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN)
 
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()

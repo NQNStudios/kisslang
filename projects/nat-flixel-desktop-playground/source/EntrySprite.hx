@@ -11,6 +11,7 @@ import nat.BoolExpInterp;
 import nat.components.Images;
 import nat.components.Positions;
 import nat.components.Scale;
+using kiss_flixel.CameraTools;
 
 @:build(kiss.Kiss.build())
 class EntrySprite extends FlxExtendedSprite {}

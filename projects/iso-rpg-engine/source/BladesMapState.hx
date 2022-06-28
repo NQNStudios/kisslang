@@ -7,6 +7,7 @@ import flixel.FlxCamera;
 import flixel.math.FlxRect;
 import flixel.math.FlxVector;
 import flixel.graphics.FlxGraphic;
+import flixel.group.FlxGroup;
 import flixel.FlxG;
 import flixel.input.mouse.FlxMouseEventManager;
 

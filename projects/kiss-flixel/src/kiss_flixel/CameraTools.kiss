@@ -81,3 +81,15 @@
             camera.zoom += (FlxG.mouse.wheel * elapsed * speed);
         }
     }#)
+
+(function calculateScrollBounds <>[:FlxObject T] [:FlxCamera camera :FlxTypedGroup<T> group &opt :Float margin]
+    (let [r (GroupTools.calculateBounds group margin)]
+        (camera.setScrollBoundsRect r.x r.y r.width r.height)))
+
+(function extendScrollBounds [:FlxCamera camera :FlxObject object &opt :Float margin]
+    // if the given object is out of bounds, extend the bounds
+    (let [r (object.getRotatedBounds)]
+        (setMin camera.minScrollX (- r.left margin))
+        (setMin camera.minScrollY (- r.top margin))
+        (setMax camera.maxScrollX (+ r.right margin))
+        (setMax camera.maxScrollY (+ r.bottom margin))))
