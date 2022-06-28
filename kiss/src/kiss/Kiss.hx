@@ -87,6 +87,7 @@ class Kiss {
                 // TODO some of these probably won't conflict, and could be passed as functions for a number of reasons
                 "print" => Symbol("Prelude.print"),
                 "sort" => Symbol("Prelude.sort"),
+                "sortBy" => Symbol("Prelude.sortBy"),
                 "groups" => Symbol("Prelude.groups"),
                 "pairs" => Symbol("Prelude.pairs"),
                 "reverse" => Symbol("Prelude.reverse"),

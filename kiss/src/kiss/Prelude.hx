@@ -196,6 +196,15 @@ class Prelude {
         return sorted;
     }
 
+    public static function sortBy<T,U>(a:Array<T>, index:T->U, ?comp:(U, U) -> Int):kiss.List<T> {
+        if (comp == null)
+            comp = Reflect.compare;
+
+        return sort(a, (v1, v2) -> {
+            return comp(index(v1), index(v2));
+        });
+    }
+
     public static function groups<T>(a:Array<T>, size, extraHandling = Throw):kiss.List<kiss.List<T>> {
         var numFullGroups = Math.floor(a.length / size);
         var fullGroups = [
