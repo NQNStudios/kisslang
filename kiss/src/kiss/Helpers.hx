@@ -633,6 +633,7 @@ class Helpers {
             field: field,
             keyValue: (key:ReaderExp, value:ReaderExp) -> KeyValueExp(key, value).withPosOf(posRef),
             begin: (exps:Array<ReaderExp>) -> callSymbol("begin", exps),
+            set: (v:ReaderExp, value:ReaderExp) -> callSymbol("set", [v, value]),
             let: let,
             objectWith: objectWith,
             throwKissError: (reason:String) -> {

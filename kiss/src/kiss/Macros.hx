@@ -960,6 +960,22 @@ class Macros {
             b.begin(k.collectedBlocks[blockName]);
         };
 
+        // These are implemented as variadic functions, so checkNumArgs() is never actually called,
+        // but the docs might be useful
+        k.doc("min", 2, null, "(min <v1> <v2> <more values...>)");
+        k.doc("max", 2, null, "(max <v1> <v2> <more values...>)");
+
+        k.doc("setMin", 2, null, "(setMin <var> <v2> <more values...>)");
+        k.doc("setMax", 2, null, "(setMax <var> <v2> <more values...>)");
+        function setCompMacro(compType:String) {
+            return (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+                var b = wholeExp.expBuilder();
+                b.set(exps[0], b.callSymbol(compType, exps));
+            }
+        }
+        macros["setMin"] = setCompMacro("min");
+        macros["setMax"] = setCompMacro("max");
+
         k.doc("clamp", 2, 3, "(clamp <expr> <min or null> <?max or null>)");
         macros["clamp"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
