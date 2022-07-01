@@ -1,0 +1,18 @@
+(function :FlxRect calculateBounds <>[:FlxObject T] [:FlxTypedGroup<T> group &opt :Float margin]
+    (unless margin (set margin 0))
+    (let [&mut minX 0
+            &mut maxX 0
+            &mut minY 0
+            &mut maxY 0
+            r (new FlxRect)]
+        
+        (group.forEach ->object
+            (let [bounds (object.getRotatedBounds r)]
+                (set minX (min minX bounds.left))
+                (set minY (min minY bounds.top))
+                (set maxX (max maxX bounds.right))
+                (set maxY (max maxY bounds.bottom))))
+
+        (r.fromTwoPoints
+            (new FlxPoint (- minX margin) (- minY margin))
+            (new FlxPoint (+ maxX margin) (+ maxY margin)))))
