@@ -11,6 +11,7 @@
     "main": "nat.CLI",
     "dependencies": {
         "kiss": "",
+        "kiss-tools": "",
         "tink_json": ""
     }
 }

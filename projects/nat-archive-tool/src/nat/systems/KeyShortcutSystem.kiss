@@ -1,0 +1,32 @@
+(load "../Lib.kiss")
+
+(prop :Map<String,Bool> descriptions (new Map))
+
+(defNew [&prop :ArchiveController controller]
+    [&mut :Bool setup false]
+    (super
+        ->[archive e]
+            (hasComponent e KeyShortcut)
+        ->[archive e &opt ui]
+            {   
+                (when (and ui ui.shortcutHandler)
+                    (unless setup
+                        (set ui.shortcutHandler.onSelectItem (invokeEntry.bind archive ui))
+                        (set ui.shortcutHandler.onBadKey ->[key map] (ui.displayMessage "$key is not mapped to a shortcut in this context: $map"))
+                        (set setup true))
+
+                    (unless (descriptions.exists (readComponent e KeyShortcut))
+                        (ui.shortcutHandler.registerItem (readComponent e KeyShortcut) e)
+                        (dictSet descriptions (readComponent e KeyShortcut) true)))
+                0
+            }))
+
+(method invokeEntry [archive ui :Entry e]
+    // TODO make this doCond
+    (cond
+        ((hasComponent e NATCommand)
+            (controller.tryRunCommand (readComponent e NATCommand)) 0)
+        ((hasComponent e NATCommands)
+            // TODO chain them together asynchronously (they may be partial)
+            0)
+        (true (ui.displayMessage "tried to invoke ${e.id} but it has no available actions"))) 0)

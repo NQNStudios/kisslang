@@ -160,6 +160,8 @@
     (archive.addSystem (new RemarkableAPISystem))
     (archive.addSystem (new WikipediaImageSystem))
     (archive.addSystem (new ImageAttachmentSystem))
+    (archive.addSystem (new KeyShortcutSystem this))
+
     // Just for testing:
     // (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))
 
@@ -199,7 +201,7 @@
     (defCommand CreateMediaEntries [medium (Text null) names (VarText null)]
         // createEntry returns a list, so these lists must be flattened
         (flatten (for name names
-            (CreateEntry name))))
+            (CreateMediaEntry medium name))))
 
     // TODO use Tag and VarTag arg types for AddTags and RemoveTags
     (defCommand AddTags [entries (SelectedEntries 1 null)
@@ -214,7 +216,15 @@
             (removeTags archive e tagsToRemove))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
+    (defCommand AddKeyShortcut [e SelectedEntry description (Text  null)]
+        (addComponent archive e KeyShortcut description))
        
+    (defCommand AddNATCommand [e (SelectedEntries null null) command (Text null)]
+        (doFor e e (addComponent archive e NATCommand command)))
+
+    (defCommand AddNATCommands [e (SelectedEntries null null) commands (VarText null)]
+        (doFor e e (addComponent archive e NATCommands commands)))
+
     (defCommand AddFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
         // TODO make tkinter file browser externs and use tkinter as the file picking mechanism for CLI

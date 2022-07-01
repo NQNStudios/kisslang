@@ -1,12 +1,19 @@
 package nat;
 
+import nat.Entry;
 import nat.ArchiveController;
+import kiss_tools.KeyShortcutHandler;
 
 interface ArchiveUI {
     /**
      * Reference to the ArchiveController
      */
     var controller(default, default):ArchiveController;
+
+    /**
+     * A KeyShortcutHandler that will integrate with the KeyShortcutSystem if provided
+     */
+    var shortcutHandler(default, null):Null<KeyShortcutHandler<Entry>>;
 
     /**
      * Prompt the user to enter text

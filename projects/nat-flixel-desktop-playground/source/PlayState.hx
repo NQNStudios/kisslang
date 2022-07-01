@@ -19,6 +19,8 @@ import flixel.addons.plugin.FlxMouseControl;
 import flixel.input.mouse.FlxMouseEventManager;
 using StringTools;
 using kiss_flixel.CameraTools;
+import kiss_tools.KeyShortcutHandler;
+import kiss_tools.FlxKeyShortcutHandler;
 
 @:build(kiss.Kiss.build())
 class PlayState extends FlxState implements ArchiveUI {}

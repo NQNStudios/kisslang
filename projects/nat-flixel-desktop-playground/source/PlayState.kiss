@@ -21,6 +21,7 @@
                 archive
                 this)))
 
+    (prop :KeyShortcutHandler<Entry> shortcutHandler (new FlxKeyShortcutHandler<Entry>))
 
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
@@ -105,9 +106,13 @@
     (archive.processSystems this)
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
+(defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     
+    (when sh.currentMap
+        (sh.update))
+
     (spriteDepthSystem.process archive)
     
     (when FlxG.keys.justPressed.ESCAPE
@@ -142,26 +147,31 @@
 
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
 
-    // +/- keys to change an entry's z
-    (doFor e (controller.getSelectedEntries)
-        (when FlxG.keys.justPressed.MINUS
-            (withWritableComponents archive e [positions Positions]
-                (-= .z (dictGet positions spriteSystem.positionKey) 1)))
-        (when FlxG.keys.justPressed.PLUS
-            (withWritableComponents archive e [positions Positions]
-                (+= .z (dictGet positions spriteSystem.positionKey) 1))))
+    // Don't check keys that can be used in shortcuts outside this block:
+    (unless sh.currentMap
+        (when FlxG.keys.justPressed.SEMICOLON
+            (sh.start)
+            (return))
+        // +/- keys to change an entry's z
+        (doFor e (controller.getSelectedEntries)
+            (when FlxG.keys.justPressed.MINUS
+                (withWritableComponents archive e [positions Positions]
+                    (-= .z (dictGet positions spriteSystem.positionKey) 1)))
+            (when FlxG.keys.justPressed.PLUS
+                (withWritableComponents archive e [positions Positions]
+                    (+= .z (dictGet positions spriteSystem.positionKey) 1))))
 
-    // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
-    (when (> uiGroup.length 0)
-        (unless (and textInput textInput.hasFocus)
-            (uiCamera.updateKeyControl
-                elapsed
-                KEYBOARD_SCROLL_SPEED
-                // TODO support dvorak
-                ->{FlxG.keys.pressed.A}
-                ->{FlxG.keys.pressed.D}
-                ->{FlxG.keys.pressed.W}
-                ->{FlxG.keys.pressed.S}))))
+        // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
+        (when (> uiGroup.length 0)
+            (unless (and textInput textInput.hasFocus)
+                (uiCamera.updateKeyControl
+                    elapsed
+                    KEYBOARD_SCROLL_SPEED
+                    // TODO support dvorak
+                    ->{FlxG.keys.pressed.A}
+                    ->{FlxG.keys.pressed.D}
+                    ->{FlxG.keys.pressed.W}
+                    ->{FlxG.keys.pressed.S})))))
 
 (method :Void typeCommand []
     (enterText

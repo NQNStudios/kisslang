@@ -9,7 +9,7 @@ typedef PrefixMapHandler<T> = (Map<String, ShortcutKey<T>>) -> Void;
 typedef ItemHandler<T> = (T) -> Void;
 typedef FinishHandler = () -> Void;
 typedef BadKeyHandler<T> = (String, PrefixMap<T>) -> Void;
-typedef BadShortcutHandler<T> = (String,ShortcutKey<T>) -> Void;
+typedef BadShortcutHandler<T> = (String, ShortcutKey<T>) -> Void;
 
 enum ShortcutKey<T> {
     Final(item:T);

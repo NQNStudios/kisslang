@@ -83,4 +83,3 @@
 (method :Void registerItem [description :T item]
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
         (registerShortcut (keyboardShortcut.split "") description item)))
-

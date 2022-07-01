@@ -13,6 +13,7 @@
                 (controller.tryRunCommand command))))
 
 (prop &mut :ArchiveController controller)
+(prop :KeyShortcutHandler<Entry> shortcutHandler null)
 
 (defNew [])
 
