@@ -1,0 +1,33 @@
+(loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+
+(method z [:Entry e]
+    .z (dictGet (readComponent e Positions) spriteSystem.positionKey))
+
+(method :Array<EntrySprite> collectOverlapping [:EntrySprite s &opt :Array<EntrySprite> overlapping]
+    (unless overlapping (set overlapping []))
+    (overlapping.push s)
+    (FlxG.overlap s state.entryGroup
+        ->[_ s2]
+            (unless (contains overlapping s2)
+                (collectOverlapping s2 overlapping)))
+    overlapping)
+
+(defNew [&prop :PlayState state
+            &prop :EntrySpriteSystem spriteSystem]
+    (super
+        ->[archive e]
+            ?(and
+                (spriteSystem.sprites.exists e.id)
+                !(= 0 (z e)))
+        ->[archive e &opt ui]
+            (let [:Array<EntrySprite> inOrder
+                    ~(sortBy
+                        (collectOverlapping (dictGet spriteSystem.sprites e.id))
+                        ->s (- (z s.e)))]
+                // Looping twice avoids having to splice() the group
+                (doFor s inOrder
+                    // This will leave null holes
+                    (state.entryGroup.remove s))
+                (doFor s inOrder
+                    // this will fill the null holes in the right order
+                    (state.entryGroup.add s)))))
