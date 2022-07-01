@@ -1021,7 +1021,7 @@ class Macros {
                     }
                 }
 
-                throw KissError.fromExp(wholeExp, 'expression ${toMatch.def.toString()} matches no pattern in exprCase');
+                throw KissError.fromExp(wholeExp, 'expression ${toMatchValue.def.toString()} matches no pattern in exprCase');
             };
 
             return b.call(b.symbol("Macros.exprCase"), [b.str(functionKey), toMatch, b.symbol("__interp__")]);
