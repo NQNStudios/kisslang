@@ -6,6 +6,11 @@ import flixel.FlxSprite;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.math.FlxPoint;
+import flash.display.PNGEncoderOptions;
+import flash.utils.ByteArray;
+#if sys
+import sys.io.File;
+#end
 
 enum RelativeCoordinate {
     // Negative means to count back from the far edge

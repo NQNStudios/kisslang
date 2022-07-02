@@ -51,3 +51,11 @@
                 (when color
                     (set text.color color))
                 (drawOnSprite text canvas pos)))))
+
+// Source: https://gist.github.com/miltoncandelero/0c452f832fa924bfdd60fe9d507bc581
+(#when sys
+    (function :Void saveToPNG [:FlxSprite sprite :String file]
+        (let [bitmapData sprite.pixels
+                &mut bytes (new ByteArray)]
+            (set bytes (bitmapData.encode bitmapData.rect (new PNGEncoderOptions true) bytes))
+                (File.saveBytes file bytes))))
