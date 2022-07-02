@@ -2,21 +2,19 @@
 
 (prop :Map<String,EntrySprite> sprites (new Map))
 
-(defNew [:String tagFilterString
-            &prop :String positionKey
-            :PlayState playState
+// TODO this can also handle text sprites, and instead of saving out the text bitmap,
+// just make the FlxText every time at runtime -- so PinNextImage won't be needed
+// when the media tag is added
+
+(defNew [:PlayState playState
             &prop :ArchiveController controller]
     (super
+        playState
         ->[archive e]
-            ?(and (tagsMatch e tagFilterString) (hasComponent e Images))
-        ->[archive e &opt ui]
+            ?(hasComponent e Images)
+        ->[archive e pos &opt ui]
             (unless (sprites.exists e.id)
-                (when !(hasComponent e Positions)
-                    (addComponent archive e Positions (new Map)))
-                (withWritableComponents archive e [positions Positions]
-                    (when !(positions.exists positionKey)
-                        (dictSet positions positionKey (object x 0.0 y 0.0 z 0.0))))
-                (let [sprite (new EntrySprite this positionKey archive e controller)]
+                (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite))))
     
@@ -28,6 +26,8 @@
                 // When an Entry is hidden, we can bet the user doesn't want it selected anymore
                 (controller.DeSelectEntry e)
             }))
+
+// TODO override process to z-sort all sprites after making them
 
 (method getSelectedSprites []
     (filter (for e (controller.getSelectedEntries) (dictGet sprites e.id))))

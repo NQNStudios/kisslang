@@ -162,6 +162,10 @@
     (archive.addSystem (new ImageAttachmentSystem))
     (archive.addSystem (new KeyShortcutSystem this))
     (archive.addSystem (new DLSystem))
+    (whenLet [ps (ui.playgroundSystem)]
+        (archive.addSystem ps)
+        // TODO allow saving a different default playground
+        (ps.switchPlaygroundKey "Playground-MAIN"))
 
     // Just for testing:
     // (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))

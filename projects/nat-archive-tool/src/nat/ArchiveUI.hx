@@ -3,6 +3,7 @@ package nat;
 import nat.Entry;
 import nat.ArchiveController;
 import kiss_tools.KeyShortcutHandler;
+import nat.systems.PlaygroundSystem;
 
 interface ArchiveUI {
     /**
@@ -14,6 +15,11 @@ interface ArchiveUI {
      * A KeyShortcutHandler that will integrate with the KeyShortcutSystem if provided
      */
     var shortcutHandler(default, null):Null<KeyShortcutHandler<Entry>>;
+
+    /**
+     * A PlaygroundSystem that will display interactible entry representations
+     */
+    function playgroundSystem():Null<PlaygroundSystem>;
 
     /**
      * Prompt the user to enter text

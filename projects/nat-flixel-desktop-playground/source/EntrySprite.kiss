@@ -2,14 +2,14 @@
 
 (defNew [&prop :EntrySpriteSystem system
             &prop :String positionKey
+            &prop :Position position
             &prop :Archive archive
             &prop :Entry e
             &prop :ArchiveController controller]
     [&mut :Bool selected false]
 
     (let [images (readComponent e Images)]
-        (whenLet [(objectWith x y z) (dictGet (readComponent e Positions) positionKey)]
-            (super x y))
+        (super position.x position.y)
         (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
             ->bitmapData {
                 (loadGraphic bitmapData)

@@ -2,6 +2,13 @@
 
 // TODO handleChanges() will need to kill every changed Entry's sprite and make a new one
 
+// make interactible sprites for entries that have images
+
+(prop &mut :EntrySpriteSystem spriteSystem)
+
+(method :PlaygroundSystem playgroundSystem []
+    (set spriteSystem (new EntrySpriteSystem this controller)))
+
 (method &override :Void create []
     (super.create)
 
@@ -91,14 +98,6 @@
     // make text-only sprites for entries that have no images:
     (archive.addSystem (new TextSpriteSystem))
 
-    // make interactible sprites for entries that have images
-
-    // TODO allow configuring the tags at runtime and erasing/re-creating sprites later
-    // TODO allow using other position keys and erasing/re-creating sprites later
-    (prop &mut :EntrySpriteSystem spriteSystem)
-    (set spriteSystem (new EntrySpriteSystem "!done" "Playground-MAIN" this controller))
-    (archive.addSystem spriteSystem)
-    
     (prop &mut :EntrySpriteDepthSystem spriteDepthSystem)
     (set spriteDepthSystem (new EntrySpriteDepthSystem this spriteSystem))
     (archive.addSystem spriteDepthSystem)
@@ -148,7 +147,7 @@
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
 
     // Don't check keys that can be used in shortcuts outside this block:
-    (unless sh.currentMap
+    (unless (or sh.currentMap (and textInput textInput.hasFocus))
         (when FlxG.keys.justPressed.SEMICOLON
             (sh.start)
             (return))
@@ -156,10 +155,10 @@
         (doFor e (controller.getSelectedEntries)
             (when FlxG.keys.justPressed.MINUS
                 (withWritableComponents archive e [positions Positions]
-                    (-= .z (dictGet positions spriteSystem.positionKey) 1)))
+                    (-= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1)))
             (when FlxG.keys.justPressed.PLUS
                 (withWritableComponents archive e [positions Positions]
-                    (+= .z (dictGet positions spriteSystem.positionKey) 1))))
+                    (+= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1))))
 
         // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
         (when (> uiGroup.length 0)

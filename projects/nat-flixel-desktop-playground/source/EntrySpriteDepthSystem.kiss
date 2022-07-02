@@ -1,7 +1,7 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
 (method z [:Entry e]
-    .z (dictGet (readComponent e Positions) spriteSystem.positionKey))
+    .z (dictGet (readComponent e Positions) (spriteSystem.getPlaygroundKey)))
 
 (method :Array<EntrySprite> collectOverlapping [:EntrySprite s &opt :Array<EntrySprite> overlapping]
     (unless overlapping (set overlapping []))
@@ -21,7 +21,7 @@
                 !(= 0 (z e)))
         ->[archive e &opt ui]
             (let [:Array<EntrySprite> inOrder
-                    ~(sortBy
+                    (sortBy
                         (collectOverlapping (dictGet spriteSystem.sprites e.id))
                         ->s (- (z s.e)))]
                 // Looping twice avoids having to splice() the group

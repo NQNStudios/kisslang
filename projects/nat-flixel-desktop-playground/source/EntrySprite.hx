@@ -9,7 +9,7 @@ import nat.Archive;
 import nat.ArchiveController;
 import nat.BoolExpInterp;
 import nat.components.Images;
-import nat.components.Positions;
+import nat.components.Position;
 import nat.components.Scale;
 using kiss_flixel.CameraTools;
 

@@ -1,0 +1,37 @@
+(load "../Lib.kiss")
+
+(prop &mut :String _playgroundKey "")
+(method :String getPlaygroundKey [] _playgroundKey)
+
+(defNew [&prop :ArchiveUI ui
+            :EntryChecker canProcess
+            &prop :PlaygroundEntryProcessor processor]
+
+    (super
+        ->[archive e]
+            (and (tagsMatch e "!(or done hidden)") (canProcess archive e))
+        ->[archive e &opt ui]
+            {
+                (when !(hasComponent e Positions)
+                    (addComponent archive e Positions (new Map)))
+                (withWritableComponents archive e [positions Positions]
+                    (when !(positions.exists _playgroundKey)
+                        // TODO do a playground check before giving a default position.
+                        (dictSet positions _playgroundKey (defaultPosition e))))
+                (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
+                    (processor archive e pos ui))
+            }))
+
+(method switchPlaygroundKey [key]
+    (when _playgroundKey
+        (clear))
+    (set _playgroundKey key)
+    (process ui.controller.archive ui))
+
+(method clear [])
+
+(method &override :Void process [:Archive archive &opt :ArchiveUI ui]
+    (when _playgroundKey (super.process archive ui)))
+
+(method defaultPosition [:Entry e]
+    (object x 0.0 y 0.0 z 0.0))
