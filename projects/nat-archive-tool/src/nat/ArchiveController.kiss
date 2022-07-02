@@ -219,6 +219,9 @@
         
     (defCommand AddKeyShortcut [e SelectedEntry description (Text  null)]
         (addComponent archive e KeyShortcut description))
+    
+    (defCommand AddDLURL [e SelectedEntry url (Text null)]
+        (addComponent archive e DLURL url))
        
     (defCommand AddNATCommand [e (SelectedEntries null null) command (Text null)]
         (doFor e e (addComponent archive e NATCommand command)))

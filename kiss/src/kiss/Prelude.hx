@@ -461,6 +461,10 @@ class Prelude {
         };
     }
 
+    public static function uuid() {
+        return Uuid.v4().toShort();
+    }
+
     // ReaderExp helpers for macros:
     public static function symbol(?name:String):ReaderExpDef {
         if (name == null)

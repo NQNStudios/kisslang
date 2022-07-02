@@ -7,10 +7,18 @@
 
         (super
             ->[archive e]
-                (and ~hasYTDL (catsMatch e "(unless dlProcessed DLURL)"))
+                (and hasYTDL (catsMatch e "(unless dlProcessed DLURL)"))
             ->[archive e &opt ui]
-                {
+                (let [basename (uuid)
+                        url (readComponent e DLURL)]
+                    (cond
+                        ((tagsMatch e "music")
+                            ```
+                            youtube-dl -x --audio-format mp3 -o ${basename}.mp3 $url
+                            ```
+                            (addFiles archive e ["${basename}.mp3"]))
+                        (true
+                            (log ui "DLSystem doesn't know what to do with $(readComponent e Tags)")
+                            (return null)))
 
-                    // (addFiles )
-                    // (addTags archive e ["dlProcessed"])
-                })))
+                    (addTags archive e ["dlProcessed"])))))

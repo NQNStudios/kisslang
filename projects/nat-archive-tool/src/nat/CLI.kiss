@@ -13,11 +13,11 @@
                 (controller.tryRunCommand command))))
 
 (prop &mut :ArchiveController controller)
-(prop :KeyShortcutHandler<Entry> shortcutHandler null)
+(prop :kiss_tools.KeyShortcutHandler<Entry> shortcutHandler null)
 
 (defNew [])
 
-(method :Void enterText [prompt resolve maxLength]
+(method :Void enterText [prompt :String->Void resolve maxLength]
     (Sys.print "$prompt ")
     (loop
         (let [entered (.toString (.readLine (Sys.stdin)))]
@@ -26,7 +26,7 @@
                 {(resolve entered)
                     (break)}))))
 
-(method :Void enterNumber [prompt resolve min max &opt inStepsOf]
+(method :Void enterNumber [prompt :Float->Void resolve min max &opt inStepsOf]
     (Sys.print "$prompt ")
     (loop
         (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
@@ -38,13 +38,13 @@
                 {(resolve entered)
                     (break)}))))
 
-(method :Void chooseEntry [prompt :Archive archive resolve]
+(method :Void chooseEntry [prompt :Archive archive :Entry->Void resolve]
     (_chooseEntry prompt archive resolve ->(chooseEntry "empty name doesn't match any entries. Try again?" archive resolve)))
 
-(method :Void _chooseEntry [prompt :Archive archive resolve onEmptyString]
+(method :Void _chooseEntry [prompt :Archive archive :Entry->Void resolve :Void->Void onEmptyString]
     // TODO allow narrowing down with a tag string
     (enterText "entry name for $prompt"
-        ->name {
+        ->:Void name {
             (if !name
                     (onEmptyString)
                 (let [matchingEntries (controller.nameSystem.getEntries name)]
@@ -52,15 +52,16 @@
                         ([e] (resolve e))
                         ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))
                         // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
-                        (multipleEntries (throw "ambiguous between multiple entries")))))}
+                        (multipleEntries (throw "ambiguous between multiple entries"))
+                        (otherwise))))}
         Math.POSITIVE_INFINITY))
 
-(method :Void chooseEntries [prompt archive resolve min max]
+(method :Void chooseEntries [prompt archive :Array<nat.Entry>->Void resolve min max]
     (_chooseEntries prompt archive resolve min max []))
 
-(method :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
+(method :Void _chooseEntries [prompt archive :Array<nat.Entry>->Void resolve min max :Array<Entry> collectedEntries]
     (let [onEmptyString
-                ->(if (<= min collectedEntries.length)
+                ->:Void (if (<= min collectedEntries.length)
                         (resolve collectedEntries)
                     (throw "not enough entries chosen"))
             &mut :Void->Void chooseNextEntry

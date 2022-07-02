@@ -131,6 +131,7 @@ class Kiss {
                 "fEighth" => Symbol("Prelude.fEighth"),
                 "fNinth" => Symbol("Prelude.fNinth"),
                 "fTenth" => Symbol("Prelude.fTenth"),
+                "uuid" => Symbol("Prelude.uuid"),
             ],
             identAliases: [
                 // These ones won't conflict with variables and might commonly be used with (apply)
