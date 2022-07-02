@@ -70,23 +70,28 @@
                 (= ,value (readComponent e ,componentType))))
         ,process))
 
-(function :Array<String> tagList [archive :nat.Entry e]
+(function :Array<String> tagList [:nat.Entry e]
     (if (hasComponent e Tags)
             (let [t (readComponent e Tags)]
                 (collect (t.keys)))
         []))
 
-(function tagsMatch [archive e tagsBoolExp]
-    (BoolExpInterp.eval tagsBoolExp (tagList archive e)))
+(function tagsMatch [e tagsBoolExp]
+    (BoolExpInterp.eval tagsBoolExp (tagList e)))
 
 (function componentsMatch [:nat.Entry e componentsBoolExp]
     (BoolExpInterp.eval componentsBoolExp (for =>cType cId e.components cType)))
+
+(function componentsAndTagsMatch [:nat.Entry e componentsAndTagsBoolExp]
+    (BoolExpInterp.eval componentsAndTagsBoolExp (cast (concat (tagList e) (for =>cType cId e.components cType)))))
+
+(defAlias &call catsMatch componentsAndTagsMatch)
 
 (function addFiles [:nat.Archive archive :nat.Entry e :Array<String> files &opt leaveOriginalCopy]
     (withWritableEntry archive e
         (doFor file files
             (let [pathWithoutDir (haxe.io.Path.withoutDirectory file)]
-                (unless !(= -1 (e.files.indexOf pathWithoutDir))
+                (unless (contains e.files pathWithoutDir)
                     (let [pathInArchive (joinPath archive.archiveDir "files" pathWithoutDir)]
                         (unless (sys.FileSystem.exists pathInArchive)
                             ((if leaveOriginalCopy sys.io.File.copy sys.FileSystem.rename)

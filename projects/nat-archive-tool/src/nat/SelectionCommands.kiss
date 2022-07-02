@@ -62,10 +62,14 @@
     lastChangeSet)
 
 (defSelectCommand SelectByTags [tagsBoolExp (Text null)]
-    (filter archive.entries ->e (tagsMatch archive e tagsBoolExp)))
+    (filter archive.entries ->e (tagsMatch e tagsBoolExp)))
         
 (defSelectCommand SelectByComponents [componentsBoolExp (Text null)]
     (filter archive.entries ->e (componentsMatch e componentsBoolExp)))
+
+// TODO selectByCats
+// there is currently no easy way to defAlias for every variation of a selection command,
+// so Cats may be the canonical name
 
 (defSelectCommand SelectByName [name (Text null)]
     (nameSystem.getEntries name))

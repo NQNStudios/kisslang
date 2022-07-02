@@ -8,7 +8,7 @@
             &prop :ArchiveController controller]
     (super
         ->[archive e]
-            ?(and (tagsMatch archive e tagFilterString) (hasComponent e Images))
+            ?(and (tagsMatch e tagFilterString) (hasComponent e Images))
         ->[archive e &opt ui]
             (unless (sprites.exists e.id)
                 (when !(hasComponent e Positions)

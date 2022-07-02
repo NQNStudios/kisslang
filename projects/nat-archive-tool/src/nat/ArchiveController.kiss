@@ -161,6 +161,7 @@
     (archive.addSystem (new WikipediaImageSystem))
     (archive.addSystem (new ImageAttachmentSystem))
     (archive.addSystem (new KeyShortcutSystem this))
+    (archive.addSystem (new DLSystem))
 
     // Just for testing:
     // (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))

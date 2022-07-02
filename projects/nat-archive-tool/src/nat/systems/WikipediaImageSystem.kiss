@@ -3,7 +3,7 @@
 (defNew []
     (super
         "https://en.wikipedia.org/w/api.php"
-        ->[archive e] (tagsMatch archive e "(and media !wikipediaProcessed)")
+        ->[archive e] (tagsMatch e "(and media !wikipediaProcessed)")
         scrapeForImages
         1))
         

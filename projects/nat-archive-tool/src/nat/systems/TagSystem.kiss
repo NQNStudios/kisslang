@@ -5,5 +5,5 @@
             :EntryProcessor processor] 
     []
     (super
-        (lambda [:Archive archive :Entry e] (tagsMatch archive e tagFilterString))
+        (lambda [:Archive archive :Entry e] (tagsMatch e tagFilterString))
         processor))

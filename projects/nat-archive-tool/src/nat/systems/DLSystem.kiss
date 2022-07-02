@@ -1,0 +1,16 @@
+(load "../Lib.kiss")
+
+(defNew []
+    // Check if youtube-dl is installed before doing anything
+    (let [&mut hasYTDL false]
+        (tryProcess "youtube-dl" [] ->error (when (contains error "You must provide at least one URL") (set hasYTDL true)))
+
+        (super
+            ->[archive e]
+                (and ~hasYTDL (catsMatch e "(unless dlProcessed DLURL)"))
+            ->[archive e &opt ui]
+                {
+
+                    // (addFiles )
+                    // (addTags archive e ["dlProcessed"])
+                })))

@@ -104,6 +104,7 @@ class Kiss {
                 "count" => Symbol("Lambda.count"),
                 "enumerate" => Symbol("Prelude.enumerate"),
                 "assertProcess" => Symbol("Prelude.assertProcess"),
+                "tryProcess" => Symbol("Prelude.tryProcess"),
                 "libPath" => Symbol("Prelude.libPath"),
                 "random" => Symbol("Std.random"),
                 "walkDirectory" => Symbol("Prelude.walkDirectory"),
