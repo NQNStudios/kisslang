@@ -6,12 +6,12 @@
 // just make the FlxText every time at runtime -- so PinNextImage won't be needed
 // when the media tag is added
 
-(defNew [:PlayState playState
+(defNew [&prop :PlayState playState
             &prop :ArchiveController controller]
     (super
         playState
         ->[archive e]
-            ?(hasComponent e Images)
+            ?(hasComponent e Name)
         ->[archive e pos &opt ui]
             (unless (sprites.exists e.id)
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
@@ -27,7 +27,27 @@
                 (controller.DeSelectEntry e)
             }))
 
-// TODO override process to z-sort all sprites after making them
+(method &override :Void clear []
+    (sprites.clear)
+    (playState.entryGroup.kill)
+    (playState.entryGroup.clear)
+    (playState.entryGroup.revive)
+    (controller.SelectEntries []))
+
+(method z [:Entry e]
+    .z (dictGet (readComponent e Positions) _playgroundKey))
+
+// override process to z-sort all sprites after making them
+(method &override :Void process [:Archive archive &opt :ArchiveUI ui]
+    (super.process archive ui)
+    (FlxG.camera.calculateScrollBounds playState.entryGroup PlayState.SCROLL_BOUND_MARGIN)
+    (playState.entryGroup.sort ->[o s1 s2] (FlxSort.byValues o (z s1.e) (z s2.e))))
 
 (method getSelectedSprites []
     (filter (for e (controller.getSelectedEntries) (dictGet sprites e.id))))
+
+(prop defaultSpacing 100)
+(prop &mut defaultX 0)
+(method &override :Position defaultPosition [_] 
+    (+= defaultX defaultSpacing)
+    (object x defaultX y 0.0 z 0.0))

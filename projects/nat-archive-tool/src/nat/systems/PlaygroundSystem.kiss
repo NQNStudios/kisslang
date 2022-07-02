@@ -16,9 +16,10 @@
                     (addComponent archive e Positions (new Map)))
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists _playgroundKey)
-                        // TODO do a playground check before giving a default position.
-                        (dictSet positions _playgroundKey (defaultPosition e))))
-                (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
+                        (if (catsMatch e .catsMatch (dictGet archive.playgrounds _playgroundKey))
+                                (dictSet positions _playgroundKey (defaultPosition e))
+                            (return null))))
+                (whenLet [pos (dictGet (readComponent e Positions) _playgroundKey)]
                     (processor archive e pos ui))
             }))
 
@@ -28,7 +29,7 @@
     (set _playgroundKey key)
     (process ui.controller.archive ui))
 
-(method clear [])
+(method :Void clear [])
 
 (method &override :Void process [:Archive archive &opt :ArchiveUI ui]
     (when _playgroundKey (super.process archive ui)))

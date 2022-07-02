@@ -9,6 +9,7 @@
 (method :PlaygroundSystem playgroundSystem []
     (set spriteSystem (new EntrySpriteSystem this controller)))
 
+(prop :KeyShortcutHandler<Entry> shortcutHandler (new FlxKeyShortcutHandler<Entry>))
 (method &override :Void create []
     (super.create)
 
@@ -28,7 +29,6 @@
                 archive
                 this)))
 
-    (prop :KeyShortcutHandler<Entry> shortcutHandler (new FlxKeyShortcutHandler<Entry>))
 
     (prop &mut :FlxGroup uiGroup (new FlxGroup))
     (add uiGroup)
@@ -95,14 +95,6 @@
                             (when !(= overlaps (controller.isSelected entrySprite.e))
                                 (controller.ToggleSelectEntry entrySprite.e))))))))
 
-    // make text-only sprites for entries that have no images:
-    (archive.addSystem (new TextSpriteSystem))
-
-    (prop &mut :EntrySpriteDepthSystem spriteDepthSystem)
-    (set spriteDepthSystem (new EntrySpriteDepthSystem this spriteSystem))
-    (archive.addSystem spriteDepthSystem)
-
-    (archive.processSystems this)
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
@@ -112,10 +104,16 @@
     (when sh.currentMap
         (sh.update))
 
-    (spriteDepthSystem.process archive)
-    
     (when FlxG.keys.justPressed.ESCAPE
-        (Sys.exit 0))
+        (if (and textInput textInput.hasFocus)
+                {
+                    (set textInput.callback null)
+                    (hideUI textInput)
+                    // This part is hacky...
+                    (set lastUI textInputLabel)
+                    (hideUI textInputLabel)
+                }
+        (Sys.exit 0)))
 
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)

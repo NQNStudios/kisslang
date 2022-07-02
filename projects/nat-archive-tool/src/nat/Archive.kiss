@@ -12,10 +12,27 @@
                 (FileSystem.createDirectory entryDir)
                 (FileSystem.createDirectory componentDir)
                 (FileSystem.createDirectory filesDir)
+                
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
                     (for file entryFiles
                         =>(file.withoutExtension)
-                        (the Entry (Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))])
+                        (the Entry (tink.Json.parse (File.getContent (joinPath archiveDir "entries" file)))))))
+        :DynamicAccess<Dynamic> playgrounds
+            (let [playgroundsFile (joinPath archiveDir "playgrounds.json")]
+                (unless (FileSystem.exists playgroundsFile)
+                    (File.saveContent playgroundsFile
+#"{
+	"default": "Playground-MAIN",
+	"Playground-MAIN": {
+		"catsMatch": "true"
+	}
+}
+"#))
+                (haxe.Json.parse (File.getContent playgroundsFile)))])
+
+(method changePlaygrounds [:Dynamic->Void change]
+    (change playgrounds)
+    (File.saveContent (joinPath archiveDir "playgrounds.json") (haxe.Json.stringify playgrounds "\t")))
 
 (method addSystem [:System system]
     // Assign entries to the Systems that care about them
@@ -47,7 +64,7 @@
 (method _saveEntry [:Entry e]
     (File.saveContent
         (joinPath archiveDir "entries" (e.id.withExtension "json"))
-        (Json.stringify e)))
+        (tink.Json.stringify e)))
 
 (method fullString [:Entry e]
     (haxe.Json.stringify e null "\t"))

@@ -8,6 +8,7 @@
             ?(and !(hasComponent e Images) (hasComponent e Name))
         ->[archive e &opt ui]
             {
+                // TODO refactor this to kiss-flixel SpriteTools as #if sys savePNG
                 (let [name (readComponent e Name)
                         sprite (new FlxText 0 0 0 name 16)
                         bitmapData sprite.pixels

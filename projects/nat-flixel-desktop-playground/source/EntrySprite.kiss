@@ -7,24 +7,24 @@
             &prop :Entry e
             &prop :ArchiveController controller]
     [&mut :Bool selected false]
-
-    (let [images (readComponent e Images)]
-        (super position.x position.y)
-        (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
-            ->bitmapData {
-                (loadGraphic bitmapData)
-                (updateColor)
-                (when (hasComponent e Scale)
-                    (let [:Float scale (readComponent e Scale)]
-                        (this.scale.set scale scale)
-                        (updateHitbox)))
-                (enableMouseClicks false)
-                (enableMouseDrag)
-             }))
-    
+    (super position.x position.y)
+    (if (hasComponent e Images)
+            (let [images (readComponent e Images)]
+                (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
+                    ->bitmapData {
+                        (loadGraphic bitmapData)
+                    }))
+            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) 16)))
+    (updateColor)
+    (when (hasComponent e Scale)
+        (let [:Float scale (readComponent e Scale)]
+            (this.scale.set scale scale)
+            (updateHitbox)))
+    (enableMouseClicks false)
+    (enableMouseDrag)
     (set mouseStartDragCallback
         ->[self _dx _dy]
-            (doFor sprite ~(system.getSelectedSprites)
+            (doFor sprite (system.getSelectedSprites)
                 (unless (= sprite.e.id this.e.id)
                     (sprite.fixToSprite this))))
 

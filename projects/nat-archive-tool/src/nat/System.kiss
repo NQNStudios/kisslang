@@ -16,5 +16,3 @@
         (when (entries.exists e.id)
             (entries.remove e.id)
             (when onRemoveEntry (onRemoveEntry archive e)))))
-
-// TODO systems may need access to an ArchiveController

@@ -184,6 +184,10 @@ class CompilerTools {
                         }
                     }
 
+                    // TODO it's possible that moving .haxelib here would solve
+                    // the problem Yvon found, but it's also possible that code
+                    // would fail to compile if haxelib dependencies aren't
+                    // where they're expected at arbitrary times during compilation
                     move("package.json", "package.json.temp");
                     move("package-lock.json", "package-lock.json.temp");
                     move("node_modules", "node_modules.temp");

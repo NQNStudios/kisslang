@@ -18,7 +18,7 @@
 // Changes to the object returned by (readComponent) will not be saved! Use (withWritableComponents) for making changes
 (defMacro readComponent [e componentType]
     `(let [componentData (dictGet (the Map<String,String> .components ,e) ,(symbolName componentType))]
-        (log null (+ "reading " componentData " as " ,(symbolName componentType) " for " .id ,e))
+        // (log null (+ "reading " componentData " as " ,(symbolName componentType) " for " .id ,e))
         (the nat.components ,componentType 
             // TODO add to the documentation a hint that macros should use fully qualified type paths so macro caller classes don't need to import everything
             (tink.Json.parse componentData))))

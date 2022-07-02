@@ -3,6 +3,7 @@ package nat;
 import kiss.Prelude;
 import kiss.List;
 import haxe.Constraints;
+import haxe.DynamicAccess;
 import uuid.Uuid;
 import nat.systems.*;
 
@@ -22,6 +23,8 @@ enum CommandArgType {
     Entries(min:Null<Int>, max:Null<Int>);
     // TODO Tag -- make sure a tag input is a valid haxe variable name for tagsMatch compatibility
     // TODO VarTag
+
+    // TODO playground name -- choose from archive.playgrounds
 }
 
 typedef CommandArg = {
