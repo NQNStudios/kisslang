@@ -180,7 +180,7 @@ class Reader {
                     argsExp = b.list([]);
                     bodyExp = firstExp;
                 default:
-                    throw KissError.fromExp(firstExp, "first expression after -> should be [args...], arg, (exp) or {body}, or one of those prefixed with :Void");
+                    throw KissError.fromExp(firstExp, "first expression after -> should be [args...], arg, (exp) or {body}, or one of those prefixed with :Void. When an argument type must be specified, even a single argument name must be put in brackets. For example: ->[:ArgType arg] <exp>");
             }
             if (!returnsValue) {
                 argsExp = TypedExp("Void", argsExp).withPosOf(argsExp);
