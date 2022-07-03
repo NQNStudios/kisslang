@@ -2,6 +2,7 @@ package nat;
 
 import kiss.Prelude;
 import kiss.List;
+import kiss.Stream;
 import haxe.Constraints;
 import haxe.DynamicAccess;
 import uuid.Uuid;
@@ -25,6 +26,9 @@ enum CommandArgType {
     // TODO VarTag
 
     // TODO playground name -- choose from archive.playgrounds
+
+    // Then again the more of these I add the more convoluted CollectAndValidateArgs gets,
+    // and the more stream reader methods I need to write
 }
 
 typedef CommandArg = {

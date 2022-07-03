@@ -1,6 +1,6 @@
 (load "Lib.kiss")
 
-(method :Void _collectAndValidateArg [:CommandArg arg :Dynamic->Void continuation]
+(method :Void _collectAndValidateArg [:CommandArg arg :Stream stream :Dynamic->Void continuation]
     (case arg.type
         (SelectedEntry
             (if (= 1 _selectedEntries.length)
@@ -15,32 +15,39 @@
                 (continuation _selectedEntries)))
         ((Text maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
-            (ui.enterText
-                "${arg.name} (up to ${maxLength} characters):"
-                (lambda :Void [text]
-                    (if !(<= text.length maxLength)
-                            (ui.reportError "The requested command expected a string up to $maxLength characters long. You entered: $text.length characters")
-                        (continuation text)))
-                maxLength))
+            (stream.dropWhitespace)
+            (localFunction :Void trySubmit [text]
+                (if !(<= text.length maxLength)
+                        (ui.reportError "The requested command expected a string up to $maxLength characters long. You entered: $text.length characters")
+                    (continuation text)))
+            (if (or (stream.isEmpty) (stream.dropStringIf "_"))
+                    // If no text argument was pre-supplied, use the ui for it
+                    (ui.enterText
+                        "${arg.name} (up to ${maxLength} characters):"
+                        trySubmit
+                        maxLength))
+                (trySubmit (readString stream)))
         ((VarText maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
-            (let [collectedText
-                        []
-                    &mut :Void->Void enterTextAgain
-                        null
-                    _enterTextAgain
-                        ->:Void
+            (let [collectedText []]
+                
+                
+                (localFunction :Void enterTextAgain []
+                    (localFunction :Void trySubmit [text]
+                        (if !text
+                                (continuation collectedText)
+                            (if !(<= text.length maxLength)
+                                    (ui.reportError "The requested command expected a list of strings up to $maxLength characters long. You entered: $text.length characters")
+                                {(collectedText.push text)
+                                    (enterTextAgain)})))
+
+                    (if (or (stream.isEmpty) (stream.dropStringIf "_"))
+                            // If no vartext argument was pre-supplied, use the ui for it
                             (ui.enterText
                                 "${arg.name} (up to ${maxLength} characters):"
-                                (lambda :Void [text]
-                                    (if !text
-                                            (continuation collectedText)
-                                        (if !(<= text.length maxLength)
-                                                (ui.reportError "The requested command expected a list of strings up to $maxLength characters long. You entered: $text.length characters")
-                                            {(collectedText.push text)
-                                                (enterTextAgain)})))
-                                maxLength)]
-                (set enterTextAgain _enterTextAgain)
+                                trySubmit
+                                maxLength)
+                        (trySubmit (readString stream))))
                 (enterTextAgain)))
         ((Number min max inStepsOf)
             (unless min (set min Math.NEGATIVE_INFINITY))
@@ -50,10 +57,8 @@
                     (+= prompt " in steps of ${inStepsOf}"))
                 (+= prompt "):")
 
-                (ui.enterNumber
-                    prompt
-                    (lambda :Void [number]
-                        (let [minMaxError
+                (localFunction :Void trySubmit [number]
+                    (let [minMaxError
                                     "The requested command expected a number between $min and $max"
                                 stepError
                                     "$minMaxError in steps of $inStepsOf"
@@ -66,9 +71,17 @@
                                             (ui.reportError "${stepError}$youEntered")
                                         (ui.reportError "${minMaxError}$youEntered"))
                                 (continuation number))))
-                    min
-                    max
-                    inStepsOf)))
+
+                // If no text argument was pre-supplied, use the ui for it
+                (if (or (stream.isEmpty) (stream.dropStringIf "_"))
+                        (ui.enterNumber
+                            prompt
+                            trySubmit
+                            min
+                            max
+                            inStepsOf)
+                    (trySubmit (readNumber stream)))))
+
         (OneEntry
             (ui.chooseEntry
                 "${arg.name}:"
@@ -92,17 +105,36 @@
                 max))
         (null)))
 
-(method :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Void->Void lastCollector]
-    (lambda :Void []
-        (_collectAndValidateArg arg ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
+// TODO try catch and ui.reportError
+// TODO maaaybe support escape sequences?
+(function readString [:Stream stream]
+    (let [terminator
+            (case (stream.takeChars 1)
+                ((Some "\"") "\"")
+                ((Some "'") "'")
+                (otherwise (throw "string arg must start with \" or '")))]
+        (case (stream.takeUntilAndDrop terminator)
+            ((Some s) s)
+            (otherwise (throw "string arg must end with $terminator")))))
 
-(method :Void tryRunCommand [:String commandName]
-    (let [lowerCommandName (commandName.toLowerCase)]
+// TODO try catch and ui.reportError
+(function readNumber [:Stream stream]
+    (Std.parseFloat (case (stream.takeUntilOneOf [" "] true) ((Some f) f) (otherwise ""))))
+
+(method :Void->Void _composeArgCollector [:Array<Dynamic> collectedArgs :CommandArg arg :Stream stream :Void->Void lastCollector]
+    (lambda :Void []
+        (_collectAndValidateArg arg stream ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
+
+(method :Void tryRunCommand [:String command]
+    (let [parts (command.split " ")
+            commandName (parts.shift)
+            stream (Stream.fromString (parts.join " "))
+            lowerCommandName (commandName.toLowerCase)]
         (if (commands.exists lowerCommandName)
-                (_runCommand (dictGet commands lowerCommandName))
+                (_runCommand (dictGet commands lowerCommandName) stream)
             (ui.reportError "$commandName is not a valid command"))))
 
-(method :Void _runCommand [:Command command]
+(method :Void _runCommand [:Command command :Stream stream]
     (let [collectedArgs
                 []
             &mut lastCollector
@@ -111,7 +143,7 @@
                     (when lastChangeSet (ui.handleChanges archive lastChangeSet)))]
         // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
         (doFor arg (reverse command.args)
-            (set lastCollector (_composeArgCollector collectedArgs arg lastCollector)))
+            (set lastCollector (_composeArgCollector collectedArgs arg stream lastCollector)))
         (lastCollector)))
 
 
