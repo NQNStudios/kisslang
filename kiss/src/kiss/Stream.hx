@@ -170,6 +170,15 @@ class Stream {
         dropChars(s.length);
     }
 
+    public function dropStringIf(s:String):Bool {
+        var toDrop = content.substr(0, s.length);
+        if (toDrop == s) {
+            dropString(toDrop);
+            return true;
+        }
+        return false;
+    }
+
     public function dropUntil(s:String) {
         dropChars(content.indexOf(s));
     }
