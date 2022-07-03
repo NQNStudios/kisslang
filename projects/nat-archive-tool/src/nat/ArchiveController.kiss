@@ -257,17 +257,23 @@
             (removeTags archive e tagsToRemove))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
-    (defCommand AddKeyShortcut [e SelectedEntry description (Text  null)]
-        (addComponent archive e KeyShortcut description))
-    
     (defCommand AddDLURL [e SelectedEntry url (Text null)]
         (addComponent archive e DLURL url))
+
+    (defCommand AddKeyShortcut [e SelectedEntry description (Text  null)]
+        (addComponent archive e KeyShortcut description))
        
     (defCommand AddNATCommand [e (SelectedEntries null null) command (Text null)]
         (doFor e e (addComponent archive e NATCommand command)))
 
     (defCommand AddNATCommands [e (SelectedEntries null null) commands (VarText null)]
         (doFor e e (addComponent archive e NATCommands commands)))
+
+    (defCommand CreateShortcutEntry [description (Text null) command (Text null)]
+        [(archive.createEntry ->e {
+            (addComponent archive e Name description)
+            (AddKeyShortcut e description)
+            (AddNATCommand [e] command)})])
 
     (defCommand AddFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
