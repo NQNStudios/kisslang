@@ -211,6 +211,10 @@
 
     (load "SelectionCommands.kiss")
 
+    (defCommand Rename [e SelectedEntry newName (Text null)]
+        (withWritableComponents archive e [name Name]
+            (set name newName)))
+
     (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
     
