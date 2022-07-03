@@ -232,6 +232,22 @@ class SpecialForms {
             }
             EFunction(FAnonymous, Helpers.makeFunction(null, returnsValue, args[0], args.slice(1), k, "lambda", [])).withMacroPosOf(wholeExp);
         };
+        
+        k.doc("localFunction", 3, null, "(localFunction <optional :Type> <name> [<args...>] <body...>)");
+        map["localFunction"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var name = "";
+            var returnsValue = switch (args[0].def) {
+                case TypedExp("Void", {pos:_, def: Symbol(fname)}):
+                    name = fname;
+                    false;
+                case Symbol(fname):
+                    name = fname;
+                    true;
+                default:
+                    throw KissError.fromExp(wholeExp, "First argument to localFunction must be a function name with an optional return type. To make an anonymous function, use lambda instead.");
+            }
+            EFunction(FNamed(name, false), Helpers.makeFunction(null, returnsValue, args[1], args.slice(2), k, "localFunction", [])).withMacroPosOf(wholeExp);
+        };
     
         function forExpr(formName:String, wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) {
             var uniqueVarName = "_" + Uuid.v4().toShort();
