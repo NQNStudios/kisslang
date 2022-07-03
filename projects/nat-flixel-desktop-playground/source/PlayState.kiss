@@ -4,6 +4,8 @@
 
 // make interactible sprites for entries that have images
 
+(var TEXT_SIZE 16)
+
 (prop &mut :EntrySpriteSystem spriteSystem)
 
 (method :PlaygroundSystem playgroundSystem []
@@ -183,9 +185,9 @@
 (prop &mut :FlxInputText textInput null)
 
 (method :Void enterText [prompt resolve maxLength]
-    (set textInputLabel (new FlxText 0 0 300 prompt))
+    (set textInputLabel (new FlxText 0 0 300 prompt TEXT_SIZE))
     (showUI textInputLabel)
-    (set textInput (new FlxInputText 0 0 300 ""))
+    (set textInput (new FlxInputText 0 0 300 "" TEXT_SIZE))
     (set textInput.hasFocus true)
     (set textInput.callback
         ->:Void [text action]
@@ -273,7 +275,7 @@
     (when (= lastUI ui) (-= uiY ui.height)))
 
 (method :Void displayMessage [:String message]
-    (let [messageText (new FlxText 0 0 0 (message.replace "\n" "|"))]
+    (let [messageText (new FlxText 0 0 0 (message.replace "\n" "|") TEXT_SIZE)]
         (showUI messageText)))
 
 (method :Void clearUI []

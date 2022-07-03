@@ -14,7 +14,7 @@
                     ->bitmapData {
                         (loadGraphic bitmapData)
                     }))
-            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) 16)))
+            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)))
     (updateColor)
     (when (hasComponent e Scale)
         (let [:Float scale (readComponent e Scale)]
