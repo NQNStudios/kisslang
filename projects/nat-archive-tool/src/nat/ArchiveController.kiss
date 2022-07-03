@@ -25,13 +25,11 @@
                     (ui.enterText
                         "${arg.name} (up to ${maxLength} characters):"
                         trySubmit
-                        maxLength))
-                (trySubmit (readString stream)))
+                        maxLength)
+                (trySubmit (readString stream))))
         ((VarText maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
             (let [collectedText []]
-                
-                
                 (localFunction :Void enterTextAgain []
                     (localFunction :Void trySubmit [text]
                         (if !text
