@@ -239,7 +239,19 @@
         // createEntry returns a list, so these lists must be flattened
         (flatten (for name names
             (CreateEntry name))))
-            
+
+    // TODO use VarTags
+    (defCommand CreateTaggedEntry [tags (VarText null) name (Text null)]
+        [(archive.createEntry ->e
+            {(addComponent archive e Name name)
+                (addTags archive e tags)})])
+
+    // TODO use VarTags
+    (defCommand CreateTaggedEntries [tags (VarText null) names (VarText null)]
+        // createEntry returns a list, so these lists must be flattened
+        (flatten (for name names
+            (CreateTaggedEntry tags name))))
+
     (defCommand CreateMediaEntry [medium (Text null) name (Text null)]
         [(archive.createEntry ->e {
             (addComponent archive e Name name)
