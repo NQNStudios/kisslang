@@ -252,16 +252,6 @@
         (flatten (for name names
             (CreateTaggedEntry tags name))))
 
-    (defCommand CreateMediaEntry [medium (Text null) name (Text null)]
-        [(archive.createEntry ->e {
-            (addComponent archive e Name name)
-            (addTags archive e ["media" medium])})])
-
-    (defCommand CreateMediaEntries [medium (Text null) names (VarText null)]
-        // createEntry returns a list, so these lists must be flattened
-        (flatten (for name names
-            (CreateMediaEntry medium name))))
-
     (defCommand CreateCircleEntry [radius (Number 0 null null)]
         [(archive.createEntry ->e
             (addComponent archive e Circle (objectWith radius)))])
