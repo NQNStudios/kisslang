@@ -249,6 +249,10 @@
         (flatten (for name names
             (CreateMediaEntry medium name))))
 
+    (defCommand CreateCircleEntry [radius (Number 0 null null)]
+        [(archive.createEntry ->e
+            (addComponent archive e Circle (objectWith radius)))])
+
     // TODO use Tag and VarTag arg types for AddTags and RemoveTags
     (defCommand AddTags [entries (SelectedEntries 1 null)
                             tagsToAdd (VarText null)]

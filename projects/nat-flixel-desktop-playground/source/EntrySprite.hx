@@ -5,6 +5,7 @@ import kiss.List;
 import flash.display.BitmapData;
 import flixel.addons.display.FlxExtendedSprite;
 import flixel.text.FlxText;
+import flixel.util.FlxSpriteUtil;
 import nat.Entry;
 import nat.Archive;
 import nat.ArchiveController;

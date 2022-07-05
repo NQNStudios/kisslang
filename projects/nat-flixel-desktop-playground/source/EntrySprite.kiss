@@ -8,13 +8,20 @@
             &prop :ArchiveController controller]
     [&mut :Bool selected false]
     (super position.x position.y)
-    (if (hasComponent e Images2)
+    (cond
+        ((hasComponent e Images2)
             (let [images (readComponent e Images2)]
                 (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
                     ->bitmapData {
                         (loadGraphic bitmapData)
-                    }))
-        (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)))
+                    })))
+        ((hasComponent e Circle)
+            (let [c (readComponent e Circle)
+                    diam (Std.int (* 2 c.radius))]
+                (makeGraphic diam diam FlxColor.TRANSPARENT true)
+                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness 5 color FlxColor.LIME))))
+        (true
+            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE))))
     (updateColor)
     (let [:Float scale (getScale e)]
         (this.scale.set scale scale)
