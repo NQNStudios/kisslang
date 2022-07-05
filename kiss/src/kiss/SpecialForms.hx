@@ -457,6 +457,9 @@ class SpecialForms {
                 macro null;
             };
 
+            // TODO these macro forms cause the compiler errors to give line numbers
+            // pointing back to SpecialForms.hx, which aren't helpful. withMacroPosOf should be used
+            // to wrap them
             macro if ($condition)
                 $thenExp
             else

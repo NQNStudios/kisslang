@@ -105,6 +105,11 @@
                                 file pathInArchive)))
                     (e.files.push pathWithoutDir))))))
 
+(function removeFiles [:nat.Archive archive :nat.Entry e :Array<String> files]
+    (withWritableEntry archive e
+        (doFor file files
+            (e.files.remove file))))
+
 (function addTags [:nat.Archive archive :nat.Entry e :Array<String> tagsToAdd]
     (if (hasComponent e Tags)
             (withWritableComponents archive e [tags Tags]
