@@ -26,7 +26,7 @@
     (let [:Float scale (getScale e)]
         (this.scale.set scale scale)
         (updateHitbox))
-    (enableMouseClicks false)
+    (enableMouseClicks false (hasComponent e Circle)) // pixel-perfect if the sprite is a circle
     (enableMouseDrag)
     (set mouseStartDragCallback
         ->[self _dx _dy]
