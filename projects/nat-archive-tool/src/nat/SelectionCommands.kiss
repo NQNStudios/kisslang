@@ -58,6 +58,9 @@
 (defSelectCommand SelectAllEntries []
     (for =>id e archive.entries e))
 
+(defSelectCommand SelectById [id (Text null)]
+    (filter [(dictGet archive.entries id)]))
+
 (defSelectCommand SelectLastChangeSet []
     lastChangeSet)
 
