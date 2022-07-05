@@ -16,6 +16,9 @@ interface ArchiveUI {
      */
     var shortcutHandler(default, null):Null<KeyShortcutHandler<Entry>>;
 
+    function showPrefixMap(map:Map<String,ShortcutKey<Entry>>):Void;
+    function hidePrefixMap():Void;
+
     /**
      * A PlaygroundSystem that will display interactible entry representations
      */

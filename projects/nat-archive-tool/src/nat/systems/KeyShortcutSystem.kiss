@@ -11,7 +11,12 @@
             {   
                 (when (and ui ui.shortcutHandler)
                     (unless setup
-                        (set ui.shortcutHandler.onSelectItem (invokeEntry.bind archive ui))
+                        (set ui.shortcutHandler.onSelectPrefixMap ui.showPrefixMap)
+                        (set ui.shortcutHandler.onSelectItem
+                            ->e {
+                                    (ui.hidePrefixMap)
+                                    (invokeEntry archive ui e)
+                                })
                         (set ui.shortcutHandler.onBadKey ->[key map] (ui.displayMessage "$key is not mapped to a shortcut in this context: $map"))
                         (set setup true))
 

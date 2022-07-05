@@ -16,11 +16,6 @@
     (set FlxG.sound.volumeDownKeys null)
     (set FlxG.sound.volumeUpKeys null)
 
-    (set shortcutHandler.onSelectPrefixMap ->map {
-        (clearUI)
-        (doFor =>key thing map
-            (displayMessage "$key - $thing"))})
-
     // TODO find a better way to pass the archiveDir to a HaxeFlixel game
     (let [archiveDir
                 (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))
@@ -100,6 +95,14 @@
                                 (controller.ToggleSelectEntry entrySprite.e))))))))
 
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
+
+(method :Void showPrefixMap [:Map<String,ShortcutKey<Entry>> map]
+    (clearUI)
+    (doFor =>key thing map
+        (displayMessage "$key - $thing")))
+
+(method :Void hidePrefixMap []
+    (clearUI))
 
 (defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
 (method &override :Void update [:Float elapsed]
