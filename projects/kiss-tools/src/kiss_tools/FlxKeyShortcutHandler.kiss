@@ -29,14 +29,18 @@
     )
 
 // automatically pass the last pressed key to handle key
-(method update []
+(method :Void update []
     (let [:FlxKey id (FlxG.keys.firstJustPressed)]
         (unless (= id -1)
-            (handleKey
-                (case (id.toString)
-                    ((when (KEY_MAP.exists key) key)
-                        (dictGet KEY_MAP key))
-                    ((when FlxG.keys.pressed.SHIFT key)
-                        (.toUpperCase key))
-                    (key (.toLowerCase key))
-                    (otherwise (throw "FlxKey.toString returned null!")))))))        
+            (let [key (id.toString)]
+                (case key
+                    ("SHIFT" (return))
+                    (otherwise
+                        (handleKey
+                            (case key
+                                ((when (KEY_MAP.exists key) key)
+                                    (dictGet KEY_MAP key))
+                                ((when FlxG.keys.pressed.SHIFT key)
+                                    (.toUpperCase key))
+                                (key (.toLowerCase key))
+                                (otherwise (throw "FlxKey.toString returned null!"))))))))))
