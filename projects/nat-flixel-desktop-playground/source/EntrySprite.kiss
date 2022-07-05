@@ -6,7 +6,8 @@
             &prop :Archive archive
             &prop :Entry e
             &prop :ArchiveController controller]
-    [&mut :Bool selected false]
+    [&mut :Bool selected false
+        &mut :Bool isCircle false]
     (super position.x position.y)
     (cond
         ((hasComponent e Images2)
@@ -16,10 +17,11 @@
                         (loadGraphic bitmapData)
                     })))
         ((hasComponent e Circle)
+            (set isCircle true)
             (let [c (readComponent e Circle)
                     diam (Std.int (* 2 c.radius))]
                 (makeGraphic diam diam FlxColor.TRANSPARENT true)
-                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness 5 color FlxColor.LIME))))
+                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness 5 color CIRCLE_COLOR))))
         (true
             (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE))))
     (updateColor)
@@ -70,8 +72,13 @@
 (method updateColor []
     (if (controller.isSelected e)
             {
-                (set color FlxColor.BLUE)
+                (set color (if isCircle CIRCLE_SELECTED_COLOR SELECTED_COLOR))
             }
         {
             (set color FlxColor.WHITE)
         }))
+
+(var SELECTED_COLOR FlxColor.BLUE)
+(var CIRCLE_COLOR FlxColor.LIME)
+(var CIRCLE_SELECTED_COLOR FlxColor.GRAY)
+(var DEFAULT_COLOR FlxColor.WHITE)
