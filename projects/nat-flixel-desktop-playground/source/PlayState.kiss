@@ -95,7 +95,8 @@
                         selectWidth (- x2 x1)
                         selectHeight (- y2 y1)
                         rectangle (new FlxRect x1 y1 selectWidth selectHeight)]
-                    (mouseDragSprite.drawRect x1 y1 selectWidth selectHeight FlxColor.TRANSPARENT (object color FlxColor.LIME))
+                    (when (< 0 (+ selectWidth selectHeight))
+                        (mouseDragSprite.drawRect x1 y1 selectWidth selectHeight FlxColor.TRANSPARENT (object color FlxColor.LIME)))
                     // Handle entry selection
                     (entryGroup.forEach ->entrySprite
                         (let [overlaps (rectangle.overlaps (entrySprite.getScreenBounds))]
