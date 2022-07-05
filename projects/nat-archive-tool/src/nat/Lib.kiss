@@ -23,6 +23,13 @@
             // TODO add to the documentation a hint that macros should use fully qualified type paths so macro caller classes don't need to import everything
             (tink.Json.parse componentData))))
 
+// Return either the desired component, or def if no such component exists
+(defMacro readComponentOr [e componentType def]
+    (withEvalOnce [e]
+        (if (hasComponent e ,componentType)
+                (readComponent e ,componentType)
+            ,def)))
+
 // TODO check not overwriting a component
 (defMacro addComponent [archive e componentType c]
     `(withWritableEntry ,archive ,e
