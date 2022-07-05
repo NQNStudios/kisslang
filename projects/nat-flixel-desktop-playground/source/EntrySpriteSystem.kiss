@@ -46,8 +46,8 @@
 (method getSelectedSprites []
     (filter (for e (controller.getSelectedEntries) (dictGet sprites e.id))))
 
-(prop defaultSpacing 100)
-(prop &mut defaultX 0)
+(prop defaultSpacing 50)
+(prop &mut defaultY 0)
 (method &override :Position defaultPosition [_] 
-    (+= defaultX defaultSpacing)
-    (object x defaultX y 0.0 z 0.0))
+    (+= defaultY defaultSpacing)
+    (object x 0 y defaultY z 0.0))
