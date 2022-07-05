@@ -285,10 +285,10 @@
 
     (method adjustImagePins [:Array<Entry> entries increment]
         (doFor e entries
-            (if (hasComponent e Images)
-                    (withWritableComponents archive e [images Images]
+            (if (hasComponent e Images2)
+                    (withWritableComponents archive e [images Images2]
                         (set images.pinnedImageIndex (max 0 (min (- images.imageFiles.length 1) (+ increment images.pinnedImageIndex)))))
-                (ui.reportError "Entry $e has no Images component")))
+                (ui.reportError "Entry $e has no Images2 component")))
         entries)
 
     (defCommand PinNextImage [entries (SelectedEntries 1 null)]
@@ -299,10 +299,14 @@
 
     (defCommand SetScale [entries (SelectedEntries 1 null) scale (Number 0 null null)]
         (doFor e entries
-            (if (hasComponent e Scale)
-                    (withWritableComponents archive e [scaleComponent Scale]
-                        (set scaleComponent scale))
-                (addComponent archive e Scale scale)))
+            (cond 
+                ((hasComponent e Images2)
+                    (withWritableComponents archive e [i2 Images2]
+                        (setNth i2.imageScales i2.pinnedImageIndex scale)))
+                ((hasComponent e Scale)
+                        (withWritableComponents archive e [scaleComponent Scale]
+                            (set scaleComponent scale)))
+                (true (addComponent archive e Scale scale))))
         entries)
     
     (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null)]

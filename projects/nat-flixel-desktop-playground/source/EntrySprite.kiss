@@ -8,18 +8,17 @@
             &prop :ArchiveController controller]
     [&mut :Bool selected false]
     (super position.x position.y)
-    (if (hasComponent e Images)
-            (let [images (readComponent e Images)]
+    (if (hasComponent e Images2)
+            (let [images (readComponent e Images2)]
                 (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
                     ->bitmapData {
                         (loadGraphic bitmapData)
                     }))
-            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)))
+        (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)))
     (updateColor)
-    (when (hasComponent e Scale)
-        (let [:Float scale (readComponent e Scale)]
-            (this.scale.set scale scale)
-            (updateHitbox)))
+    (let [:Float scale (getScale e)]
+        (this.scale.set scale scale)
+        (updateHitbox))
     (enableMouseClicks false)
     (enableMouseDrag)
     (set mouseStartDragCallback

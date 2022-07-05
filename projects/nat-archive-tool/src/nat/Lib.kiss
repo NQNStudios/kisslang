@@ -109,3 +109,10 @@
         (withWritableComponents archive e [tags Tags]
             (doFor tag tagsToRemove (tags.remove tag)))))
 
+(function :Float getScale [:nat.Entry e]
+    (if (hasComponent e Images2)
+            (let [i2 (readComponent e Images2)]
+                (nth i2.imageScales i2.pinnedImageIndex))
+        (if (hasComponent e Scale)
+                (readComponent e Scale)
+            1.0)))

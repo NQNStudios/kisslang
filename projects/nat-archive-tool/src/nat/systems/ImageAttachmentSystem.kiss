@@ -4,8 +4,39 @@
     (super
         ["jpg" "jpeg" "png"]
         ->[archive e imageFiles &opt ui]
-            (unless (hasComponent e Images)
-                (addComponent archive e Images
-                    (object
-                        imageFiles imageFiles
-                        pinnedImageIndex 0)))))
+            (unless (upgradeToVersion2 archive e)  
+                // TODO an edge case exists when more image files are added to an Entry
+                // after it is assigned an Images component. The new files won't be added
+                (unless (hasComponent e Images2)
+                    (addComponent archive e Images2
+                        (object
+                            imageFiles imageFiles
+                            imageScales (for _ (range imageFiles.length) 1.0)
+                            pinnedImageIndex 0))))))
+
+// Retrofit Images components into Images2 components,
+// which can track a separate scale value for each image.
+// Also, remove text image files -- now that text sprites
+// are generated on the fly.
+(function :Bool upgradeToVersion2 [:nat.Archive archive :nat.Entry e]
+    (when (hasComponent e Images)
+        (let [images1 (readComponent e Images)
+                scale (readComponentOr e Scale 1.0)
+                pIdx images1.pinnedImageIndex
+                textImageFiles (filter images1.imageFiles ->[:String f] (f.startsWith "textImage"))]
+            (removeComponent archive e Images)
+            (removeFiles archive e textImageFiles)
+            (doFor f textImageFiles (images1.imageFiles.remove f))
+            // If all images were removed (the entry only had a text image), don't add Images2
+            (unless images1.imageFiles (return true))
+
+            (addComponent archive e Images2
+                (object
+                    imageFiles images1.imageFiles
+                    imageScales (cast (concat
+                                    (for _ (range pIdx) 1.0)
+                                    [scale]
+                                    (for _ (range (- images1.imageFiles.length 1 pIdx)) 1.0)))
+                    pinnedImageIndex pIdx))
+            (removeComponent archive e Scale)
+            true)))
