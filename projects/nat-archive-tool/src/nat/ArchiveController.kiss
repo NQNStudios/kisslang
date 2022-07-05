@@ -17,6 +17,7 @@
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
             (stream.dropWhitespace)
             (localFunction :Void trySubmit [text]
+                (stream.dropWhitespace)
                 (if !(<= text.length maxLength)
                         (ui.reportError "The requested command expected a string up to $maxLength characters long. You entered: $text.length characters")
                     (continuation text)))
@@ -29,9 +30,11 @@
                 (trySubmit (readString stream))))
         ((VarText maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
+            (stream.dropWhitespace)
             (let [collectedText []]
                 (localFunction :Void enterTextAgain []
                     (localFunction :Void trySubmit [text]
+                        (stream.dropWhitespace)
                         (if !text
                                 (continuation collectedText)
                             (if !(<= text.length maxLength)
@@ -50,12 +53,14 @@
         ((Number min max inStepsOf)
             (unless min (set min Math.NEGATIVE_INFINITY))
             (unless max (set max Math.POSITIVE_INFINITY))
+            (stream.dropWhitespace)
             (let [&mut prompt "${arg.name} (${min}-${max}"]
                 (when inStepsOf
                     (+= prompt " in steps of ${inStepsOf}"))
                 (+= prompt "):")
 
                 (localFunction :Void trySubmit [number]
+                    (stream.dropWhitespace)
                     (let [minMaxError
                                     "The requested command expected a number between $min and $max"
                                 stepError
