@@ -5,7 +5,8 @@
 
 (defNew [&prop :ArchiveUI ui
             :EntryChecker canProcess
-            &prop :PlaygroundEntryProcessor processor]
+            &prop :PlaygroundEntryProcessor processor
+            :EntryProcessor onRemoveEntry]
 
     (super
         ->[archive e]
@@ -21,7 +22,8 @@
                             (return null))))
                 (whenLet [pos (dictGet (readComponent e Positions) _playgroundKey)]
                     (processor archive e pos ui))
-            }))
+            })
+    (set this.onRemoveEntry onRemoveEntry))
 
 (method switchPlaygroundKey [key]
     (when _playgroundKey

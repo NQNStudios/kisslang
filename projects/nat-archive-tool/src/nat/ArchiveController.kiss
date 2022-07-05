@@ -328,4 +328,10 @@
     
     (defCommand SwitchPlayground [name (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (dictSet p "default" name))
-        (when playgroundSystem (playgroundSystem.switchPlaygroundKey name))))
+        (when playgroundSystem (playgroundSystem.switchPlaygroundKey name)))
+        
+    (defCommand RemoveFromPlayground [entries (SelectedEntries 1 null)]
+        (for e entries
+            (when (hasComponent e Positions)
+                (withWritableComponents archive e [positions Positions]
+                    (positions.remove (dictGet archive.playgrounds "default")))) e)))

@@ -16,12 +16,11 @@
             (unless (sprites.exists e.id)
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
                     (playState.entryGroup.add sprite)
-                    (dictSet sprites e.id sprite))))
-    
-    (set onRemoveEntry
+                    (dictSet sprites e.id sprite)))
         ->[archive e &opt ui]
             {
                 (.kill (dictGet sprites e.id))
+                (playState.entryGroup.remove (dictGet sprites e.id))
                 (sprites.remove e.id)
                 // When an Entry is hidden, we can bet the user doesn't want it selected anymore
                 (controller.DeSelectEntry e)

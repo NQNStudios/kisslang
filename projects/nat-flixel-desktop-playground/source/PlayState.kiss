@@ -1,9 +1,5 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 
-// TODO handleChanges() will need to kill every changed Entry's sprite and make a new one
-
-// make interactible sprites for entries that have images
-
 (var TEXT_SIZE 16)
 
 (prop &mut :EntrySpriteSystem spriteSystem)
@@ -251,9 +247,7 @@
         // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
         (archive.processSystems this)
         // Do a second loop through the systems, so Playground systems that trigger Core systems have their effects processed
-        (archive.processSystems this)
-
-        (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
+        (archive.processSystems this))
 
     (doFor e changeSet
         // Entries whose data changed to remove them from the sprite pool will already have been removed
@@ -262,7 +256,9 @@
             // refresh the sprites for entries that changed data but still should have sprites
             (when (spriteSystem.sprites.exists e.id)
                 (spriteSystem.onRemoveEntry archive e))
-            (spriteSystem.processEntry archive e))))
+            (spriteSystem.processEntry archive e)))
+            
+    (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (prop &mut :Int uiY 0)
 
