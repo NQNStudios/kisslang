@@ -218,7 +218,8 @@
 
     (defCommand Rename [e SelectedEntry newName (Text null)]
         (withWritableComponents archive e [name Name]
-            (set name newName)))
+            (set name newName))
+        [e])
 
     (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
