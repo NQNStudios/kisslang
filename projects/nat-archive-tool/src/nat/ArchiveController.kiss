@@ -273,6 +273,12 @@
     (defCommand AddDLURL [e SelectedEntry url (Text null)]
         (addComponent archive e DLURL url))
 
+    (defCommand AddYoutubeMusic [name (Text null) url (Text null)]
+        [(archive.createEntry ->e
+            {(addComponent archive e Name name)
+                (addTags archive e ["music"])
+                (AddDLURL e url)})])
+
     (defCommand AddKeyShortcut [e SelectedEntry description (Text  null)]
         (addComponent archive e KeyShortcut description))
        
