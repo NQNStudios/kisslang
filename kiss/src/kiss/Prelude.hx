@@ -753,6 +753,7 @@ class Prelude {
     }
     #end
 
+    // TODO this could get confusing, because its behavior (index to index) is the opposite of haxe substr.
     public static function substr(str:String, startIdx:Int, ?endIdx:Int) {
         function negIdx(idx) {
             return if (idx < 0) str.length + idx else idx;
@@ -760,7 +761,7 @@ class Prelude {
 
         if (endIdx == null) endIdx = str.length;
 
-        return str.substr(negIdx(startIdx), negIdx(endIdx));
+        return str.substring(negIdx(startIdx), negIdx(endIdx));
     }
 
     public static function runtimeInsertAssertionMessage(message:String, error:String, colonsInPrefix:Int) {
