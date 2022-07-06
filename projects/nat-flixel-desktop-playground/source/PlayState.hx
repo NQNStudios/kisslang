@@ -22,6 +22,8 @@ using kiss_flixel.CameraTools;
 import kiss_tools.KeyShortcutHandler;
 import kiss_tools.FlxKeyShortcutHandler;
 import nat.systems.PlaygroundSystem;
+import flash.desktop.Clipboard;
+import flash.desktop.ClipboardFormats;
 
 @:build(kiss.Kiss.build())
 class PlayState extends FlxState implements ArchiveUI {}

@@ -115,16 +115,25 @@
     (when sh.currentMap
         (sh.update))
 
+    (when (and FlxG.keys.justPressed.V FlxG.keys.pressed.CONTROL)
+        (when (and textInput textInput.hasFocus)
+            (whenLet [text (Clipboard.generalClipboard.getData ClipboardFormats.TEXT_FORMAT)]
+                (when (textInput.text.endsWith "v")
+                    (set textInput.text (substr textInput.text 0 -1)))
+                (+= textInput.text text)
+                (set textInput.caretIndex textInput.text.length))))
+
     (when FlxG.keys.justPressed.ESCAPE
-        (if (and textInput textInput.hasFocus)
-                {
-                    (set textInput.callback null)
-                    (hideUI textInput)
-                    // This part is hacky...
-                    (set lastUI textInputLabel)
-                    (hideUI textInputLabel)
-                }
-        (Sys.exit 0)))
+        (cond
+            ((and textInput textInput.hasFocus)
+                (set textInput.callback null)
+                (hideUI textInput)
+                // This part is hacky...
+                (set lastUI textInputLabel)
+                (hideUI textInputLabel))
+            (sh.currentMap
+                (sh.cancel))
+            (true (Sys.exit 0))))
 
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)
