@@ -54,8 +54,11 @@
             (set mouseDown (FlxG.mouse.getScreenPosition))
             (let [&mut clickedOnSomething false]
                 (entryGroup.forEach
-                    ->entrySprite
+                    ->:Void entrySprite
                         (when (.containsPoint (entrySprite.getScreenBounds) (FlxG.mouse.getScreenPosition))
+                            (when (hasComponent entrySprite.e Circle)
+                                (unless (entrySprite.pixelsOverlapPoint (FlxG.mouse.getWorldPosition))
+                                    (return)))
                             (set clickedOnSomething true)
                             (unless (controller.isSelected entrySprite.e)
                                 (controller.SelectEntry entrySprite.e))))
@@ -92,7 +95,8 @@
                     (entryGroup.forEach ->entrySprite
                         (let [overlaps (rectangle.overlaps (entrySprite.getScreenBounds))]
                             (when !(= overlaps (controller.isSelected entrySprite.e))
-                                (controller.ToggleSelectEntry entrySprite.e))))))))
+                                (unless (hasComponent entrySprite.e Circle)
+                                    (controller.ToggleSelectEntry entrySprite.e)))))))))
 
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 

@@ -29,7 +29,7 @@
         (this.scale.set scale scale)
         (updateHitbox))
     (enableMouseClicks false (hasComponent e Circle)) // pixel-perfect if the sprite is a circle
-    (enableMouseDrag)
+    (enableMouseDrag false (hasComponent e Circle))
     (set mouseStartDragCallback
         ->[self _dx _dy]
             (doFor sprite (system.getSelectedSprites)
