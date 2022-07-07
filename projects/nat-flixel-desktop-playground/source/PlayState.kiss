@@ -108,6 +108,7 @@
 (method :Void hidePrefixMap []
     (clearUI))
 
+(prop &mut :Bool confirmQuit false)
 (defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
@@ -131,19 +132,22 @@
                 // This part is hacky...
                 (set lastUI textInputLabel)
                 (hideUI textInputLabel))
-            (sh.currentMap
+            (~sh.currentMap
                 (sh.cancel))
-            (true (Sys.exit 0))))
+            (confirmQuit
+                (Sys.exit 0))
+            (true
+                (displayMessage "Really quit?")
+                (set confirmQuit true))))
 
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)
+        (set confirmQuit false)
         (typeCommand))
     (when (and textInput !textInput.alive)
         (set textInput null))
 
-    // Press ESCAPE to clear the UI and cancel any input
-    (when FlxG.keys.justPressed.ESCAPE
-        (clearUI))
+    
     
     // Scroll the UI with the mouse:
     (var UI_SCROLL_FACTOR 2)
@@ -167,6 +171,7 @@
     // Don't check keys that can be used in shortcuts outside this block:
     (unless (or sh.currentMap (and textInput textInput.hasFocus))
         (when FlxG.keys.justPressed.SEMICOLON
+            (set confirmQuit false)
             (sh.start)
             (return))
         // +/- keys to change an entry's z
