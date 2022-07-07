@@ -13,12 +13,23 @@
                         url (readComponent e DLURL)]
                     (cond
                         ((tagsMatch e "music")
-                            ```
-                            youtube-dl -x --audio-format mp3 -o ${basename}.mp3 $url
-                            ```
-                            (addFiles archive e ["${basename}.mp3"]))
+                            (localFunction :Void downloadMp3 []
+                                (ui.displayMessage "downloading $url as $basename")
+                                ```
+                                youtube-dl -x --audio-format mp3 -o ${basename}.mp3 $url
+                                ```
+                                (ui.displayMessage "done downloading $basename")
+                                
+                                (addFiles archive e ["${basename}.mp3"]))
+                            (#if target.threaded
+                                    (Thread.create downloadMp3)
+                                {
+                                    (print "threading unavailable -- the program will freeze while downloading with youtube-dl")
+                                    (downloadMp3)
+                                }))
                         (true
                             (log ui "DLSystem doesn't know what to do with $(readComponent e Tags)")
                             (return null)))
 
                     (addTags archive e ["dlProcessed"])))))
+

@@ -173,6 +173,17 @@ class Macros {
             prepareForConditional(conditionInterp, k);
             try {
                 var hscriptStr = Prelude.convertToHScript(conditionStr);
+                // TODO are there more properties of target that need to be added?
+                // Context.definedValue only returns a string so if there's a whole
+                // object, I don't know how to get it
+                conditionInterp.variables["target"] = {
+                    threaded:
+                        #if target.threaded
+                        true
+                        #else
+                        false
+                        #end
+                };
                 #if test
                 Prelude.print("#if condition hscript: " + hscriptStr);
                 #end
