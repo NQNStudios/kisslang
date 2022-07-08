@@ -1,4 +1,5 @@
 package jigsawx;
+import flixel.math.FlxRandom;
 typedef JigsawPieceData = {
     var north:     JigsawSideData;
     var east:    JigsawSideData;
@@ -24,14 +25,14 @@ class JigsawSideData{
     public var rightWide:       Float;
     public var rightHi:         Float;
     // returns half a jigsawPieceData, the other side is populated from piece above and from left
-    public static function halfPieceData(): JigsawPieceData{
-        #if !noRandom return  { north: null, east: create(), south: create(), west: null };
+    public static function halfPieceData(r:FlxRandom): JigsawPieceData{
+        #if !noRandom return  { north: null, east: create(r), south: create(r), west: null };
         // Test use -D noRandom
-        #else return  { north: null, east: createSimple(), south: createSimple(), west: null };
+        #else return  { north: null, east: createSimple(r), south: createSimple(r), west: null };
         #end
     }
-    private static function createBubble(): Bubble { 
-        return ( Math.round( Math.random() ) == 1 )? IN: OUT; 
+    private static function createBubble(r:FlxRandom): Bubble { 
+        return r.bool() ? IN: OUT; 
     }
     private static function swapBubble( bubble: Bubble ): Bubble {
         if( bubble == OUT ) return IN;
@@ -56,9 +57,9 @@ class JigsawSideData{
         return side;
     }
     // when you want to test no random.
-    public static function createSimple(): JigsawSideData {
+    public static function createSimple(r:FlxRandom): JigsawSideData {
         var side            = new JigsawSideData();
-        side.bubble         = createBubble();
+        side.bubble         = createBubble(r);
         //left right or up dawn offset.
         side.squew          = 0.5;
         // in out
@@ -72,20 +73,20 @@ class JigsawSideData{
         side.rightHi        = 0.5;
         return side;
     }
-    public static function create(): JigsawSideData {
+    public static function create(r:FlxRandom): JigsawSideData {
         var side            = new JigsawSideData();
-        side.bubble         = createBubble();
+        side.bubble         = createBubble(r);
         //left right or up dawn offset.
-        side.squew          = Math.random();
+        side.squew          = r.float();
         // in out
-        side.inout          = Math.random();
+        side.inout          = r.float();
         // radii of ellipses
-        side.leftWide       = Math.random();
-        side.leftHi         = Math.random();
-        side.centreWide     = Math.random();
-        side.centreHi       = Math.random();
-        side.rightWide      = Math.random();
-        side.rightHi        = Math.random();
+        side.leftWide       = r.float();
+        side.leftHi         = r.float();
+        side.centreWide     = r.float();
+        side.centreHi       = r.float();
+        side.rightWide      = r.float();
+        side.rightHi        = r.float();
         return side;
     }
     // use create instead

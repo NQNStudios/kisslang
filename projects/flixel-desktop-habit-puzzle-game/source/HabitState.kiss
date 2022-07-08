@@ -1,4 +1,9 @@
-(method &override :Void create [] (super.create))
+(prop &mut :Jigsawx jigsaw)
+
+(method &override :Void create [] 
+    (FlxG.plugins.add (new FlxMouseControl))
+    (set bgColor FlxColor.GRAY)
+    (super.create))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     // Hold left-click to hide the habit text and see the image clearly:
@@ -8,15 +13,15 @@
         (shortcutHandler.update)))
 
 (prop &mut :FlxTypedGroup<FlxText> entryTexts null)
-(prop &mut :FlxTypedGroup<FlxSprite> rewardBlockers null)
 (prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
 (prop &mut :HabitModel model null)
 
+(prop EDGE_LEEWAY 20)
 (var PUZZLE_WIDTH 4)
 (var PUZZLE_HEIGHT 4)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
-(prop &mut :FlxSprite rewardSprite null)
+(prop &mut :FlxTypedGroup<FlxExtendedSprite> rewardSprites null)
 
 (method setModel [m]
     (set model m)
@@ -31,38 +36,61 @@
             (set currentRewardFile (nth m.rewardFiles i))
             (if (>= ++i m.rewardFiles.length)
                     (break)))
-        (when rewardSprite
-            (remove rewardSprite))
-        (set rewardSprite (new FlxSprite 0 0 (BitmapData.fromFile (joinPath (Path.directory m.textFile) currentRewardFile.path))))
-        (rewardSprite.setGraphicSize FlxG.width 0)
-        (rewardSprite.updateHitbox)
-        (when (> rewardSprite.height FlxG.height)
-            (rewardSprite.setGraphicSize 0 FlxG.height))
-        (rewardSprite.updateHitbox)
-        (rewardSprite.screenCenter)
-        (add rewardSprite)
+        
+        (when rewardSprites
+            (remove rewardSprites))
+        (let [rewardSprite
+                    (new FlxSprite 0 0
+                        (BitmapData.fromFile
+                            (joinPath
+                                (Path.directory m.textFile)
+                                currentRewardFile.path)))]
+            (rewardSprite.setGraphicSize FlxG.width 0)
+            (rewardSprite.updateHitbox)
+            (when (> rewardSprite.height FlxG.height)
+                (rewardSprite.setGraphicSize 0 FlxG.height))
+            (rewardSprite.updateHitbox)
+            (rewardSprite.screenCenter)
 
-        (when rewardBlockers
-            (remove rewardBlockers))
-        (set rewardBlockers (new FlxTypedGroup))
-        (add rewardBlockers)
 
-        (let [PIECE_WIDTH 
-                    (/ rewardSprite.width PUZZLE_WIDTH)
-                PIECE_HEIGHT
-                    (/ rewardSprite.height PUZZLE_HEIGHT)
-                :Array<FlxPoint> blockerPoints []]
-            (doFor x (range PUZZLE_WIDTH)
+            (set rewardSprites (new FlxTypedGroup))
+
+            (let [PIECE_WIDTH 
+                        (/ rewardSprite.width PUZZLE_WIDTH)
+                    PIECE_HEIGHT
+                        (/ rewardSprite.height PUZZLE_HEIGHT)
+                    :Array<FlxPoint> startingPoints []
+                    :Array<Rectangle> sourceRectangles []
+                    pieceAssetWidth (Std.int (/ rewardSprite.pixels.width PUZZLE_WIDTH))
+                    pieceAssetHeight (Std.int (/ rewardSprite.pixels.height PUZZLE_HEIGHT))]
                 (doFor y (range PUZZLE_HEIGHT)
-                    (blockerPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))))
-            // Cover it up with (TOTAL_PIECES - p) black squares placed randomly by choosing and removing from a zipped coordinate list
-            (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))]
-                (r.shuffle blockerPoints)
-                (doFor i (range (- (+ TOTAL_PIECES currentRewardFile.startingPoints) p))
-                    (let [pos (nth blockerPoints i)
-                            s (new FlxSprite pos.x pos.y)]
-                        (s.makeGraphic (Math.ceil PIECE_WIDTH) (Math.ceil PIECE_HEIGHT) FlxColor.BLACK)
-                        (rewardBlockers.add s))))))
+                    (doFor x (range PUZZLE_WIDTH)
+                        (startingPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))
+                        (sourceRectangles.push (new Rectangle (* x pieceAssetWidth) (* y pieceAssetHeight) pieceAssetWidth pieceAssetHeight))))
+                (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))]
+                    (r.shuffle startingPoints)
+                    (set jigsaw (new Jigsawx pieceAssetWidth pieceAssetHeight EDGE_LEEWAY PUZZLE_HEIGHT PUZZLE_WIDTH r))
+                    (doFor i (range (- p currentRewardFile.startingPoints))
+                        (let [pos (nth startingPoints i)
+                                s (new FlxExtendedSprite pos.x pos.y)
+                                source (new FlxSprite)
+                                mask (new FlxSprite)]
+                            (set s.draggable true)
+                            (s.enableMouseDrag false true)
+                            (s.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
+                                        
+                            (source.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
+                            (source.pixels.copyPixels rewardSprite.pixels (nth sourceRectangles i) (new Point 0 0))
+                            
+                            (mask.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
+                            (drawPieceShape mask (nth jigsaw.jigs i) FlxColor.BLACK)
+                            
+                            (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
+                            (s.setGraphicSize PIECE_WIDTH PIECE_HEIGHT)
+                            (s.updateHitbox)
+
+                            (rewardSprites.add s)))
+                    (add rewardSprites)))))
 
 
     (when entryTexts (remove entryTexts))

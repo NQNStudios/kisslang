@@ -31,7 +31,7 @@
 */
 
 
-package jigsawx.hxopenfl;
+package jigsawx;
 
 
 
