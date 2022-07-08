@@ -730,6 +730,9 @@ class Prelude {
             assertProcess(shell, parts);
             FileSystem.deleteFile(tempScript);
         } catch (e) {
+            printStr('# Failing script:');
+            printStr(script);
+            printStr('#################');
             FileSystem.deleteFile(tempScript);
             throw e;
         }
