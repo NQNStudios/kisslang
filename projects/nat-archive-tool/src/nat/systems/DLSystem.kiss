@@ -9,18 +9,25 @@
             ->[archive e]
                 (and hasYTDL (catsMatch e "(unless dlProcessed DLURL)"))
             ->[archive e &opt ui]
-                (let [basename (uuid)
+                (let [basename "$(readComponentOr e Name (uuid))-DL"
+                        o "\"${basename}.%(ext)s\""
+                        o (if (= (Sys.systemName) "Windows")
+                                (o.replace "%" "%%")
+                            o)
                         url (readComponent e DLURL)]
                     (cond
                         ((tagsMatch e "music")
+                            // TODO put active dl processes in a map and
+                            // don't start new ones when re-processing
                             (localFunction :Void downloadMp3 []
                                 (ui.displayMessage "downloading $url as $basename")
                                 ```
-                                youtube-dl -x --audio-format mp3 -o ${basename}.mp3 $url
+                                youtube-dl -x --audio-format mp3 -o $o $url
                                 ```
                                 (ui.displayMessage "done downloading $basename")
                                 
-                                (addFiles archive e ["${basename}.mp3"]))
+                                (addFiles archive e ["${basename}.mp3"])
+                                (addTags archive e ["dlProcessed"]))
                             (#if target.threaded
                                     (Thread.create downloadMp3)
                                 {
@@ -31,5 +38,5 @@
                             (log ui "DLSystem doesn't know what to do with $(readComponent e Tags)")
                             (return null)))
 
-                    (addTags archive e ["dlProcessed"])))))
+                    ))))
 
