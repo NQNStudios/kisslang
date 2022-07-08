@@ -26,8 +26,8 @@ class Jigsawx {
         pieces                              = [];
         jigs                                = [];
         sides                               = [];
-        dx                                  = pieceWidth - edgeLeeway * 2;
-        dy                                  = pieceHeight - edgeLeeway * 2;
+        dx                                  = pieceWidth;
+        dy                                  = pieceHeight;
         rows                                = rows_;
         cols                                = cols_;
         //corners, theoretically JigsawSideData could be modified to allow these to have a random element.

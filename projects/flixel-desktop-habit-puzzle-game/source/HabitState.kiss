@@ -55,42 +55,39 @@
 
             (set rewardSprites (new FlxTypedGroup))
 
-            (let [PIECE_WIDTH 
+            (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
+                    graphicWidth rewardSprite.pixels.width
+                    graphicHeight rewardSprite.pixels.height
+                    pieceAssetWidth (Std.int (/ graphicWidth PUZZLE_WIDTH))
+                    pieceAssetHeight (Std.int (/ graphicHeight PUZZLE_HEIGHT))
+                    j (new Jigsawx pieceAssetWidth pieceAssetHeight EDGE_LEEWAY PUZZLE_HEIGHT PUZZLE_WIDTH r)
+                    PIECE_WIDTH 
                         (/ rewardSprite.width PUZZLE_WIDTH)
                     PIECE_HEIGHT
                         (/ rewardSprite.height PUZZLE_HEIGHT)
-                    :Array<FlxPoint> startingPoints []
-                    :Array<Rectangle> sourceRectangles []
-                    pieceAssetWidth (Std.int (/ rewardSprite.pixels.width PUZZLE_WIDTH))
-                    pieceAssetHeight (Std.int (/ rewardSprite.pixels.height PUZZLE_HEIGHT))]
+                    :Array<FlxPoint> startingPoints []]
                 (doFor y (range PUZZLE_HEIGHT)
                     (doFor x (range PUZZLE_WIDTH)
-                        (startingPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))
-                        (sourceRectangles.push (new Rectangle (* x pieceAssetWidth) (* y pieceAssetHeight) pieceAssetWidth pieceAssetHeight))))
-                (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))]
-                    (r.shuffle startingPoints)
-                    (set jigsaw (new Jigsawx pieceAssetWidth pieceAssetHeight EDGE_LEEWAY PUZZLE_HEIGHT PUZZLE_WIDTH r))
-                    (doFor i (range (- p currentRewardFile.startingPoints))
-                        (let [pos (nth startingPoints i)
-                                s (new FlxExtendedSprite pos.x pos.y)
-                                source (new FlxSprite)
-                                mask (new FlxSprite)]
-                            (set s.draggable true)
-                            (s.enableMouseDrag false true)
-                            (s.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
-                                        
-                            (source.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
-                            (source.pixels.copyPixels rewardSprite.pixels (nth sourceRectangles i) (new Point 0 0))
+                        (startingPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))))
+                //(r.shuffle startingPoints)
+                (set jigsaw j)
+                (doFor i (range (- p currentRewardFile.startingPoints))
+                    (let [jig (nth jigsaw.jigs i)
+                            pos (nth startingPoints i)
+                            s (new FlxExtendedSprite pos.x pos.y)
+                            mask (new FlxSprite)]
+                        (set s.draggable true)
+                        (s.enableMouseDrag false true)
+                                    
+                        (mask.makeGraphic graphicWidth graphicHeight FlxColor.TRANSPARENT true)
+                        (drawPieceShape mask jig FlxColor.BLACK)
                             
-                            (mask.makeGraphic pieceAssetWidth pieceAssetHeight FlxColor.TRANSPARENT true)
-                            (drawPieceShape mask (nth jigsaw.jigs i) FlxColor.BLACK)
-                            
-                            (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
-                            (s.setGraphicSize PIECE_WIDTH PIECE_HEIGHT)
-                            (s.updateHitbox)
+                        (FlxSpriteUtil.alphaMask s rewardSprite.pixels mask.pixels)
+                        (s.setGraphicSize (Std.int rewardSprite.width) (Std.int rewardSprite.height))
+                        (s.updateHitbox)
 
-                            (rewardSprites.add s)))
-                    (add rewardSprites)))))
+                        (rewardSprites.add s)))
+                (add rewardSprites))))
 
 
     (when entryTexts (remove entryTexts))
