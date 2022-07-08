@@ -19,9 +19,10 @@
         ((hasComponent e Circle)
             (set isCircle true)
             (let [c (readComponent e Circle)
-                    diam (Std.int (* 2 c.radius))]
-                (makeGraphic diam diam FlxColor.TRANSPARENT true)
-                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness 5 color CIRCLE_COLOR))))
+                    diam (Std.int (* 2 c.radius))
+                    squareSize (+ diam CIRCLE_THICKNESS)]
+                (makeGraphic squareSize squareSize FlxColor.TRANSPARENT true)
+                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness CIRCLE_THICKNESS color CIRCLE_COLOR))))
         (true
             (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE))))
     (updateColor)
@@ -82,3 +83,5 @@
 (var CIRCLE_COLOR FlxColor.LIME)
 (var CIRCLE_SELECTED_COLOR FlxColor.GRAY)
 (var DEFAULT_COLOR FlxColor.WHITE)
+
+(var CIRCLE_THICKNESS 5)
