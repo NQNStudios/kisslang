@@ -3,6 +3,8 @@
 *   author:  Justin L Mills
 *   email:   JLM at Justinfront dot net
 *   created: 17 June 2012
+*   updated to openfl: 23 Feburary 2014
+*   
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,63 +31,60 @@
 */
 
 
-package jigsawxtargets.hxflash;
+package jigsawx.hxopenfl;
+
+
 
 import flash.Lib;
 import flash.display.Sprite ;
 import flash.display.Graphics;
 import flash.events.MouseEvent;
-
+import flash.events.Event;
+import flash.display.Loader;
+import flash.display.DisplayObject;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.geom.Rectangle;
 import flash.geom.Point;
 import flash.display.PixelSnapping;
 import flash.geom.Matrix;
-
+import flash.events.IOErrorEvent;
+//import neash.display.BitmapInt32;
 import haxe.Timer;
-
+import flash.net.URLRequest;
 import jigsawx.JigsawPiece ;
 import jigsawx.Jigsawx;
 import jigsawx.math.Vec2;
-import zpartan.media.WebCameraView;
-import zpartan.media.ProgressiveVideo;
-import flash.net.NetConnection;
 
 
-class JigsawWebCam
+class JigsawxOpenfl extends Sprite
 {
     
+    private var holder :                        Sprite;
+    private var hit:                            Sprite;
+    private var jigsawx :                       Jigsawx;
+    private var videoSource:                    Sprite;
+    private var wid:                            Float;
+    private var hi:                             Float;
+    private var rows:                           Int;
+    private var cols:                           Int;
+    private var count:                          Int;
+    private var atimer:                         Timer;
+    private var depth:                          Int;
     
-    private var progressiveVideo:       ProgressiveVideo;
-    private var webcam:                 WebCameraView;
+    private var tiles:                          Array<Sprite>;
+    private var surfaces:                       Array<Bitmap>;
+    private var offset:                         Array<Vec2>;
+    private var current:                        Sprite;
+    private var spCloth:                        Sprite;
+    private var loader:                         Loader;
     
-    private var holder :                Sprite;
-    private var hit:                    Sprite;
-    private var jigsawx :               Jigsawx;
-    private var videoSource:            Sprite;
-    private var wid:                    Float;
-    private var hi:                     Float;
-    private var rows:                   Int;
-    private var cols:                   Int;
-    private var count:                  Int;
-    private var atimer:                 Timer;
-    private var depth:                  Int;
+    private inline static var imageSrc:        String = "tablecloth.jpg";
     
-    private var tiles:                  Array<Sprite>;
-    private var surfaces:               Array<Bitmap>;
-    private var offset:                 Array<Vec2>;
-    private var current:                Sprite;
-    
-    private var webcamHolder:           Sprite;
-    private var videoHolder:            Sprite;
-    
-    
-    
-    static function main(){ new JigsawWebCam(); } 
     
     public function new()
     {
+        super();
         current                         = Lib.current;
         holder                          = new Sprite();
         holder.x                        = 0;
@@ -93,52 +92,55 @@ class JigsawWebCam
         
         current.addChild( holder ) ;
         count                           = 0;
-        rows                            = 8;
-        cols                            = 8;
-        wid                             = 40;
-        hi                              = 40;
+        rows                            = 7;
+        cols                            = 10;
+        wid                             = 45;
+        hi                              = 45;
         
         createVisuals();
-        #if !noVideo 
-            webcamDisplay(); 
-        #end
-        
-        var allTiles = tiles;
-        Lib.current.addEventListener( MouseEvent.MOUSE_UP, function( e: MouseEvent )
-        {
-            
-            // TODO: Need to add is close snap code for this case...
-            for( all in allTiles ) all.stopDrag();
-            
-        });
+        tableClothDisplay();
+        Lib.current.addEventListener( MouseEvent.MOUSE_UP, allTilesStop );
         
     }
     
     
-    public function webcamDisplay()
+    public function allTilesStop( e: MouseEvent )
     {
         
-        webcamHolder                    = new Sprite();
-        webcamHolder.x                  = 0;
-        webcamHolder.y                  = 0;
-        
-        atimer = new Timer( 40 );
-        atimer.run = copyAcross;
-        
-        #if showCamSource 
-            holder.addChild( webcamHolder ); 
-        #end
-        
-        webcam = new WebCameraView( webcamHolder );
-        var nc = new NetConnection();
-        webcam.send( nc );
+        // TODO: Need to add is close snap code for this case...
+        for( all in tiles ) all.stopDrag();
         
     }
     
     
-    private function copyAcross()
+    public function tableClothDisplay()
     {
+        
+        spCloth     = new Sprite();
+        loader      = new Loader();
+        trace( 'tableClothDisplay' );
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, copyAcross );
+        loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, traceNotFound );
+        loader.load( new URLRequest( 'assets/' + imageSrc ) );
+        
+        #if showImageSource
+            holder.addChild( spCloth );
+        #end
+        
+    }
+    
+    private function traceNotFound( e: IOErrorEvent )
+    {
+        trace( 'error ' + e );
+    }
+    
+    private function copyAcross( e: Event )
+    {
+        trace( 'copyAccoss ');
         count++;
+        var bmp:    Bitmap  = cast loader.content;
+        trace( bmp );
+        spCloth.addChild( new Bitmap( bmp.bitmapData ) );  
         
         //if( count > 1000 ) atimer.stop();
         
@@ -154,8 +156,8 @@ class JigsawWebCam
                 
                 off     = offset[ count ];
                 // optimisation could try render blitting to single surface and implement dragging in the same way as javascript.
-                // scale 1.5 times
-                surfaces[ count ].bitmapData.draw( webcamHolder, new Matrix( 1.5, 0, 0, 1.5, -xy.x - off.x, -xy.y - off.y) );
+                // scale 1.2 times
+                surfaces[ count ].bitmapData.draw( spCloth, new Matrix( 1.2, 0, 0, 1.2, -xy.x - off.x, -xy.y - off.y) );
                 
                 xy.x    += wid;
                 count++;
@@ -178,48 +180,48 @@ class JigsawWebCam
         var tile:           Sprite;
         
         var surface:        Graphics;
-        tiles                           = [];
-        surfaces                        = [];
-        offset                          = [];
+        tiles                                       = [];
+        surfaces                                    = [];
+        offset                                      = [];
         var first:          Vec2;
         
-        jigsawx                         = new Jigsawx( wid, hi, rows, cols );
-        depth                           = 0;
+        jigsawx                                     = new Jigsawx( wid, hi, rows, cols );
+        depth                                       = 0;
         
         for( jig in jigsawx.jigs )
         {
             
             // create sprite and surface and mask
             
-            sp                          = new Sprite();
+            sp                                      = new Sprite();
             tiles.push( sp );
             holder.addChild( sp );
-            tile                        = new Sprite();
+            tile                                    = new Sprite();
             sp.addChild( tile ); 
             
             //sp.fill                   = '#ffffff';
             
-            sp.x                        = jig.xy.x;
-            sp.y                        = jig.xy.y;
-            maskSp                      = new Sprite();
-            tile.mask                   = maskSp;
-            maskSp.x                  = -wid/2;
-            maskSp.y                  = -hi/2;
-            surface                     = maskSp.graphics;
+            sp.x                                    = jig.xy.x;
+            sp.y                                    = jig.xy.y;
+            maskSp                                  = new Sprite();
+            tile.mask                               = maskSp;
+            maskSp.x                                = -wid/2;
+            maskSp.y                                = -hi/2;
+            surface                                 = maskSp.graphics;
             
             sp.addChild( maskSp );
             
             // local copies so that local functions can get the the current loop variables, not sure if they are all needed.
-            var tempSp                          = sp;
-            var wid_                            = wid/2;
-            var hi_                             = hi/2;
-            var ajig                            = jig;
+            var tempSp                              = sp;
+            var wid_                                = wid/2;
+            var hi_                                 = hi/2;
+            var ajig                                = jig;
             
             // Select some pieces out of place.
             if( Math.random()*5 > 2 )
             {
                 
-                sp.x                                = 600 - Math.random()*200;
+                sp.x                                = 900 - Math.random()*400;
                 sp.y                                = 400 - Math.random()*400;
                 sp.alpha                            = 0.7;
                 
@@ -270,16 +272,19 @@ class JigsawWebCam
                 
             }
             
+            // significant change required for nme
             var bounds                              = maskSp.getBounds( sp );
             tile.x                                  = bounds.x;
             tile.y                                  = bounds.y;
+            
             var tileW                               = Std.int( maskSp.width );
             var tileH                               = Std.int( maskSp.height );
-            var bd                                  = new BitmapData( tileW, tileH, true, 0x000000 );
+            // for alpha colors you can't use an Int directly in nme     BitmapData.createColor( 0xff,0xffffff )
+            var bd                                  = new BitmapData( tileW, tileH, true, 0xffffffff );
             var bm                                  = new Bitmap( bd, PixelSnapping.ALWAYS, true );
             
             // May not need this line... possibly change bm to not transparent.
-            bd.fillRect( new Rectangle( 0, 0, tileW, tileH ), 0xff000000 );
+            bd.fillRect( new Rectangle( 0, 0, tileW, tileH ), 0x000000ff  );
             
             tile.addChild( bm );
             surfaces.push( bm );
@@ -304,6 +309,5 @@ class JigsawWebCam
         surface.endFill();
         
     }
-    
-    
+
 }
