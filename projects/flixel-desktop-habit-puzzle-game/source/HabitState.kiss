@@ -24,6 +24,9 @@
     // Hold left-click to hide the habit text and see the image clearly:
     (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))
     
+    (when FlxG.keys.justPressed.ESCAPE
+        (Sys.exit 0))
+
     // drag along connected pieces
     (when draggingSprite
         (let [dx (- draggingSprite.x draggingLastPos.x)
