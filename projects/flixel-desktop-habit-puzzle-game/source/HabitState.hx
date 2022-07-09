@@ -16,6 +16,7 @@ import openfl.geom.Rectangle;
 import openfl.geom.Point;
 import openfl.geom.ColorTransform;
 import flixel.util.FlxSpriteUtil;
+using flixel.util.FlxSpriteUtil;
 import flixel.util.FlxSave;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.addons.display.FlxExtendedSprite;

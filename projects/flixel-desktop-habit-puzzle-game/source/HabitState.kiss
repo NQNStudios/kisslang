@@ -24,6 +24,16 @@
     // Hold left-click to hide the habit text and see the image clearly:
     (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))
     
+    // drag along connected pieces
+    (when draggingSprite
+        (let [dx (- draggingSprite.x draggingLastPos.x)
+                dy (- draggingSprite.y draggingLastPos.y)]
+            (set draggingLastPos (new FlxPoint draggingSprite.x draggingSprite.y))
+            (doFor s (recursivelyConnectedPieces draggingSprite)
+                (+= s.x dx)
+                (+= s.y dy))))
+
+    
     // Left and right arrow keys can switch between unlocked puzzles
     (when FlxG.keys.justPressed.LEFT
         (unless (= rewardFileIndex 0)
@@ -61,6 +71,9 @@
 (prop &mut maxRewardFile 0)
 
 (var SCROLL_BOUND_MARGIN 200)
+
+(prop &mut :FlxExtendedSprite draggingSprite null)
+(prop &mut :FlxPoint draggingLastPos null)
 
 (method setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
@@ -145,9 +158,16 @@
                         (dictSet indexMap s i)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
+                        (set s.mouseStartDragCallback
+                            ->:Void [s x y]
+                                {
+                                    (set draggingSprite s)
+                                    (set draggingLastPos (new FlxPoint s.x s.y))
+                                })
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
+                                    (set draggingSprite null)
                                     (checkMatches i)
                                     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
@@ -239,9 +259,12 @@
 (method :FlxRect matchZoneDown [:FlxExtendedSprite s]
     (new FlxRect (+ s.x s.origin.x) (- (+ s.y s.height) EDGE_LEEWAY) EDGE_LEEWAY EDGE_LEEWAY))
 
+(prop &mut c 0)
 (method :Void connectPiece [id self toSprite]
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
+        (print "connection $c found")
+        (+= c 1)
         // Don't add duplicates
         (thisConnectedPieces.remove toSprite)
         (thisConnectedPieces.push toSprite)
@@ -254,15 +277,39 @@
             jig (dictGet pieceData id)
             row jig.row
             col jig.col]
+
+        /* // TODO tune the match zones 
+        (let [l (matchZoneLeft s)
+                r (matchZoneRight s)]
+            (s.drawRect (- l.x s.x) (- l.y s.y) l.width l.height)
+            (s.drawRect (- r.x s.x) (- r.y s.y) r.width r.height)) */
+        
         (whenLet [toLeft (dictGet matchingPiecesLeft id)
                         mzl (matchZoneLeft s)
                         mzr (matchZoneRight toLeft)]
             (unless .isEmpty (mzl.intersection mzr)
                 (connectPiece id s toLeft)))
-        // TODO implement these:
-        (whenLet [toRight (dictGet matchingPiecesRight id)]
-            (dictSet matchingPiecesRight id toRight))
-        (whenLet [toUp (dictGet matchingPiecesUp id)]
-            (dictSet matchingPiecesUp id toUp))
-        (whenLet [toDown (dictGet matchingPiecesDown id)]
-            (dictSet matchingPiecesDown id toDown))))
+        (whenLet [toRight (dictGet matchingPiecesRight id)
+                        mzr (matchZoneRight s)
+                        mzl (matchZoneLeft toRight)]
+            (unless .isEmpty (mzl.intersection mzr)
+                (connectPiece id s toRight)))
+        (whenLet [toUp (dictGet matchingPiecesUp id)
+                        mzu (matchZoneUp s)
+                        mzd (matchZoneDown toUp)]
+            (unless .isEmpty (mzu.intersection mzd)
+                (connectPiece id s toUp)))
+        (whenLet [toDown (dictGet matchingPiecesDown id)
+                        mzd (matchZoneDown s)
+                        mzu (matchZoneUp toDown)]
+            (unless .isEmpty (mzu.intersection mzd)
+                (connectPiece id s toDown)))))
+
+(method :Array<FlxExtendedSprite> recursivelyConnectedPieces [s &opt :Array<FlxExtendedSprite> collected]
+    (unless collected (set collected []))
+    (let [directlyConnected (dictGet connectedPieces (dictGet indexMap s))]
+        (doFor piece directlyConnected
+            (unless (contains collected piece)
+                (collected.push piece)
+                (recursivelyConnectedPieces piece collected))))
+    collected)
