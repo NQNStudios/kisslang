@@ -114,9 +114,10 @@
                             (+= i 1))))
                 (r.shuffle startingPoints)
                 (set jigsaw j)
+                (r.shuffle jigsaw.jigs)
                 (doFor i (range (min TOTAL_PIECES (- p currentRewardFile.startingPoints)))
                     (let [jig (nth jigsaw.jigs i)
-                            pos (ifLet [point ~(dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
+                            pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
                                         point
                                     (nth startingPoints i))
                             s (new FlxExtendedSprite pos.x pos.y)
