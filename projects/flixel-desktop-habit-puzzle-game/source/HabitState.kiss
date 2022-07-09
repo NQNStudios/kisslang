@@ -30,6 +30,7 @@
     (when shortcutHandler
         (shortcutHandler.update)))
 
+(prop &mut :FlxSave save null)
 (prop &mut :FlxTypedGroup<FlxText> entryTexts null)
 (prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
@@ -60,8 +61,11 @@
                 (if (>= ++i m.rewardFiles.length)
                         (break))))
         
-        (when rewardSprites
-            (remove rewardSprites))
+        (set save (new FlxSave))
+        (save.bind currentRewardFile.path)
+        (unless save.data.storedPositions
+            (set save.data.storedPositions (new Map<Int,FlxPoint>)))
+
         (let [rewardSprite
                     (new FlxSprite 0 0
                         (BitmapData.fromFile
@@ -92,20 +96,31 @@
                     PIECE_HEIGHT
                         (/ rewardSprite.height PUZZLE_HEIGHT)
                     :Array<FlxPoint> startingPoints []]
-                (doFor y (range PUZZLE_HEIGHT)
-                    (doFor x (range PUZZLE_WIDTH)
-                        (startingPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))))
+                (let [&mut i 0]
+                    (doFor y (range PUZZLE_HEIGHT)
+                        (doFor x (range PUZZLE_WIDTH)
+                            (startingPoints.push
+                                (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))
+                            (+= i 1))))
                 (r.shuffle startingPoints)
                 (set jigsaw j)
                 (doFor i (range (min TOTAL_PIECES (- p currentRewardFile.startingPoints)))
                     (let [jig (nth jigsaw.jigs i)
-                            pos (nth startingPoints i)
+                            pos (ifLet [point ~(dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
+                                        point
+                                    (nth startingPoints i))
                             s (new FlxExtendedSprite pos.x pos.y)
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
+                        (set s.mouseStopDragCallback
+                            ->:Void [s x y]
+                                {
+                                    ~(dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
+                                    (save.flush)
+                                })
                                     
                         (source.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
