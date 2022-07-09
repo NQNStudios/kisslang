@@ -11,7 +11,12 @@ class Main extends Sprite
 		super();
 		addChild(new FlxGame(0, 0, HabitState, 1, 60, 60, true));
 		var t:HabitState = cast FlxG.state;
-		t.setModel(new HabitModel(Sys.args()[0]));
+		var habitFile = if (Sys.args().length > 0 && Sys.args()[0].length > 0) {
+			 Sys.args()[0];
+		} else {
+			"habits/default.txt";
+		};
+		t.setModel(new HabitModel(habitFile));
 		t.model.save();
 	}
 }

@@ -102,9 +102,7 @@
         (let [rewardSprite
                     (new FlxSprite 0 0
                         (BitmapData.fromFile
-                            (joinPath
-                                (Path.directory m.textFile)
-                                currentRewardFile.path)))]
+                            currentRewardFile.path))]
             (when rewardSprites
                 (remove rewardSprites))
             (rewardSprite.setGraphicSize FlxG.width 0)
