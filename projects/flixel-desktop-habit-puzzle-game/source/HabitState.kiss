@@ -16,6 +16,16 @@
     (super.update elapsed)
     // Hold left-click to hide the habit text and see the image clearly:
     (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))
+    
+    // Left and right arrow keys can switch between unlocked puzzles
+    (when FlxG.keys.justPressed.LEFT
+        (unless (= rewardFileIndex 0)
+            (-= rewardFileIndex 1)
+            (setModel model (nth model.rewardFiles rewardFileIndex))))
+    (when FlxG.keys.justPressed.RIGHT
+        (unless (= rewardFileIndex maxRewardFile)
+            (+= rewardFileIndex 1)
+            (setModel model (nth model.rewardFiles rewardFileIndex))))
     // Handle keyboard input:
     (when shortcutHandler
         (shortcutHandler.update)))
@@ -31,19 +41,24 @@
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxTypedGroup<FlxExtendedSprite> rewardSprites null)
 
-(method setModel [m]
+(prop &mut rewardFileIndex 0)
+(prop &mut maxRewardFile 0)
+
+(method setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
     (set shortcutHandler (new FlxKeyShortcutHandler))
 
     (let [p (m.totalPoints)
-            &mut i 0
-            &mut currentRewardFile null]
+            &mut i 0 ]
         // Find, load, and add the current reward image as big as possible:
-        (set currentRewardFile (nth m.rewardFiles 0))
-        (while (> p .startingPoints (nth m.rewardFiles i))
-            (set currentRewardFile (nth m.rewardFiles i))
-            (if (>= ++i m.rewardFiles.length)
-                    (break)))
+        (unless currentRewardFile
+            (set currentRewardFile (nth m.rewardFiles 0))
+            (while (> p .startingPoints (nth m.rewardFiles i))
+                (set rewardFileIndex i)
+                (set currentRewardFile (nth m.rewardFiles i))
+                (set maxRewardFile i)
+                (if (>= ++i m.rewardFiles.length)
+                        (break))))
         
         (when rewardSprites
             (remove rewardSprites))
@@ -53,6 +68,8 @@
                             (joinPath
                                 (Path.directory m.textFile)
                                 currentRewardFile.path)))]
+            (when rewardSprites
+                (remove rewardSprites))
             (rewardSprite.setGraphicSize FlxG.width 0)
             (rewardSprite.updateHitbox)
             (when (> rewardSprite.height FlxG.height)
