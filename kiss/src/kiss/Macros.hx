@@ -315,13 +315,14 @@ class Macros {
 
         function arraySet(wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var b = wholeExp.expBuilder();
+            var value = exps.pop();
             return b.call(
                 b.symbol("set"), [
-                    b.call(b.symbol("nth"), [exps[0], exps[1]]),
-                    exps[2]
+                    b.call(b.symbol("nth"), exps),
+                    value
                 ]);
         }
-        k.doc("setNth", 3, 3, "(setNth <list> <index> <value>)");
+        k.doc("setNth", 3, null, "(setNth <list> <index> <?n-dimensional indices...> <value>)");
         macros["setNth"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             arraySet(wholeExp, exps, k);
         };
