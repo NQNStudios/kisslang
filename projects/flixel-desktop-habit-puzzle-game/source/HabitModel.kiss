@@ -27,11 +27,9 @@
                     (continue))
                 ((Some "") (continue))
                 // Types won't unify with the next case, so this is its own:
-                ((when (= lastHeader "FILES") (Some line))
+                ((when (= lastHeader "FILES") (Some path))
                     (rewardFiles.push
-                        (let [parts (line.split " ")
-                                startingPoints (Std.parseInt (parts.pop))
-                                path (parts.join " ")]
+                        (let [startingPoints (* rewardFiles.length HabitState.TOTAL_PIECES)]
                             (objectWith path startingPoints))))
                 ((Some line)
                     (.push
@@ -138,7 +136,7 @@
                         "${label.label} $(* "|" label.points)") "/")")
 
 (function :String stringifyRewardFile [:RewardFile rewardFile]
-    "${rewardFile.path} ${rewardFile.startingPoints}")
+    rewardFile.path)
 
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
