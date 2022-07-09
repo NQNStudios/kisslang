@@ -11,6 +11,7 @@ import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.math.FlxRandom;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import openfl.geom.Rectangle;
 import openfl.geom.Point;
 import openfl.geom.ColorTransform;

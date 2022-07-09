@@ -53,7 +53,9 @@
 (prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesRight (new Map))
 (prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesUp (new Map))
 (prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesDown (new Map))
+(prop &mut :Map<Int,JigsawPiece> pieceData (new Map))
 (prop &mut :Map<Int,Array<FlxExtendedSprite>> connectedPieces (new Map))
+(prop &mut :Map<FlxExtendedSprite,Int> indexMap (new Map))
 
 (prop &mut rewardFileIndex 0)
 (prop &mut maxRewardFile 0)
@@ -103,6 +105,8 @@
             (doFor map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
                 (map.clear))
             (connectedPieces.clear)
+            (doFor i (range TOTAL_PIECES) (dictSet connectedPieces i []))
+            (indexMap.clear)
 
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
                     graphicWidth rewardSprite.pixels.width
@@ -137,12 +141,14 @@
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
                         (setNth spriteGrid jig.row jig.col s)
                         (setNth indexGrid jig.row jig.col i)
+                        (dictSet pieceData i jig)
+                        (dictSet indexMap s i)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
-                                    // TODO check for matches (in a function that is also called once at generation)
+                                    (checkMatches i)
                                     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
                                     (save.flush)
@@ -161,15 +167,20 @@
                 (doFor row (range PUZZLE_HEIGHT)
                     (doFor col (range PUZZLE_WIDTH)
                         (let [id (nth indexGrid row col)]
-                            (try (let [toLeft (nth spriteGrid row (- col 1))]
+                            // combination of try/whenLet should cover target languages
+                            // where out-of-bounds nth throws an error AND languages
+                            // where it returns null
+                            (try (whenLet [toLeft (nth spriteGrid row (- col 1))]
                                 (dictSet matchingPiecesLeft id toLeft)) (catch [e] null))
-                            (try (let [toRight (nth spriteGrid row (+ col 1))]
+                            (try (whenLet [toRight (nth spriteGrid row (+ col 1))]
                                 (dictSet matchingPiecesRight id toRight)) (catch [e] null))
-                            (try (let [toUp (nth spriteGrid (- row 1) col)]
+                            (try (whenLet [toUp (nth spriteGrid (- row 1) col)]
                                 (dictSet matchingPiecesUp id toUp)) (catch [e] null))
-                            (try (let [toDown (nth spriteGrid (+ row 1) col)]
+                            (try (whenLet [toDown (nth spriteGrid (+ row 1) col)]
                                 (dictSet matchingPiecesDown id toDown)) (catch [e] null)))))
-                (add rewardSprites))))
+                (add rewardSprites)
+                (doFor i (range TOTAL_PIECES)
+                    (checkMatches i)))))
 
     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
 
@@ -218,3 +229,40 @@
         (set text.cameras [uiCamera])
         (+= textY text.height)
         (entryTexts.add text)))
+
+(method :FlxRect matchZoneLeft [:FlxExtendedSprite s]
+    (new FlxRect s.x (+ s.y s.origin.y) EDGE_LEEWAY EDGE_LEEWAY))
+(method :FlxRect matchZoneRight [:FlxExtendedSprite s]
+    (new FlxRect (- (+ s.x s.width) EDGE_LEEWAY) (+ s.y s.origin.y) EDGE_LEEWAY EDGE_LEEWAY))
+(method :FlxRect matchZoneUp [:FlxExtendedSprite s]
+    (new FlxRect (+ s.x s.origin.x) s.y EDGE_LEEWAY EDGE_LEEWAY))
+(method :FlxRect matchZoneDown [:FlxExtendedSprite s]
+    (new FlxRect (+ s.x s.origin.x) (- (+ s.y s.height) EDGE_LEEWAY) EDGE_LEEWAY EDGE_LEEWAY))
+
+(method :Void connectPiece [id self toSprite]
+    (let [thisConnectedPieces (dictGet connectedPieces id)
+            toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
+        // Don't add duplicates
+        (thisConnectedPieces.remove toSprite)
+        (thisConnectedPieces.push toSprite)
+        (toConnectedPieces.remove self)
+        (toConnectedPieces.push self)))
+
+(method :Void checkMatches [id]
+    (when !(pieceData.exists id) (return))
+    (let [s (nth rewardSprites.members id)
+            jig (dictGet pieceData id)
+            row jig.row
+            col jig.col]
+        (whenLet [toLeft (dictGet matchingPiecesLeft id)
+                        mzl (matchZoneLeft s)
+                        mzr (matchZoneRight toLeft)]
+            (unless .isEmpty (mzl.intersection mzr)
+                (connectPiece id s toLeft)))
+        // TODO implement these:
+        (whenLet [toRight (dictGet matchingPiecesRight id)]
+            (dictSet matchingPiecesRight id toRight))
+        (whenLet [toUp (dictGet matchingPiecesUp id)]
+            (dictSet matchingPiecesUp id toUp))
+        (whenLet [toDown (dictGet matchingPiecesDown id)]
+            (dictSet matchingPiecesDown id toDown))))
