@@ -12,8 +12,15 @@
     (FlxG.plugins.add (new FlxMouseControl))
     (set bgColor FlxColor.TRANSPARENT)
     (super.create))
+
+(var KEYBOARD_SCROLL_SPEED 200)
+
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
+    
+    (pieceCamera.updateScrollWheelZoom elapsed 1)
+    (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.15)
+
     // Hold left-click to hide the habit text and see the image clearly:
     (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))
     
@@ -36,14 +43,17 @@
 
 (prop &mut :HabitModel model null)
 
-(prop EDGE_LEEWAY 20)
-(var PUZZLE_WIDTH 4)
-(var PUZZLE_HEIGHT 4)
+(prop EDGE_LEEWAY 25)
+(prop BUBBLE_SIZE 15)
+(var PUZZLE_WIDTH 6)
+(var PUZZLE_HEIGHT 5)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxTypedGroup<FlxExtendedSprite> rewardSprites null)
 
 (prop &mut rewardFileIndex 0)
 (prop &mut maxRewardFile 0)
+
+(var SCROLL_BOUND_MARGIN 200)
 
 (method setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
@@ -118,7 +128,8 @@
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
-                                    ~(dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
+                                    (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
+                                    (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
                                     (save.flush)
                                 })
                                     
@@ -134,6 +145,7 @@
                         (rewardSprites.add s)))
                 (add rewardSprites))))
 
+    (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
 
     (when entryTexts (remove entryTexts))
     (set entryTexts (new FlxTypedGroup))

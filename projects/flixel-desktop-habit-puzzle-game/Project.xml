@@ -37,6 +37,7 @@
 	<haxelib name="haxe-strings" />
 	<haxelib name="kiss" />
 	<haxelib name="kiss-tools" />
+	<haxelib name="kiss-flixel" />
 	<haxelib name="datetime" />
 	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
 

@@ -25,6 +25,7 @@ import kiss_tools.FlxKeyShortcutHandler;
 import HabitModel;
 import hx.strings.Strings;
 import datetime.DateTime;
+using kiss_flixel.CameraTools;
 
 import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;
