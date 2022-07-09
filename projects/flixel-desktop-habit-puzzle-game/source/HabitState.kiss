@@ -171,9 +171,15 @@
                             ->:Void [s x y]
                                 {
                                     (set draggingSprite null)
+                                    
                                     (checkMatches i)
-                                    (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
+                                    (doFor connected (recursivelyConnectedPieces s)
+                                        (checkMatches (dictGet indexMap connected))
+                                        (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y)))
+
+
+                                    (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (save.flush)
                                 })
                                     
@@ -203,24 +209,26 @@
                                 (dictSet matchingPiecesDown id toDown)) (catch [e] null)))))
                 (add rewardSprites)
                 (doFor i (range TOTAL_PIECES)
-                    (checkMatches i)))))
+                    (checkMatches i))))
 
-    (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
+        (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
 
-    (when entryTexts (remove entryTexts))
-    (set entryTexts (new FlxTypedGroup))
-    (set textY 0)
-    (set color FlxColor.ORANGE)
-    (map (m.activeDailyEntries) makeText)
-    (set color FlxColor.GREEN)
-    (map (m.activeMonthlyEntries) makeText)
-    (set color FlxColor.BLUE)
-    (map (m.activeIntervalEntries) makeText)
-    (set color FlxColor.WHITE)
-    (map (m.activeBonusEntries) makeText)
-    (set color FlxColor.YELLOW)
-    (map (m.activeTodoEntries) makeText)
-    (add entryTexts)
+        (when entryTexts (remove entryTexts))
+        (set entryTexts (new FlxTypedGroup))
+        (set textY 0)
+        (set color FlxColor.LIME)
+        (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (- TOTAL_PIECES (- p currentRewardFile.startingPoints)))
+        (set color FlxColor.ORANGE)
+        (map (m.activeDailyEntries) makeText)
+        (set color FlxColor.GREEN)
+        (map (m.activeMonthlyEntries) makeText)
+        (set color FlxColor.BLUE)
+        (map (m.activeIntervalEntries) makeText)
+        (set color FlxColor.WHITE)
+        (map (m.activeBonusEntries) makeText)
+        (set color FlxColor.YELLOW)
+        (map (m.activeTodoEntries) makeText)
+        (add entryTexts))
 
     (doFor e (m.allEntries)
         (when (HabitModel.isActive e)
@@ -246,8 +254,11 @@
 (prop &mut :FlxColor color FlxColor.BLACK)
 
 (method makeText [:Entry e]
-    (let [label (HabitModel.activeLabel e)
-            text (new FlxText 0 textY 0 (+ label.label (* label.points "+")) 16)]
+    (let [label (HabitModel.activeLabel e)]
+        (_makeText label.label label.points)))
+
+(method _makeText [:String s :Int points]
+    (let [text (new FlxText 0 textY 0 (+ s (* points "+")) 16)]
         (set text.color color)
         (set text.cameras [uiCamera])
         (+= textY text.height)
@@ -266,7 +277,6 @@
 (method :Void connectPiece [id self toSprite]
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
-        (print "connection $c found")
         (+= c 1)
         // Don't add duplicates
         (thisConnectedPieces.remove toSprite)
