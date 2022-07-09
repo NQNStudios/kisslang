@@ -29,6 +29,8 @@ class JigsawPiece{
                         ){
         enabled                         = true;
         xy                              = new Vec2( xy_.x, xy_.y );
+        this.row                        = row;
+        this.col                        = col;
         sideData                        = sideData_;
         points                          = [];
         stepAngle                       = JigsawMagicNumbers.stepSize*Math.PI/180;

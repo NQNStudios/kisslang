@@ -49,6 +49,11 @@
 (var PUZZLE_HEIGHT 5)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxTypedGroup<FlxExtendedSprite> rewardSprites null)
+(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesLeft (new Map))
+(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesRight (new Map))
+(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesUp (new Map))
+(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesDown (new Map))
+(prop &mut :Map<Int,Array<FlxExtendedSprite>> connectedPieces (new Map))
 
 (prop &mut rewardFileIndex 0)
 (prop &mut maxRewardFile 0)
@@ -94,6 +99,10 @@
             (set pieceCamera.zoom rewardSprite.scale.x)
 
             (set rewardSprites (new FlxTypedGroup))
+            
+            (doFor map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
+                (map.clear))
+            (connectedPieces.clear)
 
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
                     graphicWidth rewardSprite.pixels.width
@@ -115,6 +124,8 @@
                 (r.shuffle startingPoints)
                 (set jigsaw j)
                 (r.shuffle jigsaw.jigs)
+                (localVar spriteGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) null)))
+                (localVar indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) 0)))
                 (doFor i (range (min TOTAL_PIECES (- p currentRewardFile.startingPoints)))
                     (let [jig (nth jigsaw.jigs i)
                             pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
@@ -124,11 +135,14 @@
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
+                        (setNth spriteGrid jig.row jig.col s)
+                        (setNth indexGrid jig.row jig.col i)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
+                                    // TODO check for matches (in a function that is also called once at generation)
                                     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
                                     (save.flush)
@@ -144,6 +158,17 @@
                         (set s.cameras [pieceCamera])
 
                         (rewardSprites.add s)))
+                (doFor row (range PUZZLE_HEIGHT)
+                    (doFor col (range PUZZLE_WIDTH)
+                        (let [id (nth indexGrid row col)]
+                            (try (let [toLeft (nth spriteGrid row (- col 1))]
+                                (dictSet matchingPiecesLeft id toLeft)) (catch [e] null))
+                            (try (let [toRight (nth spriteGrid row (+ col 1))]
+                                (dictSet matchingPiecesRight id toRight)) (catch [e] null))
+                            (try (let [toUp (nth spriteGrid (- row 1) col)]
+                                (dictSet matchingPiecesUp id toUp)) (catch [e] null))
+                            (try (let [toDown (nth spriteGrid (+ row 1) col)]
+                                (dictSet matchingPiecesDown id toDown)) (catch [e] null)))))
                 (add rewardSprites))))
 
     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
