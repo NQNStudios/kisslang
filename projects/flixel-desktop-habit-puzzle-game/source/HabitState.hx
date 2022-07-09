@@ -6,6 +6,7 @@ import flixel.FlxG;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
 import flixel.FlxSprite;
+import flixel.FlxCamera;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.math.FlxRandom;

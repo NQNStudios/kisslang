@@ -17,6 +17,7 @@ class JigsawPiece{
     public var sideData:                JigsawPieceData;
     private var first:                  Vec2;
     public var xy:                      Vec2;
+    public var wh:                      Vec2;
     public var row:                     Int;
     public var col:                     Int;
     public function new(    xy_:        Vec2
@@ -43,6 +44,16 @@ class JigsawPiece{
         // WEST side
         if( sideData.west != null )     createHoriSide( lb, lt, sideData.west, WEST );
         points.push( lt );
+
+        var maxX = 0.0;
+        var maxY = 0.0;
+        for (point in points) {
+            if (point.x > maxX)
+                maxX = point.x;
+            if (point.y > maxY)
+                maxY = point.y;
+        }
+        wh = new Vec2(maxX, maxY);
     }
     public function getPoints(): Array<Vec2> {
         return points;

@@ -1,8 +1,16 @@
 (prop &mut :Jigsawx jigsaw)
+(prop &mut :FlxCamera pieceCamera)
+(prop &mut :FlxCamera uiCamera)
 
 (method &override :Void create [] 
+    (set FlxG.cameras.bgColor FlxColor.TRANSPARENT)
+    (set pieceCamera FlxG.camera)
+    (set uiCamera (new FlxCamera))
+    (pieceCamera.copyFrom FlxG.camera)
+    (set FlxG.camera pieceCamera)
+    (FlxG.cameras.add uiCamera)
     (FlxG.plugins.add (new FlxMouseControl))
-    (set bgColor FlxColor.GRAY)
+    (set bgColor FlxColor.TRANSPARENT)
     (super.create))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
@@ -52,6 +60,7 @@
             (rewardSprite.updateHitbox)
             (rewardSprite.screenCenter)
 
+            (set pieceCamera.zoom rewardSprite.scale.x)
 
             (set rewardSprites (new FlxTypedGroup))
 
@@ -75,16 +84,22 @@
                     (let [jig (nth jigsaw.jigs i)
                             pos (nth startingPoints i)
                             s (new FlxExtendedSprite pos.x pos.y)
-                            mask (new FlxSprite)]
+                            source (new FlxSprite)
+                            mask (new FlxSprite)
+                            sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
+                        (-= pos.x jig.xy.x)
+                        (-= pos.y jig.xy.y)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
                                     
+                        (source.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
+                        (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
+                        
                         (mask.makeGraphic graphicWidth graphicHeight FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig FlxColor.BLACK)
-                            
                         (FlxSpriteUtil.alphaMask s rewardSprite.pixels mask.pixels)
-                        (s.setGraphicSize (Std.int rewardSprite.width) (Std.int rewardSprite.height))
-                        (s.updateHitbox)
+
+                        (set s.cameras [pieceCamera])
 
                         (rewardSprites.add s)))
                 (add rewardSprites))))
@@ -130,7 +145,8 @@
 
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)
-            text (new FlxText 0 textY 0 (+ label.label (* label.points "+")))]
+            text (new FlxText 0 textY 0 (+ label.label (* label.points "+")) 16)]
         (set text.color color)
+        (set text.cameras [uiCamera])
         (+= textY text.height)
         (entryTexts.add text)))
