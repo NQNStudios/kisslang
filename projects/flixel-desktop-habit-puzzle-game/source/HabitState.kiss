@@ -100,7 +100,7 @@
                     graphicHeight rewardSprite.pixels.height
                     pieceAssetWidth (Std.int (/ graphicWidth PUZZLE_WIDTH))
                     pieceAssetHeight (Std.int (/ graphicHeight PUZZLE_HEIGHT))
-                    j (new Jigsawx pieceAssetWidth pieceAssetHeight EDGE_LEEWAY PUZZLE_HEIGHT PUZZLE_WIDTH r)
+                    j (new Jigsawx pieceAssetWidth pieceAssetHeight EDGE_LEEWAY BUBBLE_SIZE PUZZLE_HEIGHT PUZZLE_WIDTH r)
                     PIECE_WIDTH 
                         (/ rewardSprite.width PUZZLE_WIDTH)
                     PIECE_HEIGHT

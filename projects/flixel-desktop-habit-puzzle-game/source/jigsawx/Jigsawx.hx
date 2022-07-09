@@ -20,6 +20,7 @@ class Jigsawx {
     public function new(    pieceWidth:            Float
                         ,   pieceHeight:            Float
                         ,   edgeLeeway:             Float
+                        ,   bubbleSize:             Float
                         ,   rows_:          Int
                         ,   cols_:          Int
                         ,   r:              FlxRandom) {
@@ -63,7 +64,7 @@ class Jigsawx {
         for( row in 0...rows  ){
             pieces.push( new Array() );
             for( col in 0...cols ){
-                jig                         = new JigsawPiece( xy, row, col, lt, rt, rb, lb, sides[ row ][ col ] );
+                jig                         = new JigsawPiece( xy, row, col, bubbleSize, lt, rt, rb, lb, sides[ row ][ col ] );
                 pieces[ row ][ col ]        = jig;
                 jigs.push( jig );
                 xy.x                        += dx;

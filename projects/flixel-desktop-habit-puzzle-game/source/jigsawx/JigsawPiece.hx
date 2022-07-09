@@ -23,6 +23,7 @@ class JigsawPiece{
     public function new(    xy_:        Vec2
                         ,   row:        Int
                         ,   col:        Int
+                        ,   bubbleSize: Float
                         ,   lt:         Vec2,    rt:    Vec2,   rb:     Vec2,   lb:     Vec2
                         ,   sideData_:  JigsawPieceData 
                         ){
@@ -33,16 +34,16 @@ class JigsawPiece{
         stepAngle                       = JigsawMagicNumbers.stepSize*Math.PI/180;
         first                           = lt;
         // NORTH side
-        if( sideData.north != null )    createVertSide( lt, rt, sideData.north, NORTH );
+        if( sideData.north != null )    createVertSide( lt, rt, bubbleSize, sideData.north, NORTH );
         points.push( rt );
         // EAST side
-        if( sideData.east != null )     createHoriSide( rt, rb, sideData.east, EAST );
+        if( sideData.east != null )     createHoriSide( rt, rb, bubbleSize, sideData.east, EAST );
         points.push( rb );
         // SOUTH side
-        if( sideData.south != null )    createVertSide( rb, lb, sideData.south, SOUTH );
+        if( sideData.south != null )    createVertSide( rb, lb, bubbleSize, sideData.south, SOUTH );
         points.push( lb );
         // WEST side
-        if( sideData.west != null )     createHoriSide( lb, lt, sideData.west, WEST );
+        if( sideData.west != null )     createHoriSide( lb, lt, bubbleSize, sideData.west, WEST );
         points.push( lt );
 
         var maxX = 0.0;
@@ -63,28 +64,32 @@ class JigsawPiece{
     }
     private function createVertSide(    A:          Vec2
                                     ,   B:          Vec2
+                                    ,   bubbleSize: Float
                                     ,   side:       JigsawSideData
                                     ,   compass:    Compass
                                     ){
         drawSide(       A.x + ( B.x - A.x )/2 + JigsawMagicNumbers.dMore/2  - side.squew*( JigsawMagicNumbers.dMore )
                 ,       A.y + ( B.y - A.y )/2 + JigsawMagicNumbers.dinout/2 - side.inout*( JigsawMagicNumbers.dinout )
+                ,       bubbleSize
                 ,       side
                 ,       compass
                 );
     }
     private function createHoriSide (   A:          Vec2
                                     ,   B:          Vec2
+                                    ,   bubbleSize: Float
                                     ,   side:       JigsawSideData
                                     ,   compass:    Compass
                                     ){
         
         drawSide(       A.x + ( B.x - A.x )/2 + JigsawMagicNumbers.dinout/2 - side.inout*( JigsawMagicNumbers.dinout )
                 ,       A.y + ( B.y - A.y )/2 + JigsawMagicNumbers.dMore/2  - side.squew*( JigsawMagicNumbers.dMore )
+                ,       bubbleSize
                 ,       side
                 ,       compass 
                 );
     }
-    private function drawSide( dx: Float, dy: Float, sideData: JigsawSideData, compass: Compass ){
+    private function drawSide( dx: Float, dy: Float, bubbleSize:Float, sideData: JigsawSideData, compass: Compass ){
         var halfPI                      = Math.PI/2;
         var dimensions                  = new Vec2();
         var offsetCentre                = new Vec2();
@@ -92,10 +97,10 @@ class JigsawPiece{
         centre = 
         switch( compass )
         {
-            case NORTH:     new Vec2( dx,                                                   dy + 6*switch bubble{ case IN: 1; case OUT: -1; }   );
-            case EAST:      new Vec2( dx - 6*switch bubble{ case IN: 1; case OUT: -1; },    dy                                                  );
-            case SOUTH:     new Vec2( dx,                                                   dy - 6*switch bubble{ case IN: 1; case OUT: -1; }   );
-            case WEST:      new Vec2( dx + 6*switch bubble{ case IN: 1; case OUT: -1; },    dy                                                  );
+            case NORTH:     new Vec2( dx,                                                   dy + bubbleSize*switch bubble{ case IN: 1; case OUT: -1; }   );
+            case EAST:      new Vec2( dx - bubbleSize*switch bubble{ case IN: 1; case OUT: -1; },    dy                                                  );
+            case SOUTH:     new Vec2( dx,                                                   dy - bubbleSize*switch bubble{ case IN: 1; case OUT: -1; }   );
+            case WEST:      new Vec2( dx + bubbleSize*switch bubble{ case IN: 1; case OUT: -1; },    dy                                                  );
         }
         curveBuilder                    = new OpenEllipse();
         curveBuilder.centre             = centre;
