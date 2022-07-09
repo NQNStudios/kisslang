@@ -78,26 +78,24 @@
                 (doFor y (range PUZZLE_HEIGHT)
                     (doFor x (range PUZZLE_WIDTH)
                         (startingPoints.push (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))))
-                //(r.shuffle startingPoints)
+                (r.shuffle startingPoints)
                 (set jigsaw j)
-                (doFor i (range (- p currentRewardFile.startingPoints))
+                (doFor i (range (min TOTAL_PIECES (- p currentRewardFile.startingPoints)))
                     (let [jig (nth jigsaw.jigs i)
                             pos (nth startingPoints i)
                             s (new FlxExtendedSprite pos.x pos.y)
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
-                        (-= pos.x jig.xy.x)
-                        (-= pos.y jig.xy.y)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
                                     
                         (source.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
                         
-                        (mask.makeGraphic graphicWidth graphicHeight FlxColor.TRANSPARENT true)
+                        (mask.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig FlxColor.BLACK)
-                        (FlxSpriteUtil.alphaMask s rewardSprite.pixels mask.pixels)
+                        (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
 
                         (set s.cameras [pieceCamera])
 
