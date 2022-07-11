@@ -190,6 +190,11 @@
 
                         (set s.cameras [pieceCamera])
 
+                        (#when debug
+                            (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                                (doFor z matchZones
+                                    (FlxSpriteUtil.drawRect s (- z.x s.x) (- z.y s.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED)))))
+
                         (rewardSprites.add s)))
                 (doFor row (range PUZZLE_HEIGHT)
                     (doFor col (range PUZZLE_WIDTH)
