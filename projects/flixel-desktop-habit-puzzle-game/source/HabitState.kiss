@@ -3,9 +3,9 @@
 (prop &mut :FlxCamera uiCamera)
 
 (method &override :Void create [] 
-    (set FlxG.cameras.bgColor FlxColor.TRANSPARENT)
     (set pieceCamera FlxG.camera)
     (set uiCamera (new FlxCamera))
+    (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (pieceCamera.copyFrom FlxG.camera)
     (set FlxG.camera pieceCamera)
     (FlxG.cameras.add uiCamera)
@@ -26,6 +26,12 @@
     
     (when FlxG.keys.justPressed.ESCAPE
         (Sys.exit 0))
+
+    (when FlxG.keys.justPressed.SPACE
+        (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
+        (save.flush)
+        // setModel so the entry text gets remade in inverted colors
+        (setModel model (nth model.rewardFiles rewardFileIndex)))
 
     // drag along connected pieces
     (when draggingSprite
@@ -98,6 +104,9 @@
         (save.bind currentRewardFile.path)
         (unless save.data.storedPositions
             (set save.data.storedPositions (new Map<Int,FlxPoint>)))
+        (unless save.data.backgroundIndex
+            (set save.data.backgroundIndex 0))
+        (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
 
         (let [rewardSprite
                     (new FlxSprite 0 0
@@ -219,18 +228,20 @@
         (when entryTexts (remove entryTexts))
         (set entryTexts (new FlxTypedGroup))
         (set textY 0)
-        (set color FlxColor.LIME)
+        (set _color FlxColor.LIME)
         (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (- TOTAL_PIECES (- p currentRewardFile.startingPoints)))
-        (set color FlxColor.ORANGE)
+        (set _color FlxColor.ORANGE)
         (map (m.activeDailyEntries) makeText)
-        (set color FlxColor.GREEN)
+        (set _color FlxColor.GREEN)
         (map (m.activeMonthlyEntries) makeText)
-        (set color FlxColor.BLUE)
+        (set _color FlxColor.BLUE)
         (map (m.activeIntervalEntries) makeText)
-        (set color FlxColor.WHITE)
+        (set _color FlxColor.WHITE)
         (map (m.activeBonusEntries) makeText)
-        (set color FlxColor.YELLOW)
+        (set _color FlxColor.YELLOW)
         (map (m.activeTodoEntries) makeText)
+        (set _color FlxColor.GRAY)
+        (_makeText "[SPACE] Cycle background color" 0)
         (add entryTexts))
 
     (doFor e (m.allEntries)
@@ -254,7 +265,21 @@
     (shortcutHandler.start))
 
 (prop &mut textY 0)
-(prop &mut :FlxColor color FlxColor.BLACK)
+// Color currently used for making text, may be inverted or lightened to contrast with background:
+(prop &mut :FlxColor _color FlxColor.BLACK)
+(method getColor []
+    (if (= _color pieceCamera.bgColor)
+            (if (= pieceCamera.bgColor FlxColor.GRAY)
+                    (_color.getLightened 0.3)    
+                (_color.getInverted))
+        _color))
+(defAlias &ident color (getColor))
+
+(prop :Array<FlxColor> backgroundOptions [
+    FlxColor.BLACK
+    FlxColor.WHITE
+    FlxColor.GRAY
+])
 
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)]
