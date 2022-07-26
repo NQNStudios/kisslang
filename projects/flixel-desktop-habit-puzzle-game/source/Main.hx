@@ -3,6 +3,7 @@ package;
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.display.Sprite;
+import flixel.util.FlxTimer;
 
 class Main extends Sprite
 {
@@ -16,7 +17,13 @@ class Main extends Sprite
 		} else {
 			"habits/default.txt";
 		};
-		t.setModel(new HabitModel(habitFile));
-		t.model.save();
+		function reloadModel(_) {
+			t.setModel(new HabitModel(habitFile));
+			t.model.save();
+		}
+		reloadModel(null);
+		new FlxTimer().start(30, reloadModel, 0);
+
 	}
+
 }

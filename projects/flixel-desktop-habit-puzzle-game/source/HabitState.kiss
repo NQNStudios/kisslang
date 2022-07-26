@@ -84,6 +84,8 @@
 (prop &mut :FlxExtendedSprite draggingSprite null)
 (prop &mut :FlxPoint draggingLastPos null)
 
+// Main.hx sets off 99% of the app's logic by parsing the model file and calling setModel on startup and on a 30s loop:
+
 (method setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
     (set shortcutHandler (new FlxKeyShortcutHandler))
