@@ -173,6 +173,11 @@
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
                                 {
+                                    // Bring currently held pieces to the front:
+                                    (rewardSprites.bringToFront s)
+                                    (doFor connected (recursivelyConnectedPieces s)
+                                        (rewardSprites.bringToFront connected))
+                                    
                                     (set draggingSprite s)
                                     (set draggingLastPos (new FlxPoint s.x s.y))
                                 })

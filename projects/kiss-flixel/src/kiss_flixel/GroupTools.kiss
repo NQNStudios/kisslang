@@ -1,3 +1,18 @@
+(function :Void clearNulls <>[:FlxObject T] [:FlxTypedGroup<T> group]
+    (while (contains group.members null)
+        (group.members.splice (group.members.lastIndexOf null) 1)))
+
+// Because FlxGroup will fill elements into null gaps in groups, this method inefficiently clears null gaps
+(function :Void bringToFront <>[:FlxObject T] [:FlxTypedGroup<T> group :T obj]
+    (group.remove obj true)
+    (clearNulls group)
+    (group.add obj))
+
+// Because FlxGroup will fill elements into null gaps in groups, this method throws an error when a null gap is present
+(function :Void sendToBack <>[:FlxObject T] [:FlxTypedGroup<T> group :T obj]
+    (group.remove obj true)
+    (group.insert 0 obj))
+
 (function :FlxRect calculateBounds <>[:FlxObject T] [:FlxTypedGroup<T> group &opt :Float margin]
     (unless margin (set margin 0))
     (let [&mut minX 0
