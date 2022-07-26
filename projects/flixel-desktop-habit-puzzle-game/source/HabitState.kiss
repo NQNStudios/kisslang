@@ -40,7 +40,10 @@
             (set draggingLastPos (new FlxPoint draggingSprite.x draggingSprite.y))
             (doFor s (recursivelyConnectedPieces draggingSprite)
                 (+= s.x dx)
-                (+= s.y dy))))
+                (+= s.y dy)))
+        // This hacks around a tricky edge case
+        (when FlxG.mouse.justReleased
+            (draggingSprite.stopDrag)))
 
     
     // Left and right arrow keys can switch between unlocked puzzles
@@ -172,15 +175,22 @@
                         (s.enableMouseDrag false true)
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
-                                {
-                                    // Bring currently held pieces to the front:
-                                    (rewardSprites.bringToFront s)
-                                    (doFor connected (recursivelyConnectedPieces s)
-                                        (rewardSprites.bringToFront connected))
-                                    
-                                    (set draggingSprite s)
-                                    (set draggingLastPos (new FlxPoint s.x s.y))
-                                })
+                                (let [t (topClickedPiece)]
+                                    (if !(= s t)
+                                            {
+                                                (s.stopDrag)
+                                                (set FlxMouseControl.dragTarget t)
+                                                (t.startDrag)
+                                            }
+                                        {
+                                            // Bring currently held pieces to the front:
+                                            (rewardSprites.bringToFront t)
+                                            (doFor connected (recursivelyConnectedPieces t)
+                                                (rewardSprites.bringToFront connected))
+                                        
+                                            (set draggingSprite t)
+                                            (set draggingLastPos (new FlxPoint t.x t.y))
+                                        })))
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
@@ -191,8 +201,7 @@
                                     (doFor connected (recursivelyConnectedPieces s)
                                         (checkMatches (dictGet indexMap connected))
                                         (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y)))
-
-
+                                    
                                     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
                                     (save.flush)
                                 })
@@ -270,6 +279,14 @@
             (setModel m)
             (shortcutHandler.start)))
     (shortcutHandler.start))
+
+(method topClickedPiece []
+    (doFor idx (reverse (collect (range rewardSprites.members.length)))
+        (let [s (nth rewardSprites.members idx)]
+            (when s
+                (when (s.pixelsOverlapPoint (FlxG.mouse.getWorldPosition) 0xFF pieceCamera)
+                    (return s)))))
+    null)
 
 (prop &mut textY 0)
 // Color currently used for making text, may be inverted or lightened to contrast with background:
@@ -355,7 +372,7 @@
 
 (method :Array<FlxExtendedSprite> recursivelyConnectedPieces [s &opt :Array<FlxExtendedSprite> collected]
     (unless collected (set collected []))
-    (let [directlyConnected (dictGet connectedPieces (dictGet indexMap s))]
+    (whenLet [directlyConnected (dictGet connectedPieces (dictGet indexMap s))]
         (doFor piece directlyConnected
             (unless (contains collected piece)
                 (collected.push piece)
