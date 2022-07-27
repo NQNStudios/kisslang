@@ -203,3 +203,14 @@
 
 (method :Array<Entry> activeTodoEntries []
     (filter todoEntries isActive))
+
+(method addEntry [:EntryType type :Array<String> labels]
+    (.push (case type
+                (Todo todoEntries)
+                (Bonus bonusEntries)
+                ((Interval _ _) intervalEntries)
+                ((Daily _ _) dailyEntries)
+                ((Monthly _ _) monthlyEntries)
+                (otherwise (throw "")))
+        (objectWith [labels (for label labels (objectWith [points 0] label))] type))
+    (save))

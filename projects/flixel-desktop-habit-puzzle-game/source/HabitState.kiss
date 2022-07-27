@@ -17,6 +17,9 @@
 
 (var KEYBOARD_SCROLL_SPEED 200)
 
+(prop &mut :EntryType typeAdding Todo)
+(prop &mut :FlxInputText entryNameText)
+
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     
@@ -31,16 +34,32 @@
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
     {
-        (when FlxG.keys.justPressed.SPACE
+        (when (and FlxG.keys.justPressed.SPACE !entryNameText)
             (defAndCall method toggleBackgroundColor
                 (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
                 (save.flush)
                 // setModel so the entry text gets remade in inverted/lightened colors when necessary
                 (setModel model (nth model.rewardFiles rewardFileIndex))))
+        
+        (method startAdding [:EntryType type]
+            (set typeAdding type)
+            (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
+            (set entryNameText.cameras [uiCamera])
+            (set entryNameText.hasFocus true)
+            (add entryNameText))
+        
         (when FlxG.keys.justPressed.ENTER
-            0)
+            (cond
+                (entryNameText
+                    (model.addEntry typeAdding [entryNameText.text])
+                    (setModel model (nth model.rewardFiles rewardFileIndex))
+                    (entryNameText.kill)
+                    (set entryNameText null))
+                (true
+                    (startAdding Todo))))
+        (when FlxG.keys.justPressed.UP
+            (startAdding Bonus))
     }
-
 
     // drag along connected pieces
     (when draggingSprite
@@ -56,16 +75,17 @@
 
     
     // Left and right arrow keys can switch between unlocked puzzles
-    (when FlxG.keys.justPressed.LEFT
-        (unless (= rewardFileIndex 0)
-            (-= rewardFileIndex 1)
-            (setModel model (nth model.rewardFiles rewardFileIndex))))
-    (when FlxG.keys.justPressed.RIGHT
-        (unless (= rewardFileIndex maxRewardFile)
-            (+= rewardFileIndex 1)
-            (setModel model (nth model.rewardFiles rewardFileIndex))))
+    (unless entryNameText
+        (when FlxG.keys.justPressed.LEFT
+            (unless (= rewardFileIndex 0)
+                (-= rewardFileIndex 1)
+                (setModel model (nth model.rewardFiles rewardFileIndex))))
+        (when FlxG.keys.justPressed.RIGHT
+            (unless (= rewardFileIndex maxRewardFile)
+                (+= rewardFileIndex 1)
+                (setModel model (nth model.rewardFiles rewardFileIndex)))))
     // Handle keyboard input:
-    (when shortcutHandler
+    (when (and shortcutHandler !entryNameText)
         (shortcutHandler.update)))
 
 (prop &mut :FlxSave save null)
@@ -318,8 +338,9 @@
     (let [label (HabitModel.activeLabel e)]
         (_makeText label.label label.points)))
 
+// TODO configurable text size
 (method _makeText [:String s :Int points]
-    (let [text (new FlxText 0 textY 0 (+ s (* points "+")) 16)]
+    (let [text (new FlxText 0 textY 0 (+ s (* points "+")) (defAndReturn var &mut textSize 16))]
         (set text.color color)
         (set text.cameras [uiCamera])
         (+= textY text.height)

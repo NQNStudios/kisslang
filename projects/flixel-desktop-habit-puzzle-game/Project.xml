@@ -34,6 +34,7 @@
 
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
+	<haxelib name="flixel-ui" />
 	<haxelib name="haxe-strings" />
 	<haxelib name="kiss" />
 	<haxelib name="kiss-tools" />

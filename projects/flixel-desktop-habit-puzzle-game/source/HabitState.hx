@@ -21,6 +21,7 @@ import flixel.util.FlxSave;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.addons.display.FlxExtendedSprite;
 import flixel.addons.plugin.FlxMouseControl;
+import flixel.addons.ui.FlxInputText;
 import kiss.Prelude;
 import kiss.List;
 import kiss_tools.FlxKeyShortcutHandler;
