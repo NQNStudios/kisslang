@@ -1,8 +1,15 @@
 // Quick and dirty way to make a block reusable without restructuring code
 // TODO won't work if locals are used in the body
-(defMacro defAndCall [type name &body body]
+(defMacro defAndCall [type name &builder b &body body]
     (assert (exprCase type
                 (function true)
                 (method true)
                 (_ false)) "the first argument to defAndCall must be a symbol: function or method")
-    `{(,type ,name [] ,@body) (,name)})
+    `{(,type ,name [] ,@body) (,(b.symbol (symbolNameValue name true true)))})
+
+// Quick and dirty way to define constants without restructuring code
+(defMacro defAndReturn [type name value &builder b]
+    (assert (exprCase type
+                ((exprOr var prop) true)
+                (_ false)) "the first argument to defAndReturn must be a symbol: var or prop")
+    `{(,type ,name ,value) ,(b.symbol (symbolNameValue name true true))})
