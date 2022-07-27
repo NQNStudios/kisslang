@@ -18,8 +18,11 @@ class Main extends Sprite
 			"habits/default.txt";
 		};
 		function reloadModel(_) {
-			t.setModel(new HabitModel(habitFile));
-			t.model.save();
+			if (t.draggingSprite == null) {
+				// TODO don't change camera position and zoom when this happens:
+				t.setModel(new HabitModel(habitFile));
+				t.model.save();
+			}
 		}
 		reloadModel(null);
 		new FlxTimer().start(30, reloadModel, 0);
