@@ -205,7 +205,7 @@
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
                                 (let [t (topClickedPiece)]
-                                    (if !(= s t)
+                                    (if (and t !(= s t))
                                             {
                                                 (s.stopDrag)
                                                 (set FlxMouseControl.dragTarget t)
