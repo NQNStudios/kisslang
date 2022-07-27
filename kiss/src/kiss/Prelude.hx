@@ -453,11 +453,12 @@ class Prelude {
         return v;
     }
 
-    public static function symbolNameValue(s:ReaderExp, allowTyped = false):String {
+    public static function symbolNameValue(s:ReaderExp, allowTyped = false, allowMeta = false):String {
         return switch (s.def) {
             case Symbol(name): name;
-            case TypedExp(_, innerExp) if (allowTyped): symbolNameValue(innerExp, false);
-            default: throw 'expected $s to be a plain symbol';
+            case TypedExp(_, innerExp) if (allowTyped): symbolNameValue(innerExp, false); // Meta must always precede type annotation
+            case MetaExp(_, innerExp) if (allowMeta): symbolNameValue(innerExp, allowTyped, false); // TODO will more than one meta on the same expression be necessary?
+            default: throw 'expected $s to be a plain symbol'; // TODO convert s def to print & modify this message to reflect allowTyped and allowMeta parameters
         };
     }
 
@@ -472,11 +473,13 @@ class Prelude {
         return Symbol(name);
     }
 
-    public static function symbolName(s:ReaderExp, allowTyped = false):ReaderExpDef {
+    // TODO make this behavior DRY with symbolNameValue
+    public static function symbolName(s:ReaderExp, allowTyped = false, allowMeta = false):ReaderExpDef {
         return switch (s.def) {
             case Symbol(name): StrExp(name);
-            case TypedExp(_, innerExp) if (allowTyped): symbolName(innerExp, false);
-            default: throw 'expected $s to be a plain symbol';
+            case TypedExp(_, innerExp) if (allowTyped): symbolName(innerExp, false); // Meta must always precede type annotation
+            case MetaExp(_, innerExp) if (allowMeta): symbolName(innerExp, allowTyped, false); // TODO will more than one meta on the same expression be necessary?
+            default: throw 'expected $s to be a plain symbol'; // TODO convert s def to print & modify this message to reflect allowTyped and allowMeta parameters;
         };
     }
 
