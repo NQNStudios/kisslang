@@ -1,0 +1,8 @@
+// Quick and dirty way to make a block reusable without restructuring code
+// TODO won't work if locals are used in the body
+(defMacro defAndCall [type name &body body]
+    (assert (exprCase type
+                (function true)
+                (method true)
+                (_ false)) "the first argument to defAndCall must be a symbol: function or method")
+    `{(,type ,name [] ,@body) (,name)})

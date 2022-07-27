@@ -1,3 +1,5 @@
+(loadFrom "kiss-tools" "src/kiss_tools/RefactorUtil.kiss")
+
 (prop &mut :Jigsawx jigsaw)
 (prop &mut :FlxCamera pieceCamera)
 (prop &mut :FlxCamera uiCamera)
@@ -27,11 +29,18 @@
     (when FlxG.keys.justPressed.ESCAPE
         (Sys.exit 0))
 
-    (when FlxG.keys.justPressed.SPACE
-        (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
-        (save.flush)
-        // setModel so the entry text gets remade in inverted colors
-        (setModel model (nth model.rewardFiles rewardFileIndex)))
+    // TODO provide a saner/configurable set of bindings to trigger these ui action functions
+    {
+        (when FlxG.keys.justPressed.SPACE
+            (defAndCall method toggleBackgroundColor
+                (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
+                (save.flush)
+                // setModel so the entry text gets remade in inverted/lightened colors when necessary
+                (setModel model (nth model.rewardFiles rewardFileIndex))))
+        (when FlxG.keys.justPressed.ENTER
+            0)
+    }
+
 
     // drag along connected pieces
     (when draggingSprite
@@ -41,7 +50,7 @@
             (doFor s (recursivelyConnectedPieces draggingSprite)
                 (+= s.x dx)
                 (+= s.y dy)))
-        // This hacks around a tricky edge case
+        // This hacks around a tricky edge case -- or so I thought
         (when FlxG.mouse.justReleased
             (draggingSprite.stopDrag)))
 
