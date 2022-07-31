@@ -12,6 +12,7 @@
     (set FlxG.camera pieceCamera)
     (FlxG.cameras.add uiCamera)
     (FlxG.plugins.add (new FlxMouseControl))
+    (set FlxMouseControl.sortIndex "priorityID")
     (set bgColor FlxColor.TRANSPARENT)
     (super.create))
 
@@ -196,6 +197,7 @@
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
+                        (set s.priorityID i)
                         (setNth spriteGrid jig.row jig.col s)
                         (setNth indexGrid jig.row jig.col i)
                         (dictSet pieceData i jig)
@@ -204,22 +206,16 @@
                         (s.enableMouseDrag false true)
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
-                                (let [t (topClickedPiece)]
-                                    (if (and t !(= s t))
-                                            {
-                                                (s.stopDrag)
-                                                (set FlxMouseControl.dragTarget t)
-                                                (t.startDrag)
-                                            }
-                                        {
-                                            // Bring currently held pieces to the front:
-                                            (rewardSprites.bringToFront t)
-                                            (doFor connected (recursivelyConnectedPieces t)
-                                                (rewardSprites.bringToFront connected))
-                                        
-                                            (set draggingSprite t)
-                                            (set draggingLastPos (new FlxPoint t.x t.y))
-                                        })))
+                                {
+                                    // Bring currently held pieces to the front:
+                                    (rewardSprites.bringToFront s)
+                                    (set s.priorityID (+ 1 .priorityID (last (the kiss.List<FlxExtendedSprite> rewardSprites.members))))
+                                    (doFor connected (recursivelyConnectedPieces s)
+                                        (rewardSprites.bringToFront connected))
+                                
+                                    (set draggingSprite s)
+                                    (set draggingLastPos (new FlxPoint s.x s.y))
+                                })
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
                                 {
@@ -308,14 +304,6 @@
             (setModel m)
             (shortcutHandler.start)))
     (shortcutHandler.start))
-
-(method topClickedPiece []
-    (doFor idx (reverse (collect (range rewardSprites.members.length)))
-        (let [s (nth rewardSprites.members idx)]
-            (when s
-                (when (s.pixelsOverlapPoint (FlxG.mouse.getWorldPosition) 0xFF pieceCamera)
-                    (return s)))))
-    null)
 
 (prop &mut textY 0)
 // Color currently used for making text, may be inverted or lightened to contrast with background:
