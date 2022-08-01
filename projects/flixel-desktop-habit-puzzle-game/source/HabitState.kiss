@@ -25,7 +25,7 @@
     (super.update elapsed)
     
     (pieceCamera.updateScrollWheelZoom elapsed 1)
-    (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.15)
+    (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
 
     // Hold left-click to hide the habit text and see the image clearly:
     (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))

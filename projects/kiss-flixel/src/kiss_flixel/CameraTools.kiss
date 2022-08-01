@@ -50,7 +50,8 @@
         (-= camera.width dx (* border.scale.x borderSizeRight))
         (-= camera.height dy (* border.scale.y borderSizeBottom)))))
 
-(function updateMouseBorderControl [:FlxCamera camera :Float elapsed :Float speed :Float heightFraction]
+// GOTCHA: if you change FlxG.camera to a moving camera, you MUST provide a default camera for FlxG.mouse.getScreenPosition()
+(function updateMouseBorderControl [:FlxCamera camera :Float elapsed :Float speed :Float heightFraction &opt :FlxCamera screenCamera]
     (let [viewport (ifLet [bc (dictGet borderCameras camera)] bc camera)
             left viewport.x
             top viewport.y
@@ -59,7 +60,7 @@
             // Use the same margin size for x and y, and calculate it based on height
             // (in a landscape view, this just makes more sense to me)
             margin (* viewport.height heightFraction)
-            mPos (FlxG.mouse.getScreenPosition)]
+            mPos (FlxG.mouse.getScreenPosition screenCamera)]
         (updateKeyControl camera elapsed speed
             // when the camera takes the whole screen, count the letterbox zones as margin
             ->(if (= left 0)

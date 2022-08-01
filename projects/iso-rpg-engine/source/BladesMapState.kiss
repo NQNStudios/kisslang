@@ -97,4 +97,4 @@
         ->{FlxG.keys.pressed.RIGHT}
         ->{FlxG.keys.pressed.UP}
         ->{FlxG.keys.pressed.DOWN})
-    (worldCamera.updateMouseBorderControl elapsed CAMERA_SPEED 0.15))
+    (worldCamera.updateMouseBorderControl elapsed CAMERA_SPEED 0.02))
