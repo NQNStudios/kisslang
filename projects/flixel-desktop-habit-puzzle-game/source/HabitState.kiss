@@ -108,6 +108,7 @@
 (prop &mut :Map<Int,JigsawPiece> pieceData (new Map))
 (prop &mut :Map<Int,Array<FlxExtendedSprite>> connectedPieces (new Map))
 (prop &mut :Map<FlxExtendedSprite,Int> indexMap (new Map))
+(prop &mut :Map<Int,FlxExtendedSprite> spriteMap (new Map)) // Because rewardSprites will be re-ordered in depth handling, this is required
 
 (prop &mut rewardFileIndex 0)
 (prop &mut maxRewardFile 0)
@@ -202,6 +203,7 @@
                         (setNth indexGrid jig.row jig.col i)
                         (dictSet pieceData i jig)
                         (dictSet indexMap s i)
+                        (dictSet spriteMap i s)
                         (set s.draggable true)
                         (s.enableMouseDrag false true)
                         (set s.mouseStartDragCallback
@@ -370,17 +372,11 @@
 
 (method :Void checkMatches [id]
     (when !(pieceData.exists id) (return))
-    (let [s (nth rewardSprites.members id)
+    (let [s (dictGet spriteMap id)
             jig (dictGet pieceData id)
             row jig.row
             col jig.col]
 
-        /* // TODO tune the match zones 
-        (let [l (matchZoneLeft s)
-                r (matchZoneRight s)]
-            (s.drawRect (- l.x s.x) (- l.y s.y) l.width l.height)
-            (s.drawRect (- r.x s.x) (- r.y s.y) r.width r.height)) */
-        
         (whenLet [toLeft (dictGet matchingPiecesLeft id)
                         mzl (matchZoneLeft s)
                         mzr (matchZoneRight toLeft)]
