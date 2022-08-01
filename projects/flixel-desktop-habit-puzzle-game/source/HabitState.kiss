@@ -5,6 +5,8 @@
 (prop &mut :FlxCamera uiCamera)
 
 (method &override :Void create [] 
+    (add logTexts)
+    (set Prelude.printStr log)
     (set pieceCamera FlxG.camera)
     (set uiCamera (new FlxCamera))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
@@ -91,6 +93,7 @@
 
 (prop &mut :FlxSave save null)
 (prop &mut :FlxTypedGroup<FlxText> entryTexts null)
+(prop &mut :FlxTypedGroup<FlxText> logTexts (new FlxTypedGroup))
 (prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
 (prop &mut :HabitModel model null)
@@ -220,11 +223,11 @@
                             ->:Void [s x y]
                                 {
                                     (set draggingSprite null)
-                                    
                                     (checkMatches i)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
                                     (doFor connected (recursivelyConnectedPieces s)
                                         (checkMatches (dictGet indexMap connected))
+                                        (log "uh $(dictGet indexMap connected)")
                                         (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y)))
                                     
                                     (pieceCamera.calculateScrollBounds rewardSprites SCROLL_BOUND_MARGIN)
@@ -334,6 +337,20 @@
         (+= textY text.height)
         (entryTexts.add text)))
 
+(method log [message]
+    (prop &mut logTextY 0)
+    (#when debug
+        (when (> logTextY FlxG.height)
+            (logTexts.clear)
+            (set logTextY 0))
+        (let [text (new FlxText FlxG.width logTextY 0 message textSize)]
+            (set text.color color)
+            (set text.cameras [uiCamera])
+            (+= logTextY text.height)
+            (-= text.x text.width)
+            (logTexts.add text))))
+
+// TODO properly tune the match zones to bubbles
 (method :FlxRect matchZoneLeft [:FlxExtendedSprite s]
     (new FlxRect s.x (+ s.y s.origin.y) EDGE_LEEWAY EDGE_LEEWAY))
 (method :FlxRect matchZoneRight [:FlxExtendedSprite s]
@@ -345,8 +362,8 @@
 
 (prop &mut c 0)
 (method :Void connectPiece [id self toSprite]
-    (let [thisConnectedPieces (dictGet connectedPieces id)
-            toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
+    (let [thisConnectedPieces (dictGet connectedPieces ~id)
+            toConnectedPieces (dictGet connectedPieces ~(dictGet indexMap toSprite))]
         (+= c 1)
         // Don't add duplicates
         (thisConnectedPieces.remove toSprite)
@@ -378,13 +395,13 @@
             (unless .isEmpty (mzl.intersection mzr)
                 (connectPiece id s toRight)))
         (whenLet [toUp (dictGet matchingPiecesUp id)
-                        mzu (matchZoneUp s)
-                        mzd (matchZoneDown toUp)]
+                        mzu ~(matchZoneUp s)
+                        mzd ~(matchZoneDown toUp)]
             (unless .isEmpty (mzu.intersection mzd)
                 (connectPiece id s toUp)))
         (whenLet [toDown (dictGet matchingPiecesDown id)
-                        mzd (matchZoneDown s)
-                        mzu (matchZoneUp toDown)]
+                        mzd ~(matchZoneDown s)
+                        mzu ~(matchZoneUp toDown)]
             (unless .isEmpty (mzu.intersection mzd)
                 (connectPiece id s toDown)))))
 
