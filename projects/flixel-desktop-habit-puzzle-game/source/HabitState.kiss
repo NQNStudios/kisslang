@@ -71,10 +71,7 @@
             (set draggingLastPos (new FlxPoint draggingSprite.x draggingSprite.y))
             (doFor s (recursivelyConnectedPieces draggingSprite)
                 (+= s.x dx)
-                (+= s.y dy)))
-        // This hacks around a tricky edge case -- or so I thought
-        (when FlxG.mouse.justReleased
-            (draggingSprite.stopDrag)))
+                (+= s.y dy))))
 
     
     // Left and right arrow keys can switch between unlocked puzzles
