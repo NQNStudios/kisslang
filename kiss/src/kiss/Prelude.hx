@@ -349,7 +349,7 @@ class Prelude {
 
     public static var joinPath:Function = Reflect.makeVarArgs(_joinPath);
 
-    public static function isNull(v:Any) {
+    public static function isNull<T>(v:T) {
         return switch (Type.typeof(v)) {
             case TNull: true;
             default: false;
