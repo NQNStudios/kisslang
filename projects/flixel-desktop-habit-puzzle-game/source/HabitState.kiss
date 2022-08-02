@@ -165,7 +165,7 @@
             (set save.data.backgroundIndex 0))
         (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
 
-        (unless (= lastRewardFileIndex rewardFileIndex)
+        (unless (and (= lastRewardFileIndex rewardFileIndex) (= lastTotalPoints (m.totalPoints)))
             (set rewardSprite
                         (new FlxSprite 0 0
                             (BitmapData.fromFile
@@ -287,6 +287,8 @@
                     (doFor i (range TOTAL_PIECES)
                         (checkMatches i))))
         (set lastRewardFileIndex rewardFileIndex)
+        (prop &mut lastTotalPoints -1)
+        (set lastTotalPoints (m.totalPoints))
 
         (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
 
