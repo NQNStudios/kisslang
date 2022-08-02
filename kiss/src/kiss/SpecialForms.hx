@@ -363,7 +363,8 @@ class SpecialForms {
                 var nullCase = if (k.hscript) {
                     b.callSymbol("null", [b.raw(nullExpr.toString())]);  
                 } else {
-                    b.call(b.callSymbol("when", [b.callSymbol("Prelude.isNull", [b.symbol("v")]), b.symbol("v")]), [b.raw(nullExpr.toString())]);
+                    var gensym = b.symbol();
+                    b.call(b.callSymbol("when", [b.callSymbol("Prelude.isNull", [gensym]), gensym]), [b.raw(nullExpr.toString())]);
                 };
 
                 cases.insert(0, nullCase);
