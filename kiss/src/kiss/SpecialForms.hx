@@ -338,22 +338,7 @@ class SpecialForms {
 
             var exp = k.withoutListWrapping().convert(args[0]);
 
-            // On C#, C++, and HashLink, value types (specifically Float and Int) cannot be null, so they cannot be compared with null.
-            // Therefore a null case doesn't need to be added--and will cause a compile failure if it is.
-            var canCompareNull = !isTupleCase &&
-                    if (Context.defined('cs') || Context.defined('cpp') || Context.defined('hl')) {
-                        var type = exp.typeof(k.typeHints);
-                        switch (type) {
-                            case null:
-                                false;
-                            case Success(TAbstract(ref, [])) if (["Int", "Float", "Bool"].indexOf(ref.get().name) != -1):
-                                false;
-                            case Failure(_):
-                                KissError.warnFromExp(args[0], "Can't detect whether expression can be null-checked");
-                                false;
-                            default: true;
-                        }
-                    } else true;
+            var canCompareNull = !isTupleCase;
 
             var cases = args.slice(1);
             // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.
@@ -375,8 +360,11 @@ class SpecialForms {
                     throw KissError.fromExp(wholeExp, "Unmatched pattern: null");
                 }
 
-                var nullCase = b.callSymbol("null", [b.raw(nullExpr.toString())]);
-                
+                var nullCase = if (k.hscript) {
+                    b.callSymbol("null", [b.raw(nullExpr.toString())]);  
+                } else {
+                    b.call(b.callSymbol("when", [b.callSymbol("Prelude.isNull", [b.symbol("v")]), b.symbol("v")]), [b.raw(nullExpr.toString())]);
+                };
 
                 cases.insert(0, nullCase);
             }

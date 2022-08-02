@@ -689,22 +689,25 @@ class Macros {
                 b.symbol("null");
             };
 
-            return b.callSymbol("case", [
-                firstValue,
-                b.call(
-                    firstPattern, [
-                        if (bindingList.length == 0) {
-                            thenExp;
-                        } else {
-                            ifLet(assertLet, wholeExp, [
-                                b.list(bindingList)
-                            ].concat(exps.slice(1)), k);
-                        }
-                    ]),
-                b.callSymbol("otherwise", [
+            var gensym = b.symbol();
+            return b.let(
+                [gensym, firstValue],
+                [b.callSymbol("case", [
+                    gensym,
+                    b.call(
+                        b.callSymbol("when", [gensym, firstPattern]), [
+                            if (bindingList.length == 0) {
+                                thenExp;
+                            } else {
+                                ifLet(assertLet, wholeExp, [
+                                    b.list(bindingList)
+                                ].concat(exps.slice(1)), k);
+                            }
+                        ]),
+                    b.callSymbol("otherwise", [
                         elseExp
-                ])
-            ]);
+                    ])
+                ])]);
         }
         macros["ifLet"] = ifLet.bind(false);
 
@@ -1177,10 +1180,8 @@ class Macros {
                 b.callField(funcName, exps.shift(), exps),
                 b.callSymbol("-1", [b.symbol("haxe.ds.Option.None")]),
                 b.callSymbol("other", [b.callSymbol("haxe.ds.Option.Some", [b.symbol("other")])]),
+                b.callSymbol("null", [b.callSymbol("throw", [b.str("Haxe indexOf is broken")])])
             ];
-            if (!(Context.defined('cs') || Context.defined('cpp'))) {
-                cases.push(b.callSymbol("null", [b.callSymbol("throw", [b.str("Haxe indexOf is broken")])]));
-            }
             return b.callSymbol("case", cases);
         }
         macros["indexOf"] = indexOfMacro.bind(false);
