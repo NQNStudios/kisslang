@@ -7,6 +7,7 @@ import flash.display.BitmapData;
 import flixel.FlxCamera;
 import flixel.math.FlxVector;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.util.FlxColor;
