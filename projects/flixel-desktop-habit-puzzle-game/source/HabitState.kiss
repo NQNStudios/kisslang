@@ -405,10 +405,23 @@
     (matchZone s SOUTH))
 
 (prop &mut c 0)
-(method :Void connectPiece [id self toSprite]
+(method :Void connectPiece [id self toSprite selfMatchZone toSpriteMatchZone]
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
         (+= c 1)
+        
+        // Snap the pieces together
+        (let [offsetX (- toSpriteMatchZone.x selfMatchZone.x)
+                offsetY (- toSpriteMatchZone.y selfMatchZone.y)]
+            (doFor piece (.concat (recursivelyConnectedPieces self) [self])
+                ~"snip snap"
+                (+= piece.x offsetX)
+                (+= piece.y offsetY))
+            // TODO check for matches created by snapping all the pieces?
+            // Or is it fine not to?
+            )
+
+
         // Don't add duplicates
         (thisConnectedPieces.remove toSprite)
         (thisConnectedPieces.push toSprite)
@@ -426,22 +439,22 @@
                         mzl (matchZoneLeft s)
                         mzr (matchZoneRight toLeft)]
             (unless .isEmpty (mzl.intersection mzr)
-                (connectPiece id s toLeft)))
+                (connectPiece id s toLeft mzl mzr)))
         (whenLet [toRight (dictGet matchingPiecesRight id)
                         mzr (matchZoneRight s)
                         mzl (matchZoneLeft toRight)]
             (unless .isEmpty (mzl.intersection mzr)
-                (connectPiece id s toRight)))
+                (connectPiece id s toRight mzr mzl)))
         (whenLet [toUp (dictGet matchingPiecesUp id)
                         mzu (matchZoneUp s)
                         mzd (matchZoneDown toUp)]
             (unless .isEmpty (mzu.intersection mzd)
-                (connectPiece id s toUp)))
+                (connectPiece id s toUp mzu mzd)))
         (whenLet [toDown (dictGet matchingPiecesDown id)
                         mzd (matchZoneDown s)
                         mzu (matchZoneUp toDown)]
             (unless .isEmpty (mzu.intersection mzd)
-                (connectPiece id s toDown)))))
+                (connectPiece id s toDown mzd mzu)))))
 
 (method :Array<FlxExtendedSprite> recursivelyConnectedPieces [s &opt :Array<FlxExtendedSprite> collected]
     (unless collected (set collected []))
