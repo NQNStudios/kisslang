@@ -34,7 +34,10 @@ import kiss.List;
 class ${className} {}
 ")
                 (File.saveContent kissFile "")
-                (showTextDocument (Uri.file kissFile))))))
+                (awaitLet [_ (showTextDocument (Uri.file haxeFile) (object viewColumn ViewColumn.Active))]
+                    (executeCommand "workbench.action.keepEditor")
+                    (awaitLet [_ (showTextDocument (Uri.file kissFile) (object viewColumn ViewColumn.Beside))]
+                        (executeCommand "workbench.action.keepEditor")))))))
 
 (function correspondingFile [:String kissOrHxFile]
     (let [base
