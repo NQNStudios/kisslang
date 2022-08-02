@@ -88,10 +88,11 @@
                 (let [newMouseWorldPosition (FlxG.mouse.getWorldPosition camera)
                         deltaMousePosition (newMouseWorldPosition.subtractPoint mouseWorldPosition)]
                     (camera.scroll.subtractPoint deltaMousePosition))
-                    // Undo any scrolling that expands the viewport past its bounds
-                    **(unless (.containsPoint (getScrollBounds camera) camera.scroll)
-                        (-= camera.zoom deltaZoom)
-                        (set camera.scroll scrollPosition))))
+                    // Undo any zooming out that expands the viewport past its bounds
+                    (when (> 0 deltaZoom)
+                        (unless (.containsPoint (getScrollBounds camera) camera.scroll)
+                            (-= camera.zoom deltaZoom)
+                            (set camera.scroll scrollPosition)))))
         (otherwise null)))
 
 (function getScrollBounds [:FlxCamera camera]
@@ -100,7 +101,7 @@
 // GOTCHA: if you change FlxG.camera to a moving camera, you MUST provide a default camera for FlxG.mouse.getScreenPosition()
 (function calculateScrollBounds <>[:FlxSprite T] [:FlxCamera camera :FlxTypedGroup<T> group &opt :FlxCamera screenCamera :Float margin]
     (let [r (GroupTools.calculateScreenBounds group screenCamera margin)]
-        (camera.setScrollBoundsRect r.x r.y ~r.width ~r.height)))
+        (camera.setScrollBoundsRect r.x r.y r.width r.height)))
 
 // GOTCHA: if you change FlxG.camera to a moving camera, you MUST provide a default camera for FlxG.mouse.getScreenPosition()
 (function extendScrollBounds [:FlxCamera camera :FlxSprite sprite &opt :FlxCamera screenCamera :Float margin]
