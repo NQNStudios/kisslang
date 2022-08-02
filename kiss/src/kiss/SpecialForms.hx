@@ -493,6 +493,18 @@ class SpecialForms {
             ]).withMacroPosOf(wholeExp);
         };
 
+        k.doc("macroPrint", 1, 1, "(macroPrint <exp...>)");
+        // At compile-time, print the macro expansion and generated haxe code of the given expression,
+        // Then at runtime, evaluate the expression normally.
+        map["macroPrint"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            Helpers.printExp(exps[0]);
+
+            var e = Kiss.convert(k, exps[0]);
+            Prelude.printStr(e.toString());
+            return e;
+        };
+
         return map;
     }
     
