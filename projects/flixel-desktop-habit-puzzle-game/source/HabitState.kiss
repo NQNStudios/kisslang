@@ -264,9 +264,11 @@
                         (set s.cameras [pieceCamera])
 
                         (#when debug
-                            (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                            // Uncomment for debugging match zones:
+                            **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                                 (doFor z matchZones
-                                    (FlxSpriteUtil.drawRect s (- z.x s.x) (- z.y s.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED)))))
+                                    (unless z.isEmpty
+                                        (FlxSpriteUtil.drawRect s (- z.x s.x) (- z.y s.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))
 
                         (rewardSprites.add s)))
                     (doFor row (range PUZZLE_HEIGHT)
@@ -378,14 +380,29 @@
             (logTexts.add text))))
 
 // TODO properly tune the match zones to bubbles
+(method :FlxRect matchZone [:FlxExtendedSprite s compass]
+    (let [bubblePoints (dictGet .bubblePoints (dictGet pieceData (dictGet indexMap s)) compass)]
+        (unless bubblePoints
+            (return (new FlxRect 0 0 0 0)))
+        (let [pointsX (for point bubblePoints point.x)
+                pointsY (for point bubblePoints point.y)
+                minX (apply min pointsX)
+                minY (apply min pointsY)
+                maxX (apply max pointsX)
+                maxY (apply max pointsY)
+                rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))]
+            (+= rect.x s.x)
+            (+= rect.y s.y)
+            rect)))
+
 (method :FlxRect matchZoneLeft [:FlxExtendedSprite s]
-    (new FlxRect s.x (+ s.y s.origin.y) EDGE_LEEWAY EDGE_LEEWAY))
+    (matchZone s WEST))
 (method :FlxRect matchZoneRight [:FlxExtendedSprite s]
-    (new FlxRect (- (+ s.x s.width) EDGE_LEEWAY) (+ s.y s.origin.y) EDGE_LEEWAY EDGE_LEEWAY))
+    (matchZone s EAST))
 (method :FlxRect matchZoneUp [:FlxExtendedSprite s]
-    (new FlxRect (+ s.x s.origin.x) s.y EDGE_LEEWAY EDGE_LEEWAY))
+    (matchZone s NORTH))
 (method :FlxRect matchZoneDown [:FlxExtendedSprite s]
-    (new FlxRect (+ s.x s.origin.x) (- (+ s.y s.height) EDGE_LEEWAY) EDGE_LEEWAY EDGE_LEEWAY))
+    (matchZone s SOUTH))
 
 (prop &mut c 0)
 (method :Void connectPiece [id self toSprite]

@@ -91,6 +91,8 @@ class JigsawPiece{
                 ,       compass 
                 );
     }
+
+    public var bubblePoints:Map<Compass,Array<Vec2>> = [];    
     private function drawSide( dx: Float, dy: Float, bubbleSize:Float, sideData: JigsawSideData, compass: Compass ){
         var halfPI                      = Math.PI/2;
         var dimensions                  = new Vec2();
@@ -202,6 +204,9 @@ class JigsawPiece{
         points.pop();
         points.pop();
         points.pop();
+        
+        bubblePoints[compass] = secondPoints;
+
         points                          = points.concat( thirdPoints );
     }
 }
