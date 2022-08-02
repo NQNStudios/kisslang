@@ -131,7 +131,10 @@
 (prop &mut rewardFileIndex 0)
 (prop &mut maxRewardFile 0)
 
-(var SCROLL_BOUND_MARGIN 200)
+(defAlias &ident SCROLL_BOUND_MARGIN (scrollBoundMargin))
+
+(method scrollBoundMargin []
+    (fHalf (/ (max FlxG.width FlxG.height) rewardSprite.scale.x)))
 
 (prop &mut :FlxExtendedSprite draggingSprite null)
 (prop &mut :FlxPoint draggingLastPos null)
