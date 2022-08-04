@@ -6,6 +6,7 @@ import kiss.Stream;
 import sys.io.File;
 import datetime.DateTime;
 import datetime.DateTimeInterval;
+import haxe.ds.Option;
 
 enum EntryType {
     Daily(daysOfWeek:Array<Int>, lastDayDone:String);
@@ -29,6 +30,19 @@ typedef Entry = {
 typedef RewardFile = {
     path: String,
     startingPoints: Int
+};
+
+typedef Puzzle = {
+    path:Null<String>,
+    index:Int,
+    outOf:Int
+}
+
+typedef PuzzlePack = {
+    path:String,
+    nextPuzzle:Option<Puzzle>,
+    puzzlesDone:Int,
+    puzzlesTotal:Int
 };
 
 @:build(kiss.Kiss.build())

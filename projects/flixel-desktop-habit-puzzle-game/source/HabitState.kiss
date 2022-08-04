@@ -4,6 +4,8 @@
 (prop &mut :FlxCamera pieceCamera)
 (prop &mut :FlxCamera uiCamera)
 
+(load "PuzzlePacks.kiss")
+
 (method &override :Void create [] 
     (#when debug
         (add cameraBounds))
@@ -154,8 +156,17 @@
                 (set rewardFileIndex i)
                 (set currentRewardFile (nth m.rewardFiles i))
                 (set maxRewardFile i)
-                (if (>= ++i m.rewardFiles.length)
-                        (break))))
+                (when (>= ++i m.rewardFiles.length)
+                    (let [lastStartingPoints .startingPoints (nth m.rewardFiles --i)
+                            nextStartingPoints (+ lastStartingPoints TOTAL_PIECES)]
+                        (if (> p nextStartingPoints)
+                                {
+                                    // TODO give the player a puzzle pack choice using (availablePacks)
+                                    (m.addRewardFile .path (firstUnsolvedPuzzle m "puzzles/trentnelson") nextStartingPoints)
+                                    (setModel m)
+                                    (return)
+                                }
+                            (break))))))
         
         (set save (new FlxSave))
         (save.bind currentRewardFile.path)

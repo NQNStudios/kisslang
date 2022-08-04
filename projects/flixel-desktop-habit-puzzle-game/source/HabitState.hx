@@ -26,11 +26,12 @@ import kiss.Prelude;
 import kiss.List;
 import kiss_tools.FlxKeyShortcutHandler;
 import HabitModel;
+import sys.FileSystem;
 import hx.strings.Strings;
 import datetime.DateTime;
 using kiss_flixel.CameraTools;
 using kiss_flixel.GroupTools;
-
+import haxe.ds.Option;
 import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;
 import jigsawx.math.Vec2;

@@ -216,3 +216,7 @@
                 (otherwise (throw "")))
         (objectWith [labels (for label labels (objectWith [points 0] label))] type))
     (save))
+
+(method addRewardFile [path startingPoints]
+    (rewardFiles.push (objectWith path startingPoints))
+    (save))
