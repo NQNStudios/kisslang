@@ -1,0 +1,37 @@
+(var puzzleSearchGlobs ["puzzles"])
+// TODO add the itch io client folder to search paths- it's
+// C:\Users\$(userHome)\AppData\Roaming\itch\apps\ on windows
+
+(function _glob [pattern]
+    // TODO implement my own "glob" to avoid haxe-concurrency dependency
+    [pattern])
+
+(function :Array<PuzzlePack> availablePacks [:HabitModel model]
+    (let [:Array<PuzzlePack> packs []]
+        (doFor glob puzzleSearchGlobs
+            (doFor dir (_glob glob)
+                (let [packDirs (filter (for thing (FileSystem.readDirectory dir) (let [full "${dir}/${thing}"] (when (FileSystem.isDirectory full) full))))]
+                    (doFor packDir packDirs
+                        (let [fop (firstUnsolvedPuzzle model packDir)]
+                            (packs.push 
+                                (object
+                                    nextPuzzle 
+                                        (if fop.path 
+                                                (Some fop) 
+                                            None) 
+                                    path packDir 
+                                    puzzlesDone fop.index
+                                    puzzlesTotal fop.outOf)))))))
+        packs))
+
+(function :Puzzle firstUnsolvedPuzzle [:HabitModel model :String dir]
+    (let [images (FileSystem.readDirectory dir)
+            &mut puzzleCount images.length
+            rewardFilePaths (for rf model.rewardFiles rf.path)]
+        (doFor [idx image] (enumerate images)
+            (let [fullPath (joinPath dir image)]
+                (if (FileSystem.isDirectory fullPath)
+                        (-= puzzleCount 1)
+                    (unless (rewardFilePaths.contains fullPath)
+                        (return (object path fullPath index idx outOf images.length))))))
+        (object path null index images.length outOf images.length)))
