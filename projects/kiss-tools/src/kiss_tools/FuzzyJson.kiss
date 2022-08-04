@@ -1,0 +1,28 @@
+(defMacroVar fuzzyJsons (new StringMap))
+
+(defMacroFunction _loadFuzzyJson [key file]
+    (unless (fuzzyJsons.exists key)
+        (dictSet fuzzyJsons key (new StringMap)))
+    (let [map (dictGet fuzzyJsons key)
+            json (Json.parse (File.getContent file))]
+        (doFor key (Reflect.fields json)
+            (if (map.exists key)
+                    // mark the key to throw an error if accessed,
+                    // because it is a duplicate
+                    (dictSet map key null)
+                (dictSet map key (Reflect.field json key))))))
+
+(defMacro loadFuzzyJson [key file]
+    (_loadFuzzyJson (eval key) (eval file))
+    `{})
+
+(defMacroFunction _getFuzzyJson [whichJson key]
+    (let [json (dictGet fuzzyJsons whichJson)
+            bm (FuzzyMapTools.bestMatch json key)]
+        (dictGet json bm)))
+
+(defMacro getFuzzyJson [whichJson key &builder b]
+    (let [value (_getFuzzyJson (eval whichJson) (eval key))]
+        (if !(= null value)
+                `(haxe.Json.parse ,(Json.stringify value))
+            `(throw (+ ,key " has a duplicate definition between multiple files of fuzzy json " ,whichJson)))))

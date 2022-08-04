@@ -1,0 +1,9 @@
+// Test FuzzyJson
+(load "FuzzyJson.kiss")
+
+(loadFuzzyJson "dogs" "test/fuzzy.json")
+(loadFuzzyJson "dogs" "test/fuzzy2.json")
+
+(assert (= "is a very good dog" (getFuzzyJson "dogs" "Albort")))
+// duplicate definitions throw an error 
+(assertThrows (getFuzzyJson "dogs" "Rangie"))
