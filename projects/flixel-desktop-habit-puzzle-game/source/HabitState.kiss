@@ -273,10 +273,9 @@
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
 
                         (set s.cameras [pieceCamera])
-
-                        (#when debug
-                            // Uncomment for debugging match zones:
-                            **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                        // Uncomment for debugging match zones:
+                        **(#when debug
+                            (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                                 (doFor z matchZones
                                     (unless z.isEmpty
                                         (FlxSpriteUtil.drawRect s (- z.x s.x) (- z.y s.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))

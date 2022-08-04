@@ -38,3 +38,7 @@
 
 (method defaultPosition [:Entry e]
     (object x 0.0 y 0.0 z 0.0))
+
+// TODO overridable circleContainsEntry function (default is to check only the position, Flixel version will use scaled sprite bounding box)
+
+// TODO when a circle contains an entry in the current playground, add it as a child

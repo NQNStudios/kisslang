@@ -31,7 +31,7 @@
                             (#if target.threaded
                                     (Thread.create downloadMp3)
                                 {
-                                    (print "threading unavailable -- the program will freeze while downloading with youtube-dl")
+                                    (ui.displayMessage "threading unavailable -- the program will freeze while downloading with youtube-dl")
                                     (downloadMp3)
                                 }))
                         (true
