@@ -1,6 +1,7 @@
 package kiss;
 
 import haxe.ds.StringMap;
+import kiss.FuzzyMapTools;
 
 using hx.strings.Strings;
 
@@ -20,37 +21,8 @@ abstract FuzzyMap<T>(StringMap<T>) from StringMap<T> to StringMap<T> {
         return this;
     }
 
-    static var threshold = 0.4;
-    public static function fuzzyMatchScore(key:String, fuzzySearchKey:String) {
-        return 1 - (key.toLowerCase().getLevenshteinDistance(fuzzySearchKey.toLowerCase()) / Math.max(key.length, fuzzySearchKey.length));
-    }
-
     function bestMatch(fuzzySearchKey:String, ?throwIfNone=true):String {
-        if (this.exists(fuzzySearchKey)) return fuzzySearchKey;
-
-        var bestScore = 0.0;
-        var bestKey = null;
-
-        for (key in this.keys()) {
-            var score = fuzzyMatchScore(key, fuzzySearchKey);
-            if (score > bestScore) {
-                bestScore = score;
-                bestKey = key;
-            }
-        }
-
-        if (bestScore < threshold) {
-            if (throwIfNone)
-                throw 'No good match for $fuzzySearchKey in $this -- best was $bestKey with $bestScore';
-            else
-                return null;
-        }
-
-        #if (test || debug)
-        trace('Fuzzy match $bestKey for $fuzzySearchKey score: $bestScore');
-        #end
-        
-        return bestKey;
+        return FuzzyMapTools.bestMatch(this, fuzzySearchKey, throwIfNone);
     }
 
     @:arrayAccess

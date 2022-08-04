@@ -36,6 +36,7 @@ class KissInterp extends Interp {
         variables.set("Math", Math);
         variables.set("Json", haxe.Json);
         variables.set("StringMap", InterpMap);
+        variables.set("FuzzyMapTools", FuzzyMapTools);
         variables.set("StringTools", StringTools);
         variables.set("Path", haxe.io.Path);
         #if (sys || hxnodejs)
