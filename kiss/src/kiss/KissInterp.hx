@@ -7,6 +7,8 @@ import kiss.Prelude;
 
 using  hscript.Tools;
 
+typedef InterpMap = haxe.ds.StringMap<Dynamic>;
+
 /**
  * Specialized hscript interpreter for hscript generated from Kiss expressions.
  * When macrotest is defined by the compiler, many functions run without
@@ -33,6 +35,7 @@ class KissInterp extends Interp {
         variables.set("Throw", ExtraElementHandling.Throw);
         variables.set("Math", Math);
         variables.set("Json", haxe.Json);
+        variables.set("StringMap", InterpMap);
         variables.set("StringTools", StringTools);
         variables.set("Path", haxe.io.Path);
         #if (sys || hxnodejs)

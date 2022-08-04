@@ -440,6 +440,8 @@ class Helpers {
     public static function runAtCompileTimeDynamic(exp:ReaderExp, k:KissState, ?args:Map<String, Dynamic>):Dynamic {
         var parsed = compileTimeHScript(exp, k);
         
+        // The macro interpreter gets everything a KissInterp has,
+        // plus macro-specific things.
         var interp = new KissInterp();
         interp.variables.set("read", Reader.assertRead.bind(_, k));
         interp.variables.set("readExpArray", Reader.readExpArray.bind(_, _, k));
