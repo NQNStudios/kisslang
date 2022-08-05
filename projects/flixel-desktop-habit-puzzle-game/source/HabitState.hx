@@ -29,6 +29,7 @@ import HabitModel;
 import sys.FileSystem;
 import hx.strings.Strings;
 import datetime.DateTime;
+import flixel.ui.FlxButton;
 using kiss_flixel.CameraTools;
 using kiss_flixel.GroupTools;
 import haxe.ds.Option;
