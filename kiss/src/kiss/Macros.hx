@@ -377,6 +377,18 @@ class Macros {
             ]);
         };
 
+        k.doc("assertThrowsAtCompileTime", 1, 2, "(assertThrowsAtCompileTime <expression> <message>)");
+        macros["assertThrowsAtCompileTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            try {
+                k.convert(exps[0]);
+            } catch (e) {
+                return b.none();
+            }
+
+            throw KissError.fromExp(wholeExp, "expression compiled successfully when it was supposed to throw a compiler error");
+        };
+
         function stringsThatMatch(exp:ReaderExp, formName:String) {
             return switch (exp.def) {
                 case StrExp(s):
