@@ -16,13 +16,18 @@
     (_loadFuzzyJson (eval key) (eval file))
     `{})
 
-(defMacroFunction _getFuzzyJson [whichJson key]
+(defMacroFunction _getFuzzyJson [whichJson key take]
     (let [json (dictGet fuzzyJsons whichJson)
-            bm (FuzzyMapTools.bestMatch json key)]
-        (dictGet json bm)))
+            bm (FuzzyMapTools.bestMatch json key)
+            val (dictGet json bm)]
+        (when take (json.remove bm))
+        val))
 
-(defMacro getFuzzyJson [whichJson key &builder b]
-    (let [value (_getFuzzyJson (eval whichJson) (eval key))]
+(defMacro getFuzzyJson [whichJson key &opt take &builder b]
+    (let [value (_getFuzzyJson (eval whichJson) (eval key) take)]
         (if !(= null value)
                 `(haxe.Json.parse ,(Json.stringify value))
-            `(throw (+ ,key " has a duplicate definition between multiple files of fuzzy json " ,whichJson)))))
+            (throw (+ (eval key) " has a duplicate definition between multiple files of fuzzy json " (eval whichJson))))))
+
+(defMacro takeFuzzyJson [whichJson key]
+    `(getFuzzyJson ,whichJson ,key true))

@@ -5,5 +5,9 @@
 (loadFuzzyJson "dogs" "test/fuzzy2.json")
 
 (assert (= "is a very good dog" (getFuzzyJson "dogs" "Albort")))
-// duplicate definitions throw an error 
-(assertThrows (getFuzzyJson "dogs" "Rangie"))
+// takeFuzzyJson removes the match to make following fuzzyJson retrievals save time:
+(assert (= "is a very good dog" (takeFuzzyJson "dogs" "Albort")))
+// No good match will cause crash at compile time:
+(assertThrowsAtCompileTime (getFuzzyJson "dogs" "Albort"))
+// duplicate definitions throw an error at compile time:
+(assertThrowsAtCompileTime (getFuzzyJson "dogs" "Rangie"))
