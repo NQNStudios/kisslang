@@ -82,15 +82,6 @@
             (startAdding Bonus))
     }
 
-    // drag along connected pieces
-    (when draggingSprite
-        (let [dx (- draggingSprite.x draggingLastPos.x)
-                dy (- draggingSprite.y draggingLastPos.y)]
-            (set draggingLastPos (new FlxPoint draggingSprite.x draggingSprite.y))
-            (doFor s (recursivelyConnectedPieces draggingSprite)
-                (+= s.x dx)
-                (+= s.y dy))))
-
     
     // Left and right arrow keys can switch between unlocked puzzles
     (unless entryNameText
@@ -119,15 +110,15 @@
 (var PUZZLE_HEIGHT 5)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxSprite rewardSprite null)
-(prop &mut :FlxTypedGroup<FlxExtendedSprite> rewardSprites null)
-(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesLeft (new Map))
-(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesRight (new Map))
-(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesUp (new Map))
-(prop &mut :Map<Int,FlxExtendedSprite> matchingPiecesDown (new Map))
+(prop &mut :FlxTypedGroup<KissExtendedSprite> rewardSprites null)
+(prop &mut :Map<Int,KissExtendedSprite> matchingPiecesLeft (new Map))
+(prop &mut :Map<Int,KissExtendedSprite> matchingPiecesRight (new Map))
+(prop &mut :Map<Int,KissExtendedSprite> matchingPiecesUp (new Map))
+(prop &mut :Map<Int,KissExtendedSprite> matchingPiecesDown (new Map))
 (prop &mut :Map<Int,JigsawPiece> pieceData (new Map))
-(prop &mut :Map<Int,Array<FlxExtendedSprite>> connectedPieces (new Map))
-(prop &mut :Map<FlxExtendedSprite,Int> indexMap (new Map))
-(prop &mut :Map<Int,FlxExtendedSprite> spriteMap (new Map)) // Because rewardSprites will be re-ordered in depth handling, this is required
+(prop &mut :Map<Int,Array<KissExtendedSprite>> connectedPieces (new Map))
+(prop &mut :Map<KissExtendedSprite,Int> indexMap (new Map))
+(prop &mut :Map<Int,KissExtendedSprite> spriteMap (new Map)) // Because rewardSprites will be re-ordered in depth handling, this is required
 
 (prop &mut lastRewardFileIndex -1)
 (prop &mut rewardFileIndex 0)
@@ -138,7 +129,7 @@
 (method scrollBoundMargin []
     (fHalf (/ (max FlxG.width FlxG.height) rewardSprite.scale.x)))
 
-(prop &mut :FlxExtendedSprite draggingSprite null)
+(prop &mut :KissExtendedSprite draggingSprite null)
 (prop &mut :FlxPoint draggingLastPos null)
 
 // Main.hx sets off 99% of the app's logic by parsing the model file and calling setModel on startup and on a 30s loop:
@@ -223,7 +214,7 @@
                             pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
                                         point
                                     (nth startingPoints i))
-                            s (new FlxExtendedSprite pos.x pos.y)
+                            s (new KissExtendedSprite pos.x pos.y)
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
@@ -237,19 +228,19 @@
                         (s.enableMouseDrag false true)
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
-                                {
+                                (let [s (cast s KissExtendedSprite)]
                                     // Bring currently held pieces to the front:
                                     (rewardSprites.bringToFront s)
-                                    (set s.priorityID (+ 1 .priorityID (last (the kiss.List<FlxExtendedSprite> rewardSprites.members))))
-                                    (doFor connected (recursivelyConnectedPieces s)
-                                        (rewardSprites.bringToFront connected))
-                                
+                                    (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
+                                    (let [connectedPieces (recursivelyConnectedPieces s)]
+                                        (doFor connected connectedPieces
+                                            (rewardSprites.bringToFront connected))
+                                        (set s.connectedSprites connectedPieces))
                                     (set draggingSprite s)
-                                    (set draggingLastPos (new FlxPoint s.x s.y))
-                                })
+                                    (set draggingLastPos (new FlxPoint s.x s.y))))
                         (set s.mouseStopDragCallback
                             ->:Void [s x y]
-                                {
+                                (let [s (cast s KissExtendedSprite)]
                                     (set draggingSprite null)
                                     (checkMatches i)
                                     (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
@@ -258,8 +249,7 @@
                                         (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y)))
                                     
                                     (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
-                                    (save.flush)
-                                })
+                                    (save.flush)))
                                     
                         (source.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
@@ -389,7 +379,7 @@
             (logTexts.add text))))
 
 // TODO properly tune the match zones to bubbles
-(method :FlxRect matchZone [:FlxExtendedSprite s compass]
+(method :FlxRect matchZone [:KissExtendedSprite s compass]
     (let [bubblePoints (dictGet .bubblePoints (dictGet pieceData (dictGet indexMap s)) compass)]
         (unless bubblePoints
             (return (new FlxRect 0 0 0 0)))
@@ -404,26 +394,30 @@
             (+= rect.y s.y)
             rect)))
 
-(method :FlxRect matchZoneLeft [:FlxExtendedSprite s]
+(method :FlxRect matchZoneLeft [:KissExtendedSprite s]
     (matchZone s WEST))
-(method :FlxRect matchZoneRight [:FlxExtendedSprite s]
+(method :FlxRect matchZoneRight [:KissExtendedSprite s]
     (matchZone s EAST))
-(method :FlxRect matchZoneUp [:FlxExtendedSprite s]
+(method :FlxRect matchZoneUp [:KissExtendedSprite s]
     (matchZone s NORTH))
-(method :FlxRect matchZoneDown [:FlxExtendedSprite s]
+(method :FlxRect matchZoneDown [:KissExtendedSprite s]
     (matchZone s SOUTH))
 
 (prop &mut c 0)
 (method :Void connectPiece [id self toSprite selfMatchZone toSpriteMatchZone]
+    ~"connectPiece"
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
+        
+        // Don't add duplicates or snap for pieces alread connected
+        (when (contains thisConnectedPieces toSprite)
+            (return))
         (+= c 1)
         
         // Snap the pieces together
         (let [offsetX (- toSpriteMatchZone.x selfMatchZone.x)
                 offsetY (- toSpriteMatchZone.y selfMatchZone.y)]
             (doFor piece (.concat (recursivelyConnectedPieces self) [self])
-                ~"snip snap"
                 (+= piece.x offsetX)
                 (+= piece.y offsetY))
             // TODO check for matches created by snapping all the pieces?
@@ -431,10 +425,7 @@
             )
 
 
-        // Don't add duplicates
-        (thisConnectedPieces.remove toSprite)
         (thisConnectedPieces.push toSprite)
-        (toConnectedPieces.remove self)
         (toConnectedPieces.push self)))
 
 (method :Void checkMatches [id]
@@ -465,7 +456,7 @@
             (unless .isEmpty (mzu.intersection mzd)
                 (connectPiece id s toDown mzd mzu)))))
 
-(method :Array<FlxExtendedSprite> recursivelyConnectedPieces [s &opt :Array<FlxExtendedSprite> collected]
+(method :Array<KissExtendedSprite> recursivelyConnectedPieces [s &opt :Array<KissExtendedSprite> collected]
     (unless collected (set collected []))
     (whenLet [directlyConnected (dictGet connectedPieces (dictGet indexMap s))]
         (doFor piece directlyConnected
