@@ -229,12 +229,10 @@
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
                                 (let [s (cast s KissExtendedSprite)]
-                                    // Bring currently held pieces to the front:
-                                    (rewardSprites.bringToFront s)
                                     (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
                                     (let [connectedPieces (recursivelyConnectedPieces s)]
-                                        (doFor connected connectedPieces
-                                            (rewardSprites.bringToFront connected))
+                                        // Bring currently held pieces to the front:
+                                        (rewardSprites.bringAllToFront (cast (concat [s] connectedPieces)))
                                         (set s.connectedSprites connectedPieces))
                                     (set draggingSprite s)
                                     (set draggingLastPos (new FlxPoint s.x s.y))))

@@ -8,6 +8,14 @@
         (group.remove obj)
         (group.insert 0 obj)))
 
+(function :Void bringAllToFront <>[:FlxObject T] [:FlxTypedGroup<T> group :Array<T> arr]
+    (doFor s (group.members.copy)
+        (when (contains arr s) (bringToFront group s))))
+
+(function :Void sendAllToBack <>[:FlxObject T] [:FlxTypedGroup<T> group :Array<T> arr]
+    (doFor s (reverse (group.members.copy))
+        (when (contains arr s) (sendToBack group s))))
+
 (function :FlxRect calculateScreenBounds <>[:FlxSprite T] [:FlxTypedGroup<T> group &opt :FlxCamera camera :Float margin]
     (unless margin (set margin 0))
     (let [s (group.getFirstAlive)
