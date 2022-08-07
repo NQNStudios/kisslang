@@ -410,6 +410,7 @@ class Macros {
         
         k.doc("defmacro", 3, null, '(defMacro <name> [<args...>] <body...>)');
         macros["defmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
@@ -528,6 +529,7 @@ class Macros {
 
         k.doc("undefmacro", 1, 1, '(undefMacro <name>)');
         macros["undefmacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = switch (exps[0].def) {
                 case Symbol(name): name;
                 default: throw KissError.fromExp(exps[0], "macro name should be a symbol");
@@ -540,6 +542,7 @@ class Macros {
 
         k.doc("defreadermacro", 3, null, '(defReaderMacro <optional &start> <"<startingString>" or [<startingStrings...>]> [<streamArgName>] <body...>)');
         macros["defreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
 
             // reader macros declared in the form (defreadermacro &start ...) will only be applied
             // at the beginning of lines
@@ -610,6 +613,7 @@ class Macros {
 
         k.doc("undefreadermacro", 1, 1, '(undefReaderMacro <optional &start> ["<startingString>" or <startingStrings...>])');
         macros["undefreadermacro"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             // reader macros undeclared in the form (undefReaderMacro &start ...) will be removed from the table
             // for reader macros that must be at the beginning of lines
             // at the beginning of lines
@@ -663,6 +667,7 @@ class Macros {
 
         k.doc("defalias", 2, 2, "(defAlias <<&call or &ident> whenItsThis> <makeItThis>)");
         macros["defalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = getAliasName(k, exps[0], "defAlias");
 
             aliasMap[name] = exps[1].def;
@@ -672,6 +677,7 @@ class Macros {
 
         k.doc("undefalias", 1, 1, "(undefAlias <<&call or &ident> alias>)");
         macros["undefalias"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = getAliasName(k, exps[0], "undefAlias");
 
             aliasMap.remove(name);
@@ -896,6 +902,7 @@ class Macros {
 
         k.doc("defMacroVar", 2, 2, "(defMacroVar <name> <value>)");
         macros["defMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = exps[0].symbolNameValue();
 
             k.macroVars[name] = Helpers.runAtCompileTimeDynamic(exps[1], k);
@@ -905,6 +912,7 @@ class Macros {
 
         k.doc("setMacroVar",2, 2, "(setMacroVar <name> <value>)");
         macros["setMacroVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var name = exps[0].symbolName().withPosOf(exps[0]);
             var b = wholeExp.expBuilder();
             
@@ -913,6 +921,7 @@ class Macros {
 
         k.doc("defMacroFunction", 3, null, "(defMacroFunction <name> [<args>] <body...>)");
         macros["defMacroFunction"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            k.stateChanged = true;
             var b = wholeExp.expBuilder();
             var name = exps[0].symbolNameValue();
             var lambdaExp = b.callSymbol("lambda", [exps[1]].concat(exps.slice(2)));

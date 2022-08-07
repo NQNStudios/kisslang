@@ -58,7 +58,9 @@ typedef KissState = {
     macroVars:Map<String, Dynamic>,
     collectedBlocks:Map<String, Array<ReaderExp>>,
     inStaticFunction:Bool,
-    typeHints:Array<Var>
+    typeHints:Array<Var>,
+    conversionStack:Array<ReaderExp>,
+    stateChanged:Bool
 };
 #end
 
@@ -168,6 +170,8 @@ class Kiss {
             collectedBlocks: new Map(),
             inStaticFunction: false,
             typeHints: [],
+            conversionStack: [],
+            stateChanged: false
         };
 
         k.doc = (form:String, minArgs:Null<Int>, maxArgs:Null<Int>, expectedForm = "", doc = "") -> {
@@ -413,8 +417,27 @@ class Kiss {
     }
 
     static var macroUsed = false;
-
+    static var expCache:haxe.DynamicAccess<String> = null;
+    static var cacheFile = ".kissCache.json";
+    static var cacheThreshold = 0.2;
     public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
+        #if kissCache
+        if (expCache == null) {
+            expCache = if (sys.FileSystem.exists(cacheFile)) {
+                haxe.Json.parse(File.getContent(cacheFile));
+            } else {
+                {};
+            }
+        }
+        var str = Reader.toString(exp.def);
+        if (expCache.exists(str)) {
+            return Context.parse(expCache[str], Helpers.macroPos(exp));
+        }
+        #end
+        
+        if (k.conversionStack.length == 0) k.stateChanged = false;
+        k.conversionStack.push(exp);
+        
         var macros = k.macros;
         var fieldForms = k.fieldForms;
         var specialForms = k.specialForms;
@@ -437,6 +460,7 @@ class Kiss {
 
         var none = EBlock([]).withMacroPosOf(exp);
 
+        var startTime = haxe.Timer.stamp();
         var expr = switch (exp.def) {
             case None:
                 none;
@@ -455,6 +479,7 @@ class Kiss {
                 var field = fieldForms[ff](exp, args.copy(), k);
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
+                k.stateChanged = true;
                 none; // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 checkNumArgs(mac);    
@@ -516,8 +541,13 @@ class Kiss {
             default:
                 throw KissError.fromExp(exp, 'conversion not implemented');
         };
-        #if test
-        // Sys.println(expr.toString()); // For very fine-grained codegen inspection--slows compilation a lot.
+        var conversionTime = haxe.Timer.stamp() - startTime;
+        k.conversionStack.pop();
+        #if kissCache
+        if (conversionTime > cacheThreshold && !k.stateChanged) {
+            expCache[str] = expr.toString();
+            File.saveContent(cacheFile, haxe.Json.stringify(expCache));
+        }
         #end
 
         return expr;
