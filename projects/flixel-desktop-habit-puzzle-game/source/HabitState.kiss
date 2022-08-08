@@ -6,6 +6,8 @@
 
 (load "PuzzlePacks.kiss")
 
+(defAlias &ident textSize SimpleWindow.textSize)
+
 (method &override :Void create [] 
     (#when debug
         (add cameraBounds))
@@ -47,7 +49,7 @@
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
 
     // Hold left-click to hide the habit text and see the image clearly:
-    (when entryTexts (if FlxG.mouse.pressed (remove entryTexts) (add entryTexts)))
+    (when entryWindow (if FlxG.mouse.pressed (entryWindow.hide) (entryWindow.show)))
     
     (when FlxG.keys.justPressed.ESCAPE
         (Sys.exit 0))
@@ -92,20 +94,23 @@
         (when FlxG.keys.justPressed.RIGHT
             (unless (= rewardFileIndex maxRewardFile)
                 (+= rewardFileIndex 1)
-                (refreshModel))))
-    // Handle keyboard input:
-    (when (and shortcutHandler !entryNameText)
-        (shortcutHandler.update)))
+                (refreshModel)))))
 
 (prop &mut :FlxSave save null)
-(prop &mut :FlxTypedGroup<FlxText> entryTexts null)
+(prop &mut :SimpleWindow entryWindow null)
 (prop &mut :FlxTypedGroup<FlxText> logTexts (new FlxTypedGroup))
 (prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
 (prop &mut :HabitModel model null)
 
-(prop EDGE_LEEWAY 25)
-(prop BUBBLE_SIZE 15)
+
+(method scaledToTheImageThatWorkedNice [v]
+    ~(* v (/ (smallerDimension) 367)))
+(method smallerDimension [] (min rewardSprite.pixels.width rewardSprite.pixels.height))
+// TODO these variables don't do exactly what I think they do when scaled, like at all:
+(defAlias &ident EDGE_LEEWAY 25)
+(defAlias &ident BUBBLE_SIZE 15)
+
 (var PUZZLE_WIDTH 6)
 (var PUZZLE_HEIGHT 5)
 (var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
@@ -288,62 +293,33 @@
 
         (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
 
-        (when entryTexts (remove entryTexts))
-        (set entryTexts (new FlxTypedGroup))
-        (set textY 0)
-        (set _color FlxColor.LIME)
+        (when entryWindow (entryWindow.hide))
+        (set entryWindow (new SimpleWindow "" (FlxColor.fromRGBFloat 0 0 0 0.5) FlxColor.WHITE 0.9 0.9))
+        (set entryWindow.cameras [uiCamera])
+        (set entryWindow.textColor FlxColor.LIME)
         (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (- TOTAL_PIECES (- p currentRewardFile.startingPoints)))
-        (set _color FlxColor.ORANGE)
+        (set entryWindow.textColor FlxColor.ORANGE)
         (map (m.activeDailyEntries) makeText)
-        (set _color FlxColor.GREEN)
+        (set entryWindow.textColor FlxColor.GREEN)
         (map (m.activeMonthlyEntries) makeText)
-        (set _color FlxColor.BLUE)
+        (set entryWindow.textColor FlxColor.BLUE)
         (map (m.activeIntervalEntries) makeText)
-        (set _color FlxColor.WHITE)
+        (set entryWindow.textColor FlxColor.WHITE)
         (map (m.activeBonusEntries) makeText)
-        (set _color FlxColor.YELLOW)
+        (set entryWindow.textColor FlxColor.YELLOW)
         (map (m.activeTodoEntries) makeText)
-        (set _color FlxColor.GRAY)
+        (set entryWindow.textColor FlxColor.GRAY)
         (_makeText "[SPACE] Cycle background color" 0)
-        (add entryTexts)
+        (entryWindow.show)
         
         (when !(= puzzleUnlocked -1)
-            (startPuzzlePackChoice puzzleUnlocked)))
-
-    (doFor e (m.allEntries)
-        (when (HabitModel.isActive e)
-            (let [label (HabitModel.activeLabel e)]
-                (shortcutHandler.registerItem label.label e))))
-
-    (set shortcutHandler.onBadKey ->:Void [_ _] {})
-    (set shortcutHandler.onSelectItem ->:Void [:Entry e]
-        (let [label (HabitModel.activeLabel e)]
-            (+= label.points 1)
-            (whenLet [(Daily days lastDayDone) e.type]
-                (set e.type (Daily days (HabitModel.todayString))))
-            (whenLet [(Monthly days lastDayDone) e.type]
-                (set e.type (Monthly days (.toString (DateTime.now)))))
-            (whenLet [(Interval days lastDayDone) e.type]
-                (set e.type (Interval days (.toString (DateTime.now)))))
-            (m.save)
-            (setModel m)
-            (shortcutHandler.start)))
-    (shortcutHandler.start))
+            (startPuzzlePackChoice puzzleUnlocked))))
 
 (method refreshModel [&opt m]
     (let [m (or m model)]
         (setModel m (nth m.rewardFiles rewardFileIndex))))
 
 (prop &mut textY 0)
-// Color currently used for making text, may be inverted or lightened to contrast with background:
-(prop &mut :FlxColor _color FlxColor.BLACK)
-(method getColor []
-    (if (= _color pieceCamera.bgColor)
-            (if (= pieceCamera.bgColor FlxColor.GRAY)
-                    (_color.getLightened 0.3)    
-                (_color.getInverted))
-        _color))
-(defAlias &ident color (getColor))
 
 (prop :Array<FlxColor> backgroundOptions [
     FlxColor.BLACK
@@ -353,15 +329,24 @@
 
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)]
-        (_makeText label.label label.points)))
+        (_makeText label.label label.points ->:Void text {
+            // TODO move all of this logic other than setModel into HabitModel logic
+            (let [label (HabitModel.activeLabel e)]
+                (+= label.points 1)
+                (whenLet [(Daily days lastDayDone) e.type]
+                    (set e.type (Daily days (HabitModel.todayString))))
+                (whenLet [(Monthly days lastDayDone) e.type]
+                    (set e.type (Monthly days (.toString (DateTime.now)))))
+                (whenLet [(Interval days lastDayDone) e.type]
+                    (set e.type (Interval days (.toString (DateTime.now)))))
+                (model.save)
+                (setModel model))
+        })))
+
 
 // TODO configurable text size
-(method _makeText [:String s :Int points]
-    (let [text (new FlxText 0 textY 0 (+ s (* points "+")) (defAndReturn var &mut textSize 16))]
-        (set text.color color)
-        (set text.cameras [uiCamera])
-        (+= textY text.height)
-        (entryTexts.add text)))
+(method _makeText [:String s :Int points &opt :Action action]
+    (entryWindow.makeText (+ s (pointsStr points)) action))
 
 (method log [message]
     (prop &mut logTextY 0)
@@ -370,7 +355,7 @@
             (logTexts.clear)
             (set logTextY 0))
         (let [text (new FlxText FlxG.width logTextY 0 message textSize)]
-            (set text.color color)
+            (set text.color entryWindow.textColor)
             (set text.cameras [uiCamera])
             (+= logTextY text.height)
             (-= text.x text.width)
@@ -403,7 +388,6 @@
 
 (prop &mut c 0)
 (method :Void connectPiece [id self toSprite selfMatchZone toSpriteMatchZone]
-    ~"connectPiece"
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
         
@@ -488,3 +472,8 @@
                         }))))
                 (+= y textSize)))
         (add nextPuzzleChoiceGroup)))
+
+(function pointsStr [points]
+    (let [tallyUnit 5]
+        (+ (* "*" (Math.floor (/ points tallyUnit)))
+            (* "+" (% points tallyUnit)))))

@@ -33,6 +33,7 @@ import flixel.ui.FlxButton;
 using kiss_flixel.CameraTools;
 using kiss_flixel.GroupTools;
 import kiss_flixel.KissExtendedSprite;
+import kiss_flixel.SimpleWindow;
 import haxe.ds.Option;
 import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;

@@ -1,0 +1,71 @@
+// All windows share the same text size
+(var &mut textSize 16)
+(var :kiss.List<SimpleWindow> windowStack [])
+
+// TODO tooltip support with left-click and right-click action
+// icons and explanations
+
+(defNew [:String title 
+            &opt :FlxColor bgColor
+            :FlxColor _textColor
+            :Float percentWidth
+            :Float percentHeight]
+    
+    [&mut :Float nextControlY 0
+        &mut :FlxColor textColor (or _textColor FlxColor.WHITE)
+        :FlxTypedGroup<FlxSprite> controls (new FlxTypedGroup)
+        :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)]
+    
+    (super 0 0)
+    (makeGraphic
+        (Std.int (* FlxG.width (or percentWidth 0.5)))
+        (Std.int (* FlxG.height (or percentHeight 0.5)))
+        (or bgColor FlxColor.BLACK))
+    (screenCenter)
+    (set nextControlY y)
+    
+    (when title
+        (makeText title null))
+    
+    (set keyHandler.onBadKey ->:Void [_ _] {}) // TODO do SOMETHING
+    (set keyHandler.onSelectItem
+        ->:Void [:ShortcutAction a] {
+            (a)
+            (keyHandler.start)
+        })
+        
+    // TODO show which shortcuts' prefixes are partially highlighted?
+    )
+
+(method makeText [:String text &opt :Action onClick]
+    (let [ftext (new FlxText x nextControlY 0 text textSize)]
+        (set ftext.color textColor)
+        (set ftext.cameras this.cameras)
+        (controls.add ftext)
+        (+= nextControlY ftext.height)
+        (when onClick
+            // TODO enable mouse click
+            // TODO make a highlight color
+            // TODO right click?
+            (keyHandler.registerItem text ->:Void (onClick ftext)))
+        ftext))
+
+// TODO makeButton
+// TODO make inputText
+
+(method show []
+    (FlxG.state.add this)
+    (FlxG.state.add controls)
+    (windowStack.push this)
+    (keyHandler.start))
+
+(method hide []
+    (FlxG.state.remove this)
+    (FlxG.state.remove controls)
+    (windowStack.remove this)
+    (keyHandler.cancel))
+
+(method &override update [:Float elapsed]
+    (super.update elapsed)
+    (when (= (last windowStack) this)
+        (keyHandler.update)))
