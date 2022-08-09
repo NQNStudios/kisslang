@@ -52,18 +52,23 @@
 
 // TODO makeButton
 // TODO make inputText
+(prop &mut _shown false)
 
 (method show []
-    (FlxG.state.add this)
-    (FlxG.state.add controls)
-    (windowStack.push this)
-    (keyHandler.start))
+    (unless _shown
+        (FlxG.state.add this)
+        (FlxG.state.add controls)
+        (windowStack.push this)
+        (keyHandler.start)
+        (set _shown true)))
 
 (method hide []
-    (FlxG.state.remove this)
-    (FlxG.state.remove controls)
-    (windowStack.remove this)
-    (keyHandler.cancel))
+    (when _shown
+        (FlxG.state.remove this)
+        (FlxG.state.remove controls)
+        (windowStack.remove this)
+        (keyHandler.cancel)
+        (set _shown false)))
 
 (method &override update [:Float elapsed]
     (super.update elapsed)
