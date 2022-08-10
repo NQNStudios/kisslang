@@ -5,13 +5,15 @@
 // TODO tooltip support with left-click and right-click action
 // icons and explanations
 
-(defNew [:String title 
-            &opt :FlxColor bgColor
+(defNew [&opt :String _title 
+            :FlxColor bgColor
             :FlxColor _textColor
             :Float percentWidth
             :Float percentHeight]
     
-    [&mut :Float nextControlY 0
+    [:String title (or _title "")
+        &mut :Float nextControlY 0
+        :FlxColor titleColor (or _textColor FlxColor.WHITE)
         &mut :FlxColor textColor (or _textColor FlxColor.WHITE)
         :FlxTypedGroup<FlxSprite> controls (new FlxTypedGroup)
         :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)]
@@ -37,9 +39,9 @@
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
 
-(method makeText [:String text &opt :Action onClick]
+(method makeText [:String text &opt :FlxColor color :Action onClick]
     (let [ftext (new FlxText x nextControlY 0 text textSize)]
-        (set ftext.color textColor)
+        (set ftext.color (or color textColor))
         (set ftext.cameras this.cameras)
         (controls.add ftext)
         (+= nextControlY ftext.height)
@@ -52,9 +54,17 @@
 
 // TODO makeButton
 // TODO make inputText
-(prop &mut _shown false)
 
-(method show []
+(prop &mut _shown false)
+(method isShown [] _shown)
+
+(method clearControls []
+    (controls.clear)
+    (keyHandler.clear)
+    (set nextControlY y)
+    (makeText title titleColor))
+
+(method :Void show []
     (unless _shown
         (FlxG.state.add this)
         (FlxG.state.add controls)
@@ -62,7 +72,7 @@
         (keyHandler.start)
         (set _shown true)))
 
-(method hide []
+(method :Void hide []
     (when _shown
         (FlxG.state.remove this)
         (FlxG.state.remove controls)
