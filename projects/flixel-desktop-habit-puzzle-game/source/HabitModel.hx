@@ -31,7 +31,8 @@ typedef RewardFile = {
     path: String,
     startingPoints: Int,
     puzzleWidth: Int,
-    puzzleHeight: Int
+    puzzleHeight: Int,
+    piecesPerPoint: Int
 };
 
 typedef Puzzle = {
