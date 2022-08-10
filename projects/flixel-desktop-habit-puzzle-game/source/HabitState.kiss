@@ -48,10 +48,13 @@
     (pieceCamera.updateScrollWheelZoom elapsed 5)
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
 
-    // Hold left-click to hide the habit text and see the image clearly:
-    (when entryWindow (if FlxG.mouse.pressed (entryWindow.hide) (entryWindow.show)))
+    (when entryWindow
+        (when FlxG.keys.justPressed.ESCAPE
+            (if (entryWindow.isShown)
+                    (entryWindow.hide)
+                (entryWindow.show))))
     
-    (when FlxG.keys.justPressed.ESCAPE
+    (when FlxG.keys.justPressed.DELETE
         (Sys.exit 0))
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
@@ -358,7 +361,7 @@
             (logTexts.clear)
             (set logTextY 0))
         (let [text (new FlxText FlxG.width logTextY 0 message textSize)]
-            (set text.color entryWindow.textColor)
+            (set text.color FlxColor.LIME)
             (set text.cameras [uiCamera])
             (+= logTextY text.height)
             (-= text.x text.width)
