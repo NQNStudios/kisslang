@@ -455,6 +455,7 @@
 
 (prop &mut :FlxGroup nextPuzzleChoiceGroup null)
 
+(var BASE_PUZZLE_SIZE 5)
 (method startPuzzlePackChoice [nextStartingPoints]
     (unless nextPuzzleChoiceGroup
         (set nextPuzzleChoiceGroup (new FlxGroup))
@@ -472,8 +473,14 @@
                         (nextPuzzleChoiceGroup.add (new FlxButton (+ x text.width) y "CHOOSE" ->:Void {
                             (remove nextPuzzleChoiceGroup)
                             (set nextPuzzleChoiceGroup null)
-                            // TODO generate a good width and height while respecting user settings
-                            (model.addRewardFile np.path nextStartingPoints 6 5)
+                            (let [bmd (BitmapData.fromFile np.path)
+                                    aspectRatioX (/ bmd.width bmd.height)
+                                    aspectRatioY (/ bmd.height bmd.width)
+                                    w (max 1 (Math.round (* aspectRatioX BASE_PUZZLE_SIZE)))
+                                    h (max 1 (Math.round (* aspectRatioY BASE_PUZZLE_SIZE)))]
+                                (model.addRewardFile np.path nextStartingPoints w h 1))
+
+                            
                             (setModel model)
 
                         }))))
