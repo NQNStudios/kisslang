@@ -30,11 +30,14 @@
     (set currentMap null)
     (tryCall onFinishOrCancel))
 
+(method clear []
+    (rootMap.clear))
+
 (method handleKey [:String key]
     (unless currentMap (tryCallOrThrow onBadKey "Tried to handle key $key without calling start() first" key null))
     (if (= cancelKey key)
             (cancel)
-        (case (dictGet currentMap key)
+        (case ~(dictGet currentMap key)
             ((Final item)
                 (tryCall onSelectItem item)
                 (cancel))
