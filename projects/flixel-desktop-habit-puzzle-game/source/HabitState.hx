@@ -41,9 +41,9 @@ import jigsawx.math.Vec2;
 
 @:build(kiss.Kiss.build())
 class HabitState extends FlxState {
-    public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, c: FlxColor )
+    public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, scale:Float, c: FlxColor )
     {
-        var points = [for (point in jig.getPoints()) new FlxPoint(point.x, point.y)];
+        var points = [for (point in jig.getPoints()) new FlxPoint(point.x / scale, point.y / scale)];
         points.push(points[0]);
         FlxSpriteUtil.drawPolygon(
             surface, 

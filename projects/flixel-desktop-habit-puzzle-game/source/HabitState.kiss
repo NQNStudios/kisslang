@@ -104,8 +104,8 @@
 (prop &mut :HabitModel model null)
 
 
-(method scaledToTheImageThatWorkedNice [v]
-    ~(* v (/ (smallerDimension) 367)))
+(method roughOptimalScale []
+    (/ 367 (smallerDimension)))
 (method smallerDimension [] (min rewardSprite.pixels.width rewardSprite.pixels.height))
 // TODO these variables don't do exactly what I think they do when scaled, like at all:
 (defAlias &ident EDGE_LEEWAY 25)
@@ -193,8 +193,9 @@
             (indexMap.clear)
 
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
-                    graphicWidth rewardSprite.pixels.width
-                    graphicHeight rewardSprite.pixels.height
+                    ros (roughOptimalScale)
+                    graphicWidth (* ros rewardSprite.pixels.width)
+                    graphicHeight (* ros rewardSprite.pixels.height)
                     pieceAssetWidth (/ (- graphicWidth (* EDGE_LEEWAY 2)) PUZZLE_WIDTH)
                     pieceAssetHeight (/ (- graphicHeight (* EDGE_LEEWAY 2)) PUZZLE_HEIGHT)
                     j (new Jigsawx pieceAssetWidth pieceAssetHeight graphicWidth graphicHeight EDGE_LEEWAY BUBBLE_SIZE PUZZLE_HEIGHT PUZZLE_WIDTH r)
@@ -222,7 +223,7 @@
                             s (new KissExtendedSprite pos.x pos.y)
                             source (new FlxSprite)
                             mask (new FlxSprite)
-                            sourceRect (new Rectangle jig.xy.x jig.xy.y jig.wh.x jig.wh.y)]
+                            sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
                         (set s.priorityID i)
                         (setNth spriteGrid jig.row jig.col s)
                         (setNth indexGrid jig.row jig.col i)
@@ -258,7 +259,7 @@
                         (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
                         
                         (mask.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
-                        (drawPieceShape mask jig FlxColor.BLACK)
+                        (drawPieceShape mask jig ros FlxColor.BLACK)
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
 
                         (set s.cameras [pieceCamera])
@@ -361,17 +362,17 @@
             (-= text.x text.width)
             (logTexts.add text))))
 
-// TODO properly tune the match zones to bubbles
 (method :FlxRect matchZone [:KissExtendedSprite s compass]
     (let [bubblePoints (dictGet .bubblePoints (dictGet pieceData (dictGet indexMap s)) compass)]
         (unless bubblePoints
             (return (new FlxRect 0 0 0 0)))
-        (let [pointsX (for point bubblePoints point.x)
+        (let [ros (roughOptimalScale)
+                pointsX (for point bubblePoints point.x)
                 pointsY (for point bubblePoints point.y)
-                minX (apply min pointsX)
-                minY (apply min pointsY)
-                maxX (apply max pointsX)
-                maxY (apply max pointsY)
+                minX (/ (apply min pointsX) ros)
+                minY (/ (apply min pointsY) ros)
+                maxX (/ (apply max pointsX) ros)
+                maxY (/ (apply max pointsY) ros)
                 rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))]
             (+= rect.x s.x)
             (+= rect.y s.y)
