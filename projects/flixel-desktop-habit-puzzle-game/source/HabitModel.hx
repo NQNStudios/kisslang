@@ -29,7 +29,9 @@ typedef Entry = {
 
 typedef RewardFile = {
     path: String,
-    startingPoints: Int
+    startingPoints: Int,
+    puzzleWidth: Int,
+    puzzleHeight: Int
 };
 
 typedef Puzzle = {

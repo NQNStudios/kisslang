@@ -30,9 +30,11 @@
                 ((when (= lastHeader "FILES") (Some line))
                     (rewardFiles.push
                         (let [parts (line.split " ")
+                                puzzleHeight (Std.parseInt (parts.pop))
+                                puzzleWidth (Std.parseInt (parts.pop))
                                 startingPoints (Std.parseInt (parts.pop))
                                 path (parts.join " ")]
-                            (objectWith path startingPoints))))
+                            (objectWith path startingPoints puzzleWidth puzzleHeight))))
                 ((Some line)
                     (.push
                         (case lastHeader
@@ -138,7 +140,7 @@
                         "${label.label} $(* "|" label.points)") "/")")
 
 (function :String stringifyRewardFile [:RewardFile rewardFile]
-    "${rewardFile.path} ${rewardFile.startingPoints}")
+    "${rewardFile.path} ${rewardFile.startingPoints} ${rewardFile.puzzleWidth} ${rewardFile.puzzleHeight}")
 
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
@@ -217,6 +219,6 @@
         (objectWith [labels (for label labels (objectWith [points 0] label))] type))
     (save))
 
-(method addRewardFile [path startingPoints]
-    (rewardFiles.push (objectWith path startingPoints))
+(method addRewardFile [path startingPoints puzzleWidth puzzleHeight]
+    (rewardFiles.push (objectWith path startingPoints puzzleWidth puzzleHeight))
     (save))

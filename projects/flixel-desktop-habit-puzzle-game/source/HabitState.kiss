@@ -111,9 +111,9 @@
 (defAlias &ident EDGE_LEEWAY 25)
 (defAlias &ident BUBBLE_SIZE 15)
 
-(var PUZZLE_WIDTH 6)
-(var PUZZLE_HEIGHT 5)
-(var TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
+(defAlias &ident PUZZLE_WIDTH .puzzleWidth (nth model.rewardFiles rewardFileIndex))
+(defAlias &ident PUZZLE_HEIGHT .puzzleHeight (nth model.rewardFiles rewardFileIndex))
+(defAlias &ident TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxSprite rewardSprite null)
 (prop &mut :FlxTypedGroup<KissExtendedSprite> rewardSprites null)
 (prop &mut :Map<Int,KissExtendedSprite> matchingPiecesLeft (new Map))
@@ -467,7 +467,8 @@
                         (nextPuzzleChoiceGroup.add (new FlxButton (+ x text.width) y "CHOOSE" ->:Void {
                             (remove nextPuzzleChoiceGroup)
                             (set nextPuzzleChoiceGroup null)
-                            (model.addRewardFile np.path nextStartingPoints)
+                            // TODO generate a good width and height while respecting user settings
+                            (model.addRewardFile np.path nextStartingPoints 6 5)
                             (setModel model)
 
                         }))))
