@@ -3,11 +3,12 @@ import jigsawx.OpenEllipse ;
 import jigsawx.JigsawPiece ;
 import jigsawx.math.Vec2;
 import jigsawx.JigsawSideData;
+import kiss.List;
 import flixel.math.FlxRandom;
 class Jigsawx {
     private var rows:                       Int;
     private var cols:                       Int;
-    private var pieces:                     Array<Array<JigsawPiece>>;
+    private var pieces:                     kiss.List<kiss.List<JigsawPiece>>;
     public var jigs:                        Array<JigsawPiece>;
     private var sides:                      Array<Array<JigsawPieceData>>;
     private var lt:                         Float;
@@ -19,6 +20,8 @@ class Jigsawx {
     private var length:                     Int;
     public function new(    pieceWidth:            Float
                         ,   pieceHeight:            Float
+                        ,   totalWidth: Float
+                        ,   totalHeight: Float
                         ,   edgeLeeway:             Float
                         ,   bubbleSize:             Float
                         ,   rows_:          Int
@@ -71,6 +74,33 @@ class Jigsawx {
             }
             xy.x                            = edgeLeeway;
             xy.y                            += dy;
+        }
+
+        // Assert that this puzzle's geometry contains the actual corners of the image:
+        var corners = ["top left", "top right", "bottom left", "bottom right"];
+        
+        function contains(p:JigsawPiece, v:Vec2) {
+            for (pt in p.getPoints()) {
+                if (pt.x == v.x - p.xy.x && pt.y == v.y - p.xy.y)
+                    return true;
+            }
+            return false;
+        }
+        var containsCorners = [
+            contains(pieces[0][0], new Vec2(0, 0)),
+            contains(pieces[0][-1], new Vec2(totalWidth, 0)),
+            contains(pieces[-1][0], new Vec2(0, totalHeight)),
+            contains(pieces[-1][-1], new Vec2(totalWidth, totalHeight))
+        ];
+        var containsAllCorners = true;
+        for (i in 0...corners.length) {
+            if (!containsCorners[i]) {
+                trace('missing ${corners[i]} corner');
+                containsAllCorners = false;
+            }
+        }
+        if (!containsAllCorners) {
+            throw "jigsawX geometry doesn't cover the whole image dimensions!";
         }
     }
 }
