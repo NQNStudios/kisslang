@@ -35,6 +35,29 @@ class JigsawPiece{
         points                          = [];
         stepAngle                       = JigsawMagicNumbers.stepSize*Math.PI/180;
         first                           = lt;
+        
+        lt = lt.copy();
+        rt = rt.copy();
+        lb = lb.copy();
+        rb = rb.copy();
+        var edgeLeeway = lt.x;
+        if (sideData.north == null) {
+            lt.y = 0;
+            rt.y = 0;
+        }
+        if (sideData.east == null) {
+            rt.x += edgeLeeway;
+            rb.x += edgeLeeway;
+        }
+        if (sideData.south == null) {
+            lb.y += edgeLeeway;
+            rb.y += edgeLeeway;
+        }
+        if (sideData.west == null) {
+            lt.x = 0;
+            lb.x = 0;
+        }
+
         // NORTH side
         if( sideData.north != null )    createVertSide( lt, rt, bubbleSize, sideData.north, NORTH );
         points.push( rt );

@@ -195,8 +195,8 @@
             (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
                     graphicWidth rewardSprite.pixels.width
                     graphicHeight rewardSprite.pixels.height
-                    pieceAssetWidth (Std.int (/ graphicWidth PUZZLE_WIDTH))
-                    pieceAssetHeight (Std.int (/ graphicHeight PUZZLE_HEIGHT))
+                    pieceAssetWidth (/ (- graphicWidth (* EDGE_LEEWAY 2)) PUZZLE_WIDTH)
+                    pieceAssetHeight (/ (- graphicHeight (* EDGE_LEEWAY 2)) PUZZLE_HEIGHT)
                     j (new Jigsawx pieceAssetWidth pieceAssetHeight graphicWidth graphicHeight EDGE_LEEWAY BUBBLE_SIZE PUZZLE_HEIGHT PUZZLE_WIDTH r)
                     PIECE_WIDTH 
                         (/ rewardSprite.width PUZZLE_WIDTH)

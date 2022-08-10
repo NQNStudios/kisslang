@@ -35,7 +35,7 @@ class Jigsawx {
         rows                                = rows_;
         cols                                = cols_;
         //corners, theoretically JigsawSideData could be modified to allow these to have a random element.
-        var xy                              = new Vec2( edgeLeeway,      edgeLeeway );
+        var xy                              = new Vec2( 0,      0 );
         var lt                              = new Vec2( edgeLeeway,      edgeLeeway );
         var rt                              = new Vec2( edgeLeeway + dx, edgeLeeway );
         var rb                              = new Vec2( edgeLeeway + dx, dy + edgeLeeway );
@@ -72,7 +72,7 @@ class Jigsawx {
                 jigs.push( jig );
                 xy.x                        += dx;
             }
-            xy.x                            = edgeLeeway;
+            xy.x                            = 0;
             xy.y                            += dy;
         }
 
@@ -80,18 +80,22 @@ class Jigsawx {
         var corners = ["top left", "top right", "bottom left", "bottom right"];
         
         function contains(p:JigsawPiece, v:Vec2) {
+            var minOffset = Math.POSITIVE_INFINITY;
             for (pt in p.getPoints()) {
-                if (pt.x == v.x - p.xy.x && pt.y == v.y - p.xy.y)
-                    return true;
-            }
-            return false;
-        }
-        var containsCorners = [
-            contains(pieces[0][0], new Vec2(0, 0)),
-            contains(pieces[0][-1], new Vec2(totalWidth, 0)),
-            contains(pieces[-1][0], new Vec2(0, totalHeight)),
-            contains(pieces[-1][-1], new Vec2(totalWidth, totalHeight))
-        ];
+                var offset = Math.abs(pt.x - (v.x - p.xy.x)) + Math.abs(pt.y - (v.y - p.xy.y));
+                if (offset < minOffset)
+                    minOffset = offset;
+				if (offset < 1)
+					return true;
+			}
+			return false;
+		}
+		var containsCorners = [
+			contains(pieces[0][0], new Vec2(0, 0)),
+			contains(pieces[0][-1], new Vec2(totalWidth, 0)),
+			contains(pieces[-1][0], new Vec2(0, totalHeight)),
+			contains(pieces[-1][-1], new Vec2(totalWidth, totalHeight))
+		];
         var containsAllCorners = true;
         for (i in 0...corners.length) {
             if (!containsCorners[i]) {
@@ -100,7 +104,9 @@ class Jigsawx {
             }
         }
         if (!containsAllCorners) {
-            throw "jigsawX geometry doesn't cover the whole image dimensions!";
+            #if debug
+            throw "jigsawX geometry doesn't align with the whole image dimensions!";
+            #end
         }
     }
 }

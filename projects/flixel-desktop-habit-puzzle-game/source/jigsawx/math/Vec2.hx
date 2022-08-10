@@ -6,4 +6,10 @@ class Vec2{
         x = x_;
         y = y_;
     }
+    public function copy() {
+        return new Vec2(x, y);
+    }
+    public function toString() {
+        return '(${x}, ${y})';
+    }
 }
