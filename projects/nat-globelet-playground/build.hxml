@@ -1,0 +1,8 @@
+-lib kiss
+-lib express
+-lib kiss-express
+-cp src
+--macro kiss.Kiss.setup()
+--main nat_globelet_playground.Main
+--js index.js
+--cmd node index.js
