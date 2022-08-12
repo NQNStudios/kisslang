@@ -18,21 +18,22 @@
 
 (function :FlxRect calculateScreenBounds <>[:FlxSprite T] [:FlxTypedGroup<T> group &opt :FlxCamera camera :Float margin]
     (unless margin (set margin 0))
-    (let [s (group.getFirstAlive)
-            r (new FlxRect)
-            bounds (s.getScreenBounds r camera)
-            &mut minX bounds.left
-            &mut maxX bounds.right
-            &mut minY bounds.top
-            &mut maxY bounds.bottom]
-        
-        (group.forEach ->sprite
-            (let [bounds (sprite.getScreenBounds r camera)]
-                (setMin minX bounds.left)
-                (setMin minY bounds.top)
-                (setMax maxX bounds.right)
-                (setMax maxY bounds.bottom)))
+    (ifLet [s (group.getFirstAlive)]
+            (let [r (new FlxRect)
+                    bounds (s.getScreenBounds r camera)
+                    &mut minX bounds.left
+                    &mut maxX bounds.right
+                    &mut minY bounds.top
+                    &mut maxY bounds.bottom]
+                
+                (group.forEach ->sprite
+                    (let [bounds (sprite.getScreenBounds r camera)]
+                        (setMin minX bounds.left)
+                        (setMin minY bounds.top)
+                        (setMax maxX bounds.right)
+                        (setMax maxY bounds.bottom)))
 
-        (r.fromTwoPoints
-            (new FlxPoint (- minX margin) (- minY margin))
-            (new FlxPoint (+ maxX margin) (+ maxY margin)))))
+                (r.fromTwoPoints
+                    (new FlxPoint (- minX margin) (- minY margin))
+                    (new FlxPoint (+ maxX margin) (+ maxY margin))))
+        (new FlxRect 0 0 0 0)))
