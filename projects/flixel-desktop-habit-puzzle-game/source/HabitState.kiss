@@ -248,7 +248,7 @@
                                     (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
                                     (let [connectedPieces (recursivelyConnectedPieces s)]
                                         // Bring currently held pieces to the front:
-                                        (rewardSprites.bringAllToFront (cast (concat [s] connectedPieces)))
+                                        (rewardSprites.bringAllToFront connectedPieces)
                                         (set s.connectedSprites connectedPieces))
                                     (set draggingSprite s)
                                     (set draggingLastPos (new FlxPoint s.x s.y))))
@@ -256,11 +256,13 @@
                             ->:Void [s x y]
                                 (let [s (cast s KissExtendedSprite)]
                                     (set draggingSprite null)
-                                    (checkMatches i)
-                                    (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i (new FlxPoint s.x s.y))
-                                    (doFor connected (recursivelyConnectedPieces s)
-                                        (checkMatches (dictGet indexMap connected))
-                                        (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y)))
+
+                                    (let [connectedPieces (recursivelyConnectedPieces s)]
+                                        (doFor connected connectedPieces
+                                            (checkMatches (dictGet indexMap connected)))
+
+                                        (doFor connected connectedPieces
+                                            (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y))))
                                     
                                     (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
                                     (save.flush)))
@@ -363,7 +365,8 @@
 (method _makeText [:String s :Int points &opt :Action action]
     (entryWindow.makeText (+ s (pointsStr points)) action))
 
-(method log [message]
+(method log [:String message]
+    (trace message)
     (prop &mut logTextY 0)
     (#when debug
         (when (> logTextY FlxG.height)
@@ -402,19 +405,24 @@
     (matchZone s SOUTH))
 
 (prop &mut c 0)
-(method :Void connectPiece [id self toSprite selfMatchZone toSpriteMatchZone]
+(method :Bool connectPiece [id self toSprite selfMatchZone toSpriteMatchZone]
     (let [thisConnectedPieces (dictGet connectedPieces id)
             toConnectedPieces (dictGet connectedPieces (dictGet indexMap toSprite))]
         
         // Don't add duplicates or snap for pieces alread connected
         (when (contains thisConnectedPieces toSprite)
-            (return))
+            (return false))
         (+= c 1)
         
         // Snap the pieces together
         (let [offsetX (- toSpriteMatchZone.x selfMatchZone.x)
-                offsetY (- toSpriteMatchZone.y selfMatchZone.y)]
-            (doFor piece (.concat (recursivelyConnectedPieces self) [self])
+                offsetY (- toSpriteMatchZone.y selfMatchZone.y)
+                selfAndAttached (recursivelyConnectedPieces self)
+                indices (for s selfAndAttached (dictGet indexMap s))
+                otherAndAttached (recursivelyConnectedPieces toSprite)
+                otherIndices (for s otherAndAttached (dictGet indexMap s))]
+            //(print "attaching $indices to $otherIndices")
+            (doFor piece selfAndAttached
                 (+= piece.x offsetX)
                 (+= piece.y offsetY))
             // TODO check for matches created by snapping all the pieces?
@@ -423,7 +431,8 @@
 
 
         (thisConnectedPieces.push toSprite)
-        (toConnectedPieces.push self)))
+        (toConnectedPieces.push self)
+        true))
 
 (defMacro _checkMatch [side otherSide]
     (let [sideStr (symbolNameValue side)
@@ -438,8 +447,8 @@
             (unless .isEmpty (mz1.intersection mz2)
                 (connectPiece id s ,to mz1 mz2)))))
 
-(method :Void checkMatches [id]
-    (when !(pieceData.exists id) (return))
+(method :Bool checkMatches [id]
+    (when !(pieceData.exists id) (return false))
     (let [s (dictGet spriteMap id)
             jig (dictGet pieceData id)
             row jig.row
@@ -447,10 +456,11 @@
         (_checkMatch Left Right)
         (_checkMatch Right Left)
         (_checkMatch Up Down)
-        (_checkMatch Down Up)))
+        (_checkMatch Down Up))
+    false)
 
 (method :Array<KissExtendedSprite> recursivelyConnectedPieces [s &opt :Array<KissExtendedSprite> collected]
-    (unless collected (set collected []))
+    (unless collected (set collected [s]))
     (whenLet [directlyConnected (dictGet connectedPieces (dictGet indexMap s))]
         (doFor piece directlyConnected
             (unless (contains collected piece)
