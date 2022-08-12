@@ -421,33 +421,29 @@
         (thisConnectedPieces.push toSprite)
         (toConnectedPieces.push self)))
 
+(defMacro _checkMatch [side otherSide]
+    (let [sideStr (symbolNameValue side)
+            otherSideStr (symbolNameValue otherSide)
+            to (symbol "to$sideStr")
+            mp (symbol "matchingPieces$sideStr")
+            mz1 (symbol "matchZone$sideStr")
+            mz2 (symbol "matchZone$otherSideStr")]
+        `(whenLet [,to (dictGet ,mp id)
+                        mz1 (,mz1 s)
+                        mz2 (,mz2 ,to)]
+            (unless .isEmpty (mz1.intersection mz2)
+                (connectPiece id s ,to mz1 mz2)))))
+
 (method :Void checkMatches [id]
     (when !(pieceData.exists id) (return))
     (let [s (dictGet spriteMap id)
             jig (dictGet pieceData id)
             row jig.row
             col jig.col]
-
-        (whenLet [toLeft (dictGet matchingPiecesLeft id)
-                        mzl (matchZoneLeft s)
-                        mzr (matchZoneRight toLeft)]
-            (unless .isEmpty (mzl.intersection mzr)
-                (connectPiece id s toLeft mzl mzr)))
-        (whenLet [toRight (dictGet matchingPiecesRight id)
-                        mzr (matchZoneRight s)
-                        mzl (matchZoneLeft toRight)]
-            (unless .isEmpty (mzl.intersection mzr)
-                (connectPiece id s toRight mzr mzl)))
-        (whenLet [toUp (dictGet matchingPiecesUp id)
-                        mzu (matchZoneUp s)
-                        mzd (matchZoneDown toUp)]
-            (unless .isEmpty (mzu.intersection mzd)
-                (connectPiece id s toUp mzu mzd)))
-        (whenLet [toDown (dictGet matchingPiecesDown id)
-                        mzd (matchZoneDown s)
-                        mzu (matchZoneUp toDown)]
-            (unless .isEmpty (mzu.intersection mzd)
-                (connectPiece id s toDown mzd mzu)))))
+        (_checkMatch Left Right)
+        (_checkMatch Right Left)
+        (_checkMatch Up Down)
+        (_checkMatch Down Up)))
 
 (method :Array<KissExtendedSprite> recursivelyConnectedPieces [s &opt :Array<KissExtendedSprite> collected]
     (unless collected (set collected []))
