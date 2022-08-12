@@ -9,13 +9,9 @@
 (defAlias &ident textSize SimpleWindow.textSize)
 
 (method &override :Void create [] 
-    (#when debug
-        (add cameraBounds))
-
     (add logTexts)
     (set Prelude.printStr log)
     (set pieceCamera FlxG.camera)
-    (set cameraBounds.cameras [pieceCamera])
     (set uiCamera (new FlxCamera))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (pieceCamera.copyFrom FlxG.camera)
@@ -33,7 +29,7 @@
 (prop &mut :EntryType typeAdding Todo)
 (prop &mut :FlxInputText entryNameText)
 
-(prop :FlxSprite cameraBounds (new FlxSprite))
+(prop &mut :FlxSprite cameraBounds null)
 (prop &mut :Float timer 0)
 
 (method &override :Void update [:Float elapsed]
@@ -43,7 +39,10 @@
         (+= timer elapsed)
         (when (> timer 0.5)
             (set timer 0)
-
+            (unless cameraBounds
+                (set cameraBounds (new FlxSprite))
+                (set cameraBounds.cameras [pieceCamera])
+                (add cameraBounds))
             // Debug camera scroll bounds:
             (let [b (pieceCamera.getScrollBounds)]
                 (set cameraBounds.x b.x)
