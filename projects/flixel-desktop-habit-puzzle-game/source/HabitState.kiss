@@ -69,6 +69,8 @@
     (#when debug
         (when FlxG.keys.justPressed.CONTROL
             (set save.data.storedPositions (new Map<Int,FlxPoint>))
+            (set save.data.storedAngles (new Map<Int,Float>))
+            (set save.data.storedOrigins (new Map<Int,FlxPoint>))
             (save.flush)))
     
     (when FlxG.keys.justPressed.DELETE
@@ -78,7 +80,12 @@
     {
         (when FlxG.keys.justPressed.Q
             (when draggingSprite
-                (draggingSprite.rotate 90)))
+                (draggingSprite.rotate 90)
+                (doFor s (recursivelyConnectedPieces draggingSprite)
+                    (dictSet (the Map<Int,Float> save.data.storedAngles) (dictGet indexMap s) s.angle)
+                    (dictSet (the Map<Int,FlxPoint> save.data.storedOrigins) (dictGet indexMap s) s.origin))
+                (save.flush)))
+
         (when (and FlxG.keys.justPressed.SPACE !entryNameText)
             (defAndCall method toggleBackgroundColor
                 (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
@@ -189,6 +196,10 @@
         (save.bind currentRewardFile.path)
         (unless save.data.storedPositions
             (set save.data.storedPositions (new Map<Int,FlxPoint>)))
+        (unless save.data.storedAngles
+            (set save.data.storedAngles (new Map<Int,Float>)))
+        (unless save.data.storedOrigins
+            (set save.data.storedOrigins (new Map<Int,FlxPoint>)))
         (unless save.data.backgroundIndex
             (set save.data.backgroundIndex 0))
         (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
@@ -228,10 +239,12 @@
                         (/ rewardSprite.width PUZZLE_WIDTH)
                     PIECE_HEIGHT
                         (/ rewardSprite.height PUZZLE_HEIGHT)
-                    :Array<FlxPoint> startingPoints []]
+                    :Array<FlxPoint> startingPoints []
+                    :Array<Float> startingAngles []]
                 (let [&mut i 0]
                     (doFor y (range PUZZLE_HEIGHT)
                         (doFor x (range PUZZLE_WIDTH)
+                            (startingAngles.push (* 90 (r.int 0 3)))
                             (startingPoints.push
                                 (new FlxPoint (+ rewardSprite.x (* x PIECE_WIDTH)) (+ rewardSprite.y (* y PIECE_HEIGHT))))
                             (+= i 1))))
@@ -245,10 +258,16 @@
                             pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
                                         point
                                     (nth startingPoints i))
+                            angle (ifLet [angle (dictGet (the Map<Int,Float> save.data.storedAngles) i)]
+                                        angle
+                                    (nth startingAngles i))
                             s (new KissExtendedSprite pos.x pos.y)
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
+                        (whenLet [origin (dictGet (the Map<Int,FlxPoint> save.data.storedOrigins) i)]
+                            (s.origin.set origin.x origin.y))
+                        (set s.angle angle)
                         (set s.priorityID i)
                         (setNth spriteGrid jig.row jig.col s)
                         (setNth indexGrid jig.row jig.col i)
