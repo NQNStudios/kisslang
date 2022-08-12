@@ -54,6 +54,11 @@
                     (entryWindow.hide)
                 (entryWindow.show))))
     
+    (#when debug
+        (when FlxG.keys.justPressed.SHIFT
+            (set save.data.storedPositions (new Map<Int,FlxPoint>))
+            (save.flush)))
+    
     (when FlxG.keys.justPressed.DELETE
         (Sys.exit 0))
 
