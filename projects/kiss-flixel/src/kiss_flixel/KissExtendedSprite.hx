@@ -30,10 +30,10 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         if (deg < 0) {
             deg += 360 * Math.ceil(Math.abs(deg / 360));
         }
-        angle = angle + deg % 360;
+        angle = (angle + deg) % 360;
         for (c in connectedSprites) {
             if (c != this) {
-                c.angle = c.angle + deg % 360;
+                c.angle = (c.angle + deg) % 360;
                 
                 var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
                 var cCenter = new FlxPoint(c.x + c.origin.x, c.y + c.origin.y);
