@@ -273,6 +273,8 @@
                         (mask.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig ros FlxColor.BLACK)
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
+                        (#when debug
+                            (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED))
 
                         (set s.cameras [pieceCamera])
                         // Uncomment for debugging match zones:
