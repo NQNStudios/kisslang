@@ -28,7 +28,7 @@
 
 (defAlias &ident KEYBOARD_SCROLL_SPEED (keyboardScrollSpeed))
 (method keyboardScrollSpeed []
-    (/ 200 rewardSprite.scale.x))
+    (/ 800 rewardSprite.scale.x))
 
 (prop &mut :EntryType typeAdding Todo)
 (prop &mut :FlxInputText entryNameText)
@@ -140,7 +140,7 @@
 (defAlias &ident SCROLL_BOUND_MARGIN (scrollBoundMargin))
 
 (method scrollBoundMargin []
-    (fHalf (/ (max FlxG.width FlxG.height) rewardSprite.scale.x)))
+    (/ (max FlxG.width FlxG.height) rewardSprite.scale.x))
 
 (prop &mut :KissExtendedSprite draggingSprite null)
 (prop &mut :FlxPoint draggingLastPos null)
@@ -273,7 +273,7 @@
                         (mask.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig ros FlxColor.BLACK)
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
-                        (#when debug
+                        **(#when debug
                             (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED))
 
                         (set s.cameras [pieceCamera])
