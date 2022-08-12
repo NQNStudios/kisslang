@@ -90,7 +90,7 @@
                     (camera.scroll.subtractPoint deltaMousePosition))
                     // Undo any zooming out that expands the viewport past its bounds
                     (when (> 0 deltaZoom)
-                        (unless (.containsPoint (getScrollBounds camera) camera.scroll)
+                        (unless (.equals (camera.getViewRect) (.intersection (getScrollBounds camera) (camera.getViewRect)))
                             (-= camera.zoom deltaZoom)
                             (set camera.scroll scrollPosition)))))
         (otherwise null)))
