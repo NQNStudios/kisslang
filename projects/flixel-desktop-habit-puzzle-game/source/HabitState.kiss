@@ -224,7 +224,7 @@
                 (set jigsaw j)
                 (r.shuffle jigsaw.jigs)
                 (localVar spriteGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) null)))
-                (localVar indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) 0)))
+                (localVar indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) -1)))
                 (doFor i (range (min TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints))))
                     (let [jig (nth jigsaw.jigs i)
                             pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
@@ -286,17 +286,19 @@
                     (doFor row (range PUZZLE_HEIGHT)
                         (doFor col (range PUZZLE_WIDTH)
                             (let [id (nth indexGrid row col)]
-                                // combination of try/whenLet should cover target languages
-                                // where out-of-bounds nth throws an error AND languages
-                                // where it returns null
-                                (try (whenLet [toLeft (nth spriteGrid row (- col 1))]
-                                    (dictSet matchingPiecesLeft id toLeft)) (catch [e] null))
-                                (try (whenLet [toRight (nth spriteGrid row (+ col 1))]
-                                    (dictSet matchingPiecesRight id toRight)) (catch [e] null))
-                                (try (whenLet [toUp (nth spriteGrid (- row 1) col)]
-                                    (dictSet matchingPiecesUp id toUp)) (catch [e] null))
-                                (try (whenLet [toDown (nth spriteGrid (+ row 1) col)]
-                                    (dictSet matchingPiecesDown id toDown)) (catch [e] null)))))
+                                (when (= id -1) (continue))
+                                (when (>= (- col 1) 0)
+                                    (let [toLeft (nth spriteGrid row (- col 1))]
+                                        (dictSet matchingPiecesLeft id toLeft)))
+                                (when (< (+ col 1) PUZZLE_WIDTH)
+                                    (let [toRight (nth spriteGrid row (+ col 1))]
+                                        (dictSet matchingPiecesRight id toRight)))
+                                (when (>= (- row 1) 0)
+                                    (let [toUp (nth spriteGrid (- row 1) col)]
+                                        (dictSet matchingPiecesUp id toUp)))
+                                (when (< (+ row 1) PUZZLE_HEIGHT)
+                                    (let [toDown (nth spriteGrid (+ row 1) col)]
+                                        (dictSet matchingPiecesDown id toDown))))))
                     (add rewardSprites)
                     (doFor i (range TOTAL_PIECES)
                         (checkMatches i))))
