@@ -77,6 +77,9 @@
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
     {
+        (when FlxG.keys.justPressed.Q
+            (when draggingSprite
+                (draggingSprite.rotate 90)))
         (when (and FlxG.keys.justPressed.SPACE !entryNameText)
             (defAndCall method toggleBackgroundColor
                 (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
@@ -402,10 +405,12 @@
                 minY (/ (apply min pointsY) ros)
                 maxX (/ (apply max pointsX) ros)
                 maxY (/ (apply max pointsY) ros)
-                rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))]
-            (+= rect.x s.x)
-            (+= rect.y s.y)
-            rect)))
+                rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))
+                originOffset (new FlxPoint (- s.origin.x minX) (- s.origin.y minY))
+                rotated (rect.getRotatedBounds s.angle originOffset)]
+            (+= rotated.x s.x)
+            (+= rotated.y s.y)
+            rotated)))
 
 (method :FlxRect matchZoneLeft [:KissExtendedSprite s]
     (matchZone s WEST))
@@ -456,7 +461,7 @@
         `(whenLet [,to (dictGet ,mp id)
                         mz1 (,mz1 s)
                         mz2 (,mz2 ,to)]
-            (unless .isEmpty (mz1.intersection mz2)
+            (unless (or !(= s.angle .angle ,to) .isEmpty (mz1.intersection mz2))
                 (connectPiece id s ,to mz1 mz2)))))
 
 (method :Bool checkMatches [id]
