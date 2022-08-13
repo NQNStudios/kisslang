@@ -50,7 +50,8 @@
                 (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
             
             (doFor s rewardSprites
-                (s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
+                //(s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
+                (cameraBounds.drawCircle (- s.x cameraBounds.x) (- s.y cameraBounds.y) 5 FlxColor.LIME)
                 // Uncomment for debugging match zones:
                 (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                     (doFor z matchZones
