@@ -33,6 +33,19 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         resetStartPos();
     }
 
+    private var rotationPadding = new FlxPoint();
+    public function getRotationPadding() {
+        return rotationPadding.copyTo();
+    }
+
+    public override function loadRotatedGraphic(Graphic:FlxGraphicAsset, Rotations:Int = 16, Frame:Int = -1, AntiAliasing:Bool = false, AutoBuffer:Bool = false, ?Key:String) {
+        var ow = frameWidth;
+        var oh = frameHeight;
+        var g = super.loadRotatedGraphic(Graphic, Rotations, Frame, AntiAliasing, AutoBuffer, Key);
+        rotationPadding.set(frameWidth - ow, frameHeight - oh).scale(0.5);
+        return g;
+    }
+
     // Sleazy method just for Habit Puzzles
     public function rotate(deg:Float) {
         if (deg < 0) {
