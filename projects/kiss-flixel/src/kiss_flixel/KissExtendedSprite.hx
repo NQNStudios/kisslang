@@ -30,10 +30,18 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         if (deg < 0) {
             deg += 360 * Math.ceil(Math.abs(deg / 360));
         }
-        angle = (angle + deg) % 360;
+        function _rot(s:KissExtendedSprite, deg) {
+            var angle = (s.angle + deg) % 360;
+            if (angle % s.bakedRotationAngle == 0) {
+                s.animation.frameIndex = Std.int(angle / s.bakedRotationAngle);
+            } else {
+                s.angle = angle;
+            }
+        }
+        _rot(this, deg);
         for (c in connectedSprites) {
             if (c != this) {
-                c.angle = (c.angle + deg) % 360;
+                _rot(c, deg);
                 
                 var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
                 var cCenter = new FlxPoint(c.x + c.origin.x, c.y + c.origin.y);
