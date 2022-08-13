@@ -42,20 +42,20 @@
             (unless cameraBounds
                 (set cameraBounds (new FlxSprite))
                 (set cameraBounds.cameras [pieceCamera])
+                (let [b (pieceCamera.getScrollBounds)]
+                    (set cameraBounds.x b.x)
+                    (set cameraBounds.y b.y)        
+                    (cameraBounds.makeGraphic (Std.int b.width) (Std.int b.height) FlxColor.TRANSPARENT true)
+                    (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
                 (add cameraBounds))
-            // Debug camera scroll bounds:
-            (let [b (pieceCamera.getScrollBounds)]
-                (set cameraBounds.x b.x)
-                (set cameraBounds.y b.y)        
-                (cameraBounds.makeGraphic (Std.int b.width) (Std.int b.height) FlxColor.TRANSPARENT true)
-                (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
             
+        (doFor s rewardSprites
+            (s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
             // Uncomment for debugging match zones:
-            (doFor s rewardSprites
-                (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
-                    (doFor z matchZones
-                        (unless z.isEmpty
-                            (FlxSpriteUtil.drawRect cameraBounds (- z.x cameraBounds.x) (- z.y cameraBounds.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))))
+            **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                (doFor z matchZones
+                    (unless z.isEmpty
+                        (FlxSpriteUtil.drawRect cameraBounds (- z.x cameraBounds.x) (- z.y cameraBounds.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))))
     
     (pieceCamera.updateScrollWheelZoom elapsed 5)
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
@@ -67,6 +67,8 @@
                 (entryWindow.show))))
     
     (#when debug
+        (when FlxG.keys.justPressed.SEMICOLON
+            (set pieceCamera.zoom 1))
         (when FlxG.keys.justPressed.CONTROL
             (set save.data.storedPositions (new Map<Int,FlxPoint>))
             (set save.data.storedAngles (new Map<Int,Float>))
