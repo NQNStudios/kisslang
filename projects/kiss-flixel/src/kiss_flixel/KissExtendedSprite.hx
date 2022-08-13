@@ -1,6 +1,7 @@
 package kiss_flixel;
 
 import flixel.FlxG;
+import flixel.FlxCamera;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
@@ -44,6 +45,10 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         var g = super.loadRotatedGraphic(Graphic, Rotations, Frame, AntiAliasing, AutoBuffer, Key);
         rotationPadding.set(frameWidth - ow, frameHeight - oh).scale(0.5);
         return g;
+    }
+
+    public override function isSimpleRender(?camera:FlxCamera) {
+        return false;
     }
 
     // Sleazy method just for Habit Puzzles
