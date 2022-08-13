@@ -302,10 +302,13 @@
                                     (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
                                     (save.flush)))
                                     
-                        (source.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
-                        (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point 0 0))
+                        (var ROT_PADDING 2)
+                        (localVar fWidth (+ (Std.int sourceRect.width) (* 2 ROT_PADDING)))
+                        (localVar fHeight (+ (Std.int sourceRect.height) (* 2 ROT_PADDING)))
+                        (source.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
+                        (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point ROT_PADDING ROT_PADDING))
                         
-                        (mask.makeGraphic (Std.int sourceRect.width) (Std.int sourceRect.height) FlxColor.TRANSPARENT true)
+                        (mask.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig ros FlxColor.BLACK)
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
                         **(#when debug
@@ -431,8 +434,8 @@
                 minY (/ (apply min pointsY) ros)
                 maxX (/ (apply max pointsX) ros)
                 maxY (/ (apply max pointsY) ros)
-                rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))
-                originOffset (new FlxPoint (- s.origin.x minX) (- s.origin.y minY))
+                tlc (.add (new FlxPoint minX minY) ROT_PADDING ROT_PADDING)
+                brc (.add (new FlxPoint maxX maxY) ROT_PADDING ROT_PADDING)
                 rotationPadding (dictGet rotationPaddingMap s)
                 rect (.fromTwoPoints (new FlxRect) (tlc.addPoint rotationPadding) (brc.addPoint rotationPadding))
                 originOffset (new FlxPoint (- s.origin.x rect.x) (- s.origin.y rect.y))

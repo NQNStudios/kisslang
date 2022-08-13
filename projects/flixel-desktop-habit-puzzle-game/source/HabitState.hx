@@ -43,7 +43,7 @@ import jigsawx.math.Vec2;
 class HabitState extends FlxState {
     public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, scale:Float, c: FlxColor )
     {
-        var points = [for (point in jig.getPoints()) new FlxPoint(point.x / scale, point.y / scale)];
+        var points = [for (point in jig.getPoints()) new FlxPoint(point.x / scale + ROT_PADDING, point.y / scale + ROT_PADDING)];
         points.push(points[0]);
         FlxSpriteUtil.drawPolygon(
             surface, 
