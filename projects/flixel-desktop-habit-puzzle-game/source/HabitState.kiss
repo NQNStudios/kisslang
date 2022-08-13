@@ -42,20 +42,20 @@
             (unless cameraBounds
                 (set cameraBounds (new FlxSprite))
                 (set cameraBounds.cameras [pieceCamera])
-                (let [b (pieceCamera.getScrollBounds)]
-                    (set cameraBounds.x b.x)
-                    (set cameraBounds.y b.y)        
-                    (cameraBounds.makeGraphic (Std.int b.width) (Std.int b.height) FlxColor.TRANSPARENT true)
-                    (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
                 (add cameraBounds))
+            (let [b (pieceCamera.getScrollBounds)]
+                (set cameraBounds.x b.x)
+                (set cameraBounds.y b.y)        
+                (cameraBounds.makeGraphic (Std.int b.width) (Std.int b.height) FlxColor.TRANSPARENT true)
+                (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
             
-        (doFor s rewardSprites
-            (s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
-            // Uncomment for debugging match zones:
-            **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
-                (doFor z matchZones
-                    (unless z.isEmpty
-                        (FlxSpriteUtil.drawRect cameraBounds (- z.x cameraBounds.x) (- z.y cameraBounds.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))))
+            (doFor s rewardSprites
+                (s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
+                // Uncomment for debugging match zones:
+                (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                    (doFor z matchZones
+                        (unless z.isEmpty
+                            (FlxSpriteUtil.drawRect cameraBounds (- z.x cameraBounds.x) (- z.y cameraBounds.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))))
     
     (pieceCamera.updateScrollWheelZoom elapsed 5)
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
