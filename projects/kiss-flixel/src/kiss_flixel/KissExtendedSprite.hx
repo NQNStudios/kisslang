@@ -4,6 +4,10 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
+import flixel.util.FlxColor;
+import flixel.addons.plugin.FlxMouseControl;
+import flixel.util.FlxCollision;
+import flash.display.BitmapData;
 
 class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     public function new(X:Float = 0, Y:Float = 0, ?SimpleGraphic:FlxGraphicAsset)
@@ -17,12 +21,16 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     public var connectedSprites:Array<KissExtendedSprite> = [];
     var connectedSpritesStartPos:Array<FlxPoint> = [];
 
-    public override function startDrag() {
-        super.startDrag();
-
+    function resetStartPos() {
         dragStartPos = new FlxPoint(x, y);
         connectedSpritesStartPos = [for (s in connectedSprites) new FlxPoint(s.x, s.y)];
         mouseStartPos = FlxG.mouse.getWorldPosition();
+    }
+
+    public override function startDrag() {
+        super.startDrag();
+
+        resetStartPos();
     }
 
     // Sleazy method just for Habit Puzzles
@@ -37,8 +45,9 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
                 var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
                 var sCenter = new FlxPoint(s.x + s.origin.x, s.y + s.origin.y);
                 var offset = sCenter.subtractPoint(thisCenter);
-                s.origin.subtractPoint(offset);
-                //var newPosition = s.getScreenPosition(s.cameras[0]);
+                offset.rotate(new FlxPoint(0, 0), deg);
+                s.x = x + offset.x;
+                s.y = y + offset.y;
             }
         }
         _rot(this, deg);
@@ -47,6 +56,14 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
                 _rot(c, deg);
             }
         }
+        resetStartPos();
+    }
+
+    override function update(elapsed:Float) {
+        #if debug
+        color = (mouseOver && pixelPerfect(_dragPixelPerfectAlpha)) ? FlxColor.LIME : FlxColor.WHITE;
+        #end
+        super.update(elapsed);
     }
 
     override function updateDrag() {
@@ -62,4 +79,44 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
             sprite.y = nextPos.y;
         }
     }
+
+    #if FLX_MOUSE
+    override function get_mouseOver() {
+        var mouseOver = getScreenBounds(cameras[0]).containsPoint(FlxG.mouse.getScreenPosition(cameras[0]));
+        
+        return mouseOver;
+    }
+
+    function pixelPerfect(alpha) {
+        return FlxCollision.pixelPerfectPointCheck(Math.floor(FlxG.mouse.x), Math.floor(FlxG.mouse.y), this, alpha);
+    }
+    
+    
+    override function checkForClick():Void
+	{
+		#if FLX_MOUSE
+		if (mouseOver && FlxG.mouse.justPressed)
+		{
+			//	If we don't need a pixel perfect check, then don't bother running one! By this point we know the mouse is over the sprite already
+			if (_clickPixelPerfect == false && _dragPixelPerfect == false)
+			{
+				FlxMouseControl.addToStack(this);
+				return;
+			}
+
+			if (_clickPixelPerfect && pixelPerfect(_clickPixelPerfectAlpha))
+			{
+				FlxMouseControl.addToStack(this);
+				return;
+			}
+
+			if (_dragPixelPerfect && pixelPerfect(_dragPixelPerfectAlpha))
+			{
+				FlxMouseControl.addToStack(this);
+				return;
+			}
+		}
+		#end
+	}
+    #end
 }
