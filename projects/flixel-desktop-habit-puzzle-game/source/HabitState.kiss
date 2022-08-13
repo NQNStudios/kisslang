@@ -267,8 +267,6 @@
                             source (new FlxSprite)
                             mask (new FlxSprite)
                             sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
-                        (whenLet [origin (dictGet (the Map<Int,FlxPoint> save.data.storedOrigins) i)]
-                            (s.origin.set origin.x origin.y))
                         (set s.angle angle)
                         (set s.priorityID i)
                         (setNth spriteGrid jig.row jig.col s)
