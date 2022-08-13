@@ -71,16 +71,28 @@ class JigsawPiece{
         if( sideData.west != null )     createHoriSide( lb, lt, bubbleSize, sideData.west, WEST );
         points.push( lt );
 
+        var minX = Math.POSITIVE_INFINITY;
+        var minY = Math.POSITIVE_INFINITY;
         var maxX = 0.0;
         var maxY = 0.0;
         for (point in points) {
+            if (point.x < minX)
+                minX = point.x;
+            if (point.y < minY)
+                minY = point.y;
             if (point.x > maxX)
                 maxX = point.x;
             if (point.y > maxY)
                 maxY = point.y;
         }
         wh = new Vec2(maxX, maxY);
+        // Crop the points so we don't make a bigger source rectangle than needed:
+        xy.add(minX, minY);
+        for (point in points.concat([wh])) {
+            point.subtract(minX, minY);
+        }
     }
+
     public function getPoints(): Array<Vec2> {
         return points;
     }

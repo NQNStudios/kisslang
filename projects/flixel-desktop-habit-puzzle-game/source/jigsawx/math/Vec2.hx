@@ -9,6 +9,14 @@ class Vec2{
     public function copy() {
         return new Vec2(x, y);
     }
+    public function add(dx:Float, dy:Float) {
+        x += dx;
+        y += dy;
+    }
+    public function subtract(dx:Float, dy:Float) {
+        x -= dx;
+        y -= dy;
+    }
     public function toString() {
         return '(${x}, ${y})';
     }
