@@ -32,21 +32,19 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         }
         function _rot(s:KissExtendedSprite, deg) {
             var angle = (s.angle + deg) % 360;
-            if (angle % s.bakedRotationAngle == 0) {
-                s.animation.frameIndex = Std.int(angle / s.bakedRotationAngle);
-            } else {
-                s.angle = angle;
+            s.angle = angle;
+            if (s != this) {
+                var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
+                var sCenter = new FlxPoint(s.x + s.origin.x, s.y + s.origin.y);
+                var offset = sCenter.subtractPoint(thisCenter);
+                s.origin.subtractPoint(offset);
+                //var newPosition = s.getScreenPosition(s.cameras[0]);
             }
         }
         _rot(this, deg);
         for (c in connectedSprites) {
             if (c != this) {
                 _rot(c, deg);
-                
-                var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
-                var cCenter = new FlxPoint(c.x + c.origin.x, c.y + c.origin.y);
-                var offset = cCenter.subtractPoint(thisCenter);
-                c.origin.subtractPoint(offset);
             }
         }
     }

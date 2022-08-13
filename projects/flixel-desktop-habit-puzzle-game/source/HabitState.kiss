@@ -269,7 +269,7 @@
                             sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
                         (whenLet [origin (dictGet (the Map<Int,FlxPoint> save.data.storedOrigins) i)]
                             (s.origin.set origin.x origin.y))
-                        (set s.animation.frameIndex (Std.int (/ angle 90)))
+                        (set s.angle angle)
                         (set s.priorityID i)
                         (setNth spriteGrid jig.row jig.col s)
                         (setNth indexGrid jig.row jig.col i)
@@ -311,7 +311,7 @@
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
                         **(#when debug
                             (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED))
-                        (source.loadRotatedGraphic source.pixels 4)
+                        (s.loadRotatedGraphic s.pixels 4)
 
                         (set s.cameras [pieceCamera])
                         
