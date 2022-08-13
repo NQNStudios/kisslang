@@ -61,7 +61,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
 
     override function update(elapsed:Float) {
         #if debug
-        color = (mouseOver && pixelPerfect(_dragPixelPerfectAlpha)) ? FlxColor.LIME : FlxColor.WHITE;
+        // color = (mouseOver && pixelPerfect(_dragPixelPerfectAlpha)) ? FlxColor.LIME : FlxColor.WHITE;
         #end
         super.update(elapsed);
     }
@@ -88,9 +88,29 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     }
 
     function pixelPerfect(alpha) {
-        return FlxCollision.pixelPerfectPointCheck(Math.floor(FlxG.mouse.x), Math.floor(FlxG.mouse.y), this, alpha);
+        return pixelPerfectPointCheck(Math.floor(FlxG.mouse.x), Math.floor(FlxG.mouse.y), this, alpha);
     }
-    
+
+    static function pixelPerfectPointCheck(PointX:Int, PointY:Int, Target:FlxSprite, AlphaTolerance:Int = 1):Bool
+	{
+		if (FlxG.renderTile)
+		{
+			Target.drawFrame();
+		}
+
+		// How deep is pointX/Y within the rect?
+		var test:BitmapData = Target.framePixels;
+
+		var pixelAlpha = FlxColor.fromInt(test.getPixel32(Math.floor(PointX - Target.x), Math.floor(PointY - Target.y))).alpha;
+
+		if (FlxG.renderTile)
+		{
+			pixelAlpha = Std.int(pixelAlpha * Target.alpha);
+		}
+
+		// How deep is pointX/Y within the rect?
+		return pixelAlpha >= AlphaTolerance;
+	}
     
     override function checkForClick():Void
 	{

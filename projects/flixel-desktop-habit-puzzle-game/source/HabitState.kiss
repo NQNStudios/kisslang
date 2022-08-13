@@ -155,6 +155,7 @@
 (prop &mut :Map<Int,JigsawPiece> pieceData (new Map))
 (prop &mut :Map<Int,Array<KissExtendedSprite>> connectedPieces (new Map))
 (prop &mut :Map<KissExtendedSprite,Int> indexMap (new Map))
+(prop &mut :Map<KissExtendedSprite,FlxPoint> rotationPaddingMap (new Map))
 (prop &mut :Map<Int,KissExtendedSprite> spriteMap (new Map)) // Because rewardSprites will be re-ordered in depth handling, this is required
 
 (prop &mut lastRewardFileIndex -1)
@@ -309,7 +310,13 @@
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
                         **(#when debug
                             (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED))
-                        (s.loadRotatedGraphic s.pixels 4)
+                        (let [ow s.frameWidth
+                                oh s.frameHeight]
+                            (s.loadRotatedGraphic s.pixels 4 -1 /*false true*/)
+                            (let [nw s.frameWidth
+                                    nh s.frameHeight]
+                                (dictSet rotationPaddingMap s (.scale (new FlxPoint (- nw ow) (- nh oh)) 0.5))))
+                        
 
                         (set s.cameras [pieceCamera])
                         
@@ -426,6 +433,9 @@
                 maxY (/ (apply max pointsY) ros)
                 rect (.fromTwoPoints (new FlxRect) (new FlxPoint minX minY) (new FlxPoint maxX maxY))
                 originOffset (new FlxPoint (- s.origin.x minX) (- s.origin.y minY))
+                rotationPadding (dictGet rotationPaddingMap s)
+                rect (.fromTwoPoints (new FlxRect) (tlc.addPoint rotationPadding) (brc.addPoint rotationPadding))
+                originOffset (new FlxPoint (- s.origin.x rect.x) (- s.origin.y rect.y))
                 rotated (rect.getRotatedBounds s.angle originOffset)]
             (+= rotated.x s.x)
             (+= rotated.y s.y)
