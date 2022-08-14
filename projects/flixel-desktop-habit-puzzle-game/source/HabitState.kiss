@@ -29,34 +29,28 @@
 (prop &mut :EntryType typeAdding Todo)
 (prop &mut :FlxInputText entryNameText)
 
-(prop &mut :FlxSprite cameraBounds null)
-(prop &mut :Float timer 0)
+(prop &mut :DebugLayer debugLayer null)
 
+(prop &mut t 1)
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
 
-    **(#when debug
-        (+= timer elapsed)
-        (when (> timer 0.5)
-            (set timer 0)
-            (unless cameraBounds
-                (set cameraBounds (new FlxSprite))
-                (set cameraBounds.cameras [pieceCamera])
-                (add cameraBounds))
-            (let [b (pieceCamera.getScrollBounds)]
-                (set cameraBounds.x b.x)
-                (set cameraBounds.y b.y)        
-                (cameraBounds.makeGraphic (Std.int b.width) (Std.int b.height) FlxColor.TRANSPARENT true)
-                (cameraBounds.drawRect 0 0 b.width b.height FlxColor.TRANSPARENT (object color FlxColor.LIME thickness 5)))
-            
-            (doFor s rewardSprites
-                //(s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
-                (cameraBounds.drawCircle (- s.x cameraBounds.x) (- s.y cameraBounds.y) 5 FlxColor.LIME)
-                // Uncomment for debugging match zones:
-                (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
-                    (doFor z matchZones
-                        (unless z.isEmpty
-                            (FlxSpriteUtil.drawRect cameraBounds (- z.x cameraBounds.x) (- z.y cameraBounds.y) z.width z.height FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED))))))))
+    (debugLayer.clear)
+    (debugLayer.drawRect 0 0 100 100 FlxColor.TRANSPARENT (object thickness t color FlxColor.LIME))
+    (when FlxG.keys.justPressed.ONE
+        (+= t 1))
+    (when FlxG.keys.justPressed.TWO
+        (-= t 1))
+
+    (#when debug
+        (doFor s rewardSprites
+            //(s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
+            //(debugLayer.drawCircle (- s.x cameraBounds.x) (- s.y cameraBounds.y) 5 FlxColor.LIME)
+            // Uncomment for debugging match zones:
+            (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+                (doFor z matchZones
+                    (unless z.isEmpty
+                        (debugLayer.drawFlxRect z FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED)))))))
     
     (pieceCamera.updateScrollWheelZoom elapsed 5)
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
@@ -368,7 +362,13 @@
             (entryWindow.show))
         
         (when !(= puzzleUnlocked -1)
-            (startPuzzlePackChoice puzzleUnlocked))))
+            (startPuzzlePackChoice puzzleUnlocked)))
+            
+    (unless debugLayer
+        (set debugLayer (new DebugLayer))
+        (set debugLayer.cameras [pieceCamera]))
+    (remove debugLayer)
+    (add debugLayer))
 
 (method refreshModel [&opt m]
     (let [m (or m model)]
