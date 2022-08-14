@@ -47,8 +47,14 @@
                     (unless z.isEmpty
                         (debugLayer.drawFlxRect z FlxColor.RED))))))
     
-    (pieceCamera.updateScrollWheelZoom elapsed 5)
-    (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
+    (let [zoom pieceCamera.zoom
+            scroll (pieceCamera.scroll.copyTo)]
+        (pieceCamera.updateScrollWheelZoom elapsed 5)
+        (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
+        (when (or !(= zoom pieceCamera.zoom) !(scroll.equals pieceCamera.scroll))
+            (set save.data.zoom pieceCamera.zoom)
+            (set save.data.scroll pieceCamera.scroll)
+            (save.flush)))
 
     (when entryWindow
         (when FlxG.keys.justPressed.ESCAPE
@@ -195,6 +201,9 @@
         (unless save.data.backgroundIndex
             (set save.data.backgroundIndex 0))
         (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
+        (when save.data.zoom
+            (set pieceCamera.zoom save.data.zoom)
+            (set pieceCamera.scroll save.data.scroll))
 
         (unless (and (= lastRewardFileIndex rewardFileIndex) (= lastTotalPoints (m.totalPoints)))
             (set rewardSprite
@@ -210,7 +219,8 @@
             (rewardSprite.updateHitbox)
             (rewardSprite.screenCenter)
 
-            (set pieceCamera.zoom rewardSprite.scale.x)
+            (unless save.data.zoom
+                (set pieceCamera.zoom rewardSprite.scale.x))
 
             (set rewardSprites (new FlxTypedGroup))
             
