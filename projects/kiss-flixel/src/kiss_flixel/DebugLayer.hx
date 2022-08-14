@@ -12,23 +12,20 @@ using kiss_flixel.DebugLayer;
 
 @:build(kiss.Kiss.build())
 class DebugLayer extends FlxTypedGroup<FlxSprite> {
-    public function drawRect(X:Float, Y:Float, Width:Float, Height:Float, FillColor:FlxColor = FlxColor.WHITE, ?lineStyle:Null<LineStyle>, ?drawStyle:Null<DrawStyle>):FlxSprite {
-        var thickness = 1.0;
-        if (lineStyle != null) {
-            thickness = lineStyle.thickness;
-        }
+    public function drawRect(X:Float, Y:Float, Width:Float, Height:Float, outlineColor:FlxColor = FlxColor.WHITE):FlxSprite {
+        var thickness = 1.0 / cameras[0].zoom;
         
         var s = new FlxSprite(X-thickness/2, Y-thickness/2);
 
         // TODO test where thickness appears - is it center-out from the given border?
         s.mg(Width + thickness, Height + thickness);
-        s.drawRect(thickness/2, thickness/2, Width, Height, FillColor, lineStyle, drawStyle);
+        s.drawRect(thickness/2, thickness/2, Width, Height, FlxColor.TRANSPARENT, {color: outlineColor, thickness: thickness});
         add(s);
         return s;
     }
 
-    public function drawFlxRect(rect:FlxRect, FillColor:FlxColor = FlxColor.WHITE, ?lineStyle:Null<LineStyle>, ?drawStyle:Null<DrawStyle>):FlxSprite {
-        return drawRect(rect.x, rect.y, rect.width, rect.height, FillColor, lineStyle, drawStyle);
+    public function drawFlxRect(rect:FlxRect, outlineColor:FlxColor = FlxColor.WHITE):FlxSprite {
+        return drawRect(rect.x, rect.y, rect.width, rect.height, outlineColor);
     }
 
     public static function mg(s:FlxSprite, Width:Float, Height:Float):FlxSprite {

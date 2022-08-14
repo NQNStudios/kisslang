@@ -35,14 +35,9 @@
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
 
-    (debugLayer.clear)
-    (debugLayer.drawRect 0 0 100 100 FlxColor.TRANSPARENT (object thickness t color FlxColor.LIME))
-    (when FlxG.keys.justPressed.ONE
-        (+= t 1))
-    (when FlxG.keys.justPressed.TWO
-        (-= t 1))
 
     (#when debug
+        (debugLayer.clear)
         (doFor s rewardSprites
             //(s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
             //(debugLayer.drawCircle (- s.x cameraBounds.x) (- s.y cameraBounds.y) 5 FlxColor.LIME)
@@ -50,7 +45,7 @@
             (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                 (doFor z matchZones
                     (unless z.isEmpty
-                        (debugLayer.drawFlxRect z FlxColor.TRANSPARENT (object thickness 1 color FlxColor.RED)))))))
+                        (debugLayer.drawFlxRect z FlxColor.RED))))))
     
     (pieceCamera.updateScrollWheelZoom elapsed 5)
     (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
