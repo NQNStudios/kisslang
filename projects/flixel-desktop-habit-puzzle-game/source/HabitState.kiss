@@ -300,8 +300,12 @@
                         (mask.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig ros FlxColor.BLACK)
                         (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
+                        
+                        // Uncomment to debug piece ids and row/columns
                         **(#when debug
-                            (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED))
+                            (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
+                            (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
+                        
                         (s.loadRotatedGraphic s.pixels 4 -1 /*false true*/)
 
                         (set s.cameras [pieceCamera])
