@@ -29,4 +29,9 @@ class DebugLayer extends FlxTypedGroup<FlxSprite> {
     public static function mg(s:FlxSprite, Width:Float, Height:Float):FlxSprite {
         return s.makeGraphic(Math.ceil(Width), Math.ceil(Height), FlxColor.TRANSPARENT, true);
     }
+
+    public override function clear() {
+        forEach((s)->{s.destroy();});
+        super.clear();
+    }
 }

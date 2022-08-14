@@ -32,6 +32,7 @@ import datetime.DateTime;
 import flixel.ui.FlxButton;
 using kiss_flixel.CameraTools;
 using kiss_flixel.GroupTools;
+using kiss_flixel.DebugLayer;
 import kiss_flixel.KissExtendedSprite;
 import kiss_flixel.SimpleWindow;
 import haxe.ds.Option;
