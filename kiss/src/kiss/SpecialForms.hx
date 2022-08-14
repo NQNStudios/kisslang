@@ -268,6 +268,8 @@ class SpecialForms {
             return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), k.convert(body)).withMacroPosOf(wholeExp);
         }
 
+        k.doc("doFor", 3, null, '(doFor <var> <iterable> <body...>)');
+        k.doc("for", 3, null, '(for <var> <iterable> <body...>)');
         map["doFor"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             EBlock([forExpr("doFor", wholeExp, args, k), macro null]).withMacroPosOf(wholeExp);
         };
@@ -289,7 +291,9 @@ class SpecialForms {
             return EWhile(cond, k.convert(b.begin(args)), true).withMacroPosOf(wholeExp);
         }
 
+        k.doc("while", 2, null, '(while <condition> <body...>)');
         map["while"] = whileForm.bind(false);
+        k.doc("until", 2, null, '(until <condition> <body...>)');
         map["until"] = whileForm.bind(true);
 
         k.doc("return", 0, 1, '(return <?value>)');
