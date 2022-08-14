@@ -3,6 +3,7 @@ package kiss_flixel;
 import kiss.Prelude;
 import kiss.List;
 import flixel.FlxSprite;
+import flixel.math.FlxRect;
 import flixel.group.FlxGroup;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxColor;
@@ -24,6 +25,10 @@ class DebugLayer extends FlxTypedGroup<FlxSprite> {
         s.drawRect(thickness/2, thickness/2, Width, Height, FillColor, lineStyle, drawStyle);
         add(s);
         return s;
+    }
+
+    public function drawFlxRect(rect:FlxRect, FillColor:FlxColor = FlxColor.WHITE, ?lineStyle:Null<LineStyle>, ?drawStyle:Null<DrawStyle>):FlxSprite {
+        return drawRect(rect.x, rect.y, rect.width, rect.height, FillColor, lineStyle, drawStyle);
     }
 
     public static function mg(s:FlxSprite, Width:Float, Height:Float):FlxSprite {
