@@ -12,10 +12,12 @@ class Vec2{
     public function add(dx:Float, dy:Float) {
         x += dx;
         y += dy;
+        return this;
     }
     public function subtract(dx:Float, dy:Float) {
         x -= dx;
         y -= dy;
+        return this;
     }
     public function toString() {
         return '(${x}, ${y})';

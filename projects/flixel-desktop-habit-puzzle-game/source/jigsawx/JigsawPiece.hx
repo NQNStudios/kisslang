@@ -86,10 +86,17 @@ class JigsawPiece{
                 maxY = point.y;
         }
         wh = new Vec2(maxX, maxY);
-        // Crop the points so we don't make a bigger source rectangle than needed:
+        // Crop the points so we don't make a bigger source rectangle than needed,
+        // and the origin will align with center of mass better
         xy.add(minX, minY);
-        for (point in points.concat([wh])) {
-            point.subtract(minX, minY);
+        wh.subtract(minX, minY);
+        points = [for (point in points) {
+            point.copy().subtract(minX, minY);
+        }];
+        for (compass => points in bubblePoints) {
+            if (points != null) {
+                bubblePoints[compass] = [for (point in points) point.copy().subtract(minX, minY)];
+            }
         }
     }
 
