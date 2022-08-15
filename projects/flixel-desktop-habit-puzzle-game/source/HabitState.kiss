@@ -38,11 +38,14 @@
 
     (#when debug
         (debugLayer.clear)
+
         (doFor s rewardSprites
-            //(s.drawCircle s.origin.x s.origin.y 5 FlxColor.LIME)
-            //(debugLayer.drawCircle (- s.x cameraBounds.x) (- s.y cameraBounds.y) 5 FlxColor.LIME)
+            null
+            // Uncomment for debugging piece rotation:
+            (debugLayer.drawCircle s.x s.y 1 FlxColor.RED)
+            (debugLayer.drawCircle (+ s.x s.origin.x) (+ s.y s.origin.y) 1 FlxColor.LIME)
             // Uncomment for debugging match zones:
-            (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+            **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                 (doFor z matchZones
                     (unless z.isEmpty
                         (debugLayer.drawFlxRect z FlxColor.RED))))))
@@ -65,7 +68,7 @@
     (#when debug
         (when FlxG.keys.justPressed.SEMICOLON
             (set pieceCamera.zoom 1))
-        (when FlxG.keys.justPressed.CONTROL
+        **(when FlxG.keys.justPressed.CONTROL
             (set save.data.storedPositions (new Map<Int,FlxPoint>))
             (set save.data.storedAngles (new Map<Int,Float>))
             (set save.data.storedOrigins (new Map<Int,FlxPoint>))
