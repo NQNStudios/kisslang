@@ -64,8 +64,8 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
                 var sCenter = new FlxPoint(s.x + s.origin.x, s.y + s.origin.y);
                 var offset = sCenter.subtractPoint(thisCenter);
                 offset.rotate(new FlxPoint(0, 0), deg);
-                s.x = x + offset.x;
-                s.y = y + offset.y;
+                s.x = thisCenter.x + offset.x - s.origin.x;
+                s.y = thisCenter.y + offset.y - s.origin.y;
             }
         }
         _rot(this, deg);

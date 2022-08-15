@@ -42,8 +42,8 @@
         (doFor s rewardSprites
             null
             // Uncomment for debugging piece rotation:
-            (debugLayer.drawCircle s.x s.y 1 FlxColor.RED)
-            (debugLayer.drawCircle (+ s.x s.origin.x) (+ s.y s.origin.y) 1 FlxColor.LIME)
+            //(debugLayer.drawCircle s.x s.y 1 FlxColor.RED)
+            //(debugLayer.drawCircle (+ s.x s.origin.x) (+ s.y s.origin.y) 1 FlxColor.LIME)
             // Uncomment for debugging match zones:
             **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                 (doFor z matchZones
