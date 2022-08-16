@@ -1,9 +1,12 @@
 package;
 
+import sys.io.File;
+import sys.FileSystem;
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 import flixel.util.FlxTimer;
+import kiss.Prelude;
 
 class Main extends Sprite
 {
@@ -12,10 +15,18 @@ class Main extends Sprite
 		super();
 		addChild(new FlxGame(0, 0, HabitState, 1, 60, 60, true));
 		var t:HabitState = cast FlxG.state;
+		
+		var saveFolder = Prelude.joinPath(Prelude.userHome(), "Documents", "HabitPuzzles");
+		var habitFile = Prelude.joinPath(saveFolder, "habits.txt");
+		if (!(FileSystem.exists(saveFolder) && FileSystem.isDirectory(saveFolder))) {
+			FileSystem.createDirectory(saveFolder);
+			File.saveContent(habitFile, File.getContent("habits/default.txt"));
+		}
+
 		var habitFile = if (Sys.args().length > 0 && Sys.args()[0].length > 0) {
 			 Sys.args()[0];
 		} else {
-			"habits/default.txt";
+			habitFile;
 		};
 		function reloadModel(_) {
 			if (t.draggingSprite == null) {
