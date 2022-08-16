@@ -7,6 +7,7 @@ import sys.io.File;
 import datetime.DateTime;
 import datetime.DateTimeInterval;
 import haxe.ds.Option;
+using StringTools;
 
 enum EntryType {
     Daily(daysOfWeek:Array<Int>, lastDayDone:String);

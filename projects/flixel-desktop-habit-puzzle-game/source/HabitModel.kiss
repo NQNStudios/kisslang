@@ -169,6 +169,8 @@
     (let [d (Date.now)] "$(d.getDate)-$(+ 1 (d.getMonth))-$(d.getFullYear)"))
 
 (function isActive [:Entry e]
+    (when (.startsWith .label (first e.labels) "~")
+        (return false))
     (case e.type
         ((Daily days lastDayDone)
             (and !(= lastDayDone (todayString)) (contains days (.getDay (Date.now)))))
