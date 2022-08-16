@@ -451,7 +451,9 @@ class Helpers {
         interp.variables.set("kiss", {
             ReaderExp: {
                 ReaderExpDef: ReaderExpDef
-            }
+            },
+            KissInterp: KissInterp,
+            Prelude: Prelude
         });
         interp.variables.set("k", k.forMacroEval());
         interp.variables.set("Macros", Macros);
