@@ -20,7 +20,7 @@ class Main extends Sprite
 		var habitFile = Prelude.joinPath(saveFolder, "habits.txt");
 		if (!(FileSystem.exists(saveFolder) && FileSystem.isDirectory(saveFolder))) {
 			FileSystem.createDirectory(saveFolder);
-			File.saveContent(habitFile, File.getContent("habits/default.txt"));
+			File.saveContent(habitFile, File.getContent("assets/default.txt"));
 		}
 
 		var habitFile = if (Sys.args().length > 0 && Sys.args()[0].length > 0) {

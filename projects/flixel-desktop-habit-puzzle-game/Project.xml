@@ -41,7 +41,7 @@
 	<haxelib name="kiss-flixel" />
 	<haxelib name="datetime" />
 	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
-	<assets path="habits" />
+	<assets path="assets" />
 	<assets path="puzzles" />
 
 	<!--In case you want to use the addons package-->
