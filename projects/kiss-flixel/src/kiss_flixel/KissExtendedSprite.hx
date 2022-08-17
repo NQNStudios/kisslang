@@ -22,18 +22,44 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     var mouseStartPos:FlxPoint = null;
     
     public var connectedSprites:Array<KissExtendedSprite> = [];
+    function connectedAndSelectedSprites() {
+        var l = connectedSprites;
+        var map = [for (s in l) s => true];
+        if (_dragToSelectEnabled) {
+            var plugin = FlxG.plugins.get(DragToSelectPlugin); 
+            for (s in plugin.selectedSprites()) {
+                map[s] = true;
+                for (c in s.connectedSprites) {
+                    map[c] = true;
+                }
+            }
+        }
+        // Remove duplicates and return
+        l = [for (s => bool in map) s];
+        return l;
+    }
     var connectedSpritesStartPos:Array<FlxPoint> = [];
 
     function resetStartPos() {
         dragStartPos = new FlxPoint(x, y);
-        connectedSpritesStartPos = [for (s in connectedSprites) new FlxPoint(s.x, s.y)];
+        connectedSpritesStartPos = [for (s in connectedAndSelectedSprites()) new FlxPoint(s.x, s.y)];
         mouseStartPos = FlxG.mouse.getWorldPosition();
     }
 
     public override function startDrag() {
         super.startDrag();
 
+        if (_dragToSelectEnabled) {
+            var plugin = FlxG.plugins.get(DragToSelectPlugin); 
+            if (plugin.selectedSprites().indexOf(this) == -1)
+                plugin.deselectSprites();
+        }
+
         resetStartPos();
+    }
+
+    public override function stopDrag() {
+        super.stopDrag();
     }
 
     private var rotationPadding = new FlxPoint();
@@ -71,7 +97,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
             }
         }
         _rot(this, deg);
-        for (c in connectedSprites) {
+        for (c in connectedAndSelectedSprites()) {
             if (c != this) {
                 _rot(c, deg);
             }
@@ -79,6 +105,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         resetStartPos();
     }
 
+    var _dragToSelectEnabled = false;
     public function enableDragToSelect(?state:FlxState) {
         var plugin = FlxG.plugins.get(DragToSelectPlugin); 
         if (plugin == null) {
@@ -86,6 +113,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
             FlxG.plugins.add(plugin);
         }
         plugin.enableSprite(this, state, thisCamera());
+        _dragToSelectEnabled = true;
     }
 
     override function update(elapsed:Float) {
@@ -100,8 +128,9 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         var nextPos = dragStartPos.copyTo().addPoint(mouseTotalMovement);
         x = nextPos.x;
         y = nextPos.y;
-        for (i in 0...connectedSprites.length) {
-            var sprite = connectedSprites[i];
+        var l = connectedAndSelectedSprites();
+        for (i in 0...l.length) {
+            var sprite = l[i];
             var startPos = connectedSpritesStartPos[i];
             var nextPos = startPos.copyTo().addPoint(mouseTotalMovement);
             sprite.x = nextPos.x;

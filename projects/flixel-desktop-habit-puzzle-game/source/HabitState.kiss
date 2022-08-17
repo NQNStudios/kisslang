@@ -347,8 +347,7 @@
                                 (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
                                 (let [connectedPieces (recursivelyConnectedPieces s)]
                                     // Bring currently held pieces to the front:
-                                    (rewardSprites.bringAllToFront connectedPieces)
-                                    (set s.connectedSprites connectedPieces))
+                                    (rewardSprites.bringAllToFront connectedPieces))
                                 (set draggingSprite s)
                                 (set draggingLastPos (new FlxPoint s.x s.y))))
                     (set s.mouseStopDragCallback
@@ -505,6 +504,9 @@
 
         (thisConnectedPieces.push toSprite)
         (toConnectedPieces.push self)
+        (let [selfAndAttached (recursivelyConnectedPieces self)]
+            (doFor s selfAndAttached
+                (set s.connectedSprites selfAndAttached)))
         true))
 
 (defMacro _checkMatch [side otherSide]

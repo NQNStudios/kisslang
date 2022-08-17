@@ -28,9 +28,9 @@ class DragToSelectPlugin extends FlxBasic {
     }
 
     public function enableSprite(s:KissExtendedSprite, ?state:FlxState, ?camera:FlxCamera) {
+        if (state == null) state = FlxG.state;
+        if (camera == null) camera = FlxG.camera;
         if (!dragStates.exists(state)) {
-            if (state == null) state = FlxG.state;
-            if (camera == null) camera = FlxG.camera;
             dragStates[state] = {
                 camera: camera,
                 debugLayer: new DebugLayer(),
@@ -46,6 +46,14 @@ class DragToSelectPlugin extends FlxBasic {
         }
     }
 
+    public function selectedSprites() {
+        return dragStates[FlxG.state].selectedSprites;
+    }
+    
+    public function deselectSprites() {
+        dragStates[FlxG.state].selectedSprites = [];
+    }
+
     public override function update(elapsed:Float) {
         if (dragStates.exists(FlxG.state)) {
             var dragState = dragStates[FlxG.state];
@@ -56,11 +64,9 @@ class DragToSelectPlugin extends FlxBasic {
             if (FlxMouseControl.dragTarget == null) {
                 if (FlxG.mouse.justPressed) {
                     dragState.firstCorner = FlxG.mouse.getWorldPosition(dragState.camera);
-                } else if (FlxG.mouse.justReleased) {
-                    dragState.firstCorner = null;
-                }
+                } 
                 dragState.secondCorner = FlxG.mouse.getWorldPosition(dragState.camera);
-                if (dragState.firstCorner != null) {
+                if (dragState.firstCorner != null && dragState.selectedSprites.length == 0) {
                     var rounded1 = dragState.firstCorner.copyTo();
                     var rounded2 = dragState.secondCorner.copyTo();
                     for (r in [rounded1, rounded2]) {
@@ -68,8 +74,20 @@ class DragToSelectPlugin extends FlxBasic {
                         r.y = Std.int(r.y);
                     }
                     var rect = new FlxRect().fromTwoPoints(rounded1, rounded2);
-                    if (!rect.isEmpty)
+                    if (FlxG.mouse.justReleased && dragState.selectedSprites.length == 0) {
+                        dragState.firstCorner = null;
+                        for (s in dragState.enabledSprites) {
+                            if (s.scale.x != 1 || s.scale.y != 1) {
+                                throw "DragToSelectPlugin can't handle scaled sprites yet!";
+                            }
+                            if (!s.getRotatedBounds().intersection(rect).isEmpty) {
+                                // TODO if pixel perfect is true, get the pixels in the intersection and hit test them for transparency
+                                dragState.selectedSprites.push(s);
+                            }
+                        }
+                    } else if (!rect.isEmpty) {
                         dragState.debugLayer.drawFlxRect(rect);
+                    }
                 }
             }
         }
