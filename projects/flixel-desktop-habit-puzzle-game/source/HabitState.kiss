@@ -319,7 +319,7 @@
                 (let [jig (nth jigsaw.jigs i)
                         pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
                                     point
-                                (nth startingPoints i))
+                                (.addPoint (nth startingPoints i) camera.scroll))
                         angle (ifLet [angle (dictGet (the Map<Int,Float> save.data.storedAngles) i)]
                                     angle
                                 (nth startingAngles i))
@@ -329,6 +329,8 @@
                         sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
                     (set s.angle angle)
                     (set s.priorityID i)
+                    (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i pos)
+
                     (setNth spriteGrid jig.row jig.col s)
                     (setNth indexGrid jig.row jig.col i)
                     (dictSet pieceData i jig)
@@ -405,7 +407,8 @@
     (prop &mut lastTotalPoints -1)
     (set lastTotalPoints (m.totalPoints))
 
-    (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN))
+    (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
+    (save.flush))
 
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)]
