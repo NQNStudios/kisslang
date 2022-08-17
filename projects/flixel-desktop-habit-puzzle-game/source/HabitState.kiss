@@ -606,6 +606,10 @@
             (+= y b.height))))
 
 (function pointsStr [points]
-    (let [tallyUnit 5]
-        (+ (* "*" (Math.floor (/ points tallyUnit)))
-            (* "+" (% points tallyUnit)))))
+    (let [&mut str "" tallyUnit 5 symbols ["+" "*" "\$"]]
+        (doFor i (reverse (collect (range symbols.length)))
+            (let [scaledTallyUnit (^ tallyUnit i)
+                    tallies (Math.floor (/ points scaledTallyUnit))]
+                (+= str (* (nth symbols i) tallies))
+                (-= points (* tallies scaledTallyUnit))))
+        str))
