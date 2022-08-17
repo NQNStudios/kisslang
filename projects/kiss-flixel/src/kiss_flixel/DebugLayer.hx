@@ -2,6 +2,7 @@ package kiss_flixel;
 
 import kiss.Prelude;
 import kiss.List;
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxRect;
 import flixel.group.FlxGroup;
@@ -12,8 +13,16 @@ using kiss_flixel.DebugLayer;
 
 @:build(kiss.Kiss.build())
 class DebugLayer extends FlxTypedGroup<FlxSprite> {
+    function thisCamera() {
+        if (cameras != null && cameras.length > 0)
+            return cameras[0];
+        return FlxG.camera;
+    }
+    function _thickness(thickness:Float) {
+        return Math.max(1, thickness / thisCamera().zoom);
+    }
     public function drawRect(X:Float, Y:Float, Width:Float, Height:Float, outlineColor:FlxColor = FlxColor.WHITE, thickness = 1.0):FlxSprite {
-        thickness /= cameras[0].zoom;
+        thickness = _thickness(thickness);
         
         var s = new FlxSprite(X-thickness/2, Y-thickness/2);
 
@@ -29,7 +38,7 @@ class DebugLayer extends FlxTypedGroup<FlxSprite> {
     }
 
     public function drawCircle(x:Float, y:Float, radius: Float, color = FlxColor.WHITE, thickness = 1.0):FlxSprite {
-        thickness /= cameras[0].zoom;
+        thickness = _thickness(thickness);
         
         var s = new FlxSprite(x - radius - thickness/2, y - radius - thickness/2);
         s.mg(2 * (radius + thickness), 2 * (radius + thickness));
