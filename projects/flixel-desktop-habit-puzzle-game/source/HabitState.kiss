@@ -355,7 +355,7 @@
                             (let [s (cast s KissExtendedSprite)]
                                 (set draggingSprite null)
 
-                                (let [connectedPieces (recursivelyConnectedPieces s)]
+                                (let [connectedPieces (s.connectedAndSelectedSprites)]
                                     (doFor connected connectedPieces
                                         (checkMatches (dictGet indexMap connected)))
 

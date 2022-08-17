@@ -22,7 +22,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     var mouseStartPos:FlxPoint = null;
     
     public var connectedSprites:Array<KissExtendedSprite> = [];
-    function connectedAndSelectedSprites() {
+    public function connectedAndSelectedSprites() {
         var l = connectedSprites;
         var map = [for (s in l) s => true];
         if (_dragToSelectEnabled) {
