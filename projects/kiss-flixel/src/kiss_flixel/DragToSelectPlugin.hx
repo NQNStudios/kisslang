@@ -56,15 +56,18 @@ class DragToSelectPlugin extends FlxBasic {
         dragStates[FlxG.state].selectedSprites = [];
     }
 
+    var wasJustPressed = false;
+
     public override function update(elapsed:Float) {
         if (dragStates.exists(FlxG.state)) {
             var dragState = dragStates[FlxG.state];
             dragState.debugLayer.clear();
 
-            // Might have to skip a frame after justPressed, so KissExtendedSprites
+            // have to skip a frame after justPressed, so KissExtendedSprites
             // can get first access to the mouse input
             if (FlxMouseControl.dragTarget == null) {
-                if (FlxG.mouse.justPressed) {
+                if (wasJustPressed && FlxMouseControl.clickTarget == null) {
+                    deselectSprites();
                     dragState.firstCorner = FlxG.mouse.getWorldPosition(dragState.camera);
                 } 
                 dragState.secondCorner = FlxG.mouse.getWorldPosition(dragState.camera);
@@ -111,6 +114,7 @@ class DragToSelectPlugin extends FlxBasic {
                     }
                 }
             }
+            wasJustPressed = FlxG.mouse.justPressed;
         }
     }
 }
