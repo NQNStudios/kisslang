@@ -174,7 +174,7 @@
 
 // Main.hx sets off 99% of the app's logic by parsing the model file and calling setModel on startup and on a 30s loop:
 
-(method setModel [m &opt :RewardFile currentRewardFile]
+(method :Void setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
     (set shortcutHandler (new FlxKeyShortcutHandler))
 
@@ -538,7 +538,6 @@
 
 (prop &mut :FlxGroup nextPuzzleChoiceGroup null)
 
-(var BASE_PUZZLE_SIZE 5)
 (method startPuzzlePackChoice [nextStartingPoints]
     (unless nextPuzzleChoiceGroup
         (set nextPuzzleChoiceGroup (new FlxGroup))
@@ -553,22 +552,55 @@
                     (set text.color FlxColor.LIME)
                     (nextPuzzleChoiceGroup.add text)
                     (whenLet [(Some np) pack.nextPuzzle]
-                        (nextPuzzleChoiceGroup.add (new FlxButton (+ x text.width) y "CHOOSE" ->:Void {
-                            (remove nextPuzzleChoiceGroup)
-                            (set nextPuzzleChoiceGroup null)
-                            (let [bmd (BitmapData.fromFile np.path)
-                                    aspectRatioX (/ bmd.width bmd.height)
-                                    aspectRatioY (/ bmd.height bmd.width)
-                                    w (max 1 (Math.round (* aspectRatioX BASE_PUZZLE_SIZE)))
-                                    h (max 1 (Math.round (* aspectRatioY BASE_PUZZLE_SIZE)))]
-                                (model.addRewardFile np.path nextStartingPoints w h 1))
-
-                            
-                            (setModel model)
-
-                        }))))
+                        (nextPuzzleChoiceGroup.add
+                            (new FlxButton (+ x text.width) y "CHOOSE" ->:Void {
+                                (remove nextPuzzleChoiceGroup)
+                                (set nextPuzzleChoiceGroup null)
+                                (startPuzzleSizeChoice
+                                    ->[chosenSize pointsPerPiece]
+                                        (let [bmd (BitmapData.fromFile np.path)
+                                                aspectRatioX (/ bmd.width bmd.height)
+                                                aspectRatioY (/ bmd.height bmd.width)
+                                                w (max 1 (Math.round (* aspectRatioX chosenSize)))
+                                                h (max 1 (Math.round (* aspectRatioY chosenSize)))]
+                                            (model.addRewardFile np.path nextStartingPoints w h pointsPerPiece)
+                                            (setModel model)))
+                            }))))
                 (+= y textSize)))
         (add nextPuzzleChoiceGroup)))
+
+(var MIN_PUZZLE_SIZE 5)
+(var MAX_PUZZLE_SIZE 32)
+(var PUZZLE_SIZE_OPTIONS (collect (range MIN_PUZZLE_SIZE MAX_PUZZLE_SIZE 2)))
+(method startPuzzleSizeChoice [:StartPuzzleFunc startPuzzle]
+    (set nextPuzzleChoiceGroup (new FlxGroup))
+    (set nextPuzzleChoiceGroup.cameras [uiCamera])
+    (add nextPuzzleChoiceGroup)
+    (let [x 0 &mut y 0 &mut :FlxButton b null]
+        // TODO also limit puzzle size by rewardSprite dimensions
+        (doFor size PUZZLE_SIZE_OPTIONS
+            (set b (new FlxButton x y "$(* size size)" ->:Void {
+                (remove nextPuzzleChoiceGroup)
+                (startPiecesPerPointChoice size startPuzzle)
+            }))
+            (nextPuzzleChoiceGroup.add b)
+            (+= y b.height))))
+
+(method startPiecesPerPointChoice [size :StartPuzzleFunc startPuzzle]
+    (set nextPuzzleChoiceGroup (new FlxGroup))
+    (set nextPuzzleChoiceGroup.cameras [uiCamera])
+    (add nextPuzzleChoiceGroup)
+    (let [x 0 &mut y 0 maxPPP (Math.round (/ (* size size) (* MIN_PUZZLE_SIZE MIN_PUZZLE_SIZE))) &mut :FlxButton b null]
+        (when (= maxPPP 1)  
+            (startPuzzle size 1)
+            (return))
+        (doFor points (range 1 maxPPP)
+            (set b (new FlxButton x y "$points" ->:Void {
+                (remove nextPuzzleChoiceGroup)
+                (startPuzzle size points)
+            }))
+            (nextPuzzleChoiceGroup.add b)
+            (+= y b.height))))
 
 (function pointsStr [points]
     (let [tallyUnit 5]

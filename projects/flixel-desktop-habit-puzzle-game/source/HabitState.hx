@@ -40,6 +40,8 @@ import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;
 import jigsawx.math.Vec2;
 
+typedef StartPuzzleFunc = (Int, Int) -> Void;
+
 @:build(kiss.Kiss.build())
 class HabitState extends FlxState {
     public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, scale:Float, c: FlxColor )
