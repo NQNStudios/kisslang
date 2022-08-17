@@ -1,4 +1,5 @@
 bin/
 externLog.txt
 *.memoized
+.temp/
 *.pyc

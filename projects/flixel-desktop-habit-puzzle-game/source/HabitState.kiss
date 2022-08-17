@@ -580,7 +580,7 @@
     (set nextPuzzleChoiceGroup.cameras [uiCamera])
     (add nextPuzzleChoiceGroup)
     (let [x 0 &mut y 0 &mut :FlxButton b null]
-        // TODO also limit puzzle size by rewardSprite dimensions
+        // TODO also limit puzzle size by rewardSprite dimensions (which are available in bmd in startPuzzlePackChoice())
         (doFor size PUZZLE_SIZE_OPTIONS
             (set b (new FlxButton x y "$(* size size)" ->:Void {
                 (remove nextPuzzleChoiceGroup)

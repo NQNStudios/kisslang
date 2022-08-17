@@ -1,0 +1,13 @@
+# Habit Puzzles (working title?)
+
+Time to put on my promotional hat and talk about a side project I'm almost ready to release.
+
+Sorry if the GIFs aren't snappy or clear enough--The UX needs work and I have a long way to improve at making GIFs and screenshots for marketing, etc.
+
+It's a habit tracking game inspired by [Habitica](https://habitica.com/), which really helped me get healthy years ago, but I find doesn't work anymore because I'm not invested in the game mechanics. I want a gamified habit/to-do list app, where the game is more engaging to my personal taste, because artifical points and XP sometimes don't do the trick. I knew I would find a habit reward system more compelling if it revealed original content, but that you can't just chop most fun content into tiny pieces that are each a small reward. My family is ride-or-die for jigsaw puzzles, which are something you can engage in for short amounts of time without feeling deprived if you don't finish in one sitting.
+
+So anyway--you just put your habits and tasks into it, check them off when you're done, and earn jigsaw pieces to put together. This has been a really fun technical challenge and I've finally got the core jigsaw puzzle features done, the hardest of which was handling piece rotation in groups. It's (almost) all implemented in a [custom Lisp](https://github.com/NQNStudios/kisslang) I wrote on top of the Haxe programming language. The code of the game itself is also open source but I wouldn't recommend digging through it yet. All of my shameful secrets are in there.
+
+My goal was to make a new way to motivate myself to do important work, which I've known all along is ironic, because I worked on it lots to procrastinate more important work.
+
+Now that you can actually solve a puzzle in it, I feel almost ready to try a rough Early Access stage. I don't know how big a market there is for this, but I do get some motivation out of it myself, so if no one else cares I think I'll still feel pretty good about it.

@@ -1,0 +1,26 @@
+# Custom puzzle size
+
+For now, I'm using an open-source [jigsaw puzzle generator](https://github.com/nanjizal/JigsawX) which outputs puzzle pieces in strict rows and columns.
+
+When I started out, I hard-coded the puzzles to be 6 pieces by 5 pieces, because I was using placeholder images that were landscape-oriented, and I wanted to reward myself with new images after roughly 30 healthy actions. But in my family, 1000-piece puzzles were always our favorite, so I knew if I was going to release this for puzzle enthusiasts, puzzle size would need to be customizable, and also flexible according to the puzzle image's aspect ratio. Now I've implemented that using some silly math that seems to work well enough.
+
+The idea is that an "ideal" puzzle has a square number of pieces, starting at 5x5 = 25. I warp these "ideal dimensions" according to the image's aspect ratio:
+
+```
+width = 5
+height = 5
+
+width *= (image.width / image.height)
+height *= (image.height / image.width)
+
+width = ceil(width)
+height = ceil(height)
+```
+
+This gives a number of rows and columns that aims close to 25, but stretches so there are more pieces along the puzzle's longer side. Currently I let the player choose every other square number up to 961 for their "ideal" size, so in theory you can generate a 1000 piece puzzle. Of course, I don't want to have to do 1000 healthy things to solve a whole puzzle, so I also allow a configurable number of pieces to be unlocked per "point" earned. I didn't want to let players choose 25 pieces-per-point with a ~25-piece puzzle, so I limit the highest choice according to the chosen size.
+
+# 1000-piece stress test
+
+So I finally decided to try 1000 pieces at a rate of 32 per point, expecting the game to slow down or crash. It's actually running decently?! But I don't have all 1000 pieces unlocked yet, because I don't want to cheat just for testing purposes.
+
+Any website suggestions where I can upload gifs without downscaling?
