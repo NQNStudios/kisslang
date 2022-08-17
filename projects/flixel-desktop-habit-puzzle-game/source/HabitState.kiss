@@ -139,8 +139,6 @@
 (prop &mut :HabitModel model null)
 
 
-(method roughOptimalScale []
-    (/ 367 (smallerDimension)))
 (method smallerDimension [] (min rewardSprite.pixels.width rewardSprite.pixels.height))
 // TODO these variables don't do exactly what I think they do when scaled, like at all:
 (defAlias &ident EDGE_LEEWAY 25)
@@ -148,6 +146,8 @@
 
 (defAlias &ident PUZZLE_WIDTH .puzzleWidth (nth model.rewardFiles rewardFileIndex))
 (defAlias &ident PUZZLE_HEIGHT .puzzleHeight (nth model.rewardFiles rewardFileIndex))
+(method roughOptimalScale []
+    (* (/ (max PUZZLE_WIDTH PUZZLE_HEIGHT) MIN_PUZZLE_SIZE) (/ 367 (smallerDimension))))
 (defAlias &ident TOTAL_PIECES (* PUZZLE_WIDTH PUZZLE_HEIGHT))
 (prop &mut :FlxSprite rewardSprite null)
 (prop &mut :FlxTypedGroup<KissExtendedSprite> rewardSprites null)
