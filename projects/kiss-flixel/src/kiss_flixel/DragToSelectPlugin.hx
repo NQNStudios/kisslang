@@ -109,6 +109,11 @@ class DragToSelectPlugin extends FlxBasic {
                                 }
                             }
                         }
+                        for (s in dragState.selectedSprites) {
+                            if (s.onSelected != null) {
+                                s.onSelected();
+                            }
+                        }
                     } else if (!rect.isEmpty) {
                         dragState.debugLayer.drawFlxRect(rect);
                     }

@@ -138,6 +138,8 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         }
     }
 
+    public var onSelected:Void->Void = null;
+
     public function pixelPerfectDrag() {
         return _dragPixelPerfect;
     }
