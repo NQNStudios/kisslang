@@ -57,6 +57,7 @@ class DragToSelectPlugin extends FlxBasic {
     }
 
     var wasJustPressed = false;
+    public static var boxColor = FlxColor.LIME;
 
     public override function update(elapsed:Float) {
         if (dragStates.exists(FlxG.state)) {
@@ -115,7 +116,7 @@ class DragToSelectPlugin extends FlxBasic {
                             }
                         }
                     } else if (!rect.isEmpty) {
-                        dragState.debugLayer.drawFlxRect(rect);
+                        dragState.debugLayer.drawFlxRect(rect, boxColor);
                     }
                 }
             }
