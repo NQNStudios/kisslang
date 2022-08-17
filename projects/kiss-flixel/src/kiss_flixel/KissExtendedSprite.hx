@@ -3,12 +3,14 @@ package kiss_flixel;
 import flixel.FlxG;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
+import flixel.FlxState;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.addons.plugin.FlxMouseControl;
 import flixel.util.FlxCollision;
 import flash.display.BitmapData;
+import kiss_flixel.DragToSelectPlugin;
 
 class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     public function new(X:Float = 0, Y:Float = 0, ?SimpleGraphic:FlxGraphicAsset)
@@ -77,6 +79,15 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         resetStartPos();
     }
 
+    public function enableDragToSelect(?state:FlxState) {
+        var plugin = FlxG.plugins.get(DragToSelectPlugin); 
+        if (plugin == null) {
+            plugin = new DragToSelectPlugin();
+            FlxG.plugins.add(plugin);
+        }
+        plugin.enableSprite(this, state, thisCamera());
+    }
+
     override function update(elapsed:Float) {
         #if debug
         // color = (mouseOver && pixelPerfect(_dragPixelPerfectAlpha)) ? FlxColor.LIME : FlxColor.WHITE;
@@ -98,9 +109,17 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         }
     }
 
+    function thisCamera() {
+        if (cameras != null && cameras.length > 0)
+            return cameras[0];
+        return FlxG.camera;
+    }
+
+
+
     #if FLX_MOUSE
     override function get_mouseOver() {
-        var mouseOver = getScreenBounds(cameras[0]).containsPoint(FlxG.mouse.getScreenPosition(cameras[0]));
+        var mouseOver = getScreenBounds(thisCamera()).containsPoint(FlxG.mouse.getScreenPosition(thisCamera()));
         
         return mouseOver;
     }

@@ -283,6 +283,8 @@
             (set pieceCamera.zoom rewardSprite.scale.x))
 
         (set rewardSprites (new FlxTypedGroup))
+        // add rewardSprites group before enabling drag-to-select on instances
+        (add rewardSprites)
         
         (doFor map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
             (map.clear))
@@ -337,6 +339,7 @@
                     (dictSet indexMap s i)
                     (dictSet spriteMap i s)
                     (set s.draggable true)
+                    (s.enableDragToSelect)
                     (s.enableMouseDrag false true)
                     (set s.mouseStartDragCallback
                         ->:Void [s x y]
@@ -400,7 +403,6 @@
                             (when (< (+ row 1) PUZZLE_HEIGHT)
                                 (let [toDown (nth spriteGrid (+ row 1) col)]
                                     (dictSet matchingPiecesDown id toDown))))))
-                (add rewardSprites)
                 (doFor i (range TOTAL_PIECES)
                     (checkMatches i))))
     (set lastRewardFileIndex rewardFileIndex)
