@@ -7,6 +7,8 @@ import flixel.FlxCamera;
 import flixel.FlxBasic;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
+import openfl.geom.Rectangle;
+import flixel.util.FlxColor;
 
 typedef DragState = {
     camera:FlxCamera,
@@ -80,9 +82,28 @@ class DragToSelectPlugin extends FlxBasic {
                             if (s.scale.x != 1 || s.scale.y != 1) {
                                 throw "DragToSelectPlugin can't handle scaled sprites yet!";
                             }
-                            if (!s.getRotatedBounds().intersection(rect).isEmpty) {
+                            var intersection = s.getRotatedBounds().intersection(rect);
+                            if (!intersection.isEmpty) {
                                 // TODO if pixel perfect is true, get the pixels in the intersection and hit test them for transparency
-                                dragState.selectedSprites.push(s);
+                                var pixelPerfectCheck = false;
+                                if (s.pixelPerfectDrag()) {
+                                    var alpha = s.pixelPerfectAlpha();
+                                    s.updateFramePixels();
+                                    var intersectionInFrame = new Rectangle(Std.int(intersection.x - s.x), Std.int(intersection.y - s.y), Math.min(s.framePixels.width, Std.int(intersection.width)), Math.min(s.framePixels.height, Std.int(intersection.height)));
+                                    var pixels = s.framePixels.getPixels(intersectionInFrame);
+                                    while (pixels.bytesAvailable > 0) {
+                                        var color:FlxColor = pixels.readUnsignedInt();
+                                        if (color.alpha * s.alpha >= alpha) {
+                                            pixelPerfectCheck = true;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    pixelPerfectCheck = true;
+                                }
+                                if (pixelPerfectCheck) {
+                                    dragState.selectedSprites.push(s);
+                                }
                             }
                         }
                     } else if (!rect.isEmpty) {

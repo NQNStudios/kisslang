@@ -138,6 +138,14 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         }
     }
 
+    public function pixelPerfectDrag() {
+        return _dragPixelPerfect;
+    }
+
+    public function pixelPerfectAlpha() {
+        return _dragPixelPerfectAlpha;
+    }
+
     function thisCamera() {
         if (cameras != null && cameras.length > 0)
             return cameras[0];
