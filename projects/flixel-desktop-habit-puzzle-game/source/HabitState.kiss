@@ -88,7 +88,7 @@
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
     {
-        (when FlxG.keys.justPressed.Q
+        (when FlxG.mouse.justPressedRight
             (when draggingSprite
                 (draggingSprite.rotate 90)
                 (doFor s (recursivelyConnectedPieces draggingSprite)
