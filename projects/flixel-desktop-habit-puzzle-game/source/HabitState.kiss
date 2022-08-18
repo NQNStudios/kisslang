@@ -272,13 +272,13 @@
                 (new FlxSprite 0 0
                     (BitmapData.fromFile
                         currentRewardFile.path)))
-
             (set matchingPiecesLeft (new Map))
             (set matchingPiecesRight (new Map))
             (set matchingPiecesUp (new Map))
             (set matchingPiecesDown (new Map))
             (set pieceData (new Map))
             (set connectedPieces (new Map))
+            (doFor i (range TOTAL_PIECES) (dictSet connectedPieces i []))
             (set indexMap (new Map))
             (set spriteMap (new Map))
             
@@ -305,12 +305,6 @@
             // add rewardSprites group before enabling drag-to-select on instances
             (add rewardSprites))
         
-        (doFor map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
-            (map.clear))
-        (connectedPieces.clear)
-        (doFor i (range TOTAL_PIECES) (dictSet connectedPieces i []))
-        (indexMap.clear)
-
         (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
                 ros (roughOptimalScale)
                 graphicWidth (* ros rewardSprite.pixels.width)
