@@ -354,8 +354,7 @@
                         ->:Void [s x y]
                             (let [s (cast s KissExtendedSprite)]
                                 (set draggingSprite null)
-
-                                (let [connectedPieces (s.connectedAndSelectedSprites)]
+                                (let [connectedPieces (.concat (s.connectedAndSelectedSprites) [s])]
                                     (doFor connected connectedPieces
                                         (checkMatches (dictGet indexMap connected)))
 
