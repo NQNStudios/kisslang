@@ -29,6 +29,19 @@ class DragToSelectPlugin extends FlxBasic {
         super();
     }
 
+    public function clearEnabledSprites(?state:FlxState) {
+        if (state == null) state = FlxG.state;
+        dragStates[state].enabledSprites = [];
+        dragStates[state].selectedSprites = [];
+    }
+
+    // Don't use this on a whole list of sprites! It will be O(N^2)
+    public function disableSprite(s: KissExtendedSprite, ?state:FlxState) {
+        if (state == null) state = FlxG.state;
+        dragStates[state].enabledSprites.remove(s);
+        dragStates[state].selectedSprites.remove(s);
+    }
+
     public function enableSprite(s:KissExtendedSprite, ?state:FlxState, ?camera:FlxCamera) {
         if (state == null) state = FlxG.state;
         if (camera == null) camera = FlxG.camera;

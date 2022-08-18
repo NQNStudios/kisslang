@@ -39,6 +39,7 @@ import haxe.ds.Option;
 import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;
 import jigsawx.math.Vec2;
+import kiss_flixel.DragToSelectPlugin;
 
 typedef StartPuzzleFunc = (Int, Int) -> Void;
 

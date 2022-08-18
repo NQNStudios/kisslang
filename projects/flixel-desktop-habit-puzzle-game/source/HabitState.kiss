@@ -266,25 +266,44 @@
         (set pieceCamera.scroll save.data.scroll))
 
     (unless (and (= lastRewardFileIndex rewardFileIndex) (= lastTotalPoints (m.totalPoints)))
-        (set rewardSprite
-                    (new FlxSprite 0 0
-                        (BitmapData.fromFile
-                            currentRewardFile.path)))
-        (when rewardSprites
-            (remove rewardSprites))
-        (rewardSprite.setGraphicSize FlxG.width 0)
-        (rewardSprite.updateHitbox)
-        (when (> rewardSprite.height FlxG.height)
-            (rewardSprite.setGraphicSize 0 FlxG.height))
-        (rewardSprite.updateHitbox)
-        (rewardSprite.screenCenter)
+        // When the current puzzle has changed:
+        (unless (= lastRewardFileIndex rewardFileIndex)
+            (set rewardSprite
+                (new FlxSprite 0 0
+                    (BitmapData.fromFile
+                        currentRewardFile.path)))
 
-        (unless save.data.zoom
-            (set pieceCamera.zoom rewardSprite.scale.x))
+            (set matchingPiecesLeft (new Map))
+            (set matchingPiecesRight (new Map))
+            (set matchingPiecesUp (new Map))
+            (set matchingPiecesDown (new Map))
+            (set pieceData (new Map))
+            (set connectedPieces (new Map))
+            (set indexMap (new Map))
+            (set spriteMap (new Map))
+            
+            (rewardSprite.setGraphicSize FlxG.width 0)
+            (rewardSprite.updateHitbox)
+            (when (> rewardSprite.height FlxG.height)
+                (rewardSprite.setGraphicSize 0 FlxG.height))
+            (rewardSprite.updateHitbox)
+            (rewardSprite.screenCenter)
 
-        (set rewardSprites (new FlxTypedGroup))
-        // add rewardSprites group before enabling drag-to-select on instances
-        (add rewardSprites)
+            (unless save.data.zoom
+                (set pieceCamera.zoom rewardSprite.scale.x))
+            (when rewardSprites
+                #{
+                    var plugin = FlxG.plugins.get(DragToSelectPlugin);
+                    plugin.clearEnabledSprites();
+                }#
+                (rewardSprites.destroy)
+                (remove rewardSprites)
+                (set rewardSprites null)))
+
+        (unless rewardSprites
+            (set rewardSprites (new FlxTypedGroup))
+            // add rewardSprites group before enabling drag-to-select on instances
+            (add rewardSprites))
         
         (doFor map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
             (map.clear))
@@ -325,84 +344,86 @@
                         angle (ifLet [angle (dictGet (the Map<Int,Float> save.data.storedAngles) i)]
                                     angle
                                 (nth startingAngles i))
-                        s (new KissExtendedSprite pos.x pos.y)
+                        &mut s (dictGet spriteMap i)
                         source (new FlxSprite)
                         mask (new FlxSprite)
                         sourceRect (new Rectangle (/ jig.xy.x ros) (/ jig.xy.y ros) (/ jig.wh.x ros) (/ jig.wh.y ros))]
-                    (set s.angle angle)
-                    (set s.priorityID i)
-                    (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i pos)
+                    (unless s
+                        (set s (new KissExtendedSprite pos.x pos.y))
+                        (set s.angle angle)
+                        (set s.priorityID i)
+                        (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) i pos)
 
-                    (setNth spriteGrid jig.row jig.col s)
-                    (setNth indexGrid jig.row jig.col i)
-                    (dictSet pieceData i jig)
-                    (dictSet indexMap s i)
-                    (dictSet spriteMap i s)
-                    (set s.draggable true)
-                    (s.enableDragToSelect)
-                    (s.enableMouseDrag false true)
-                    (set s.mouseStartDragCallback
-                        ->:Void [s x y]
-                            (let [s (cast s KissExtendedSprite)]
-                                (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
-                                (let [connectedPieces (recursivelyConnectedPieces s)]
-                                    // Bring currently held pieces to the front:
-                                    (rewardSprites.bringAllToFront connectedPieces))
-                                (set draggingSprite s)
-                                (set draggingLastPos (new FlxPoint s.x s.y))))
-                    (set s.mouseStopDragCallback
-                        ->:Void [s x y]
-                            (let [s (cast s KissExtendedSprite)]
-                                (set draggingSprite null)
-                                (let [connectedPieces (.concat (s.connectedAndSelectedSprites) [s])]
-                                    (doFor connected connectedPieces
-                                        (checkMatches (dictGet indexMap connected)))
+                        (setNth spriteGrid jig.row jig.col s)
+                        (setNth indexGrid jig.row jig.col i)
+                        (dictSet pieceData i jig)
+                        (dictSet indexMap s i)
+                        (dictSet spriteMap i s)
+                        (set s.draggable true)
+                        (s.enableDragToSelect)
+                        (s.enableMouseDrag false true)
+                        (set s.mouseStartDragCallback
+                            ->:Void [s x y]
+                                (let [s (cast s KissExtendedSprite)]
+                                    (set s.priorityID (+ 1 .priorityID (last (the kiss.List<KissExtendedSprite> rewardSprites.members))))
+                                    (let [connectedPieces (recursivelyConnectedPieces s)]
+                                        // Bring currently held pieces to the front:
+                                        (rewardSprites.bringAllToFront connectedPieces))
+                                    (set draggingSprite s)
+                                    (set draggingLastPos (new FlxPoint s.x s.y))))
+                        (set s.mouseStopDragCallback
+                            ->:Void [s x y]
+                                (let [s (cast s KissExtendedSprite)]
+                                    (set draggingSprite null)
+                                    (let [connectedPieces (.concat (s.connectedAndSelectedSprites) [s])]
+                                        (doFor connected connectedPieces
+                                            (checkMatches (dictGet indexMap connected)))
 
-                                    (doFor connected connectedPieces
-                                        (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y))))
+                                        (doFor connected connectedPieces
+                                            (dictSet (the Map<Int,FlxPoint> save.data.storedPositions) (dictGet indexMap connected) (new FlxPoint connected.x connected.y))))
+                                    
+                                    (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
+                                    (save.flush)))
                                 
-                                (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
-                                (save.flush)))
-                                
-                    (var ROT_PADDING 2)
-                    (localVar fWidth (+ (Std.int sourceRect.width) (* 2 ROT_PADDING)))
-                    (localVar fHeight (+ (Std.int sourceRect.height) (* 2 ROT_PADDING)))
-                    (source.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
-                    (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point ROT_PADDING ROT_PADDING))
-                    
-                    (mask.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
-                    (drawPieceShape mask jig ros FlxColor.BLACK)
-                    (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
-                    
-                    // Uncomment to debug piece ids and row/columns
-                    **(#when debug
-                        (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
-                        (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
-                    
-                    (s.loadRotatedGraphic s.pixels 4 -1 /*false true*/)
+                        (var ROT_PADDING 2)
+                        (localVar fWidth (+ (Std.int sourceRect.width) (* 2 ROT_PADDING)))
+                        (localVar fHeight (+ (Std.int sourceRect.height) (* 2 ROT_PADDING)))
+                        (source.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
+                        (source.pixels.copyPixels rewardSprite.pixels sourceRect (new Point ROT_PADDING ROT_PADDING))
+                        
+                        (mask.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
+                        (drawPieceShape mask jig ros FlxColor.BLACK)
+                        (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
+                        
+                        // Uncomment to debug piece ids and row/columns
+                        **(#when debug
+                            (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
+                            (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
+                        
+                        (s.loadRotatedGraphic s.pixels 4 -1 /*false true*/)
 
-                    (set s.cameras [pieceCamera])
-                    
+                        (set s.cameras [pieceCamera])
+                        
 
-                    (rewardSprites.add s)))
-                (doFor row (range PUZZLE_HEIGHT)
-                    (doFor col (range PUZZLE_WIDTH)
-                        (let [id (nth indexGrid row col)]
-                            (when (= id -1) (continue))
-                            (when (>= (- col 1) 0)
-                                (let [toLeft (nth spriteGrid row (- col 1))]
-                                    (dictSet matchingPiecesLeft id toLeft)))
-                            (when (< (+ col 1) PUZZLE_WIDTH)
-                                (let [toRight (nth spriteGrid row (+ col 1))]
-                                    (dictSet matchingPiecesRight id toRight)))
-                            (when (>= (- row 1) 0)
-                                (let [toUp (nth spriteGrid (- row 1) col)]
-                                    (dictSet matchingPiecesUp id toUp)))
-                            (when (< (+ row 1) PUZZLE_HEIGHT)
-                                (let [toDown (nth spriteGrid (+ row 1) col)]
-                                    (dictSet matchingPiecesDown id toDown))))))
-                (doFor i (range TOTAL_PIECES)
-                    (checkMatches i))))
+                        (rewardSprites.add s))))
+            (doFor row (range PUZZLE_HEIGHT)
+                (doFor col (range PUZZLE_WIDTH)
+                    (let [id (nth indexGrid row col)]
+                        (when (= id -1) (continue))
+                        (when (>= (- col 1) 0)
+                            (let [toLeft (nth spriteGrid row (- col 1))]
+                                (dictSet matchingPiecesLeft id toLeft)))
+                        (when (< (+ col 1) PUZZLE_WIDTH)
+                            (let [toRight (nth spriteGrid row (+ col 1))]
+                                (dictSet matchingPiecesRight id toRight)))
+                        (when (>= (- row 1) 0)
+                            (let [toUp (nth spriteGrid (- row 1) col)]
+                                (dictSet matchingPiecesUp id toUp)))
+                        (when (< (+ row 1) PUZZLE_HEIGHT)
+                            (let [toDown (nth spriteGrid (+ row 1) col)]
+                                (dictSet matchingPiecesDown id toDown))))))
+            (doFor i (range TOTAL_PIECES)
+                (checkMatches i))))
     (set lastRewardFileIndex rewardFileIndex)
     (prop &mut lastTotalPoints -1)
     (set lastTotalPoints (m.totalPoints))

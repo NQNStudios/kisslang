@@ -115,8 +115,19 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         plugin.enableSprite(this, state, thisCamera());
         _dragToSelectEnabled = true;
     }
+    public function disableDragToSelect(?state:FlxState) {
+        var plugin = FlxG.plugins.get(DragToSelectPlugin); 
+        plugin.disableSprite(this, state);
+        _dragToSelectEnabled = false;
+    }
 
-    override function update(elapsed:Float) {
+    public override function destroy() {
+        if (_dragToSelectEnabled)
+            disableDragToSelect();
+        super.destroy();
+    }
+
+    public override function update(elapsed:Float) {
         #if debug
         // color = (mouseOver && pixelPerfect(_dragPixelPerfectAlpha)) ? FlxColor.LIME : FlxColor.WHITE;
         #end
