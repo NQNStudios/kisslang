@@ -27,7 +27,8 @@
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
-	<set name="BUILD_DIR" value="export" />
+	<set name="BUILD_DIR" value="export" if="debug"/>
+	<set name="BUILD_DIR" value="release" unless="debug"/>
 	<classpath name="source" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
@@ -95,8 +96,6 @@
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
-	<!--TODO prebuild if release, move debug build out of the way -->
-	<!--TODO prebuild if debug, move release build out of the way -->
-	<postbuild cmd="butler push export/windows/bin nqn/habit-puzzles:win" if="windows" unless="debug" />
+	<postbuild cmd="butler push release/windows/bin nqn/habit-puzzles:win" if="windows" unless="debug" />
 
 </project>
