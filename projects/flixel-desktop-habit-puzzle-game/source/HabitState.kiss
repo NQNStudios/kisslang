@@ -11,11 +11,17 @@
 (method &override :Void create [] 
     (add logTexts)
     (set Prelude.printStr log)
-    (set pieceCamera FlxG.camera)
+    (defAndCall method newPieceCamera
+        (if pieceCamera
+                {
+                    (FlxG.cameras.remove pieceCamera)
+                    (set pieceCamera (new FlxCamera))
+                    (FlxG.cameras.add pieceCamera)
+                }   
+            (set pieceCamera FlxG.camera))
+        (set FlxG.camera pieceCamera))
     (set uiCamera (new FlxCamera))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
-    (pieceCamera.copyFrom FlxG.camera)
-    (set FlxG.camera pieceCamera)
     (FlxG.cameras.add uiCamera)
     (FlxG.plugins.add (new FlxMouseControl))
     (set FlxMouseControl.sortIndex "priorityID")
@@ -265,14 +271,12 @@
         (set save.data.storedOrigins (new Map<Int,FlxPoint>)))
     (unless save.data.backgroundIndex
         (set save.data.backgroundIndex 0))
-    (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
-    (when save.data.zoom
-        (set pieceCamera.zoom save.data.zoom)
-        (set pieceCamera.scroll save.data.scroll))
 
     (unless (and (= lastRewardFileIndex rewardFileIndex) (= lastTotalPoints (m.totalPoints)))
         // When the current puzzle has changed:
         (unless (= lastRewardFileIndex rewardFileIndex)
+            // Make a new camera so scroll from the last puzzle doesn't start the camera out of boundS
+            (newPieceCamera)
             (set rewardSprite
                 (new FlxSprite 0 0
                     (BitmapData.fromFile
@@ -428,6 +432,11 @@
     (set lastTotalPoints (m.totalPoints))
 
     (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
+    (when save.data.zoom
+        (set pieceCamera.zoom save.data.zoom)
+        (set pieceCamera.scroll save.data.scroll))
+    (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
+
     (save.flush))
 
 (method makeText [:Entry e]
