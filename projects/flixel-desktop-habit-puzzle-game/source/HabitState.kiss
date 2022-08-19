@@ -249,9 +249,14 @@
     FlxColor.GRAY
 ])
 
+(function nameForSave [:String name]
+    (doFor forbiddenChar (.split #"~%&\;:"',<>?# "# "")
+        (set name (name.replace forbiddenChar "")))
+    name)
+
 (method makeRewardSprites [m p currentRewardFile]
     (set save (new FlxSave))
-    (save.bind currentRewardFile.path)
+    (assert (save.bind (nameForSave currentRewardFile.path)) "failed to bind save data")
     (unless save.data.storedPositions
         (set save.data.storedPositions (new Map<Int,FlxPoint>)))
     (unless save.data.storedAngles
