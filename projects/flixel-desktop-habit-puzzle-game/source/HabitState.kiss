@@ -33,7 +33,7 @@
 
 (defAlias &ident KEYBOARD_SCROLL_SPEED (keyboardScrollSpeed))
 (method keyboardScrollSpeed []
-    (/ 800 rewardSprite.scale.x))
+    (fHalf (max rewardSprite.pixels.width rewardSprite.pixels.height)))
 
 (prop &mut :EntryType typeAdding Todo)
 (prop &mut :FlxInputText entryNameText)
@@ -176,7 +176,7 @@
 (defAlias &ident SCROLL_BOUND_MARGIN (scrollBoundMargin))
 
 (method scrollBoundMargin []
-    (/ (max FlxG.width FlxG.height) rewardSprite.scale.x))
+    (max rewardSprite.pixels.width rewardSprite.pixels.height))
 
 (prop &mut :KissExtendedSprite draggingSprite null)
 (prop &mut :FlxPoint draggingLastPos null)
@@ -293,7 +293,6 @@
             (doFor i (range TOTAL_PIECES) (dictSet connectedPieces i []))
             (set indexMap (new Map))
             (set spriteMap (new Map))
-            
             (rewardSprite.setGraphicSize FlxG.width 0)
             (rewardSprite.updateHitbox)
             (when (> rewardSprite.height FlxG.height)
@@ -303,6 +302,10 @@
 
             (unless save.data.zoom
                 (set pieceCamera.zoom rewardSprite.scale.x))
+            
+            // TODO the rewardSprite can be the "box image" for player reference
+            (rewardSprite.scale.set 1 1)
+
             (when rewardSprites
                 #{
                     var plugin = FlxG.plugins.get(DragToSelectPlugin);
