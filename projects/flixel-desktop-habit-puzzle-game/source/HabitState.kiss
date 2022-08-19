@@ -14,12 +14,15 @@
     (defAndCall method newPieceCamera
         (if pieceCamera
                 {
-                    (FlxG.cameras.remove pieceCamera)
+                    (FlxG.cameras.remove pieceCamera true)
                     (set pieceCamera (new FlxCamera))
                     (FlxG.cameras.add pieceCamera)
                 }   
             (set pieceCamera FlxG.camera))
-        (set FlxG.camera pieceCamera))
+        (set FlxG.camera pieceCamera)
+        (when uiCamera
+            (FlxG.cameras.remove uiCamera false)
+            (FlxG.cameras.add uiCamera)))
     (set uiCamera (new FlxCamera))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (FlxG.cameras.add uiCamera)
