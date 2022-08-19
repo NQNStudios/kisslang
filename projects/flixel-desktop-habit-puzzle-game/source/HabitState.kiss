@@ -222,7 +222,7 @@
         (map (m.activeDailyEntries) makeText)
         (set entryWindow.textColor FlxColor.GREEN)
         (map (m.activeMonthlyEntries) makeText)
-        (set entryWindow.textColor FlxColor.BLUE)
+        (set entryWindow.textColor FlxColor.CYAN)
         (map (m.activeIntervalEntries) makeText)
         (set entryWindow.textColor FlxColor.WHITE)
         (map (m.activeBonusEntries) makeText)
