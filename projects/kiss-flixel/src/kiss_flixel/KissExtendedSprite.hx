@@ -106,13 +106,13 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     }
 
     var _dragToSelectEnabled = false;
-    public function enableDragToSelect(?state:FlxState) {
+    public function enableDragToSelect(?state:FlxState, ?camera:FlxCamera) {
         var plugin = FlxG.plugins.get(DragToSelectPlugin); 
         if (plugin == null) {
             plugin = new DragToSelectPlugin();
             FlxG.plugins.add(plugin);
         }
-        plugin.enableSprite(this, state, thisCamera());
+        plugin.enableSprite(this, state, camera);
         _dragToSelectEnabled = true;
     }
     public function disableDragToSelect(?state:FlxState) {

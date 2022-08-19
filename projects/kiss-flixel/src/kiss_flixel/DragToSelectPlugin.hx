@@ -11,7 +11,7 @@ import openfl.geom.Rectangle;
 import flixel.util.FlxColor;
 
 typedef DragState = {
-    camera:FlxCamera,
+    camera:Null<FlxCamera>,
     debugLayer:DebugLayer,
     enabledSprites:Array<KissExtendedSprite>,
     selectedSprites:Array<KissExtendedSprite>,
@@ -44,7 +44,6 @@ class DragToSelectPlugin extends FlxBasic {
 
     public function enableSprite(s:KissExtendedSprite, ?state:FlxState, ?camera:FlxCamera) {
         if (state == null) state = FlxG.state;
-        if (camera == null) camera = FlxG.camera;
         if (!dragStates.exists(state)) {
             dragStates[state] = {
                 camera: camera,
@@ -54,6 +53,7 @@ class DragToSelectPlugin extends FlxBasic {
                 firstCorner: null,
                 secondCorner: null
             };
+            if (camera == null) camera = FlxG.camera;
             dragStates[state].debugLayer.cameras = [camera];
             state.add(dragStates[state].debugLayer);
         } else {
@@ -77,14 +77,17 @@ class DragToSelectPlugin extends FlxBasic {
             var dragState = dragStates[FlxG.state];
             dragState.debugLayer.clear();
 
+            var camera = dragState.camera;
+            if (camera == null) camera = FlxG.camera;
+
             // have to skip a frame after justPressed, so KissExtendedSprites
             // can get first access to the mouse input
             if (FlxMouseControl.dragTarget == null) {
                 if (wasJustPressed && FlxMouseControl.clickTarget == null) {
                     deselectSprites();
-                    dragState.firstCorner = FlxG.mouse.getWorldPosition(dragState.camera);
+                    dragState.firstCorner = FlxG.mouse.getWorldPosition(camera);
                 } 
-                dragState.secondCorner = FlxG.mouse.getWorldPosition(dragState.camera);
+                dragState.secondCorner = FlxG.mouse.getWorldPosition(camera);
                 if (dragState.firstCorner != null && dragState.selectedSprites.length == 0) {
                     var rounded1 = dragState.firstCorner.copyTo();
                     var rounded2 = dragState.secondCorner.copyTo();
