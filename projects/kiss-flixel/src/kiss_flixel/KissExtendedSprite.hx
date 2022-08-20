@@ -106,7 +106,11 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
     }
 
     var _dragToSelectEnabled = false;
-    public function enableDragToSelect(?state:FlxState, ?camera:FlxCamera) {
+    public var onSelected:Void->Void = null;
+    public var onDeselected:Void->Void;
+    public function enableDragToSelect(?onSelected:Void->Void, ?onDeselected:Void->Void, ?state:FlxState, ?camera:FlxCamera) {
+        this.onSelected = onSelected;
+        this.onDeselected = onDeselected;
         var plugin = FlxG.plugins.get(DragToSelectPlugin); 
         if (plugin == null) {
             plugin = new DragToSelectPlugin();
@@ -149,7 +153,6 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         }
     }
 
-    public var onSelected:Void->Void = null;
 
     public function pixelPerfectDrag() {
         return _dragPixelPerfect;

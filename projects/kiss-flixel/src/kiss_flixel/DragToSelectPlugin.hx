@@ -66,6 +66,11 @@ class DragToSelectPlugin extends FlxBasic {
     }
     
     public function deselectSprites() {
+        for (sprite in dragStates[FlxG.state].selectedSprites) {
+            if (sprite.onDeselected != null) {
+                sprite.onDeselected();
+            }
+        }
         dragStates[FlxG.state].selectedSprites = [];
     }
 

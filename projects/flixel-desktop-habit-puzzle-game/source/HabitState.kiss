@@ -299,6 +299,7 @@
         (unless (= lastRewardFileIndex rewardFileIndex)
             // Make a new camera so scroll from the last puzzle doesn't start the camera out of boundS
             (newPieceCamera)
+            (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
             (set rewardSprite
                 (new FlxSprite 0 0
                     (BitmapData.fromFile
@@ -388,7 +389,8 @@
                         (dictSet indexMap s i)
                         (dictSet spriteMap i s)
                         (set s.draggable true)
-                        (s.enableDragToSelect)
+                        
+                        
                         (s.enableMouseDrag false true)
                         (set s.mouseStartDragCallback
                             ->:Void [s x y]
@@ -413,7 +415,7 @@
                                     (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
                                     (save.flush)))
                                 
-                        (var ROT_PADDING 2)
+                        (var ROT_PADDING 4)
                         (localVar fWidth (+ (Std.int sourceRect.width) (* 2 ROT_PADDING)))
                         (localVar fHeight (+ (Std.int sourceRect.height) (* 2 ROT_PADDING)))
                         (source.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
@@ -421,15 +423,29 @@
                         
                         (mask.makeGraphic fWidth fHeight FlxColor.TRANSPARENT true)
                         (drawPieceShape mask jig ros FlxColor.BLACK)
-                        (FlxSpriteUtil.alphaMask s source.pixels mask.pixels)
-                        
-                        // Uncomment to debug piece ids and row/columns
+                        (localVar unhighlightedS (new FlxSprite))
+                        (FlxSpriteUtil.alphaMask unhighlightedS source.pixels mask.pixels)
+                        (localVar highlightedS (new FlxSprite))
+                        (s.loadGraphic unhighlightedS.pixels)
+                        (highlightedS.loadGraphic unhighlightedS.pixels false 0 0 true)
+                        (drawPieceShape highlightedS jig ros FlxColor.TRANSPARENT FlxColor.LIME)
+
+                        (localFunction loadRotatedGraphic [:FlxSprite _s]
+                            (s.loadRotatedGraphic _s.pixels 4 -1))
+                        (loadRotatedGraphic unhighlightedS)
+
+                        (s.enableDragToSelect
+                            ->:Void {
+                                (loadRotatedGraphic highlightedS)
+                            }
+                            ->:Void {
+                                (loadRotatedGraphic unhighlightedS)
+                            })
+
                         **(#when debug
                             (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
                             (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
                         
-                        (s.loadRotatedGraphic s.pixels 4 -1 /*false true*/)
-
                         (set s.cameras [pieceCamera])
                         
 

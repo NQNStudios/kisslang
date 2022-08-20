@@ -46,13 +46,18 @@ typedef StartPuzzleFunc = (Int, Int) -> Void;
 
 @:build(kiss.Kiss.build())
 class HabitState extends FlxState {
-    public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, scale:Float, c: FlxColor )
+    public function drawPieceShape( surface: FlxSprite, jig: JigsawPiece, scale:Float, fillColor: FlxColor, ?outlineColor: FlxColor)
     {
+        if (outlineColor == null) outlineColor = fillColor;
         var points = [for (point in jig.getPoints()) new FlxPoint(point.x / scale + ROT_PADDING, point.y / scale + ROT_PADDING)];
         points.push(points[0]);
         FlxSpriteUtil.drawPolygon(
             surface, 
             points,
-            c);
+            fillColor, 
+            {
+                thickness: 1,
+                color: outlineColor
+            });
     }
 }
