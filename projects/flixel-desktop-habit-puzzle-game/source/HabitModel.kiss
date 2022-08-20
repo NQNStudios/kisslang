@@ -3,7 +3,7 @@
 (prop :Array<Entry> intervalEntries [])
 (prop :Array<Entry> bonusEntries [])
 (prop :Array<Entry> todoEntries [])
-(prop :Array<RewardFile> rewardFiles [])
+(prop :kiss.List<RewardFile> rewardFiles [])
 
 (defNew [&prop :String textFile]
     (let [s (Stream.fromFile textFile)
@@ -30,12 +30,16 @@
                 ((when (= lastHeader "FILES") (Some line))
                     (rewardFiles.push
                         (let [parts (line.split " ")
+                                skipped (case (parts.pop)
+                                            ("true" true)
+                                            ("false" false)
+                                            (otherwise (throw "bad bool")))
                                 piecesPerPoint (Std.parseInt (parts.pop))
                                 puzzleHeight (Std.parseInt (parts.pop))
                                 puzzleWidth (Std.parseInt (parts.pop))
                                 startingPoints (Std.parseInt (parts.pop))
                                 path (parts.join " ")]
-                            (objectWith path startingPoints puzzleWidth puzzleHeight piecesPerPoint))))
+                            (objectWith path startingPoints puzzleWidth puzzleHeight piecesPerPoint skipped))))
                 ((Some line)
                     (.push
                         (case lastHeader
@@ -141,7 +145,7 @@
                         "${label.label} $(* "|" label.points)") "/")")
 
 (function :String stringifyRewardFile [:RewardFile rewardFile]
-    "${rewardFile.path} ${rewardFile.startingPoints} ${rewardFile.puzzleWidth} ${rewardFile.puzzleHeight} ${rewardFile.piecesPerPoint}")
+    "${rewardFile.path} ${rewardFile.startingPoints} ${rewardFile.puzzleWidth} ${rewardFile.puzzleHeight} ${rewardFile.piecesPerPoint} ${rewardFile.skipped}")
 
 (method :Void save []
     (localVar &mut content "DAILY\n-----\n")
@@ -223,5 +227,9 @@
     (save))
 
 (method addRewardFile [path startingPoints puzzleWidth puzzleHeight piecesPerPoint]
-    (rewardFiles.push (objectWith path startingPoints puzzleWidth puzzleHeight piecesPerPoint))
+    (rewardFiles.push (objectWith [skipped false] path startingPoints puzzleWidth puzzleHeight piecesPerPoint))
+    (save))
+
+(method skipRewardFile []
+    (set .skipped (last rewardFiles) true)
     (save))

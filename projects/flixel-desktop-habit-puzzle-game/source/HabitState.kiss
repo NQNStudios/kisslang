@@ -135,19 +135,23 @@
 
     
     // Left and right arrow keys can switch between unlocked puzzles
-    (unless entryNameText
+    (unless (or entryNameText (tempWindowIsShown))
         (when FlxG.keys.justPressed.LEFT
             (defAndCall method clearBar
                 (when bar
                     (remove bar)
                     (remove asyncLoop)))
-            (unless (= rewardFileIndex 0)
-                (-= rewardFileIndex 1)
+            (unless (= rewardFileIndex minRewardFile)
+                --rewardFileIndex
+                (while .skipped (nth model.rewardFiles rewardFileIndex)
+                    --rewardFileIndex)
                 (refreshModel)))
         (when FlxG.keys.justPressed.RIGHT
             (clearBar)
             (unless (= rewardFileIndex maxRewardFile)
-                (+= rewardFileIndex 1)
+                ++rewardFileIndex
+                (while .skipped (nth model.rewardFiles rewardFileIndex)
+                    ++rewardFileIndex)
                 (refreshModel)))))
 
 (prop &mut :FlxSave save null)
@@ -195,7 +199,8 @@
 
 (prop &mut lastRewardFileIndex -1)
 (prop &mut rewardFileIndex 0)
-(prop &mut maxRewardFile 0)
+(prop &mut :Null<Int> minRewardFile null)
+(prop &mut :Null<Int> maxRewardFile null)
 
 (defAlias &ident SCROLL_BOUND_MARGIN (scrollBoundMargin))
 
@@ -218,11 +223,16 @@
         (unless currentRewardFile
             (set currentRewardFile (nth m.rewardFiles 0))
             
-            (if m.rewardFiles
+            (cond
+                ((and m.rewardFiles !.skipped (last m.rewardFiles))
                     (while (> p .startingPoints (nth m.rewardFiles i))
                         (set rewardFileIndex i)
                         (set currentRewardFile (nth m.rewardFiles i))
-                        (set maxRewardFile i)
+                        (unless minRewardFile
+                            (unless .skipped (nth m.rewardFiles i)
+                                (set minRewardFile i)))
+                        (unless .skipped (nth m.rewardFiles i)
+                            (set maxRewardFile i))
                         (when (>= ++i m.rewardFiles.length)
                             --i
                             (let [lastStartingPoints .startingPoints (nth m.rewardFiles i)
@@ -230,8 +240,11 @@
                                     nextStartingPoints (+ lastStartingPoints (Math.ceil (/ TOTAL_PIECES piecesPerPoint)))]
                                 (when (> p nextStartingPoints)
                                     (set puzzleUnlocked nextStartingPoints))
-                                (break))))
-                (set puzzleUnlocked 0)))
+                                (break)))))
+                ((and m.rewardFiles .skipped (last m.rewardFiles))
+                    (set puzzleUnlocked (- p 1)))   
+                (true
+                    (set puzzleUnlocked 0))))
         
         (when m.rewardFiles
             (makeRewardSprites m p currentRewardFile))
@@ -244,7 +257,20 @@
         (set entryWindow.cameras [uiCamera])
         (set entryWindow.textColor FlxColor.LIME)
         (when m.rewardFiles
-            (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (max 0 (- TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints))))))
+            (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (max 0 (- TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints)))))
+            (set entryWindow.textColor FlxColor.GRAY)
+            (_makeText "{space} Cycle background color" 0
+                ->_
+                    (defAndCall method toggleBackgroundColor
+                        (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
+                        (save.flush)
+                        (refreshModel)))
+            (when (= rewardFileIndex (- m.rewardFiles.length 1))
+                (_makeText "Abandon this puzzle" 0
+                    ->_
+                        (defAndCall method skipPuzzle
+                            (model.skipRewardFile)
+                            (setModel model)))))
         (set entryWindow.textColor FlxColor.ORANGE)
         (map (m.activeDailyEntries) makeText)
         (set entryWindow.textColor FlxColor.GREEN)
@@ -255,15 +281,7 @@
         (map (m.activeBonusEntries) makeText)
         (set entryWindow.textColor FlxColor.YELLOW)
         (map (m.activeTodoEntries) makeText)
-        (set entryWindow.textColor FlxColor.GRAY)
-        (when m.rewardFiles
-            (_makeText "{space} Cycle background color" 0
-                ->_
-                    (defAndCall method toggleBackgroundColor
-                        (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
-                        (save.flush)
-                        // setModel so the entry text gets remade in inverted/lightened colors when necessary
-                        (refreshModel))))
+        
         (when windowWasShown
             (entryWindow.show))
         

@@ -33,7 +33,9 @@ typedef RewardFile = {
     startingPoints: Int,
     puzzleWidth: Int,
     puzzleHeight: Int,
-    piecesPerPoint: Int
+    piecesPerPoint: Int,
+    skipped: Bool
+
 };
 
 typedef Puzzle = {
