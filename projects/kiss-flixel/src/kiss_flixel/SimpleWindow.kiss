@@ -39,15 +39,18 @@
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
 
+
+(prop :Map<FlxSprite,Action> _actions (new Map))
+(prop :Map<FlxSprite,FlxColor> _colors (new Map))
 (method makeText [:String text &opt :FlxColor color :Action onClick]
     (let [ftext (new FlxText x nextControlY 0 text textSize)]
         (set ftext.color (or color textColor))
+        (dictSet _colors ftext ftext.color)
         (set ftext.cameras this.cameras)
         (controls.add ftext)
         (+= nextControlY ftext.height)
         (when onClick
-            // TODO enable mouse click
-            // TODO make a highlight color
+            (dictSet _actions ftext onClick)
             // TODO right click?
             (keyHandler.registerItem text ->:Void (onClick ftext)))
         ftext))
@@ -59,6 +62,7 @@
 (method isShown [] _shown)
 
 (method clearControls []
+    (_actions.clear)
     (controls.clear)
     (keyHandler.clear)
     (set nextControlY y)
@@ -80,9 +84,32 @@
         (keyHandler.cancel)
         (set _shown false)))
 
+(function getHighlighted [:FlxColor color &opt :Float amount]
+    (unless amount (set amount 0.2))
+    (cond ((> color.lightness amount)
+            (color.getDarkened amount))
+        (true
+            (color.getLightened amount))))
+
+(prop &mut otherIsSelected false)
 (method &override update [:Float elapsed]
     (super.update elapsed)
+    (set otherIsSelected false)
     (when (= (last windowStack) this)
         (keyHandler.update)
-        // TODO handle mouse input
-        ))
+        // Handle mouse input
+        (let [camera (first (or cameras []))
+                mousePos (FlxG.mouse.getScreenPosition camera)]
+            (controls.forEach ->text
+                    (whenLet [onClick (dictGet _actions text)]
+                        (let [color (dictGet _colors text)]
+                            (if (and !otherIsSelected (.containsPoint (text.getScreenBounds camera) mousePos))
+                                    {
+                                        (when FlxG.mouse.justPressed
+                                            (onClick text))
+                                        (set otherIsSelected true)
+                                        (set text.color (getHighlighted color))
+                                    }
+                                {
+                                    (set text.color color)
+                                })))))))
