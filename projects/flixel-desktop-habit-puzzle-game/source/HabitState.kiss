@@ -70,7 +70,7 @@
                             (debugLayer.drawFlxRect z FlxColor.RED)))))))
     
     (when model.rewardFiles 
-        (unless (windowIsShown)
+        (unless (or bar (windowIsShown))
             (let [zoom pieceCamera.zoom
                     scroll (pieceCamera.scroll.copyTo)]
                 (pieceCamera.updateScrollWheelZoom elapsed 5)
@@ -142,10 +142,15 @@
     // Left and right arrow keys can switch between unlocked puzzles
     (unless entryNameText
         (when FlxG.keys.justPressed.LEFT
+            (defAndCall method clearBar
+                (when bar
+                    (remove bar)
+                    (remove asyncLoop)))
             (unless (= rewardFileIndex 0)
                 (-= rewardFileIndex 1)
                 (refreshModel)))
         (when FlxG.keys.justPressed.RIGHT
+            (clearBar)
             (unless (= rewardFileIndex maxRewardFile)
                 (+= rewardFileIndex 1)
                 (refreshModel)))))
@@ -342,8 +347,9 @@
 
         (unless rewardSprites
             (set rewardSprites (new FlxTypedGroup))
-            // add rewardSprites group before enabling drag-to-select on instances
-            (add rewardSprites))
+            // add rewardSprites group before enabling drag-to-select on instances, but kill it so pieces aren't rendered until they are all loaded
+            (add rewardSprites)
+            (rewardSprites.kill))
         
         (let [r (new FlxRandom (Strings.hashCode currentRewardFile.path))
                 ros (roughOptimalScale)
@@ -370,8 +376,14 @@
             (r.shuffle jigsaw.jigs)
             (localVar spriteGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) null)))
             (localVar indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) -1)))
-            (doFor i (range (min TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints))))
-                (let [jig (nth jigsaw.jigs i)
+            
+            (localVar piecesUnlocked (min TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints))))
+            (localVar piecesAlreadyMade rewardSprites.length)
+            (localVar newPieces (- piecesUnlocked piecesAlreadyMade))
+
+            (localVar makeJig -+>count []
+                (let [i (+ piecesAlreadyMade count -1)
+                        jig (nth jigsaw.jigs i)
                         pos (ifLet [point (dictGet (the Map<Int,FlxPoint> save.data.storedPositions) i)]
                                     point
                                 (.addPoint (nth startingPoints i) camera.scroll))
@@ -453,35 +465,55 @@
                             (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
                         
                         (set s.cameras [pieceCamera])
-                        
 
                         (rewardSprites.add s))))
-            (doFor row (range PUZZLE_HEIGHT)
-                (doFor col (range PUZZLE_WIDTH)
-                    (let [id (nth indexGrid row col)]
-                        (when (= id -1) (continue))
-                        (when (>= (- col 1) 0)
-                            (let [toLeft (nth spriteGrid row (- col 1))]
-                                (dictSet matchingPiecesLeft id toLeft)))
-                        (when (< (+ col 1) PUZZLE_WIDTH)
-                            (let [toRight (nth spriteGrid row (+ col 1))]
-                                (dictSet matchingPiecesRight id toRight)))
-                        (when (>= (- row 1) 0)
-                            (let [toUp (nth spriteGrid (- row 1) col)]
-                                (dictSet matchingPiecesUp id toUp)))
-                        (when (< (+ row 1) PUZZLE_HEIGHT)
-                            (let [toDown (nth spriteGrid (+ row 1) col)]
-                                (dictSet matchingPiecesDown id toDown))))))
-            (doFor i (range TOTAL_PIECES)
-                (checkMatches i))))
+            
+            (prop &mut :FlxBar bar null)
+            (prop &mut :FlxAsyncLoop asyncLoop null)
+            (set bar (new FlxBar 0 0 LEFT_TO_RIGHT (iThird FlxG.width) SimpleWindow.textSize rewardSprites "length" 0 piecesUnlocked true))
+            (set bar.cameras [uiCamera])
+            (set asyncLoop (new FlxAsyncLoop newPieces makeJig 1))
+            (bar.createColoredEmptyBar (FlxColor.LIME.getDarkened) true FlxColor.LIME)
+            (bar.createColoredFilledBar FlxColor.LIME false)
+            (bar.screenCenter)
+            (set bar.filledCallback ->:Void {
+                (remove bar)
+                (remove asyncLoop)
+                (rewardSprites.revive)
+                (doFor row (range PUZZLE_HEIGHT)
+                    (doFor col (range PUZZLE_WIDTH)
+                        (let [id (nth indexGrid row col)]
+                            (when (= id -1) (continue))
+                            (when (>= (- col 1) 0)
+                                (let [toLeft (nth spriteGrid row (- col 1))]
+                                    (dictSet matchingPiecesLeft id toLeft)))
+                            (when (< (+ col 1) PUZZLE_WIDTH)
+                                (let [toRight (nth spriteGrid row (+ col 1))]
+                                    (dictSet matchingPiecesRight id toRight)))
+                            (when (>= (- row 1) 0)
+                                (let [toUp (nth spriteGrid (- row 1) col)]
+                                    (dictSet matchingPiecesUp id toUp)))
+                            (when (< (+ row 1) PUZZLE_HEIGHT)
+                                (let [toDown (nth spriteGrid (+ row 1) col)]
+                                    (dictSet matchingPiecesDown id toDown))))))
+                (doFor i (range TOTAL_PIECES)
+                    (checkMatches i))
+                (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
+                (when save.data.zoom
+                    (set pieceCamera.zoom save.data.zoom)
+                    (set pieceCamera.scroll save.data.scroll))
+                (set bar null)
+                (set asyncLoop null)
+            })
+            (add bar)
+            (add asyncLoop)
+            
+            
+            (asyncLoop.start)))
     (set lastRewardFileIndex rewardFileIndex)
     (prop &mut lastTotalPoints -1)
     (set lastTotalPoints (m.totalPoints))
 
-    (pieceCamera.calculateScrollBounds rewardSprites uiCamera SCROLL_BOUND_MARGIN)
-    (when save.data.zoom
-        (set pieceCamera.zoom save.data.zoom)
-        (set pieceCamera.scroll save.data.scroll))
     (set pieceCamera.bgColor (nth backgroundOptions save.data.backgroundIndex))
 
     (save.flush))
@@ -598,7 +630,8 @@
                 (connectPiece id s ,to mz1 mz2)))))
 
 (method :Bool checkMatches [id]
-    (when !(pieceData.exists id) (return false))
+    (when !(pieceData.exists id) 
+        (return false))
     (let [s (dictGet spriteMap id)
             jig (dictGet pieceData id)
             row jig.row

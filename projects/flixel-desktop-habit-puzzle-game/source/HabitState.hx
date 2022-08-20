@@ -31,6 +31,8 @@ import sys.FileSystem;
 import hx.strings.Strings;
 import datetime.DateTime;
 import flixel.ui.FlxButton;
+import flixel.ui.FlxBar;
+import flixel.addons.util.FlxAsyncLoop;
 using kiss_flixel.CameraTools;
 using kiss_flixel.GroupTools;
 using kiss_flixel.DebugLayer;
