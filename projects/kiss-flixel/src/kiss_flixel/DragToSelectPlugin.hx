@@ -80,14 +80,22 @@ class DragToSelectPlugin extends FlxBasic {
             var camera = dragState.camera;
             if (camera == null) camera = FlxG.camera;
 
+            // If FlxMouseControl has a mouseZone enabled, respect it
+            var mousePos = FlxG.mouse.getWorldPosition(camera);
+            if (FlxMouseControl.mouseZone != null && !FlxMouseControl.mouseZone.containsPoint(mousePos)) {
+                dragState.firstCorner = null;
+                dragState.secondCorner = null;
+                return;
+            }
+
             // have to skip a frame after justPressed, so KissExtendedSprites
             // can get first access to the mouse input
             if (FlxMouseControl.dragTarget == null) {
                 if (wasJustPressed && FlxMouseControl.clickTarget == null) {
                     deselectSprites();
-                    dragState.firstCorner = FlxG.mouse.getWorldPosition(camera);
+                    dragState.firstCorner = mousePos;
                 } 
-                dragState.secondCorner = FlxG.mouse.getWorldPosition(camera);
+                dragState.secondCorner = mousePos;
                 if (dragState.firstCorner != null && dragState.selectedSprites.length == 0) {
                     var rounded1 = dragState.firstCorner.copyTo();
                     var rounded2 = dragState.secondCorner.copyTo();

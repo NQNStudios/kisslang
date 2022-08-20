@@ -41,9 +41,13 @@
 (prop &mut :DebugLayer debugLayer null)
 
 (prop &mut t 1)
+(prop :FlxRect disableMouse (new FlxRect 0 0 0 0))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
 
+    (if (windowIsShown)
+            (set FlxMouseControl.mouseZone disableMouse)
+        (set FlxMouseControl.mouseZone null))
 
     (#when debug
         (debugLayer.clear)
@@ -60,17 +64,18 @@
                         (unless z.isEmpty
                             (debugLayer.drawFlxRect z FlxColor.RED)))))))
     
-    (when model.rewardFiles
-        (let [zoom pieceCamera.zoom
-                scroll (pieceCamera.scroll.copyTo)]
-            (pieceCamera.updateScrollWheelZoom elapsed 5)
-            (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
-            (when (or !(= zoom pieceCamera.zoom) !(scroll.equals pieceCamera.scroll))
-                (set save.data.zoom pieceCamera.zoom)
-                (set save.data.scroll pieceCamera.scroll)
-                (save.flush)))
+    (when model.rewardFiles 
+        (unless (windowIsShown)
+            (let [zoom pieceCamera.zoom
+                    scroll (pieceCamera.scroll.copyTo)]
+                (pieceCamera.updateScrollWheelZoom elapsed 5)
+                (pieceCamera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.002 uiCamera)
+                (when (or !(= zoom pieceCamera.zoom) !(scroll.equals pieceCamera.scroll))
+                    (set save.data.zoom pieceCamera.zoom)
+                    (set save.data.scroll pieceCamera.scroll)
+                    (save.flush))))
 
-        (when entryWindow
+        (when (and entryWindow !(tempWindowIsShown))
             (when FlxG.keys.justPressed.ESCAPE
                 (if (entryWindow.isShown)
                         (entryWindow.hide)
@@ -97,15 +102,15 @@
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
     {
-        (when FlxG.mouse.justPressedRight
-            (when draggingSprite
-                (draggingSprite.rotate 90)
-                (doFor s (recursivelyConnectedPieces draggingSprite)
-                    (dictSet (the Map<Int,Float> save.data.storedAngles) (dictGet indexMap s) s.angle)
-                    (dictSet (the Map<Int,FlxPoint> save.data.storedOrigins) (dictGet indexMap s) s.origin))
-                (save.flush)))
 
-        
+        (unless (windowIsShown)
+            (when FlxG.mouse.justPressedRight
+                (when draggingSprite
+                    (draggingSprite.rotate 90)
+                    (doFor s (recursivelyConnectedPieces draggingSprite)
+                        (dictSet (the Map<Int,Float> save.data.storedAngles) (dictGet indexMap s) s.angle)
+                        (dictSet (the Map<Int,FlxPoint> save.data.storedOrigins) (dictGet indexMap s) s.origin))
+                    (save.flush))))
         
         (method startAdding [:EntryType type]
             (set typeAdding type)
@@ -142,6 +147,20 @@
 
 (prop &mut :FlxSave save null)
 (prop &mut :SimpleWindow entryWindow null)
+// TODO add other windows and add them to the windowIsShown and tempWindowIsShown lists
+
+(method windowIsShown []
+    (doFor window [entryWindow]
+        (when (and window (window.isShown))
+            (return true)))
+    false)
+
+(method tempWindowIsShown []
+    (doFor window []
+        (when (and window (window.isShown))
+            (return true)))
+    false)
+
 (prop &mut :FlxTypedGroup<FlxText> logTexts (new FlxTypedGroup))
 (prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
