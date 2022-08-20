@@ -86,12 +86,7 @@
                         (entryWindow.hide)
                     (entryWindow.show))))
 
-        (when (and FlxG.keys.justPressed.SPACE !entryNameText)
-            (defAndCall method toggleBackgroundColor
-                (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
-                (save.flush)
-                // setModel so the entry text gets remade in inverted/lightened colors when necessary
-                (refreshModel)))
+            
 
         (#when debug
             (when FlxG.keys.justPressed.SEMICOLON
@@ -262,7 +257,13 @@
         (map (m.activeTodoEntries) makeText)
         (set entryWindow.textColor FlxColor.GRAY)
         (when m.rewardFiles
-            (_makeText "[SPACE] Cycle background color" 0))
+            (_makeText "{space} Cycle background color" 0
+                ->_
+                    (defAndCall method toggleBackgroundColor
+                        (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
+                        (save.flush)
+                        // setModel so the entry text gets remade in inverted/lightened colors when necessary
+                        (refreshModel))))
         (when windowWasShown
             (entryWindow.show))
         
