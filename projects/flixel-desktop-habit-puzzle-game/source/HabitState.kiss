@@ -46,7 +46,12 @@
     (super.update elapsed)
 
     (if (windowIsShown)
-            (set FlxMouseControl.mouseZone disableMouse)
+            {
+                (set FlxMouseControl.mouseZone disableMouse)
+                (when FlxMouseControl.dragTarget
+                    (FlxMouseControl.dragTarget.stopDrag)
+                    (set FlxMouseControl.dragTarget null))
+            }
         (set FlxMouseControl.mouseZone null))
 
     (#when debug
@@ -442,6 +447,7 @@
                                 (loadRotatedGraphic unhighlightedS)
                             })
 
+                        // Uncomment to debug piece IDs
                         **(#when debug
                             (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
                             (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))

@@ -83,4 +83,6 @@
 (method &override update [:Float elapsed]
     (super.update elapsed)
     (when (= (last windowStack) this)
-        (keyHandler.update)))
+        (keyHandler.update)
+        // TODO handle mouse input
+        ))
