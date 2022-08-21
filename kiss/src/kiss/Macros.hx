@@ -1294,6 +1294,12 @@ class Macros {
             return Quasiquote(b.let(bindings, body)).withPosOf(wholeExp);
         };
 
+        k.doc("printLocals", 0, 0, "(printLocals)");
+        macros["printLocals"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            b.begin([for (v in k.typeHints) b.callSymbol("print", [b.symbol(v.name), b.str(v.name)])]);
+        };
+
         return macros;
     }
 
