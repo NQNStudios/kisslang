@@ -1294,12 +1294,29 @@ class Macros {
             return Quasiquote(b.let(bindings, body)).withPosOf(wholeExp);
         };
 
-        k.doc("printLocals", 0, 0, "(printLocals)");
-        macros["printLocals"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+        function printAll (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var b = wholeExp.expBuilder();
-            b.begin([for (v in k.typeHints) b.callSymbol("print", [b.symbol(v.name), b.str(v.name)])]);
-        };
+            var list = if (locals) k.localVarsInScope else k.varsInScope;
+            return b.begin([for (v in list) b.callSymbol("print", [b.symbol(v.name), b.str(v.name)])]);
+        }
+        k.doc("printAll", 0, 0, "(printAll)");
+        macros["printAll"] = printAll.bind(false);
+        k.doc("printLocals", 0, 0, "(printLocals)");
+        macros["printLocals"] = printAll.bind(true);
 
+        k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
+        function printAllNulls (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            var b = wholeExp.expBuilder();
+            var list = if (locals) k.localVarsInScope else k.varsInScope;
+            return b.begin([for (v in list) {
+                        var symbol = b.symbol(v.name);
+                        b.callSymbol("unless", [symbol,
+                                            b.callSymbol("print", [symbol, b.str(v.name)])]);}]);
+        };
+        k.doc("printAllNulls", 0, 0, "(printAllNulls)");
+        macros["printAllNulls"] = printAllNulls.bind(false);
+        k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
+        macros["printLocalNulls"] = printAllNulls.bind(true);
         return macros;
     }
 

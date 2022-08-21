@@ -59,6 +59,8 @@ typedef KissState = {
     collectedBlocks:Map<String, Array<ReaderExp>>,
     inStaticFunction:Bool,
     typeHints:Array<Var>,
+    varsInScope:Array<Var>,
+    localVarsInScope:Array<Var>,
     conversionStack:Array<ReaderExp>,
     stateChanged:Bool
 };
@@ -170,6 +172,8 @@ class Kiss {
             collectedBlocks: new Map(),
             inStaticFunction: false,
             typeHints: [],
+            varsInScope: [],
+            localVarsInScope: [],
             conversionStack: [],
             stateChanged: false
         };
@@ -551,6 +555,26 @@ class Kiss {
         #end
 
         return expr;
+    }
+    
+    public static function addVarInScope(k: KissState, v:Var, local:Bool) {
+        if (v.type != null)
+            k.typeHints.push(v);
+        k.varsInScope.push(v);
+        if (local)
+            k.localVarsInScope.push(v);
+    }
+
+    public static function removeVarInScope(k: KissState, v:Var, local:Bool) {
+        function removeLast(list:Array<Var>, v:Var) {
+            var index = list.lastIndexOf(v);
+            list.splice(index, 1);
+        }
+        if (v.type != null)
+            removeLast(k.typeHints, v);
+        removeLast(k.varsInScope, v);
+        if (local)
+            removeLast(k.localVarsInScope, v);
     }
 
     static function disableMacro(copy:KissState, m:String, reason:String) {

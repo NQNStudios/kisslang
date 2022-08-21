@@ -207,8 +207,7 @@ class Helpers {
         }];
 
         for (v in vars) {
-            if (v.type != null)
-                k.typeHints.push(v);
+            k.addVarInScope(v, true);
         }
 
         var expr = if (body.length == 0) {
@@ -224,8 +223,7 @@ class Helpers {
         }
 
         for (v in vars) {
-            if (v.type != null)
-                k.typeHints.remove(v);
+            k.removeVarInScope(v, true);
         }
 
         // To make function args immutable by default, we would use (let...) instead of (begin...)

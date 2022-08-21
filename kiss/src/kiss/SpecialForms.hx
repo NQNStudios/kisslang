@@ -204,8 +204,7 @@ class SpecialForms {
             }
 
             for (v in varDefs) {
-                if (v.type != null)
-                    k.typeHints.push(v);
+                k.addVarInScope(v, true);
             }
 
             var block = EBlock([
@@ -214,8 +213,7 @@ class SpecialForms {
             ]).withMacroPosOf(wholeExp);
 
             for (v in varDefs) {
-                if (v.type != null)
-                    k.typeHints.remove(v);
+                k.removeVarInScope(v, true);
             }
 
             block;

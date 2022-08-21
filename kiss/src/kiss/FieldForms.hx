@@ -103,7 +103,7 @@ class FieldForms {
 
             var type = Helpers.explicitType(args[0]);
             if (type != null)
-                k.typeHints.push({name: name, type: type});
+                k.addVarInScope({name: name, type: type}, false);
 
             ({
                 name: name,
