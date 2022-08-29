@@ -244,7 +244,7 @@
                                     (set puzzleUnlocked nextStartingPoints))
                                 (break)))))
                 ((and m.rewardFiles .skipped (last m.rewardFiles))
-                    (set puzzleUnlocked (- p 1)))   
+                    (set puzzleUnlocked (max 0 (- p 1))))  
                 (true
                     (set puzzleUnlocked 0))))
         
@@ -561,7 +561,8 @@
 (method _makeText [:String s :Int points &opt :Action action]
     (entryWindow.makeText (+ s (pointsStr points)) action))
 
-(method log [:String message]
+(method :Void log [:String message]
+    (when (> message.length 100) (log (message.substr 0 100)) (return))
     (trace message)
     (prop &mut logTextY 0)
     (#when debug
@@ -576,25 +577,28 @@
             (logTexts.add text))))
 
 (method :FlxRect matchZone [:KissExtendedSprite s compass]
-    (let [bubblePoints (dictGet .bubblePoints (dictGet pieceData (dictGet indexMap s)) compass)]
-        (unless bubblePoints
-            (return (new FlxRect 0 0 0 0)))
-        (let [ros (roughOptimalScale)
-                pointsX (for point bubblePoints point.x)
-                pointsY (for point bubblePoints point.y)
-                minX (/ (apply min pointsX) ros)
-                minY (/ (apply min pointsY) ros)
-                maxX (/ (apply max pointsX) ros)
-                maxY (/ (apply max pointsY) ros)
-                tlc (.add (new FlxPoint minX minY) ROT_PADDING ROT_PADDING)
-                brc (.add (new FlxPoint maxX maxY) ROT_PADDING ROT_PADDING)
-                rotationPadding (s.getRotationPadding)
-                rect (.fromTwoPoints (new FlxRect) (tlc.addPoint rotationPadding) (brc.addPoint rotationPadding))
-                originOffset (new FlxPoint (- s.origin.x rect.x) (- s.origin.y rect.y))
-                rotated (rect.getRotatedBounds s.angle originOffset)]
-            (+= rotated.x s.x)
-            (+= rotated.y s.y)
-            rotated)))
+    (assertLet [id (dictGet indexMap s)
+                    jig (dictGet pieceData id)]
+        (let [bubblePoints (dictGet jig.bubblePoints compass)]
+            (unless bubblePoints
+                (return (new FlxRect 0 0 0 0)))
+            (printLocalNulls)
+            (let [ros (roughOptimalScale)
+                    pointsX (for point bubblePoints point.x)
+                    pointsY (for point bubblePoints point.y)
+                    minX (/ (apply min pointsX) ros)
+                    minY (/ (apply min pointsY) ros)
+                    maxX (/ (apply max pointsX) ros)
+                    maxY (/ (apply max pointsY) ros)
+                    tlc (.add (new FlxPoint minX minY) ROT_PADDING ROT_PADDING)
+                    brc (.add (new FlxPoint maxX maxY) ROT_PADDING ROT_PADDING)
+                    rotationPadding (s.getRotationPadding)
+                    rect (.fromTwoPoints (new FlxRect) (tlc.addPoint rotationPadding) (brc.addPoint rotationPadding))
+                    originOffset (new FlxPoint (- s.origin.x rect.x) (- s.origin.y rect.y))
+                    rotated (rect.getRotatedBounds s.angle originOffset)]
+                (+= rotated.x s.x)
+                (+= rotated.y s.y)
+                rotated))))
 
 (method :FlxRect matchZoneLeft [:KissExtendedSprite s]
     (matchZone s WEST))
