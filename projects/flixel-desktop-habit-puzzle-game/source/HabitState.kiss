@@ -59,14 +59,15 @@
     (#when debug
         (debugLayer.clear)
 
-        (when (and model.rewardFiles rewardSprites.alive)
+        (when (and model.rewardFiles rewardSprites.alive FlxG.debugger.visible)
             (doFor s rewardSprites
-                null
-                // Uncomment for debugging piece rotation:
-                //(debugLayer.drawCircle s.x s.y 1 FlxColor.RED)
-                //(debugLayer.drawCircle (+ s.x s.origin.x) (+ s.y s.origin.y) 1 FlxColor.LIME)
-                // Uncomment for debugging match zones:
-                **(let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
+
+                (let [i (dictGet indexMap s)
+                        jig (dictGet pieceData i)]
+                    (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
+                    (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
+
+                (let [matchZones [(matchZoneLeft s) (matchZoneRight s)(matchZoneUp s)(matchZoneDown s)]]
                     (doFor z matchZones
                         (unless z.isEmpty
                             (debugLayer.drawFlxRect z FlxColor.RED)))))))
@@ -482,11 +483,6 @@
                             ->:Void {
                                 (loadRotatedGraphic unhighlightedS)
                             })
-
-                        // Uncomment to debug piece IDs
-                        **(#when debug
-                            (kiss_flixel.SpriteTools.writeOnSprite "$i" 32 s (object x (Percent 0.5) y (Percent 0.5)) FlxColor.RED)
-                            (kiss_flixel.SpriteTools.writeOnSprite "(${jig.col},${jig.row})" 32 s (object x (Percent 0.5) y (Percent 0.7)) FlxColor.RED))
                         
                         (set s.cameras [pieceCamera])
 
