@@ -130,8 +130,9 @@ class Prelude {
 
     static function _max(values:Array<Dynamic>):Dynamic {
         var max = values[0];
-        for (value in values.slice(1))
+        for (value in values.slice(1)) {
             max = Math.max(max, value);
+        }
         return max;
     }
 

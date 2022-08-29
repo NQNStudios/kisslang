@@ -14,7 +14,9 @@
             :Float percentHeight]
     
     [:String title (or _title "")
+        &mut :Float nextControlX 0
         &mut :Float nextControlY 0
+        &mut :Int controlsPerColumn 0
         :FlxColor titleColor (or _textColor FlxColor.WHITE)
         &mut :FlxColor textColor (or _textColor FlxColor.WHITE)
         :FlxTypedGroup<FlxSprite> controls (new FlxTypedGroup)
@@ -26,7 +28,12 @@
         (Std.int (* FlxG.height (or percentHeight 0.5)))
         (or bgColor FlxColor.BLACK))
     (screenCenter)
+    (set nextControlX x)
     (set nextControlY y)
+
+    (let [textHeight
+            .height (new FlxText 0 0 0 "a" textSize)]
+        (set controlsPerColumn (Math.floor (/ height textHeight))))
     
     (when title
         (makeText title null))
@@ -45,12 +52,18 @@
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
 (method makeText [:String text &opt :FlxColor color :Action onClick]
-    (let [ftext (new FlxText x nextControlY 0 text textSize)]
+    (let [ftext (new FlxText nextControlX nextControlY 0 text textSize)]
         (set ftext.color (or color textColor))
         (dictSet _colors ftext ftext.color)
         (set ftext.cameras this.cameras)
         (controls.add ftext)
         (+= nextControlY ftext.height)
+        (when (= 0 (% controls.length controlsPerColumn))
+            (set nextControlY y)
+            (when title (+= nextControlY ftext.height))
+            (+= nextControlX (apply max
+                                (for control (last (groups controls.members controlsPerColumn))
+                                    control.width)) textSize))
         (when onClick
             (dictSet _actions ftext onClick)
             // TODO right click?
