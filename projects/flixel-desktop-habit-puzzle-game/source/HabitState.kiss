@@ -117,6 +117,8 @@
         (method startAdding [:EntryType type]
             (set typeAdding type)
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
+            (when entryWindow
+                (set entryWindow.keyboardEnabled false))
             (set entryNameText.cameras [uiCamera])
             (set entryNameText.hasFocus true)
             (add entryNameText))
@@ -128,7 +130,9 @@
                     (model.addEntry typeAdding [entryNameText.text])
                     (refreshModel)
                     (entryNameText.kill)
-                    (set entryNameText null))
+                    (set entryNameText null)
+                    (when entryWindow
+                        (set entryWindow.keyboardEnabled true)))
                 (true
                     (startAdding Todo))))
         (when FlxG.keys.justPressed.UP
@@ -173,7 +177,6 @@
     false)
 
 (prop &mut :FlxTypedGroup<FlxText> logTexts (new FlxTypedGroup))
-(prop &mut :FlxKeyShortcutHandler<Entry> shortcutHandler null)
 
 (prop &mut :HabitModel model null)
 
@@ -216,7 +219,6 @@
 
 (method :Void setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
-    (set shortcutHandler (new FlxKeyShortcutHandler))
 
     (let [p (m.totalPoints)
             &mut i 0

@@ -2,6 +2,8 @@
 (var &mut textSize 16)
 (var :kiss.List<SimpleWindow> windowStack [])
 
+(prop &mut keyboardEnabled true)
+
 // TODO tooltip support with left-click and right-click action
 // icons and explanations
 
@@ -96,7 +98,8 @@
     (super.update elapsed)
     (set otherIsSelected false)
     (when (= (last windowStack) this)
-        (keyHandler.update)
+        (when keyboardEnabled
+            (keyHandler.update))
         // Handle mouse input
         (let [camera (first (or cameras []))
                 mousePos (FlxG.mouse.getScreenPosition camera)]
