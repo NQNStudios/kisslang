@@ -164,13 +164,10 @@
 (prop &mut :SimpleWindow puzzlePackChoiceWindow null)
 
 (method windowIsShown []
-    (doFor window [entryWindow]
-        (when (and window (window.isShown))
-            (return true)))
-    false)
+    (or (tempWindowIsShown) (and entryWindow (entryWindow.isShown))))
 
 (method tempWindowIsShown []
-    (doFor window []
+    (doFor window [puzzlePackChoiceWindow]
         (when (and window (window.isShown))
             (return true)))
     false)
@@ -686,42 +683,33 @@
                                                                                                         h (max 1 (Math.round (* aspectRatioY chosenSize)))]
                                                                                                     (model.addRewardFile np.path nextStartingPoints w h pointsPerPiece)
                                                                                                         (setModel model)))
-                                                                                    (startPuzzlePackChoice nextStartingPoints))))
+                                                                                    (startPuzzlePackChoice nextStartingPoints))
+                                                            null null FlxColor.LIME null 0.9))
     (set puzzlePackChoiceWindow.cameras [uiCamera]))
 
 (var MIN_PUZZLE_SIZE 5)
 (var MAX_PUZZLE_SIZE 32)
 (var PUZZLE_SIZE_OPTIONS (collect (range MIN_PUZZLE_SIZE MAX_PUZZLE_SIZE 2)))
-(method startPuzzleSizeChoice [:StartPuzzleFunc startPuzzle]
-    (set nextPuzzleChoiceGroup (new FlxGroup))
-    (set nextPuzzleChoiceGroup.cameras [uiCamera])
-    (add nextPuzzleChoiceGroup)
-    (let [x 0 &mut y 0 &mut :FlxButton b null]
-        // TODO also limit puzzle size by rewardSprite dimensions (which are available in bmd in startPuzzlePackChoice())
-        (doFor size PUZZLE_SIZE_OPTIONS
-            (set b (new FlxButton x y "$(* size size)" ->:Void {
-                (remove nextPuzzleChoiceGroup)
-                (startPiecesPerPointChoice size startPuzzle)
-            }))
-            (nextPuzzleChoiceGroup.add b)
-            (+= y b.height))))
+(method :Void startPuzzleSizeChoice [:StartPuzzleFunc startPuzzle]
+    (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "Approx. # of Pieces:"
+                                                                // TODO also limit puzzle size by rewardSprite dimensions (which are available in bmd in startPuzzlePackChoice())
+                                                                (for size PUZZLE_SIZE_OPTIONS (* size size))
+                
+                                                                ->:Void [:Int size] (startPiecesPerPointChoice (Std.int (Math.sqrt size)) startPuzzle)
+                                                                null null FlxColor.LIME null 0.9))
+    (set puzzlePackChoiceWindow.cameras [uiCamera]))
 
-(method startPiecesPerPointChoice [size :StartPuzzleFunc startPuzzle]
-    (set nextPuzzleChoiceGroup (new FlxGroup))
-    (set nextPuzzleChoiceGroup.cameras [uiCamera])
-    (add nextPuzzleChoiceGroup)
-    (let [x 0 &mut y 0 maxPPP (Math.round (/ (* size size) (* MIN_PUZZLE_SIZE MIN_PUZZLE_SIZE))) &mut :FlxButton b null]
+(method :Void startPiecesPerPointChoice [size :StartPuzzleFunc startPuzzle]
+    (let [maxPPP (Math.round (/ (* size size) (* MIN_PUZZLE_SIZE MIN_PUZZLE_SIZE)))]
         (when (= maxPPP 1)  
             (startPuzzle size 1)
             (return))
-        (doFor points (range 1 maxPPP)
-            (set b (new FlxButton x y "$points" ->:Void {
-                (remove nextPuzzleChoiceGroup)
-                (startPuzzle size points)
-            }))
-            (nextPuzzleChoiceGroup.add b)
-            (+= y b.height))))
-
+        (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "# of pieces to unlock per habit point:"
+                                                                    (collect (range 1 maxPPP))
+                                                                    ->:Void [:Int points] (startPuzzle size points)
+                                                                    null null FlxColor.LIME null 0.9)))
+    (set puzzlePackChoiceWindow.cameras [uiCamera]))
+    
 (function pointsStr [points]
     (let [&mut str "" tallyUnit 5 symbols ["+" "*" "\$"]]
         (doFor i (reverse (collect (range symbols.length)))
