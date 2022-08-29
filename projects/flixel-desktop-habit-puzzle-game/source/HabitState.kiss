@@ -20,6 +20,8 @@
                 }   
             (set pieceCamera FlxG.camera))
         (set FlxG.camera pieceCamera)
+        (when debugLayer
+            (set debugLayer.cameras [pieceCamera]))
         (when uiCamera
             (FlxG.cameras.remove uiCamera false)
             (FlxG.cameras.add uiCamera)))
@@ -57,7 +59,7 @@
     (#when debug
         (debugLayer.clear)
 
-        (when model.rewardFiles
+        (when (and model.rewardFiles rewardSprites.alive)
             (doFor s rewardSprites
                 null
                 // Uncomment for debugging piece rotation:
@@ -288,10 +290,11 @@
         (when !(= puzzleUnlocked -1)
             (startPuzzlePackChoice puzzleUnlocked)))
             
+    (when debugLayer
+        (remove debugLayer))
     (unless debugLayer
         (set debugLayer (new DebugLayer))
         (set debugLayer.cameras [pieceCamera]))
-    (remove debugLayer)
     (add debugLayer))
 
 (method refreshModel [&opt m]
