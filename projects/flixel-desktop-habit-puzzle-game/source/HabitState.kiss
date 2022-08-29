@@ -258,7 +258,7 @@
         (set entryWindow.textColor FlxColor.LIME)
         (when m.rewardFiles
             (_makeText "Puzzle #$(+ 1 rewardFileIndex) / ${model.rewardFiles.length}" (max 0 (- TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints)))))
-            (set entryWindow.textColor FlxColor.GRAY)
+            (set entryWindow.textColor (FlxColor.fromRGBFloat 0.2 0.2 0.2))
             (_makeText "{space} Cycle background color" 0
                 ->_
                     (defAndCall method toggleBackgroundColor
