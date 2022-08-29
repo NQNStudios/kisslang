@@ -4,8 +4,6 @@
 (prop &mut :FlxCamera pieceCamera)
 (prop &mut :FlxCamera uiCamera)
 
-(load "PuzzlePacks.kiss")
-
 (defAlias &ident textSize SimpleWindow.textSize)
 
 (method &override :Void create [] 
@@ -685,8 +683,8 @@
         // TODO position these aesthetically with a partly transparent background behind them
         // like the habit ui window should also have
         (let [x 0 &mut y 0] 
-            (doFor pack (availablePacks model)
-                (let [text (new FlxText x y 0 "$(haxe.io.Path.withoutDirectory pack.path): ${pack.puzzlesDone}/${pack.puzzlesTotal}" textSize)]
+            (doFor pack (PuzzlePack.availablePacks model)
+                (let [text (new FlxText x y 0 "$pack" textSize)]
                     // TODO not that color though
                     (set text.color FlxColor.LIME)
                     (nextPuzzleChoiceGroup.add text)

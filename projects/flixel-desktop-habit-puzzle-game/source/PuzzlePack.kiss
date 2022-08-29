@@ -1,3 +1,8 @@
+(defNew [&prop :String path
+            &prop :Option<Puzzle> nextPuzzle
+            &prop :Int puzzlesDone
+            &prop :Int puzzlesTotal])
+
 (var puzzleSearchGlobs ["puzzles"])
 // TODO add the itch io client folder to search paths- it's
 // C:\Users\$(userHome)\AppData\Roaming\itch\apps\ on windows
@@ -14,14 +19,13 @@
                     (doFor packDir packDirs
                         (let [fop (firstUnsolvedPuzzle model packDir)]
                             (packs.push 
-                                (object
-                                    nextPuzzle 
-                                        (if fop.path 
-                                                (Some fop) 
-                                            None) 
-                                    path packDir 
-                                    puzzlesDone fop.index
-                                    puzzlesTotal fop.outOf)))))))
+                                (new PuzzlePack
+                                    packDir 
+                                    (if fop.path 
+                                            (Some fop) 
+                                        None) 
+                                    fop.index
+                                    fop.outOf)))))))
         packs))
 
 (function :Puzzle firstUnsolvedPuzzle [:HabitModel model :String dir]
@@ -35,3 +39,6 @@
                     (unless (rewardFilePaths.contains fullPath)
                         (return (object path fullPath index idx outOf images.length))))))
         (object path null index images.length outOf images.length)))
+
+(method toString []
+    "$(haxe.io.Path.withoutDirectory path): ${puzzlesDone}/${puzzlesTotal}")

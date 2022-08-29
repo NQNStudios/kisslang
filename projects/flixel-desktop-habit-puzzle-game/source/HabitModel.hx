@@ -44,12 +44,5 @@ typedef Puzzle = {
     outOf:Int
 }
 
-typedef PuzzlePack = {
-    path:String,
-    nextPuzzle:Option<Puzzle>,
-    puzzlesDone:Int,
-    puzzlesTotal:Int
-};
-
 @:build(kiss.Kiss.build())
 class HabitModel {}
