@@ -1,5 +1,5 @@
 (defNew [&prop &mut :EntryType type
-            &prop :Array<EntryLabel> labels])
+            &prop &mut :Array<EntryLabel> labels])
 
 (method toString []
     "$(case type

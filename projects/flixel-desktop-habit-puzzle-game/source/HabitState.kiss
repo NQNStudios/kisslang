@@ -265,6 +265,20 @@
                         (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
                         (save.flush)
                         (refreshModel)))
+            (set entryWindow.textColor FlxColor.RED)
+            (_makeText "Delete a habit or task" 0
+                ->_
+                    (defAndCall method deleteHabitOrTask
+                        (entryWindow.hide)
+                        (let [delWindow (SimpleWindow.promptForChoice "Delete which habit/task? (You will keep all your points)" 
+                                                        (model.allUndeletedEntries)
+                                                        ->:Void [:Entry e] {
+                                                            (model.deleteEntry e)
+                                                            (refreshModel)
+                                                            (entryWindow.show)
+                                                        }
+                                                        null null FlxColor.WHITE 0.9 0.9 true)]
+                            (set delWindow.cameras [uiCamera]))))
             (when (= rewardFileIndex (- m.rewardFiles.length 1))
                 (_makeText "Abandon this puzzle" 0
                     ->_

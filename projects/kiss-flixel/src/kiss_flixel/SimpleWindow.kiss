@@ -51,7 +51,7 @@
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
-(method makeText [:String text &opt :FlxColor color :Action onClick]
+(method makeText [:String text &opt :FlxColor color :Action onClick :Bool noShortcut]
     (let [ftext (new FlxText nextControlX nextControlY 0 text textSize)]
         (set ftext.color (or color textColor))
         (dictSet _colors ftext ftext.color)
@@ -67,7 +67,8 @@
         (when onClick
             (dictSet _actions ftext onClick)
             // TODO right click?
-            (keyHandler.registerItem text ->:Void (onClick ftext)))
+            (unless noShortcut
+                (keyHandler.registerItem text ->:Void (onClick ftext))))
         ftext))
 
 // TODO makeButton
@@ -138,7 +139,8 @@
                                                     :FlxColor titleColor
                                                     :FlxColor choiceColor
                                                     :Float percentWidth
-                                                    :Float percentHeight]
+                                                    :Float percentHeight
+                                                    :Bool noShortcuts]
     (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight)
             choiceColor (or choiceColor titleColor FlxColor.WHITE)]
         (doFor choice choices
@@ -146,6 +148,7 @@
                 ->:Void s {
                     (window.hide)
                     (onChoice choice)
-                }))
+                }
+                noShortcuts))
         (window.show)
         window))
