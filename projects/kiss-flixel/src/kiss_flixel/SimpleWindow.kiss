@@ -80,6 +80,7 @@
     (_actions.clear)
     (controls.clear)
     (keyHandler.clear)
+    (set nextControlX x)
     (set nextControlY y)
     (makeText title titleColor))
 
