@@ -266,7 +266,7 @@
                         (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
                         (save.flush)
                         (refreshModel)))
-            (set entryWindow.textColor FlxColor.RED)
+            (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
                     (defAndCall method deleteHabitOrTask
