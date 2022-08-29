@@ -161,7 +161,7 @@
 
 (prop &mut :FlxSave save null)
 (prop &mut :SimpleWindow entryWindow null)
-// TODO add other windows and add them to the windowIsShown and tempWindowIsShown lists
+(prop &mut :SimpleWindow puzzlePackChoiceWindow null)
 
 (method windowIsShown []
     (doFor window [entryWindow]
@@ -672,39 +672,22 @@
                 (collected.push piece)
                 (recursivelyConnectedPieces piece collected))))
     collected)
-
 (prop &mut :FlxGroup nextPuzzleChoiceGroup null)
-
-(method startPuzzlePackChoice [nextStartingPoints]
-    (unless nextPuzzleChoiceGroup
-        (set nextPuzzleChoiceGroup (new FlxGroup))
-        (set nextPuzzleChoiceGroup.cameras [uiCamera])
-        
-        // TODO position these aesthetically with a partly transparent background behind them
-        // like the habit ui window should also have
-        (let [x 0 &mut y 0] 
-            (doFor pack (PuzzlePack.availablePacks model)
-                (let [text (new FlxText x y 0 "$pack" textSize)]
-                    // TODO not that color though
-                    (set text.color FlxColor.LIME)
-                    (nextPuzzleChoiceGroup.add text)
-                    (whenLet [(Some np) pack.nextPuzzle]
-                        (nextPuzzleChoiceGroup.add
-                            (new FlxButton (+ x text.width) y "CHOOSE" ->:Void {
-                                (remove nextPuzzleChoiceGroup)
-                                (set nextPuzzleChoiceGroup null)
-                                (startPuzzleSizeChoice
-                                    ->[chosenSize pointsPerPiece]
-                                        (let [bmd (BitmapData.fromFile np.path)
-                                                aspectRatioX (/ bmd.width bmd.height)
-                                                aspectRatioY (/ bmd.height bmd.width)
-                                                w (max 1 (Math.round (* aspectRatioX chosenSize)))
-                                                h (max 1 (Math.round (* aspectRatioY chosenSize)))]
-                                            (model.addRewardFile np.path nextStartingPoints w h pointsPerPiece)
-                                            (setModel model)))
-                            }))))
-                (+= y textSize)))
-        (add nextPuzzleChoiceGroup)))
+(method :Void startPuzzlePackChoice [nextStartingPoints]
+    (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "Choose a puzzle pack:"
+                                                            (PuzzlePack.availablePacks model)
+                                                            ->[:PuzzlePack pack] (ifLet [(Some np) pack.nextPuzzle]
+                                                                                        (startPuzzleSizeChoice
+                                                                                            ->[chosenSize pointsPerPiece]
+                                                                                                (let [bmd (BitmapData.fromFile np.path)
+                                                                                                        aspectRatioX (/ bmd.width bmd.height)
+                                                                                                        aspectRatioY (/ bmd.height bmd.width)
+                                                                                                        w (max 1 (Math.round (* aspectRatioX chosenSize)))
+                                                                                                        h (max 1 (Math.round (* aspectRatioY chosenSize)))]
+                                                                                                    (model.addRewardFile np.path nextStartingPoints w h pointsPerPiece)
+                                                                                                        (setModel model)))
+                                                                                    (startPuzzlePackChoice nextStartingPoints))))
+    (set puzzlePackChoiceWindow.cameras [uiCamera]))
 
 (var MIN_PUZZLE_SIZE 5)
 (var MAX_PUZZLE_SIZE 32)

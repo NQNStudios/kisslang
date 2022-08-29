@@ -5,7 +5,7 @@
 (prop &mut keyboardEnabled true)
 
 // TODO tooltip support with left-click and right-click action
-// icons and explanations
+// icons and explanations?
 
 (defNew [&opt :String _title 
             :FlxColor bgColor
@@ -130,3 +130,22 @@
                                 {
                                     (set text.color color)
                                 })))))))
+
+(function :SimpleWindow promptForChoice <>[T] [:String prompt
+                                                    :Array<T> choices
+                                                    :T->Void onChoice
+                                                    &opt :FlxColor bgColor
+                                                    :FlxColor titleColor
+                                                    :FlxColor choiceColor
+                                                    :Float percentWidth
+                                                    :Float percentHeight]
+    (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight)
+            choiceColor (or choiceColor titleColor FlxColor.WHITE)]
+        (doFor choice choices
+            (window.makeText (Std.string choice) choiceColor
+                ->:Void s {
+                    (window.hide)
+                    (onChoice choice)
+                }))
+        (window.show)
+        window))
