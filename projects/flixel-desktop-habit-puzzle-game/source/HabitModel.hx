@@ -23,11 +23,6 @@ typedef EntryLabel = {
     points:Int
 };
 
-typedef Entry = {
-    type: EntryType,
-    labels: Array<EntryLabel>,
-};
-
 typedef RewardFile = {
     path: String,
     startingPoints: Int,

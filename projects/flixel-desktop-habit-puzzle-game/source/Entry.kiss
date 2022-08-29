@@ -1,0 +1,26 @@
+(defNew [&prop &mut :EntryType type
+            &prop :Array<EntryLabel> labels])
+
+(method toString []
+    "$(case type
+        ((Daily days lastDayDone) 
+            (+
+                (.join (for day days
+                    (case day
+                        (0 "Su")
+                        (1 "M")
+                        (2 "T")
+                        (3 "W")
+                        (4 "Th")
+                        (5 "F")
+                        (6 "S")
+                        (otherwise (throw "bad day")))) "")
+                " "
+                lastDayDone
+                ": "))
+        ((Monthly days lastDayDone)
+            "$(days.join ",") ${lastDayDone}: ")
+        ((Interval days lastDayDone)
+            "$days ${lastDayDone}: ")
+        (otherwise ""))$(.join (for label labels
+                        "${label.label} $(* "|" label.points)") "/")")
