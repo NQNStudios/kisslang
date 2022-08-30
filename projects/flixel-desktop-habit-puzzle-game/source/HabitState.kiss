@@ -751,15 +751,17 @@
                                                                     ->:Void [:Int points] (startPuzzle size points)
                                                                     null null FlxColor.LIME null 0.9))))
 
-(method createDailyEntry []
-    (let [days ["Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday"]
-            daysEnabled (for day days true)
+(method createToggleIndicesType [defEnabled constructor :Array<String> days negativeStart prompt &opt width height]
+    (let [daysEnabled (for day days defEnabled)
             daysEnabledModelFormat ->(let [:Array<Int> idxArr []]
-                                        (doFor [idx day] (enumerate daysEnabled) (when day (idxArr.push (+ idx 1))))
+                                        (doFor [idx day] (enumerate daysEnabled) (when day (idxArr.push
+                                                                                                (if (>= idx negativeStart) 
+                                                                                                        (- -1 (- idx negativeStart))
+                                                                                                    (+ idx 1)))))
                                         idxArr)
             dayText ->idx "$(nth days idx): $(if (nth daysEnabled idx) "yes" "no")"
             dayColor ->idx (if (nth daysEnabled idx) (FlxColor.LIME.getDarkened) FlxColor.GRAY)
-            window (new SimpleWindow "Which days of the week?")]
+            window (new SimpleWindow prompt null null width height)]
         (localFunction refreshWindow []
             (window.clearControls)
             (doFor [idx day] (enumerate days)
@@ -767,14 +769,24 @@
                     (setNth daysEnabled idx !(nth daysEnabled idx))
                     (refreshWindow)
                 }))
-            (window.makeText "Confirm" FlxColor.LIME ->:Void _ {
-                (window.hide)
-                (startAdding (Daily (daysEnabledModelFormat) ""))
-            }))
+            (window.makeText "Confirm" FlxColor.LIME ->:Void _ 
+                                                    (when (daysEnabledModelFormat)
+                                                        (window.hide)
+                                                        (startAdding (constructor (daysEnabledModelFormat) "")))))
         (set entryCreationWindow window)
         (refreshWindow)
         (window.show)))
-(method createMonthlyEntry [])
+
+(method createDailyEntry []
+    (createToggleIndicesType true Daily ["Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday"] 8 "Which days of the week?"))
+
+(method createMonthlyEntry []
+    (let [texts
+            (concat
+                (for d (range 28) "Day $(+ d 1)")
+                (for d (range 28) "$(+ d 1) days before month ends"))]
+        (createToggleIndicesType false Monthly (cast texts) 28 "Which days of the month?" 0.9 0.9)))
+
 (method createIntervalEntry [])
 (method createTaskEntry [] (startAdding Todo))
 (method createBonusEntry [] (startAdding Bonus))
