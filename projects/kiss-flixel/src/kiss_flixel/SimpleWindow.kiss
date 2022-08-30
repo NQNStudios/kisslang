@@ -54,6 +54,7 @@
 // TODO could make a camera on the window so the controls are clipped by the camera
 
 (method addControl [:FlxSprite control]
+    (set control.cameras this.cameras)
     (set control.x nextControlX)
     (set control.y nextControlY)
     (controls.add control)

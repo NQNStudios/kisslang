@@ -123,8 +123,8 @@
             (set typeAdding type)
             (set labelsAdding [])
             (set addingLabels true)
-            (localVar &mut title "Alternating labels for this habit:")
-            (whenLet [Todo type] (set title "Steps for completing this task:"))
+            (localVar &mut title "Add a label for this habit, or use SHIFT+ENTER to add a series of alternating labels:")
+            (whenLet [Todo type] (set title "Add a label for this task, or use SHIFT+ENTER to add a series of steps for completing this task:"))
             (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
             (entryCreationWindow.addControl entryNameText)
@@ -136,11 +136,14 @@
         
         (when (and entryNameText FlxG.keys.justPressed.ENTER)
             (cond
+                ((and FlxG.keys.pressed.SHIFT addingLabels)
+                    (when (entryNameText.text.trim)
+                        (entryCreationWindow.makeText entryNameText.text)
+                        (labelsAdding.push entryNameText.text)
+                        (set entryNameText.text "")
+                        (set entryNameText.caretIndex 0)))
                 (addingLabels
-                    (entryCreationWindow.makeText entryNameText.text)
-                    (labelsAdding.push entryNameText.text)
-                    (set entryNameText.text "")
-                    (set entryNameText.caretIndex 0))
+                    (addCreatedEntry))
                 (true
                     (startAddingInterval))))
     }
@@ -825,7 +828,7 @@
 
 (method addCreatedEntry []
     // addEntry() calls save()
-    (when entryNameText.text
+    (when (entryNameText.text.trim)
         (labelsAdding.push entryNameText.text))
     (unless labelsAdding
         (return))
