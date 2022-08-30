@@ -285,6 +285,7 @@
                 (_makeText "Abandon this puzzle" 0
                     ->_
                         (defAndCall method skipPuzzle
+                            (entryWindow.hide)
                             (model.skipRewardFile)
                             (setModel model)))))
         (set entryWindow.textColor FlxColor.ORANGE)
@@ -687,6 +688,7 @@
     collected)
 (prop &mut :FlxGroup nextPuzzleChoiceGroup null)
 (method :Void startPuzzlePackChoice [nextStartingPoints]
+    (when rewardSprites (rewardSprites.kill))
     (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "Choose a puzzle pack:"
                                                             (PuzzlePack.availablePacks model)
                                                             ->[:PuzzlePack pack] (ifLet [(Some np) pack.nextPuzzle]
@@ -698,7 +700,8 @@
                                                                                                         w (max 1 (Math.round (* aspectRatioX chosenSize)))
                                                                                                         h (max 1 (Math.round (* aspectRatioY chosenSize)))]
                                                                                                     (model.addRewardFile np.path nextStartingPoints w h pointsPerPiece)
-                                                                                                        (setModel model)))
+                                                                                                    (setModel model)
+                                                                                                    (entryWindow.show)))
                                                                                     (startPuzzlePackChoice nextStartingPoints))
                                                             null null FlxColor.LIME null 0.9))
     (set puzzlePackChoiceWindow.cameras [uiCamera]))
