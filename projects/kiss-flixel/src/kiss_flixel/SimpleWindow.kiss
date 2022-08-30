@@ -35,7 +35,8 @@
 
     (let [textHeight
             .height (new FlxText 0 0 0 "a" textSize)]
-        (set controlsPerColumn (Math.floor (/ height textHeight))))
+        (set controlsPerColumn (Math.floor (/ height textHeight)))
+        (when title (-= controlsPerColumn 1)))
     
     (when title
         (makeText title null))
@@ -58,12 +59,13 @@
     (controls.add control)
     (+= nextControlY control.height)
     // TODO controls that aren't the same height as text will be able to vertically overflow
-    (when (= 0 (% controls.length controlsPerColumn))
-        (set nextControlY y)
-        (when title (+= nextControlY control.height))
-        (+= nextControlX (apply max
-                            (for control (last (groups controls.members controlsPerColumn))
-                                control.width)) textSize)))
+    (let [columnControls (controls.members.slice (if title 1 0))]
+        (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
+            (set nextControlY y)
+            (when title (+= nextControlY control.height))
+            (+= nextControlX (apply max
+                                (for control (last (groups columnControls controlsPerColumn))
+                                    control.width)) textSize))))
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
