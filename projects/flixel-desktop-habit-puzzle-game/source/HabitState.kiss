@@ -24,6 +24,7 @@
             (FlxG.cameras.remove uiCamera false)
             (FlxG.cameras.add uiCamera)))
     (set uiCamera (new FlxCamera))
+    (set SimpleWindow.defaultCamera uiCamera)
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (FlxG.cameras.add uiCamera)
     (FlxG.plugins.add (new FlxMouseControl))
@@ -279,8 +280,7 @@
                                                             (entryWindow.show)
                                                         }
                                                         null null FlxColor.WHITE 0.9 0.9 true)]
-                            (set entryDeletionWindow delWindow)
-                            (set delWindow.cameras [uiCamera]))))
+                            (set entryDeletionWindow delWindow))))
             (when (= rewardFileIndex (- m.rewardFiles.length 1))
                 (_makeText "Abandon this puzzle" 0
                     ->_
@@ -707,8 +707,7 @@
                                                                                                     (setModel model)
                                                                                                     (entryWindow.show)))
                                                                                     (startPuzzlePackChoice nextStartingPoints))
-                                                            null null FlxColor.LIME null 0.9))
-    (set puzzlePackChoiceWindow.cameras [uiCamera]))
+                                                            null null FlxColor.LIME null 0.9)))
 
 (var MIN_PUZZLE_SIZE 5)
 (var MAX_PUZZLE_SIZE 32)
@@ -719,8 +718,7 @@
                                                                 (for size PUZZLE_SIZE_OPTIONS (* size size))
                 
                                                                 ->:Void [:Int size] (startPiecesPerPointChoice (Std.int (Math.sqrt size)) startPuzzle)
-                                                                null null FlxColor.LIME null 0.9))
-    (set puzzlePackChoiceWindow.cameras [uiCamera]))
+                                                                null null FlxColor.LIME null 0.9)))
 
 (method :Void startPiecesPerPointChoice [size :StartPuzzleFunc startPuzzle]
     (let [maxPPP (Math.round (/ (* size size) (* MIN_PUZZLE_SIZE MIN_PUZZLE_SIZE)))]
@@ -730,8 +728,7 @@
         (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "# of pieces to unlock per habit point:"
                                                                     (collect (range 1 maxPPP))
                                                                     ->:Void [:Int points] (startPuzzle size points)
-                                                                    null null FlxColor.LIME null 0.9)))
-    (set puzzlePackChoiceWindow.cameras [uiCamera]))
+                                                                    null null FlxColor.LIME null 0.9))))
     
 (function pointsStr [points]
     (let [&mut str "" tallyUnit 5 symbols ["+" "*" "\$"]]

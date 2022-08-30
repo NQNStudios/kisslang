@@ -1,6 +1,7 @@
 // All windows share the same text size
 (var &mut textSize 16)
 (var :kiss.List<SimpleWindow> windowStack [])
+(var &mut :flixel.FlxCamera defaultCamera null)
 
 (prop &mut keyboardEnabled true)
 
@@ -23,6 +24,7 @@
         :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)]
     
     (super 0 0)
+    (when defaultCamera (set this.cameras [defaultCamera]))
     (makeGraphic
         (Std.int (* FlxG.width (or percentWidth 0.5)))
         (Std.int (* FlxG.height (or percentHeight 0.5)))
