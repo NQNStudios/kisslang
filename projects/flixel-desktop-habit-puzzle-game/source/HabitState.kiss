@@ -38,6 +38,7 @@
 
 (prop &mut :EntryType typeAdding Todo)
 (prop &mut :Array<String> labelsAdding [])
+(prop &mut :Bool addingLabels false)
 (prop &mut :FlxInputText entryNameText)
 
 (prop &mut :DebugLayer debugLayer null)
@@ -102,8 +103,9 @@
                 (set save.data.storedOrigins (new Map<Int,FlxPoint>))
                 (save.flush))))
     
-    (when FlxG.keys.justPressed.DELETE
-        (Sys.exit 0))
+    (unless (and entryNameText entryNameText.alive)
+        (when FlxG.keys.justPressed.DELETE
+            (Sys.exit 0)))
 
     // TODO provide a saner/configurable set of bindings to trigger these ui action functions
     {
@@ -117,9 +119,10 @@
                         (dictSet (the Map<Int,FlxPoint> save.data.storedOrigins) (dictGet indexMap s) s.origin))
                     (save.flush))))
         
-        (method startAdding [:EntryType type]
+        (method :Void startAdding [:EntryType type]
             (set typeAdding type)
             (set labelsAdding [])
+            (set addingLabels true)
             (localVar &mut title "Alternating labels for this habit:")
             (whenLet [Todo type] (set title "Steps for completing this task:"))
             (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
@@ -132,10 +135,14 @@
             (set entryNameText.hasFocus true))
         
         (when (and entryNameText FlxG.keys.justPressed.ENTER)
-            (entryCreationWindow.makeText entryNameText.text)
-            (labelsAdding.push entryNameText.text)
-            (set entryNameText.text "")
-            (set entryNameText.caretIndex 0))
+            (cond
+                (addingLabels
+                    (entryCreationWindow.makeText entryNameText.text)
+                    (labelsAdding.push entryNameText.text)
+                    (set entryNameText.text "")
+                    (set entryNameText.caretIndex 0))
+                (true
+                    (startAddingInterval))))
     }
     
     // Left and right arrow keys can switch between unlocked puzzles
@@ -787,7 +794,23 @@
                 (for d (range 28) "$(+ d 1) days before month ends"))]
         (createToggleIndicesType false Monthly (cast texts) 28 "Which days of the month?" 0.9 0.9)))
 
-(method createIntervalEntry [])
+(method createIntervalEntry []
+    (set entryCreationWindow (new SimpleWindow "After finishing this habit, how many days do you wait before doing it again?" null null 0.9))
+    (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
+    (set addingLabels false)
+    (entryCreationWindow.addControl entryNameText)
+    (entryCreationWindow.makeText "Confirm" FlxColor.LIME
+        ->:Void _
+            (defAndCall method startAddingInterval
+                (try 
+                    (let [int (Std.parseInt entryNameText.text)]
+                        (entryNameText.kill)
+                        (set entryNameText null)
+                        (entryCreationWindow.hide)
+                        (startAdding (Interval int "")))
+                    (catch [e] (return)))))
+    (entryCreationWindow.show))
+
 (method createTaskEntry [] (startAdding Todo))
 (method createBonusEntry [] (startAdding Bonus))
     
