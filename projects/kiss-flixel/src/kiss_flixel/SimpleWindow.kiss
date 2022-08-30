@@ -50,6 +50,20 @@
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
 
+// TODO could make a camera on the window so the controls are clipped by the camera
+
+(method addControl [:FlxSprite control]
+    (set control.x nextControlX)
+    (set control.y nextControlY)
+    (controls.add control)
+    (+= nextControlY control.height)
+    // TODO controls that aren't the same height as text will be able to vertically overflow
+    (when (= 0 (% controls.length controlsPerColumn))
+        (set nextControlY y)
+        (when title (+= nextControlY control.height))
+        (+= nextControlX (apply max
+                            (for control (last (groups controls.members controlsPerColumn))
+                                control.width)) textSize)))
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
@@ -58,14 +72,7 @@
         (set ftext.color (or color textColor))
         (dictSet _colors ftext ftext.color)
         (set ftext.cameras this.cameras)
-        (controls.add ftext)
-        (+= nextControlY ftext.height)
-        (when (= 0 (% controls.length controlsPerColumn))
-            (set nextControlY y)
-            (when title (+= nextControlY ftext.height))
-            (+= nextControlX (apply max
-                                (for control (last (groups controls.members controlsPerColumn))
-                                    control.width)) textSize))
+        (addControl ftext)
         (when onClick
             (dictSet _actions ftext onClick)
             // TODO right click?

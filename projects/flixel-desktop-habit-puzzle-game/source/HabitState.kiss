@@ -37,6 +37,7 @@
     (fHalf (max rewardSprite.pixels.width rewardSprite.pixels.height)))
 
 (prop &mut :EntryType typeAdding Todo)
+(prop &mut :Array<String> labelsAdding [])
 (prop &mut :FlxInputText entryNameText)
 
 (prop &mut :DebugLayer debugLayer null)
@@ -44,6 +45,8 @@
 (prop &mut t 1)
 (prop :FlxRect disableMouse (new FlxRect 0 0 0 0))
 (method &override :Void update [:Float elapsed]
+    // workaround for text box somehow losing focus:
+    (when entryNameText (set entryNameText.hasFocus true))
     (super.update elapsed)
 
     (if (windowIsShown)
@@ -116,24 +119,24 @@
         
         (method startAdding [:EntryType type]
             (set typeAdding type)
+            (set labelsAdding [])
+            (localVar &mut title "Alternating labels for this habit:")
+            (whenLet [Todo type] (set title "Steps for completing this task:"))
+            (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
+            (entryCreationWindow.addControl entryNameText)
+            (entryCreationWindow.makeText "Create" FlxColor.LIME ->:Void _ (addCreatedEntry))
             (when entryWindow
                 (set entryWindow.keyboardEnabled false))
-            (set entryNameText.cameras [uiCamera])
-            (set entryNameText.hasFocus true)
-            (add entryNameText))
+            (entryCreationWindow.show)
+            (set entryNameText.hasFocus true))
         
         (when (and entryNameText FlxG.keys.justPressed.ENTER)
-            // addEntry() calls save()
-            (model.addEntry typeAdding [entryNameText.text])
-            (refreshModel)
-            (entryNameText.kill)
-            (set entryNameText null)
-            (when entryWindow
-                (set entryWindow.keyboardEnabled true)
-                (entryWindow.show)))
+            (entryCreationWindow.makeText entryNameText.text)
+            (labelsAdding.push entryNameText.text)
+            (set entryNameText.text "")
+            (set entryNameText.caretIndex 0))
     }
-
     
     // Left and right arrow keys can switch between unlocked puzzles
     (unless (or entryNameText (tempWindowIsShown))
@@ -762,3 +765,16 @@
                 (+= str (* (nth symbols i) tallies))
                 (-= points (* tallies scaledTallyUnit))))
         str))
+
+(method addCreatedEntry []
+    // addEntry() calls save()
+    (unless labelsAdding
+        (return))
+    (model.addEntry typeAdding labelsAdding)
+    (refreshModel)
+    (entryNameText.kill)
+    (set entryNameText null)
+    (entryCreationWindow.hide)
+    (when entryWindow
+        (set entryWindow.keyboardEnabled true)
+        (entryWindow.show)))
