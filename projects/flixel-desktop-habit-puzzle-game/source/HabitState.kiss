@@ -123,20 +123,15 @@
             (set entryNameText.hasFocus true)
             (add entryNameText))
         
-        (when FlxG.keys.justPressed.ENTER
-            (cond
-                (entryNameText
-                    // addEntry() calls save()
-                    (model.addEntry typeAdding [entryNameText.text])
-                    (refreshModel)
-                    (entryNameText.kill)
-                    (set entryNameText null)
-                    (when entryWindow
-                        (set entryWindow.keyboardEnabled true)))
-                (true
-                    (startAdding Todo))))
-        (when FlxG.keys.justPressed.UP
-            (startAdding Bonus))
+        (when (and entryNameText FlxG.keys.justPressed.ENTER)
+            // addEntry() calls save()
+            (model.addEntry typeAdding [entryNameText.text])
+            (refreshModel)
+            (entryNameText.kill)
+            (set entryNameText null)
+            (when entryWindow
+                (set entryWindow.keyboardEnabled true)
+                (entryWindow.show)))
     }
 
     
@@ -164,12 +159,13 @@
 (prop &mut :SimpleWindow entryWindow null)
 (prop &mut :SimpleWindow puzzlePackChoiceWindow null)
 (prop &mut :SimpleWindow entryDeletionWindow null)
+(prop &mut :SimpleWindow entryCreationWindow null)
 
 (method windowIsShown []
     (or (tempWindowIsShown) (and entryWindow (entryWindow.isShown))))
 
 (method tempWindowIsShown []
-    (doFor window [puzzlePackChoiceWindow entryDeletionWindow]
+    (doFor window [puzzlePackChoiceWindow entryDeletionWindow entryCreationWindow]
         (when (and window (window.isShown))
             (return true)))
     false)
@@ -267,6 +263,28 @@
                         (set save.data.backgroundIndex #{(save.data.backgroundIndex + 1) % backgroundOptions.length;}#)
                         (save.flush)
                         (refreshModel)))
+            (set entryWindow.textColor (FlxColor.LIME.getDarkened))
+            (_makeText "Create a habit or task" 0
+                ->_
+                    (defAndCall method createHabitOrTask
+                        (entryWindow.hide)
+                        (set entryCreationWindow (SimpleWindow.promptForChoice "Create which type of habit/task?"
+                                                                                    [
+                                                                                        "Daily: every day, or on specific days of the week"
+                                                                                        "Monthly: on specific days of the month, or specific # of days before the end of the month"
+                                                                                        "Interval: needs to be done again after specific # of days"
+                                                                                        "Task: only needs to be done once"
+                                                                                        "Bonus: can be done to earn points at any time, any number of times"
+                                                                                    ]
+                                                                                    ->:Void [:String choice]
+                                                                                        (case (.takeUntilAndDrop (kiss.Stream.fromString choice) ":")
+                                                                                            ((Some "Daily") (createDailyEntry))
+                                                                                            ((Some "Monthly") (createMonthlyEntry))
+                                                                                            ((Some "Interval") (createIntervalEntry))
+                                                                                            ((Some "Task") (createTaskEntry))
+                                                                                            ((Some "Bonus") (createBonusEntry))
+                                                                                            (otherwise (throw "nonexistent choice")))
+                                                                                    null null FlxColor.LIME 0.9 0.9))))
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
@@ -729,6 +747,12 @@
                                                                     (collect (range 1 maxPPP))
                                                                     ->:Void [:Int points] (startPuzzle size points)
                                                                     null null FlxColor.LIME null 0.9))))
+
+(method createDailyEntry [])
+(method createMonthlyEntry [])
+(method createIntervalEntry [])
+(method createTaskEntry [] (startAdding Todo))
+(method createBonusEntry [] (startAdding Bonus))
     
 (function pointsStr [points]
     (let [&mut str "" tallyUnit 5 symbols ["+" "*" "\$"]]
