@@ -751,7 +751,29 @@
                                                                     ->:Void [:Int points] (startPuzzle size points)
                                                                     null null FlxColor.LIME null 0.9))))
 
-(method createDailyEntry [])
+(method createDailyEntry []
+    (let [days ["Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday"]
+            daysEnabled (for day days true)
+            daysEnabledModelFormat ->(let [:Array<Int> idxArr []]
+                                        (doFor [idx day] (enumerate daysEnabled) (when day (idxArr.push (+ idx 1))))
+                                        idxArr)
+            dayText ->idx "$(nth days idx): $(if (nth daysEnabled idx) "yes" "no")"
+            dayColor ->idx (if (nth daysEnabled idx) (FlxColor.LIME.getDarkened) FlxColor.GRAY)
+            window (new SimpleWindow "Which days of the week?")]
+        (localFunction refreshWindow []
+            (window.clearControls)
+            (doFor [idx day] (enumerate days)
+                (window.makeText (dayText idx) (dayColor idx) ->:Void _ {
+                    (setNth daysEnabled idx !(nth daysEnabled idx))
+                    (refreshWindow)
+                }))
+            (window.makeText "Confirm" FlxColor.LIME ->:Void _ {
+                (window.hide)
+                (startAdding (Daily (daysEnabledModelFormat) ""))
+            }))
+        (set entryCreationWindow window)
+        (refreshWindow)
+        (window.show)))
 (method createMonthlyEntry [])
 (method createIntervalEntry [])
 (method createTaskEntry [] (startAdding Todo))
@@ -768,6 +790,8 @@
 
 (method addCreatedEntry []
     // addEntry() calls save()
+    (when entryNameText.text
+        (labelsAdding.push entryNameText.text))
     (unless labelsAdding
         (return))
     (model.addEntry typeAdding labelsAdding)
