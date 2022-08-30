@@ -411,12 +411,16 @@
             (r.shuffle startingPoints)
             (set jigsaw j)
             (r.shuffle jigsaw.jigs)
-            (localVar spriteGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) null)))
-            (localVar indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) -1)))
             
             (localVar piecesUnlocked (min TOTAL_PIECES (* currentRewardFile.piecesPerPoint (- p currentRewardFile.startingPoints))))
             (localVar piecesAlreadyMade rewardSprites.length)
             (localVar newPieces (- piecesUnlocked piecesAlreadyMade))
+            
+            (prop &mut :Array<Array<KissExtendedSprite>> spriteGrid)
+            (prop &mut :Array<Array<Int>> indexGrid)
+            (unless (< 0 piecesAlreadyMade)
+                (set spriteGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) null)))
+                (set indexGrid (for y (range PUZZLE_HEIGHT) (for x (range PUZZLE_WIDTH) -1))))
 
             (localVar makeJig -+>count []
                 (let [i (+ piecesAlreadyMade count -1)
@@ -572,8 +576,8 @@
     (entryWindow.makeText (+ s (pointsStr points)) action))
 
 (method :Void log [:String message]
-    (when (> message.length 100) (log (message.substr 0 100)) (return))
     (trace message)
+    (when (> message.length (defAndReturn var FLX_LOG_MAX 100)) (set message (message.substr FLX_LOG_MAX)))
     (prop &mut logTextY 0)
     (#when debug
         (when (> logTextY FlxG.height)
