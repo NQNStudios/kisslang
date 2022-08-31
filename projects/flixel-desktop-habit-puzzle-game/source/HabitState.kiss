@@ -588,17 +588,8 @@
 (method makeText [:Entry e]
     (let [label (HabitModel.activeLabel e)]
         (_makeText label.label label.points ->:Void text {
-            // TODO move all of this logic other than setModel into HabitModel logic
-            (let [label (HabitModel.activeLabel e)]
-                (+= label.points 1)
-                (whenLet [(Daily days lastDayDone) e.type]
-                    (set e.type (Daily days (HabitModel.todayString))))
-                (whenLet [(Monthly days lastDayDone) e.type]
-                    (set e.type (Monthly days (.toString (DateTime.now)))))
-                (whenLet [(Interval days lastDayDone) e.type]
-                    (set e.type (Interval days (.toString (DateTime.now)))))
-                (model.save)
-                (setModel model))
+            (model.addPoint e)
+            (setModel model)
         })))
 
 
