@@ -123,8 +123,20 @@
             (set typeAdding type)
             (set labelsAdding [])
             (set addingLabels true)
-            (localVar &mut title "Add a label for this habit, or use SHIFT+ENTER to add a series of alternating labels:")
-            (whenLet [Todo type] (set title "Add a label for this task, or use SHIFT+ENTER to add a series of steps for completing this task:"))
+            (localVar typeDescriptor
+                (case type
+                    (Bonus "bonus habit")
+                    (Todo "task")
+                    ((Daily _ _) "daily task")
+                    ((Monthly _ _) "monthly task")
+                    ((Interval _ _) "interval task")
+                    (null (throw "type should never be null"))))
+            (localVar multipleLabelDescriptor
+                (case type
+                    (Bonus "cycle of alternating habits")
+                    (otherwise "series of steps for completing this task")))
+            (localVar title 
+                "Add a label for this ${typeDescriptor}, or use SHIFT+ENTER to add a ${multipleLabelDescriptor}:")
             (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
             (entryCreationWindow.addControl entryNameText)
