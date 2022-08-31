@@ -97,5 +97,6 @@
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
 	<postbuild cmd="butler push release/windows/bin nqn/habit-puzzles:win" if="windows" unless="debug" />
+	<postbuild cmd="butler push release/linux/bin nqn/habit-puzzles:linux" if="linux" unless="debug" />
 
 </project>
