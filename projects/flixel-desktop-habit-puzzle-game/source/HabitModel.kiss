@@ -237,10 +237,12 @@
 (method addPoint [:Entry e]
     (let [label (activeLabel e)]
         (+= label.points 1)
-        (whenLet [(Daily days lastDayDone) e.type]
-            (set e.type (Daily days (HabitModel.todayString))))
-        (whenLet [(Monthly days lastDayDone) e.type]
-            (set e.type (Monthly days (.toString (DateTime.now)))))
-        (whenLet [(Interval days lastDayDone) e.type]
-            (set e.type (Interval days (.toString (DateTime.now))))))
+        // For task-list types, set lastDayDone when the final label is done
+        (when (apply = (for label e.labels label.points))
+            (whenLet [(Daily days lastDayDone) e.type]
+                (set e.type (Daily days (HabitModel.todayString))))
+            (whenLet [(Monthly days lastDayDone) e.type]
+                (set e.type (Monthly days (.toString (DateTime.now)))))
+            (whenLet [(Interval days lastDayDone) e.type]
+                (set e.type (Interval days (.toString (DateTime.now)))))))
     (save))

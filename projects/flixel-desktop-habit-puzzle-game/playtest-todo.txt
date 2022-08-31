@@ -1,17 +1,17 @@
-~~first time opening, choose puzzle pack menu doesn't go away~~
+-[x] first time opening, choose puzzle pack menu doesn't go away
 
 
-- create task menu goes away after choosing type?
-- no way to cancel deleting task/etc. (Forces them to delete one)
-	- can only delete one at a time
-- delete key shouldn't close the application
-- press escape to work on puzzle needs explanation/a more intuitive way to do it
-- Explain that clicking on habits marks them finished
-- right click rotates pieces explanation/tooltip
-- add a label for this [TYPE OF] habit
-- don't allow slash in habit labels (unless inside brackets)
+-[ ] create task menu goes away after choosing type?
+-[ ] no way to cancel deleting task/etc. (Forces them to delete one)
+	-[ ] can only delete one at a time (window closes after)
+-[ ] delete key shouldn't close the application
+-[ ] press escape to work on puzzle needs explanation/a more intuitive way to do it
+-[ ] Explain that clicking on habits marks them finished
+-[ ] right click (and space bar) rotates pieces ONLY WHEN HOLDING explanation/tooltip
+-[x] add a label for this [TYPE OF] habit
+-[ ] don't allow slash in habit labels (unless inside brackets)
 
-- Interval multi-part tasks (i.e. laundry) will behave counter-intuitively (i.e. it tells you to dry your laundry a week after washing it)
-	- but sometimes the counter-intuitive behavior may be wanted
+-[x] Interval multi-part tasks (i.e. laundry) will behave counter-intuitively (i.e. it tells you to dry your laundry a week after washing it)
+	-[x] but sometimes the counter-intuitive behavior may be wanted (I doubt it)
 	
-- fullscreen button
+-[ ] fullscreen button
