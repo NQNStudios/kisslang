@@ -724,6 +724,7 @@
 (prop &mut :FlxGroup nextPuzzleChoiceGroup null)
 (method :Void startPuzzlePackChoice [nextStartingPoints]
     (when rewardSprites (rewardSprites.kill))
+    (when entryWindow (entryWindow.hide))
     (set puzzlePackChoiceWindow (SimpleWindow.promptForChoice "Choose a puzzle pack:"
                                                             (PuzzlePack.availablePacks model)
                                                             ->[:PuzzlePack pack] (ifLet [(Some np) pack.nextPuzzle]
