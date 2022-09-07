@@ -1,6 +1,7 @@
 -[x] first time opening, choose puzzle pack menu doesn't go away
 
-
+-[ ] drag to select causes match zones to drift!
+-[ ] drag to select rectangle stops appearing
 -[ ] create task menu goes away after choosing type?
 -[ ] no way to cancel deleting task/etc. (Forces them to delete one)
 	-[ ] can only delete one at a time (window closes after)
