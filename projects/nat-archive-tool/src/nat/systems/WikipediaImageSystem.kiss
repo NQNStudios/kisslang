@@ -26,4 +26,5 @@
                     filePath)))
         // Trigger the creation of a new Images component including the wikipedia images
         (removeComponent archive e Images)
+        (removeComponent archive e Images2)
         (addTags archive e ["wikipediaProcessed"])))
