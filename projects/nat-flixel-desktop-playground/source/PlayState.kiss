@@ -109,10 +109,13 @@
     (clearUI))
 
 (prop &mut :Bool confirmQuit false)
-(prop &mut :KeyShortcutWindow<Entry> shw)
+(defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     
+    (when sh.currentMap
+        (sh.update))
+
     (when (and FlxG.keys.justPressed.V FlxG.keys.pressed.CONTROL)
         (when (and textInput textInput.hasFocus)
             (whenLet [text (Clipboard.generalClipboard.getData ClipboardFormats.TEXT_FORMAT)]
@@ -129,8 +132,8 @@
                 // This part is hacky...
                 (set lastUI textInputLabel)
                 (hideUI textInputLabel))
-            ((and shw (shw.isShown))
-                (shw.hide))
+            (~sh.currentMap
+                (sh.cancel))
             (confirmQuit
                 (Sys.exit 0))
             (true
@@ -166,12 +169,10 @@
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
 
     // Don't check keys that can be used in shortcuts outside this block:
-    (unless (or (and shw (shw.isShown)) (and textInput textInput.hasFocus))
+    (unless (or sh.currentMap (and textInput textInput.hasFocus))
         (when FlxG.keys.justPressed.SEMICOLON
             (set confirmQuit false)
-            (set shw (new KeyShortcutWindow shortcutHandler ->[:Entry e] (readComponentOr e Name "unnamed entry")))
-            (set shw.cameras [uiCamera])
-            (shw.show)
+            (sh.start)
             (return))
         // +/- keys to change an entry's z
         (doFor e (controller.getSelectedEntries)
