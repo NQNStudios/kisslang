@@ -83,14 +83,17 @@
                 (collect (t.keys)))
         []))
 
+(function :Array<String> componentList [:nat.Entry e]
+    (for =>cType cId e.components cType))
+
 (function tagsMatch [e tagsBoolExp]
     (BoolExpInterp.eval tagsBoolExp (tagList e)))
 
 (function componentsMatch [:nat.Entry e componentsBoolExp]
-    (BoolExpInterp.eval componentsBoolExp (for =>cType cId e.components cType)))
+    (BoolExpInterp.eval componentsBoolExp (componentList e)))
 
 (function componentsAndTagsMatch [:nat.Entry e componentsAndTagsBoolExp]
-    (BoolExpInterp.eval componentsAndTagsBoolExp (cast (concat (tagList e) (for =>cType cId e.components cType)))))
+    (BoolExpInterp.eval componentsAndTagsBoolExp (cast (concat (tagList e) (componentList e)))))
 
 (defAlias &call catsMatch componentsAndTagsMatch)
 
