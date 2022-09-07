@@ -12,17 +12,14 @@
         ->[archive e]
             (and (tagsMatch e "!(or done hidden)") (canProcess archive e))
         ->[archive e &opt ui]
-            {
+            (when (catsMatch e .catsMatch (dictGet archive.playgrounds _playgroundKey))
                 (when !(hasComponent e Positions)
                     (addComponent archive e Positions (new Map)))
                 (withWritableComponents archive e [positions Positions]
                     (when !(positions.exists _playgroundKey)
-                        (if (catsMatch e .catsMatch (dictGet archive.playgrounds _playgroundKey))
-                                (dictSet positions _playgroundKey (defaultPosition e))
-                            (return null))))
-                (whenLet [pos (dictGet (readComponent e Positions) _playgroundKey)]
-                    (processor archive e pos ui))
-            })
+                        (dictSet positions _playgroundKey (defaultPosition e))))
+                (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
+                    (processor archive e pos ui))))
     (set this.onRemoveEntry onRemoveEntry))
 
 (method switchPlaygroundKey [key]
