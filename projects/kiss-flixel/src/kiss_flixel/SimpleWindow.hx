@@ -3,6 +3,7 @@ package kiss_flixel;
 import kiss.Prelude;
 import kiss.List;
 import flixel.FlxG;
+import flixel.FlxCamera;
 import flixel.ui.FlxButton;
 import flixel.text.FlxText;
 import flixel.FlxSprite;

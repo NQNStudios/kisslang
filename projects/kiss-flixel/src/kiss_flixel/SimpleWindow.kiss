@@ -3,6 +3,8 @@
 (var :kiss.List<SimpleWindow> windowStack [])
 (var &mut :flixel.FlxCamera defaultCamera null)
 
+(prop :FlxCamera controlCamera)
+
 (prop &mut keyboardEnabled true)
 
 // TODO tooltip support with left-click and right-click action
@@ -30,8 +32,13 @@
         (Std.int (* FlxG.height (or percentHeight 0.5)))
         (or bgColor FlxColor.BLACK))
     (screenCenter)
-    (set nextControlX x)
-    (set nextControlY y)
+    
+    (set controlCamera (new FlxCamera (Std.int x) (Std.int y) (Std.int width) (Std.int height)))
+    (set controlCamera.bgColor FlxColor.TRANSPARENT)
+    
+    // Top-left corner for controls is (0,0) because a camera displays them
+    (set nextControlX 0)
+    (set nextControlY 0)
 
     (let [textHeight
             .height (new FlxText 0 0 0 "a" textSize)]
@@ -54,7 +61,7 @@
 // TODO could make a camera on the window so the controls are clipped by the camera
 
 (method addControl [:FlxSprite control]
-    (set control.cameras this.cameras)
+    (set control.cameras [controlCamera])
     (set control.x nextControlX)
     (set control.y nextControlY)
     (controls.add control)
@@ -99,6 +106,7 @@
 
 (method :Void show []
     (unless _shown
+        (FlxG.cameras.add controlCamera)
         (FlxG.state.add this)
         (FlxG.state.add controls)
         (windowStack.push this)
@@ -107,6 +115,7 @@
 
 (method :Void hide []
     (when _shown
+        (FlxG.cameras.remove controlCamera)
         (FlxG.state.remove this)
         (FlxG.state.remove controls)
         (windowStack.remove this)
@@ -128,12 +137,11 @@
         (when keyboardEnabled
             (keyHandler.update))
         // Handle mouse input
-        (let [camera (first (or cameras []))
-                mousePos (FlxG.mouse.getScreenPosition camera)]
+        (let [mousePos (FlxG.mouse.getScreenPosition controlCamera)]
             (controls.forEach ->text
                     (whenLet [onClick (dictGet _actions text)]
                         (let [color (dictGet _colors text)]
-                            (if (and !otherIsSelected (.containsPoint (text.getScreenBounds camera) mousePos))
+                            (if (and !otherIsSelected (.containsPoint (text.getScreenBounds controlCamera) mousePos))
                                     {
                                         (when FlxG.mouse.justPressed
                                             (onClick text))
