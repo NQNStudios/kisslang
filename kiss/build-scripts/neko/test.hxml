@@ -1,0 +1,2 @@
+-neko bin/neko/test.n
+-cmd neko bin/neko/test.n
