@@ -336,11 +336,13 @@
     
     (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p]
-            (dictSet p name (object catsMatch catsMatchExp))))
+            (dictSet p name (object catsMatch catsMatchExp)))
+        [])
     
     (defCommand SwitchPlayground [name (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (dictSet p "default" name))
-        (when playgroundSystem (playgroundSystem.switchPlaygroundKey name)))
+        (when playgroundSystem (playgroundSystem.switchPlaygroundKey name))
+        [])
         
     (defCommand AddConnections [entries (SelectedEntries 1 null) entriesToConnect (Entries 1 null)]
         (for e entries
