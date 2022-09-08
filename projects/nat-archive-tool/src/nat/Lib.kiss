@@ -137,7 +137,7 @@
             (withWritableComponents archive e [conn Connections]
                 (doFor e2 entriesToConnect (dictSet conn e2.id 1)))
         (addComponent archive e Connections (for e2 entriesToConnect =>e2.id 1)))
-    )
+    e)
 
 (function removeConnections [:nat.Archive archive :nat.Entry e :Array<Entry> entriesToRemove]
     (when (hasComponent e Connections)
