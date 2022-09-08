@@ -142,8 +142,14 @@
                 []
             &mut lastCollector
                 (lambda []
-                    (set lastChangeSet (the ChangeSet (Reflect.callMethod null command.handler collectedArgs)))
-                    (when lastChangeSet (ui.handleChanges archive lastChangeSet)))]
+                    (let [result (Reflect.callMethod null command.handler collectedArgs)]
+                        (assert !(Prelude.isNull result) "Command implementation forgot to return a ChangeSet")
+                        (set lastChangeSet (the ChangeSet result))
+                        
+                        (when lastChangeSet
+                            (doFor e lastChangeSet
+                                (assert (and e (isEntry e)) "Lib function forgot to return the Entry that was modified"))
+                            (ui.handleChanges archive lastChangeSet))))]
         // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
         (doFor arg (reverse command.args)
             (set lastCollector (_composeArgCollector collectedArgs arg stream lastCollector)))
