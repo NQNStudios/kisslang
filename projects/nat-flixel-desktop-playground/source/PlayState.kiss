@@ -154,7 +154,7 @@
     
     // Scroll the UI with the mouse:
     (var UI_SCROLL_FACTOR 2)
-    (+= uiCamera.y (* FlxG.mouse.wheel UI_SCROLL_FACTOR))
+    (+= uiCamera.scroll.y (* FlxG.mouse.wheel UI_SCROLL_FACTOR))
     // TODO allow changing the a scroll factor
 
     // Control the UI camera with WASD, and the playground camera with arrow keys:
