@@ -18,6 +18,7 @@ import flixel.math.FlxRect;
 import flixel.addons.plugin.FlxMouseControl;
 import flixel.input.mouse.FlxMouseEventManager;
 using StringTools;
+using kiss_flixel.DebugLayer;
 using kiss_flixel.CameraTools;
 import kiss_tools.KeyShortcutHandler;
 import kiss_tools.FlxKeyShortcutHandler;

@@ -18,7 +18,9 @@
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite)))
         ->[archive e pos e2 pos2 &opt ui]
-            ~"$e $e2"
+            (let [o .origin (dictGet sprites e.id)
+                    o2 .origin (dictGet sprites e2.id)]
+                (playState.debugLayer.drawLine (+ pos.x o.x) (+ pos.y o.y) (+ pos2.x o2.x) (+ pos2.y o2.y) FlxColor.LIME))
         ->[archive e &opt ui]
             {
                 (whenLet [sprite (dictGet sprites e.id)]
@@ -31,6 +33,7 @@
             }))
 
 (method &override :Void clear []
+    (playState.debugLayer.clear)
     (sprites.clear)
     (playState.entryGroup.kill)
     (playState.entryGroup.clear)

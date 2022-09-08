@@ -34,6 +34,9 @@
     (prop :FlxTypedGroup<EntrySprite> entryGroup (new FlxTypedGroup<EntrySprite>))
     (add entryGroup)
 
+    (prop debugLayer (new DebugLayer))
+    (add debugLayer)
+
     (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (FlxG.cameras.add uiCamera false)
