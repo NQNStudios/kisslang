@@ -131,3 +131,14 @@
         (if (hasComponent e Scale)
                 (readComponent e Scale)
             1.0)))
+
+(function addConnections [:nat.Archive archive :nat.Entry e :Array<Entry> entriesToConnect]
+    (if (hasComponent e Connections)
+            (withWritableComponents archive e [conn Connections]
+                (doFor e2 entriesToConnect (dictSet conn e2.id 1)))
+        (addComponent archive e Connections (for e2 entriesToConnect =>e2.id 1))))
+
+(function removeConnections [:nat.Archive archive :nat.Entry e :Array<Entry> entriesToRemove]
+    (when (hasComponent e Connections)
+        (withWritableComponents archive e [conn Connections]
+            (doFor e2 entriesToRemove (conn.remove e2.id)))))

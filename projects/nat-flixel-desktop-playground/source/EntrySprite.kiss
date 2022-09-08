@@ -9,6 +9,8 @@
     [&mut :Bool selected false
         &mut :Bool isCircle false]
     (super position.x position.y)
+    (enableMouseClicks false)
+    (set mousePressedCallback ->:Void [_ _ _] null)
     (cond
         ((hasComponent e Images2)
             (let [images (readComponent e Images2)]

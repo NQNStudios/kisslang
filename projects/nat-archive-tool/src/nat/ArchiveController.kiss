@@ -336,8 +336,11 @@
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (dictSet p "default" name))
         (when playgroundSystem (playgroundSystem.switchPlaygroundKey name)))
         
-    (defCommand RemoveFromPlayground [entries (SelectedEntries 1 null)]
+    (defCommand AddConnections [entries (SelectedEntries 1 null) entriesToConnect (Entries 1 null)]
         (for e entries
-            (when (hasComponent e Positions)
-                (withWritableComponents archive e [positions Positions]
-                    (positions.remove (dictGet archive.playgrounds "default")))) e)))
+            (addConnections archive e entriesToConnect)))
+
+    (defCommand RemoveConnections [entries (SelectedEntries 1 null) entriesToRemove (Entries 1 null)]
+        (for e entries
+            (addConnections archive e entriesToRemove)))
+    )

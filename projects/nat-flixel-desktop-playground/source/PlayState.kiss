@@ -240,12 +240,19 @@
         Math.POSITIVE_INFINITY))
 
 (method :Void chooseEntry [prompt :Archive archive resolve]
-    (resolve null))
+    (entryGroup.forEach ->s
+        (set s.mousePressedCallback ->:Void [s _ _] {
+                                                    (entryGroup.forEach ->s
+                                                        (set s.mousePressedCallback ->:Void [_ _ _] null))
+                                                    (resolve .e (cast s EntrySprite))
+                                                    })))
 
 (method :Void chooseEntries [prompt archive resolve min max]
     (_chooseEntries prompt archive resolve min max []))
 
 // TODO is it possible to resolve with less than max?
+// TODO this version that just delegates to (chooseEntry) should be reusable, which is tricky because ArchiveUI is an interface
+    // It also needs a way to resolve with less than the maximum, which may be infinity
 (method :Void _chooseEntries [prompt archive resolve min max :Array<Entry> collectedEntries]
     (let [&mut :Void->Void chooseNextEntry
                 null
