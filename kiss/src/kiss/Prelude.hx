@@ -57,6 +57,26 @@ class Prelude {
         };
     }
 
+    static function _and(values:Array<Dynamic>):Dynamic {
+        for (value in values) {
+            if (!truthy(value)) {
+                return false;
+            }
+        }
+        return values[values.length - 1];
+    }
+    public static var and:Function = Reflect.makeVarArgs(_and);
+
+    static function _or(values:Array<Dynamic>):Dynamic {
+        for (value in values) {
+            if (truthy(value)) {
+                return value;
+            }
+        }
+        return false;
+    }
+    public static var or:Function = Reflect.makeVarArgs(_or);
+
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
     static function _add(values:Array<Dynamic>):Dynamic {
         var sum:Dynamic = values[0];

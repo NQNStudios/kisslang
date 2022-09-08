@@ -111,6 +111,8 @@ class Macros {
             "zipDrop" => "Prelude.zipDrop",
             "concat" => "Prelude.concat",
             "intersect" => "Prelude.intersect",
+            "and" => "Prelude.and",
+            "or" => "Prelude.or"
         ];
         k.doc("apply", 2, 2, '(apply <func> <argList>)' );
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
