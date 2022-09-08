@@ -21,6 +21,19 @@ class DebugLayer extends FlxTypedGroup<FlxSprite> {
     function _thickness(thickness:Float) {
         return Math.max(1, thickness / thisCamera().zoom);
     }
+    public function drawLine(X:Float, Y:Float, X2:Float, Y2:Float, color:FlxColor = FlxColor.WHITE, thickness = 1.0):FlxSprite {
+        thickness = _thickness(thickness);
+        var s = new FlxSprite(Math.min(X,X2)-thickness/2, Math.min(Y,Y2)-thickness/2);
+        var Width = Math.abs(X2 - X);
+        var Height = Math.abs(Y2 - Y);
+
+        // TODO test where thickness appears - is it center-out from the given border?
+        s.mg(Width + thickness, Height + thickness);
+        s.drawLine(X-s.x, Y-s.y, X2-s.x, Y2-s.y, {color: color, thickness: thickness});
+        add(s);
+        return s;
+    }
+
     public function drawRect(X:Float, Y:Float, Width:Float, Height:Float, outlineColor:FlxColor = FlxColor.WHITE, thickness = 1.0):FlxSprite {
         thickness = _thickness(thickness);
         
