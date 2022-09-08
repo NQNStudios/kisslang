@@ -21,7 +21,7 @@
             {
                 (whenLet [sprite (dictGet sprites e.id)]
                     (sprite.kill)
-                    (playState.entryGroup.remove sprite)
+                    (playState.entryGroup.remove sprite true)
                     (sprites.remove e.id))
                 
                 // When an Entry is hidden, we can bet the user doesn't want it selected anymore
