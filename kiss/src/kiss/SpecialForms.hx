@@ -269,7 +269,7 @@ class SpecialForms {
         k.doc("doFor", 3, null, '(doFor <var> <iterable> <body...>)');
         k.doc("for", 3, null, '(for <var> <iterable> <body...>)');
         map["doFor"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            EBlock([forExpr("doFor", wholeExp, args, k), macro null]).withMacroPosOf(wholeExp);
+            EBlock([forExpr("doFor", wholeExp, args, k), k.convert(wholeExp.expBuilder().symbol("null"))]).withMacroPosOf(wholeExp);
         };
         map["for"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             EArrayDecl([forExpr("for", wholeExp, args, k)]).withMacroPosOf(wholeExp);
@@ -445,7 +445,7 @@ class SpecialForms {
             } else {
                 // Kiss (if... ) expressions all need to generate a Haxe else block
                 // to make sure they always return something
-                macro null;
+                k.convert(wholeExp.expBuilder().symbol("null"));
             };
 
             // TODO these macro forms cause the compiler errors to give line numbers
