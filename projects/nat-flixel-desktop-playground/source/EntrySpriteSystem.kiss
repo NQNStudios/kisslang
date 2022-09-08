@@ -17,6 +17,8 @@
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite)))
+        ->[archive e pos e2 pos2 &opt ui]
+            ~"$e $e2"
         ->[archive e &opt ui]
             {
                 (whenLet [sprite (dictGet sprites e.id)]

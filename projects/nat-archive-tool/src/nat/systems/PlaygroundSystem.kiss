@@ -6,6 +6,7 @@
 (defNew [&prop :ArchiveUI ui
             :EntryChecker canProcess
             &prop :PlaygroundEntryProcessor processor
+            &prop :PlaygroundConnectionProcessor connectionProcessor
             :EntryProcessor onRemoveEntry]
 
     (super
@@ -31,7 +32,14 @@
 (method :Void clear [])
 
 (method &override :Void process [:Archive archive &opt :ArchiveUI ui]
-    (when _playgroundKey (super.process archive ui)))
+    (when _playgroundKey
+        (super.process archive ui)
+        (doFor e (entries.iterator)
+            (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
+                (doFor =>e2id _ (readComponentOr e Connections (new Map<String,Int>))
+                    (whenLet [e2 (dictGet archive.entries e2id)
+                                pos2 (dictGet (readComponent e2 Positions) _playgroundKey)]
+                        (connectionProcessor archive e pos e2 pos2 ui)))))))
 
 (method defaultPosition [:Entry e]
     (object x 0.0 y 0.0 z 0.0))
