@@ -32,14 +32,18 @@
 
 // TODO check not overwriting a component
 (defMacro addComponent [archive e componentType c]
-    `(withWritableEntry ,archive ,e
-        (log null (+ "adding " (the nat.components ,componentType ,c) " as " ,(symbolName componentType) " for " .id ,e))
-        (dictSet .components ,e ,(symbolName componentType) (tink.Json.stringify (the nat.components ,componentType ,c)))))
+    (withEvalOnce [archive e c]
+        (withWritableEntry archive e
+            (log null (+ "adding " (the nat.components ,componentType c) " as " ,(symbolName componentType) " for " e.id))
+            (dictSet e.components ,(symbolName componentType) (tink.Json.stringify (the nat.components ,componentType c)))
+            e)))
 
 (defMacro removeComponent [archive e componentType]
-    `(withWritableEntry ,archive ,e
-        (log null (+ "removing " ,(symbolName componentType) " component from " .id ,e))
-        (.remove .components ,e ,(symbolName componentType))))
+    (withEvalOnce [archive e]
+        (withWritableEntry archive e
+            (log null (+ "removing " ,(symbolName componentType) " component from " e.id))
+            (e.components.remove ,(symbolName componentType))
+            e)))
 
 // Retrieve multiple components from an Entity with mutable access.
 // All components will be serialized after the block is done.
@@ -132,14 +136,14 @@
                 (readComponent e Scale)
             1.0)))
 
-(function addConnections [:nat.Archive archive :nat.Entry e :Array<Entry> entriesToConnect]
+(function addConnections [:nat.Archive archive :nat.Entry e :Array<nat.Entry> entriesToConnect]
     (if (hasComponent e Connections)
             (withWritableComponents archive e [conn Connections]
                 (doFor e2 entriesToConnect (dictSet conn e2.id 1)))
         (addComponent archive e Connections (for e2 entriesToConnect =>e2.id 1)))
     e)
 
-(function removeConnections [:nat.Archive archive :nat.Entry e :Array<Entry> entriesToRemove]
+(function removeConnections [:nat.Archive archive :nat.Entry e :Array<nat.Entry> entriesToRemove]
     (when (hasComponent e Connections)
         (withWritableComponents archive e [conn Connections]
             (doFor e2 entriesToRemove (conn.remove e2.id))))
