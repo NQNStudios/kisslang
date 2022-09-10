@@ -7,10 +7,13 @@
             &prop :Entry e
             &prop :ArchiveController controller]
     [&mut :Bool selected false
-        &mut :Bool isCircle false]
+        &mut :Bool isCircle false
+        &mut :FlxColor unselectedColor FlxColor.WHITE
+        &mut :FlxColor selectedColor FlxColor.WHITE]
     (super position.x position.y)
     (enableMouseClicks false)
     (set mousePressedCallback ->:Void [_ _ _] null)
+    
     (cond
         ((hasComponent e Images2)
             (let [images (readComponent e Images2)]
@@ -22,11 +25,26 @@
             (set isCircle true)
             (let [c (readComponent e Circle)
                     diam (Std.int (* 2 c.radius))
-                    squareSize (+ diam CIRCLE_THICKNESS)]
+                    squareSize (+ diam CIRCLE_THICKNESS)
+                    color (if (hasComponent e Color)
+                                    (let [c (readComponent e Color)]
+                                        (FlxColor.fromRGBFloat c.r c.g c.b c.a))
+                                CIRCLE_COLOR)]
                 (makeGraphic squareSize squareSize FlxColor.TRANSPARENT true)
-                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness CIRCLE_THICKNESS color CIRCLE_COLOR))))
+                (set unselectedColor color)
+                (set selectedColor CIRCLE_SELECTED_COLOR)
+                (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness CIRCLE_THICKNESS color color))))
         (true
-            (set pixels .pixels (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE))))
+            (set pixels .pixels 
+                            (let [color (if (hasComponent e Color)
+                                                (let [c (readComponent e Color)]
+                                                    (FlxColor.fromRGBFloat c.r c.g c.b c.a))
+                                            DEFAULT_COLOR)
+                                t (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)]
+                                    (set unselectedColor color)
+                                    (set selectedColor SELECTED_COLOR)
+                                    (set t.color color)
+                                    t))))
     (updateColor)
     (let [:Float scale (getScale e)]
         (this.scale.set scale scale)
@@ -73,13 +91,10 @@
     (set fixedToSprite null))
 
 (method updateColor []
-    (if (controller.isSelected e)
-            {
-                (set color (if isCircle CIRCLE_SELECTED_COLOR SELECTED_COLOR))
-            }
-        {
-            (set color FlxColor.WHITE)
-        }))
+    (set color
+        (if (controller.isSelected e)
+                selectedColor
+            unselectedColor)))
 
 (var SELECTED_COLOR FlxColor.BLUE)
 (var CIRCLE_COLOR FlxColor.LIME)

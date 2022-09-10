@@ -149,6 +149,9 @@
             (doFor e2 entriesToRemove (conn.remove e2.id))))
     e)
 
+(function addColorRGBA [:nat.Archive archive :nat.Entry e :Float r :Float g :Float b :Float a]
+    (addComponent archive e Color (objectWith r g b a)))
+
 (function isEntry [o]
     (let [fields (Reflect.fields o)]
         (and (= fields.length 3)

@@ -351,4 +351,8 @@
     (defCommand RemoveConnections [entries (SelectedEntries 1 null) entriesToRemove (Entries 1 null)]
         (for e entries
             (addConnections archive e entriesToRemove)))
+    
+    (defCommand AddColorRGBA [entries (SelectedEntries 1 null) r (Number 0 1 null) g (Number 0 1 null) b (Number 0 1 null) a (Number 0 1 null)]
+        (for e entries
+            (addColorRGBA archive e r g b a)))
     )
