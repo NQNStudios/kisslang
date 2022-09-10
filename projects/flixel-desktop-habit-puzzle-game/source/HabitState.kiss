@@ -7,6 +7,7 @@
 (defAlias &ident textSize SimpleWindow.textSize)
 
 (method &override :Void create [] 
+    (set FlxG.sound.soundTrayEnabled false)
     (add logTexts)
     (set Prelude.printStr log)
     (defAndCall method newPieceCamera
