@@ -115,7 +115,7 @@
 
 (method :Void hide []
     (when _shown
-        (FlxG.cameras.remove controlCamera)
+        (FlxG.cameras.remove controlCamera false)
         (FlxG.state.remove this)
         (FlxG.state.remove controls)
         (windowStack.remove this)
