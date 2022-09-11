@@ -134,8 +134,8 @@
     (_actions.clear)
     (controls.clear)
     (keyHandler.clear)
-    (set nextControlX x)
-    (set nextControlY y)
+    (set nextControlX 0)
+    (set nextControlY 0)
     (makeText title titleColor))
 
 (method :Void show []
