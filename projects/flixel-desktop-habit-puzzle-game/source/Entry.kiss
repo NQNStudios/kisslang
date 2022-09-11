@@ -24,4 +24,4 @@
         ((Interval days lastDayDone)
             "$days ${lastDayDone}: ")
         (otherwise ""))$(.join (for label labels
-                        "${label.label} $(* "|" label.points)") "/")")
+                        "${label.label} $(HabitModel.pointsStr label.points)") "/")")

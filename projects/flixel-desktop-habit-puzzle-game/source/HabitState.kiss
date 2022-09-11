@@ -139,6 +139,7 @@
             (localVar title 
                 "Add a label for this ${typeDescriptor}, or use SHIFT+ENTER to add a ${multipleLabelDescriptor}:")
             (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
+            // TODO don't allow /, +, $, *
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
             (entryCreationWindow.addControl entryNameText)
             (entryCreationWindow.makeText "Create" FlxColor.LIME ->:Void _ (addCreatedEntry))
@@ -608,7 +609,7 @@
 
 // TODO configurable text size
 (method _makeText [:String s :Int points &opt :Action action]
-    (entryWindow.makeText (+ s (pointsStr points)) action))
+    (entryWindow.makeText (+ s (HabitModel.pointsStr points)) action))
 
 (method :Void log [:String message]
     (trace message)
@@ -822,15 +823,6 @@
 (method createTaskEntry [] (startAdding Todo))
 (method createBonusEntry [] (startAdding Bonus))
     
-(function pointsStr [points]
-    (let [&mut str "" tallyUnit 5 symbols ["+" "*" "\$"]]
-        (doFor i (reverse (collect (range symbols.length)))
-            (let [scaledTallyUnit (^ tallyUnit i)
-                    tallies (Math.floor (/ points scaledTallyUnit))]
-                (+= str (* (nth symbols i) tallies))
-                (-= points (* tallies scaledTallyUnit))))
-        str))
-
 (method addCreatedEntry []
     // addEntry() calls save()
     (when (entryNameText.text.trim)

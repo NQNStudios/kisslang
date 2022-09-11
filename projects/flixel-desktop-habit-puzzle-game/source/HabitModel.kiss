@@ -110,8 +110,8 @@
                                     (otherwise (throw "bad header: $lastHeader")))
                                 (for l (line.split "/")
                                     (object
-                                        label (StringTools.trim (StringTools.replace l "|" ""))
-                                        points (count (l.split "") ->c (= c "|"))))
+                                        label (StringTools.trim (withoutPointsStr l))
+                                        points (countPoints l)))
                                 topPriority))))
                 (otherwise (break))))))
 
@@ -274,3 +274,25 @@
             (whenLet [(Interval days lastDayDone) e.type]
                 (set e.type (Interval days (.toString (DateTime.now)))))))
     (save))
+
+(var tallyUnit 5)
+(function pointsStr [points]
+    (let [&mut str "" symbols ["+" "*" "\$"]]
+        (doFor i (reverse (collect (range symbols.length)))
+            (let [scaledTallyUnit (^ tallyUnit i)
+                    tallies (Math.floor (/ points scaledTallyUnit))]
+                (+= str (* (nth symbols i) tallies))
+                (-= points (* tallies scaledTallyUnit))))
+        str))
+
+(function withoutPointsStr [:String label]
+    (doFor c (.split "|+*\$" "") (set label (label.replace c ""))))
+
+(function countPoints [:String pointStr]
+    (apply + (for char (pointStr.split "")
+                (case char
+                    ("|" 1)
+                    ("+" 1)
+                    ("*" tallyUnit)
+                    ("\$" (^ tallyUnit 2))
+                    (otherwise 0)))))
