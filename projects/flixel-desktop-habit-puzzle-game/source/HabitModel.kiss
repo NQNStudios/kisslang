@@ -286,7 +286,8 @@
         str))
 
 (function withoutPointsStr [:String label]
-    (doFor c (.split "|+*\$" "") (set label (label.replace c ""))))
+    (doFor c (.split "|+*\$" "") (set label (label.replace c "")))
+    label)
 
 (function countPoints [:String pointStr]
     (apply + (for char (pointStr.split "")
