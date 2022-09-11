@@ -1,8 +1,9 @@
 (defNew [&prop &mut :EntryType type
-            &prop &mut :Array<EntryLabel> labels])
+            &prop &mut :Array<EntryLabel> labels
+            &prop &mut :Bool topPriority])
 
 (method toString []
-    "$(case type
+    "$?(when topPriority "! ")$(case type
         ((Daily days lastDayDone) 
             (+
                 (.join (for day days

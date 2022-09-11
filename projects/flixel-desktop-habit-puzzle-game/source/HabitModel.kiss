@@ -41,75 +41,78 @@
                                 path (parts.join " ")]
                             (objectWith path startingPoints puzzleWidth puzzleHeight piecesPerPoint skipped))))
                 ((Some line)
-                    (.push
-                        (case lastHeader
-                            ("DAILY" dailyEntries)
-                            ("MONTHLY" monthlyEntries)
-                            ("INTERVAL" intervalEntries)
-                            ("BONUS" bonusEntries)
-                            ("TODO" todoEntries)
-                            (otherwise (throw "bad header")))
-                        (new Entry
+                    (let [topPriority (line.startsWith "! ")]
+                        (when topPriority (set line (line.substr 2)))
+                        (.push
                             (case lastHeader
-                                ("BONUS" Bonus)
-                                ("TODO" Todo)
-                                ("DAILY"
-                                    (case (line.split ":")
-                                        ([noColon]
-                                            (Daily
-                                                // all days of week
-                                                (collect (range 1 8))
-                                                // never done before
-                                                ""))
-                                        ([::&mut preColon ...afterColon]
-                                            (set line (afterColon.join ":"))
-                                            (Daily 
-                                                // Days of week specified by abbreviation:
-                                                (sort (filter
-                                                    [
-                                                        // disambiguate Th from T and Su from S:
-                                                        (when (contains preColon "Th") {(set preColon (StringTools.replace preColon "Th" "")) 4})
-                                                        (when (contains preColon "Su") {(set preColon (StringTools.replace preColon "Su" "")) 7})
-                                                        (when (contains preColon "M") 1)
-                                                        (when (contains preColon "T") 2)
-                                                        (when (contains preColon "W") 3)
-                                                        (when (contains preColon "F") 5)
-                                                        (when (contains preColon "S") 6)
-                                                        
-                                                    ]))
-                                                // Last date completed after that:
-                                                (ifLet [[days date] (preColon.split " ")]
-                                                        date
-                                                    "")))
-                                        (otherwise (throw "bad line"))))
-                                ("MONTHLY"
-                                    (case (line.split ": ")
-                                        ([::&mut preColon ...afterColon]
-                                            (set line (afterColon.join ": "))
-                                            (Monthly 
-                                                // Days of month can be positive (1-31) or negative (-1 to -31)
-                                                (map (.split (first (preColon.split " ")) ",") Std.parseInt)
-                                                // Last date completed after that:
-                                                (ifLet [[::days ...date] (preColon.split " ")]
-                                                        (date.join " ")
-                                                    "")))
-                                        (otherwise (throw "bad line"))))
-                                ("INTERVAL"
-                                    (case (line.split ": ")
-                                        ([::&mut preColon ...afterColon]
-                                            (set line (afterColon.join ": "))
-                                            (case (preColon.split " ")
-                                                ([days]
-                                                    (Interval (Std.parseInt days) ""))
-                                                ([::days ...lastDayDone]
-                                                    (Interval (Std.parseInt days) (lastDayDone.join " ")))
-                                                (otherwise (throw "bad interval habit: $line"))))
-                                        (otherwise (throw "bad interval habit: $line"))))
-                                (otherwise (throw "bad header: $lastHeader")))
-                            (for l (line.split "/")
-                                (object
-                                    label (StringTools.trim (StringTools.replace l "|" ""))
-                                    points (count (l.split "") ->c (= c "|")))))))
+                                ("DAILY" dailyEntries)
+                                ("MONTHLY" monthlyEntries)
+                                ("INTERVAL" intervalEntries)
+                                ("BONUS" bonusEntries)
+                                ("TODO" todoEntries)
+                                (otherwise (throw "bad header")))
+                            (new Entry
+                                (case lastHeader
+                                    ("BONUS" Bonus)
+                                    ("TODO" Todo)
+                                    ("DAILY"
+                                        (case (line.split ":")
+                                            ([noColon]
+                                                (Daily
+                                                    // all days of week
+                                                    (collect (range 1 8))
+                                                    // never done before
+                                                    ""))
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ":"))
+                                                (Daily 
+                                                    // Days of week specified by abbreviation:
+                                                    (sort (filter
+                                                        [
+                                                            // disambiguate Th from T and Su from S:
+                                                            (when (contains preColon "Th") {(set preColon (StringTools.replace preColon "Th" "")) 4})
+                                                            (when (contains preColon "Su") {(set preColon (StringTools.replace preColon "Su" "")) 7})
+                                                            (when (contains preColon "M") 1)
+                                                            (when (contains preColon "T") 2)
+                                                            (when (contains preColon "W") 3)
+                                                            (when (contains preColon "F") 5)
+                                                            (when (contains preColon "S") 6)
+                                                            
+                                                        ]))
+                                                    // Last date completed after that:
+                                                    (ifLet [[days date] (preColon.split " ")]
+                                                            date
+                                                        "")))
+                                            (otherwise (throw "bad line"))))
+                                    ("MONTHLY"
+                                        (case (line.split ": ")
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ": "))
+                                                (Monthly 
+                                                    // Days of month can be positive (1-31) or negative (-1 to -31)
+                                                    (map (.split (first (preColon.split " ")) ",") Std.parseInt)
+                                                    // Last date completed after that:
+                                                    (ifLet [[::days ...date] (preColon.split " ")]
+                                                            (date.join " ")
+                                                        "")))
+                                            (otherwise (throw "bad line"))))
+                                    ("INTERVAL"
+                                        (case (line.split ": ")
+                                            ([::&mut preColon ...afterColon]
+                                                (set line (afterColon.join ": "))
+                                                (case (preColon.split " ")
+                                                    ([days]
+                                                        (Interval (Std.parseInt days) ""))
+                                                    ([::days ...lastDayDone]
+                                                        (Interval (Std.parseInt days) (lastDayDone.join " ")))
+                                                    (otherwise (throw "bad interval habit: $line"))))
+                                            (otherwise (throw "bad interval habit: $line"))))
+                                    (otherwise (throw "bad header: $lastHeader")))
+                                (for l (line.split "/")
+                                    (object
+                                        label (StringTools.trim (StringTools.replace l "|" ""))
+                                        points (count (l.split "") ->c (= c "|"))))
+                                topPriority))))
                 (otherwise (break))))))
 
 (method :Array<Entry> allEntries []
@@ -166,7 +169,7 @@
 (function isNotDeleted [:Entry e]
     !(isDeleted e))
 
-(function isActive [:Entry e]
+(function _isActive [:Entry e]
     (when (isDeleted e)
         (return false))
     (case e.type
@@ -196,22 +199,47 @@
         (Todo (= 0 .points (activeLabel e)))
         (otherwise true)))
 
-(method :Array<Entry> activeDailyEntries []
-    (filter dailyEntries isActive))
+// Check if an entry is active PRE-top priority filtering
+(method :Array<Entry> _activeDailyEntries []
+    (filter dailyEntries _isActive))
 
-(method :Array<Entry> activeMonthlyEntries []
-    (filter monthlyEntries isActive))
+(method :Array<Entry> _activeMonthlyEntries []
+    (filter monthlyEntries _isActive))
 
-(method :Array<Entry> activeIntervalEntries []
-    (filter intervalEntries isActive))
+(method :Array<Entry> _activeIntervalEntries []
+    (filter intervalEntries _isActive))
 
-(method :Array<Entry> activeBonusEntries []
-    (filter bonusEntries isActive))
+(method :Array<Entry> _activeBonusEntries []
+    (filter bonusEntries _isActive))
 
-(method :Array<Entry> activeTodoEntries []
-    (filter todoEntries isActive))
+(method :Array<Entry> _activeTodoEntries []
+    (filter todoEntries _isActive))
 
-(method addEntry [:EntryType type :Array<String> labels]
+(method :Array<Entry> _allActiveEntries []
+    (cast (concat 
+                (_activeDailyEntries)
+                (_activeMonthlyEntries)
+                (_activeIntervalEntries)
+                (_activeBonusEntries)
+                (_activeTodoEntries))))
+
+(method :Bool topPriorityIsActive []
+    (apply or (for e (_allActiveEntries) e.topPriority)))
+
+(defMacro topPriority [name]
+    `(method :Array<Entry> ,name []
+        (let [_active (,(ReaderExp.Symbol (+ "_" (symbolNameValue name))))]
+            (if (topPriorityIsActive)
+                    (filter _active ->e e.topPriority)
+                _active))))
+
+(topPriority activeDailyEntries)
+(topPriority activeMonthlyEntries)
+(topPriority activeIntervalEntries)
+(topPriority activeBonusEntries)
+(topPriority activeTodoEntries)
+
+(method addEntry [:EntryType type :Array<String> labels :Bool topPriority]
     (.push (case type
                 (Todo todoEntries)
                 (Bonus bonusEntries)
@@ -219,7 +247,7 @@
                 ((Daily _ _) dailyEntries)
                 ((Monthly _ _) monthlyEntries)
                 (otherwise (throw "")))
-        (new Entry type (for label labels (objectWith [points 0] label))))
+        (new Entry type (for label labels (objectWith [points 0] label)) topPriority))
     (save))
 
 (method deleteEntry [:Entry e]

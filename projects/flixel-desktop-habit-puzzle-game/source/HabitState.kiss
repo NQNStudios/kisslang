@@ -837,7 +837,7 @@
         (labelsAdding.push entryNameText.text))
     (unless labelsAdding
         (return))
-    (model.addEntry typeAdding labelsAdding)
+    (model.addEntry typeAdding labelsAdding false) // TODO allow choosing priority!
     (refreshModel)
     (entryNameText.kill)
     (set entryNameText null)
