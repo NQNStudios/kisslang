@@ -69,16 +69,14 @@
     (+= nextControlY control.height)
     // TODO controls that aren't the same height as text will be able to vertically overflow
     (let [columnControls (controls.members.slice (if title 1 0))]
-        (if (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
-                {
-                    (set nextControlY 0)
-                    (when title (+= nextControlY control.height))
-                    (+= nextControlX (last columnWidths))
-                    (columnWidths.push (+ control.width textSize))
-                    (when (> (apply + columnWidths) width)
-                        (makeScrollArrows))
-                }
-            (setNth columnWidths -1 (max (+ control.width textSize) (last columnWidths)))))
+        (setNth columnWidths -1 (max (+ control.width textSize) (last columnWidths)))
+        (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
+            (set nextControlY 0)
+            (when title (+= nextControlY control.height))
+            (+= nextControlX (last columnWidths))
+            (columnWidths.push 0)
+            (when (> (apply + columnWidths) width)
+                (makeScrollArrows))))
     control)
 
 (prop &mut :FlxText leftText)
