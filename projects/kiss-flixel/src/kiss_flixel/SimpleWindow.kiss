@@ -43,6 +43,7 @@
     (let [textHeight
             .height (new FlxText 0 0 0 "a" textSize)]
         (set controlsPerColumn (Math.floor (/ height textHeight)))
+        (-= controlsPerColumn 1) // Column at the bottom for left/right scroll arrows
         (when title (-= controlsPerColumn 1)))
     
     (when title
@@ -71,9 +72,36 @@
         (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
             (set nextControlY 0)
             (when title (+= nextControlY control.height))
-            (+= nextControlX (apply max
-                                (for control (last (groups columnControls controlsPerColumn))
-                                    control.width)) textSize))))
+            (let [lastColumnWidth (+ textSize (apply max
+                                    (for control (last (groups columnControls controlsPerColumn))
+                                        control.width)))]
+                (columnWidths.push lastColumnWidth)
+                (when (> (apply + columnWidths) width)
+                    (makeScrollArrows))
+                (+= nextControlX lastColumnWidth)))))
+
+(prop &mut :FlxText leftText)
+(prop &mut :FlxText rightText)
+
+(method makeScrollArrows []
+    (unless hasScrollArrows
+        (let [ftext (new FlxText 0 height 0 "<-" textSize)]
+            (set ftext.cameras [controlCamera])
+            (-= ftext.y ftext.height)
+            (set ftext.color (or color textColor))
+            (dictSet _colors ftext ftext.color)
+            (dictSet _actions ftext ->:Void _ (scrollLeft))
+            (set leftText ftext))
+        (let [ftext (new FlxText width height 0 "->" textSize)]
+            (set ftext.cameras [controlCamera])
+            (-= ftext.x ftext.width)
+            (-= ftext.y ftext.height)
+            (set ftext.color (or color textColor))
+            (dictSet _colors ftext ftext.color)
+            (controls.add ftext)
+            (dictSet _actions ftext ->:Void _ (scrollRight))
+            (set rightText ftext))
+        (set hasScrollArrows true)))
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
@@ -81,7 +109,6 @@
     (let [ftext (new FlxText nextControlX nextControlY 0 text textSize)]
         (set ftext.color (or color textColor))
         (dictSet _colors ftext ftext.color)
-        (set ftext.cameras this.cameras)
         (addControl ftext)
         (when onClick
             (dictSet _actions ftext onClick)
@@ -96,7 +123,13 @@
 (prop &mut _shown false)
 (method isShown [] _shown)
 
+(prop &mut :Array<Float> columnWidths [])
+(prop &mut cameraColumn 0)
+(prop &mut hasScrollArrows false)
+
 (method clearControls []
+    (set columnWidths [])
+    (set hasScrollArrows false)
     (_actions.clear)
     (controls.clear)
     (keyHandler.clear)
@@ -172,3 +205,25 @@
                 noShortcuts))
         (window.show)
         window))
+
+(method scrollLeft []
+    (when (> cameraColumn 0)
+        (-= cameraColumn 1)
+        (when (= cameraColumn 0)
+            (controls.remove leftText))
+        (controls.add rightText)
+        (let [scrollAmount (nth columnWidths cameraColumn)]
+            (-= controlCamera.scroll.x scrollAmount)
+            (-= leftText.x scrollAmount)
+            (-= rightText.x scrollAmount))))
+
+(method scrollRight []
+    (when (< cameraColumn (- columnWidths.length 1 ))
+        (let [scrollAmount (nth columnWidths cameraColumn)]
+            (+= controlCamera.scroll.x scrollAmount)
+            (+= leftText.x scrollAmount)
+            (+= rightText.x scrollAmount))
+        (+= cameraColumn 1)
+        (when (< (apply + (columnWidths.slice cameraColumn)) width)
+            (controls.remove rightText))
+        (controls.add leftText)))
