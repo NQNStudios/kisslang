@@ -73,7 +73,7 @@ class Prelude {
                 return value;
             }
         }
-        return false;
+        return values[values.length-1];
     }
     public static var or:Function = Reflect.makeVarArgs(_or);
 
