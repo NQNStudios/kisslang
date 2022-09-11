@@ -417,9 +417,11 @@ class Reader {
                     }
                     var interpExpression = assertRead(stream, k);
                     var b = interpExpression.expBuilder();
-                    interpExpression = b.callSymbol("Std.string", [interpExpression]);
+                    var stringOfInterpExpression = b.callSymbol("Std.string", [interpExpression]);
                     if (wrapInIf) {
-                        interpExpression = b.callSymbol("if", [interpExpression, interpExpression, b.str("")]);
+                        interpExpression = b.callSymbol("if", [interpExpression, stringOfInterpExpression, b.str("")]);
+                    } else {
+                        interpExpression = stringOfInterpExpression;
                     }
                     stringParts.push(interpExpression);
                 case '\\':
