@@ -277,7 +277,7 @@
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
     (defCommand AddDLURL [e SelectedEntry url (Text null)]
-        (addComponent archive e DLURL url))
+        [(addComponent archive e DLURL url)])
 
     (defCommand AddYoutubeMusic [name (Text null) url (Text null)]
         [(archive.createEntry ->e
