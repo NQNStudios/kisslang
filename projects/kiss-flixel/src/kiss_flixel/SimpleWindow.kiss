@@ -69,7 +69,7 @@
     // TODO controls that aren't the same height as text will be able to vertically overflow
     (let [columnControls (controls.members.slice (if title 1 0))]
         (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
-            (set nextControlY y)
+            (set nextControlY 0)
             (when title (+= nextControlY control.height))
             (+= nextControlX (apply max
                                 (for control (last (groups columnControls controlsPerColumn))
