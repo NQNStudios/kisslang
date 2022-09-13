@@ -837,3 +837,22 @@
     (when entryWindow
         (set entryWindow.keyboardEnabled true)
         (entryWindow.show)))
+
+(defMacro withConnectedAndMatching [forOrDoFor &body body]
+    `(,forOrDoFor s rewardSprites.members
+        (let [id (dictGet indexMap s)
+                connectedPieces (dictGet connectedPieces id)
+                matchingPieces (filter (for map [matchingPiecesLeft matchingPiecesRight matchingPiecesUp matchingPiecesDown]
+                                            (dictGet map id)))]
+            ,@body)))
+
+(method countAvailableMatches []
+    (iHalf
+        (apply +
+            (withConnectedAndMatching for
+                (- matchingPieces.length connectedPieces.length)))))
+
+(method :Array<Array<KissExtendedSprite>> listAvailableMatches []
+    (apply concat (the Array<Array<Array<KissExtendedSprite>>> (withConnectedAndMatching for
+                        (for piece (filter matchingPieces ->p !(contains connectedPieces p))
+                                [s piece])))))
