@@ -71,7 +71,9 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         var ow = frameWidth;
         var oh = frameHeight;
         var g = super.loadRotatedGraphic(Graphic, Rotations, Frame, AntiAliasing, AutoBuffer, Key);
-        rotationPadding.set(frameWidth - ow, frameHeight - oh).scale(0.5);
+        if (ow != frameWidth || oh != frameHeight) {
+            rotationPadding.set(frameWidth - ow, frameHeight - oh).scale(0.5);
+        }
         return g;
     }
 
