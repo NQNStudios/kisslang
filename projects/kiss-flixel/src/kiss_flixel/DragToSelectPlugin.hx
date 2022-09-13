@@ -65,6 +65,17 @@ class DragToSelectPlugin extends FlxBasic {
         return dragStates[FlxG.state].selectedSprites;
     }
     
+    public function selectSprites(sprites:Array<KissExtendedSprite>) {
+        deselectSprites();
+        dragStates[FlxG.state].selectedSprites = sprites;
+        for (s in sprites) {
+            if (s.onSelected != null) {
+                s.onSelected();
+            }
+        }
+    }
+
+    
     public function deselectSprites() {
         for (sprite in dragStates[FlxG.state].selectedSprites) {
             if (sprite.onDeselected != null) {
