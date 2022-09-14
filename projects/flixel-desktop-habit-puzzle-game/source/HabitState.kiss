@@ -47,6 +47,13 @@
 (prop &mut t 1)
 (prop :FlxRect disableMouse (new FlxRect 0 0 0 0))
 (method &override :Void update [:Float elapsed]
+    (prop :Array<Function> nextFrameFunctions [])
+    (method nextFrame [:Function f]
+        (nextFrameFunctions.push f))
+    (when nextFrameFunctions
+        (whileLet [f (nextFrameFunctions.shift)]
+            (f)))
+
     // workaround for text box somehow losing focus:
     (when entryNameText (set entryNameText.hasFocus true))
     (super.update elapsed)

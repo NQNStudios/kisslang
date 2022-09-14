@@ -1,6 +1,7 @@
 package;
 
 using StringTools;
+import haxe.Constraints;
 import flash.display.BitmapData;
 import haxe.io.Path;
 import flixel.FlxG;
