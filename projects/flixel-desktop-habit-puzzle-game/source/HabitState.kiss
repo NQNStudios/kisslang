@@ -194,12 +194,13 @@
 (prop &mut :SimpleWindow puzzlePackChoiceWindow null)
 (prop &mut :SimpleWindow entryDeletionWindow null)
 (prop &mut :SimpleWindow entryCreationWindow null)
+(prop &mut :SimpleWindow priorityWindow null)
 
 (method windowIsShown []
     (or (tempWindowIsShown) (and entryWindow (entryWindow.isShown))))
 
 (method tempWindowIsShown []
-    (doFor window [puzzlePackChoiceWindow entryDeletionWindow entryCreationWindow]
+    (doFor window [puzzlePackChoiceWindow entryDeletionWindow entryCreationWindow priorityWindow]
         (when (and window (window.isShown))
             (return true)))
     false)
@@ -323,6 +324,24 @@
                                                                                             ((Some "Bonus") (createBonusEntry))
                                                                                             (otherwise (throw "nonexistent choice")))
                                                                                     null null FlxColor.LIME 0.9 0.9 true xKey backToEntryWindow))))
+            (_makeText "Choose Top-Priority habits and tasks" 0
+                ->_
+                    (defAndCall method choosePriorities
+                        (entryWindow.hide)
+                        (let [pw (SimpleWindow.promptForChoice "Choose your top priorities. A ! will appear in front of them" 
+                                                        (model.allUndeletedEntries)
+                                                        ->:Void [:Entry e] {
+                                                            (model.toggleEntryPriority e)
+                                                            (refreshModel)
+                                                            (priorityWindow.clearActions)
+                                                            (priorityWindow.show)
+                                                            (nextFrame ->{
+                                                                (priorityWindow.hide)
+                                                                (choosePriorities)
+                                                                })
+                                                        }
+                                                        null null FlxColor.WHITE 0.9 0.9 true (defAndReturn prop xKey "escape") backToEntryWindow  true)]
+                            (set priorityWindow pw))))
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_

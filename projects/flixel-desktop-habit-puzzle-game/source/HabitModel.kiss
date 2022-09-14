@@ -254,6 +254,10 @@
     (set e.labels (for label e.labels (object points label.points label "~")))
     (save))
 
+(method toggleEntryPriority [:Entry e]
+    (set e.topPriority !e.topPriority)
+    (save))
+
 (method addRewardFile [path startingPoints puzzleWidth puzzleHeight piecesPerPoint]
     (rewardFiles.push (objectWith [skipped false] path startingPoints puzzleWidth puzzleHeight piecesPerPoint))
     (save))
