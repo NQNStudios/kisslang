@@ -145,7 +145,7 @@
                     (otherwise "series of steps for completing this task")))
             (localVar title 
                 "Add a label for this ${typeDescriptor}, or use SHIFT+ENTER to add a ${multipleLabelDescriptor}:")
-            (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9))
+            (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9 true xKey backToEntryWindow))
             // TODO don't allow /, +, $, *
             (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
             (entryCreationWindow.addControl entryNameText)
@@ -245,6 +245,10 @@
 
 // Main.hx sets off 99% of the app's logic by parsing the model file and calling setModel on startup and on a 30s loop:
 
+(method backToEntryWindow []
+    (set entryNameText null)
+    (nextFrame ->(entryWindow.show)))
+
 (method :Void setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
 
@@ -318,7 +322,7 @@
                                                                                             ((Some "Task") (createTaskEntry))
                                                                                             ((Some "Bonus") (createBonusEntry))
                                                                                             (otherwise (throw "nonexistent choice")))
-                                                                                    null null FlxColor.LIME 0.9 0.9))))
+                                                                                    null null FlxColor.LIME 0.9 0.9 true xKey backToEntryWindow))))
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
@@ -331,7 +335,7 @@
                                                             (refreshModel)
                                                             (entryWindow.show)
                                                         }
-                                                        null null FlxColor.WHITE 0.9 0.9 true xKey ->(nextFrame ->(entryWindow.show)) true)]
+                                                        null null FlxColor.WHITE 0.9 0.9 true xKey backToEntryWindow true)]
                             (set entryDeletionWindow delWindow))))
             
             (when (= rewardFileIndex (- m.rewardFiles.length 1))
@@ -785,7 +789,7 @@
                                         idxArr)
             dayText ->idx "$(nth days idx): $(if (nth daysEnabled idx) "yes" "no")"
             dayColor ->idx (if (nth daysEnabled idx) (FlxColor.LIME.getDarkened) FlxColor.GRAY)
-            window (new SimpleWindow prompt null null width height)]
+            window (new SimpleWindow prompt null null width height true xKey backToEntryWindow)]
         (localFunction refreshWindow []
             (window.clearControls)
             (doFor [idx day] (enumerate days)
@@ -812,7 +816,7 @@
         (createToggleIndicesType false Monthly (cast texts) 28 "Which days of the month?" 0.9 0.9)))
 
 (method createIntervalEntry []
-    (set entryCreationWindow (new SimpleWindow "After finishing this habit, how many days do you wait before doing it again?" null null 0.9))
+    (set entryCreationWindow (new SimpleWindow "After finishing this habit, how many days do you wait before doing it again?" null null 0.9 0.9 true xKey backToEntryWindow))
     (set entryNameText (new FlxInputText 0 0 FlxG.width "" textSize true))
     (set addingLabels false)
     (entryCreationWindow.addControl entryNameText)
