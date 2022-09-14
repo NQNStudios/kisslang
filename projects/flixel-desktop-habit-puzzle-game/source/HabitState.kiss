@@ -331,8 +331,9 @@
                                                             (refreshModel)
                                                             (entryWindow.show)
                                                         }
-                                                        null null FlxColor.WHITE 0.9 0.9 true)]
+                                                        null null FlxColor.WHITE 0.9 0.9 true xKey ->(nextFrame ->(entryWindow.show)) true)]
                             (set entryDeletionWindow delWindow))))
+            
             (when (= rewardFileIndex (- m.rewardFiles.length 1))
                 (_makeText "Abandon this puzzle" 0
                     ->_

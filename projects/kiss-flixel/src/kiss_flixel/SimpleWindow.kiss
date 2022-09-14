@@ -14,7 +14,9 @@
             :FlxColor bgColor
             :FlxColor _textColor
             :Float percentWidth
-            :Float percentHeight]
+            :Float percentHeight
+            :Bool xButton :String xKey
+            :ShortcutAction onClose]
     
     [:String title (or _title "")
         &mut :Float nextControlX 0
@@ -48,13 +50,29 @@
     
     (when title
         (makeText title null))
-    
-    (set keyHandler.onBadKey ->:Void [_ _] {}) // TODO do SOMETHING
+
+    (set keyHandler.onBadKey ->:Void [key context] (print "bad key $key in context $context")) // TODO do SOMETHING like visual/audio bell, cancel and restart
     (set keyHandler.onSelectItem
         ->:Void [:ShortcutAction a] {
             (a)
             (keyHandler.start)
         })
+    
+    (let [closeAction ->:Void {(hide)(when onClose (onClose))}]
+        (when xButton
+            (let [ftext (new FlxText width 0 0 "X" textSize)]
+                (set ftext.cameras [controlCamera])
+                (-= ftext.x ftext.width)
+                (set ftext.color textColor)
+                (dictSet _colors ftext ftext.color)
+                (dictSet _actions ftext ->:Void _ (closeAction))
+                (set xText ftext)
+                (controls.add xText)))
+        
+        (when xKey
+            (when (= keyHandler.cancelKey xKey)
+                (set keyHandler.cancelKey null))
+            (keyHandler.registerItem "{${xKey}}" closeAction)))
         
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
@@ -81,13 +99,15 @@
 
 (prop &mut :FlxText leftText)
 (prop &mut :FlxText rightText)
+(prop &mut :FlxText xText)
 
 (method makeScrollArrows []
     (unless hasScrollArrows
+        // The left arrow control is not added until the window scrolls right
         (let [ftext (new FlxText 0 height 0 "<-" textSize)]
             (set ftext.cameras [controlCamera])
             (-= ftext.y ftext.height)
-            (set ftext.color (or color textColor))
+            (set ftext.color textColor)
             (dictSet _colors ftext ftext.color)
             (dictSet _actions ftext ->:Void _ (scrollLeft))
             (set leftText ftext))
@@ -95,7 +115,7 @@
             (set ftext.cameras [controlCamera])
             (-= ftext.x ftext.width)
             (-= ftext.y ftext.height)
-            (set ftext.color (or color textColor))
+            (set ftext.color textColor)
             (dictSet _colors ftext ftext.color)
             (controls.add ftext)
             (dictSet _actions ftext ->:Void _ (scrollRight))
@@ -192,8 +212,11 @@
                                                     :FlxColor choiceColor
                                                     :Float percentWidth
                                                     :Float percentHeight
+                                                    :Bool xButton
+                                                    :String xKey
+                                                    :ShortcutAction onClose
                                                     :Bool noShortcuts]
-    (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight)
+    (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight xButton xKey onClose)
             choiceColor (or choiceColor titleColor FlxColor.WHITE)]
         (doFor choice choices
             (window.makeText (Std.string choice) choiceColor
@@ -214,15 +237,21 @@
         (let [scrollAmount (nth columnWidths cameraColumn)]
             (-= controlCamera.scroll.x scrollAmount)
             (-= leftText.x scrollAmount)
-            (-= rightText.x scrollAmount))))
+            (-= rightText.x scrollAmount)
+            (-= xText.x scrollAmount))))
 
 (method scrollRight []
     (when (< cameraColumn (- columnWidths.length 1 ))
         (let [scrollAmount (nth columnWidths cameraColumn)]
             (+= controlCamera.scroll.x scrollAmount)
             (+= leftText.x scrollAmount)
-            (+= rightText.x scrollAmount))
+            (+= rightText.x scrollAmount)
+            (+= xText.x scrollAmount))
         (+= cameraColumn 1)
         (when (< (apply + (columnWidths.slice cameraColumn)) width)
             (controls.remove rightText))
         (controls.add leftText)))
+
+ // Irreversibly disable the window's buttons (for when you're going to hide it in the next frame)
+(method clearActions []
+    (_actions.clear))
