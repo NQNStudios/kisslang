@@ -14,9 +14,9 @@
     `(whenLet [handler ,handler]
         (handler ,@args)))
 
-(defMacro tryCallOrThrow [handler message &rest args]
+(defMacro tryCallOrThrow [handler message returnNull &rest args]
     `(ifLet [handler ,handler]
-            (handler ,@args)
+            {(handler ,@args),(if (eval returnNull) `(return null) `(return))}
         (throw ,message)))
 
 (method _selectMap [m]
@@ -34,7 +34,7 @@
     (rootMap.clear))
 
 (method handleKey [:String key]
-    (unless currentMap (tryCallOrThrow onBadKey "Tried to handle key $key without calling start() first" key null))
+    (unless currentMap (tryCallOrThrow onBadKey "Tried to handle key $key without calling start() first" true key null))
     (if (= cancelKey key)
             (cancel)
         (case (dictGet currentMap key)
@@ -44,7 +44,7 @@
             ((Prefix nextMap)
                 (_selectMap nextMap))
             (otherwise
-                (tryCallOrThrow onBadKey "Key $key is not defined in $currentMap and no onBadKey event was given" key currentMap)))))
+                (tryCallOrThrow onBadKey "Key $key is not defined in $currentMap and no onBadKey event was given" true key currentMap)))))
 
 // Extract [k]eyboard [s]hortcuts from a string:
 (method extractKeyboardShortcuts [str &opt :Stream stream :Array<String> shortcuts]
@@ -58,14 +58,14 @@
                         ((Some newShortcuts)
                             (extractKeyboardShortcuts str stream (shortcuts.concat (newShortcuts.split ""))))
                         (otherwise
-                            (tryCallOrThrow onBadShortcut "unclosed [ in $str" str null)
+                            (tryCallOrThrow onBadShortcut "unclosed [ in $str" true str null)
                             [])))
                 ((Some "{")
                     (case (stream.takeUntilAndDrop "}")
                         ((Some newShortcut)
                             (extractKeyboardShortcuts str stream (shortcuts.concat [newShortcut])))
                         (otherwise
-                            (tryCallOrThrow onBadShortcut "unclosed { in $str" str null)
+                            (tryCallOrThrow onBadShortcut "unclosed { in $str" true str null)
                             [])))
                 (otherwise (throw "takeUntilOneOf lied"))))
         (otherwise
@@ -81,11 +81,11 @@
                     (if keys
                             (case existingKey
                                 ((Final _)
-                                    (tryCallOrThrow onBadShortcut conflictMessage description existingKey))
+                                    (tryCallOrThrow onBadShortcut conflictMessage false description existingKey))
                                 ((Prefix innerPrefixMap)
                                     (registerShortcut keys description item innerPrefixMap))
                                 (otherwise))
-                        (tryCallOrThrow onBadShortcut conflictMessage description existingKey))))
+                        (tryCallOrThrow onBadShortcut conflictMessage false description existingKey))))
             (true
                 (if keys
                         (let [innerPrefixMap (new Map)]
