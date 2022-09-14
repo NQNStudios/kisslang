@@ -75,12 +75,12 @@
     (unless prefixMap (set prefixMap rootMap))
     (let [firstKey (keys.shift)]
         (cond 
-            ((prefixMap.exists firstKey)
-                (let [existingKey (dictGet prefixMap firstKey)
+            ((or (prefixMap.exists firstKey) (= firstKey cancelKey))
+                (let [existingKey (if (= firstKey cancelKey) (Cancel cancelKey) (dictGet prefixMap firstKey))
                         conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
                     (if keys
                             (case existingKey
-                                ((Final _)
+                                ((or (Final _) (Cancel _))
                                     (tryCallOrThrow onBadShortcut conflictMessage false description existingKey))
                                 ((Prefix innerPrefixMap)
                                     (registerShortcut keys description item innerPrefixMap))
