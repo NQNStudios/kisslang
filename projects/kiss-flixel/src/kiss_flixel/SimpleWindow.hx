@@ -5,6 +5,7 @@ import kiss.List;
 import flixel.FlxG;
 import flixel.FlxCamera;
 import flixel.ui.FlxButton;
+import flixel.addons.ui.FlxInputText;
 import flixel.text.FlxText;
 import flixel.FlxSprite;
 import flixel.util.FlxColor;

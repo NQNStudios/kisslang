@@ -30,7 +30,8 @@
         :String xKey _xKey
         :ShortcutAction onClose _onClose
         :FlxTypedGroup<FlxSprite> controls (new FlxTypedGroup)
-        :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)]
+        :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)
+        :FlxKeyShortcutHandler<ShortcutAction> xHandler (new FlxKeyShortcutHandler)]
     
     (super 0 0)
     (when defaultCamera (set this.cameras [defaultCamera]))
@@ -56,11 +57,21 @@
     (when title
         (makeText title null))
 
-    (set keyHandler.onBadKey ->:Void [key context] (print "bad key $key in context $context")) // TODO do SOMETHING like visual/audio bell, cancel and restart
+    (set keyHandler.onBadKey ->:Void [key context]
+        (unless (= key xKey)
+            (print "bad key $key in context $context"))) // TODO do SOMETHING like visual/audio bell, cancel and restart
     (set keyHandler.onSelectItem
         ->:Void [:ShortcutAction a] {
             (a)
             (keyHandler.start)
+        })
+
+    (set xHandler.cancelKey null)
+    (set xHandler.onBadKey ->:Void [key context] 0)
+    (set xHandler.onSelectItem
+        ->:Void [:ShortcutAction a] {
+            (a)
+            (xHandler.start)
         })
     
     (defAndCall method makeXControls
@@ -78,14 +89,17 @@
                 (when xKey
                     (when (= keyHandler.cancelKey xKey)
                         (set keyHandler.cancelKey null))
-                    (keyHandler.registerItem "{${xKey}}" closeAction))))
+                    (xHandler.registerItem "{${xKey}}" closeAction))))
         
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
 
-// TODO could make a camera on the window so the controls are clipped by the camera
+(prop :FlxTypedGroup<FlxInputText> inputTexts (new FlxTypedGroup))
 
 (method addControl [:FlxSprite control]
+
+    (when (Std.isOfType control FlxInputText)
+        (inputTexts.add (cast control FlxInputText)))
     (set control.cameras [controlCamera])
     (set control.x nextControlX)
     (set control.y nextControlY)
@@ -157,6 +171,7 @@
     (set hasScrollArrows false)
     (_actions.clear)
     (controls.clear)
+    (inputTexts.clear)
     (keyHandler.clear)
     (makeXControls)
     (set nextControlX 0)
@@ -170,6 +185,7 @@
         (FlxG.state.add controls)
         (windowStack.push this)
         (keyHandler.start)
+        (xHandler.start)
         (set _shown true)))
 
 (method :Void hide []
@@ -179,6 +195,7 @@
         (FlxG.state.remove controls)
         (windowStack.remove this)
         (keyHandler.cancel)
+        (xHandler.cancel)
         (set _shown false)))
 
 (function getHighlighted [:FlxColor color &opt :Float amount]
@@ -194,7 +211,9 @@
     (set otherIsSelected false)
     (when (= (last windowStack) this)
         (when keyboardEnabled
-            (keyHandler.update))
+            (unless (apply or (for textBox inputTexts.members textBox.hasFocus))
+                (keyHandler.update)))
+        (xHandler.update)
         // Handle mouse input
         (let [mousePos (FlxG.mouse.getScreenPosition controlCamera)]
             (controls.forEach ->text
