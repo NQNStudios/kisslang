@@ -32,7 +32,10 @@ class Main extends Sprite
 		};
 		function reloadModel(_) {
 			if (t.draggingSprite == null) {
-				t.refreshModel(new HabitModel(habitFile));
+				var showLowerPriority = t.model.showLowerPriority;
+				var newModel = new HabitModel(habitFile);
+				newModel.showLowerPriority = showLowerPriority;
+				t.refreshModel(newModel);
 				t.model.save();
 			}
 		}
