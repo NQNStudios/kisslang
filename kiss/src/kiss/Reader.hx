@@ -145,10 +145,12 @@ class Reader {
         //     ->[args] body
         //     ->arg body
         //     ->{body}
+        //     ->(body)
         // OR, for countingLambda:
         //     -+>countVar [args] body
         //     -+>countVar arg body
         //     -+>countVar {body}
+        //     -+>countVar (body)
         // or any of those with the first expression after -> or -+> prefixed by :Void
         function arrowSyntax(countingLambda:Bool, stream:Stream, k:KissState) {
             var countVar = if (countingLambda) {
