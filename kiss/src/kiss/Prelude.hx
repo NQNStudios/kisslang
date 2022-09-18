@@ -23,7 +23,9 @@ import python.Bytearray;
 import uuid.Uuid;
 import haxe.io.Path;
 import haxe.Json;
-
+#if target.threaded
+import sys.thread.Mutex;
+#end
 using StringTools;
 using uuid.Uuid;
 
@@ -746,13 +748,26 @@ class Prelude {
         return assertProcess("haxelib", ["libpath", haxelibName]).trim();
     }
 
+    #if target.threaded
+    static var shellCountMutex = new Mutex();
+    #end
+
+    static var shellCount = 0;
+
     public static function shellExecute(script:String, shell:String) {
         #if (sys || hxnodejs)
         if (shell.length == 0) {
             shell = if (Sys.systemName() == "Windows") "cmd /c" else "bash";
         }
 
-        var tempScript = 'tempScript.${shell.split(" ")[0]}';
+        #if target.threaded
+        shellCountMutex.acquire();
+        #end
+        var tempScript = 'tempScript${shellCount++}.${shell.split(" ")[0]}';
+        #if target.threaded
+        shellCountMutex.release();
+        #end
+        
         File.saveContent(tempScript, script);
         try {
             if (Sys.systemName() != "Windows") tempScript = joinPath(Sys.getCwd(), tempScript);
