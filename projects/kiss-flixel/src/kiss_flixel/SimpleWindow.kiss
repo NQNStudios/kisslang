@@ -264,7 +264,8 @@
             (-= controlCamera.scroll.x scrollAmount)
             (-= leftText.x scrollAmount)
             (-= rightText.x scrollAmount)
-            (-= xText.x scrollAmount))))
+            (when xText
+                (-= xText.x scrollAmount)))))
 
 (method scrollRight []
     (when (< cameraColumn (- columnWidths.length 1 ))
