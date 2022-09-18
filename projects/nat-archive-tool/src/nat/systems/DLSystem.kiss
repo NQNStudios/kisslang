@@ -20,14 +20,18 @@
                             // TODO put active dl processes in a map and
                             // don't start new ones when re-processing
                             (localFunction :Void downloadMp3 []
-                                (ui.displayMessage "downloading $url as $basename")
-                                ```
-                                youtube-dl -x --audio-format mp3 -o $o $url
-                                ```
-                                (ui.displayMessage "done downloading $basename")
-                                
-                                (addFiles archive e ["${basename}.mp3"])
-                                (addTags archive e ["dlProcessed"]))
+                                (try 
+                                    {
+                                        (ui.displayMessage "downloading $url as $basename")
+                                        ```
+                                        youtube-dl -x --audio-format mp3 -o $o $url
+                                        ```
+                                        (ui.displayMessage "done downloading $basename")
+                                        
+                                        (addFiles archive e ["${basename}.mp3"])
+                                        (addTags archive e ["dlProcessed"]
+                                    }
+                                    (catch [e] (ui.displayMessage "failed downloading $basename"))))
                             (#if target.threaded
                                     (Thread.create downloadMp3)
                                 {
