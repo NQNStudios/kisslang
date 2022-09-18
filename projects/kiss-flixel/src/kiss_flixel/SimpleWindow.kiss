@@ -94,12 +94,12 @@
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
 
-(prop :FlxTypedGroup<FlxInputText> inputTexts (new FlxTypedGroup))
+(prop :FlxTypedGroup<KissInputText> inputTexts (new FlxTypedGroup))
 
 (method addControl [:FlxSprite control]
 
-    (when (Std.isOfType control FlxInputText)
-        (inputTexts.add (cast control FlxInputText)))
+    (when (Std.isOfType control KissInputText)
+        (inputTexts.add (cast control KissInputText)))
     (set control.cameras [controlCamera])
     (set control.x nextControlX)
     (set control.y nextControlY)
@@ -216,19 +216,31 @@
         (xHandler.update)
         // Handle mouse input
         (let [mousePos (FlxG.mouse.getScreenPosition controlCamera)]
+            // Click and hover on clickable text entries
             (controls.forEach ->text
-                    (whenLet [onClick (dictGet _actions text)]
-                        (let [color (dictGet _colors text)]
-                            (if (and !otherIsSelected (.containsPoint (text.getScreenBounds controlCamera) mousePos))
-                                    {
-                                        (when FlxG.mouse.justPressed
-                                            (onClick text))
-                                        (set otherIsSelected true)
-                                        (set text.color (getHighlighted color))
-                                    }
-                                {
-                                    (set text.color color)
-                                })))))))
+                (whenLet [onClick (dictGet _actions text)]
+                                (let [color (dictGet _colors text)]
+                                    (if (and !otherIsSelected (.containsPoint (text.getScreenBounds controlCamera) mousePos))
+                                            {
+                                                (when FlxG.mouse.justPressed
+                                                    (onClick text))
+                                                (set otherIsSelected true)
+                                                (set text.color (getHighlighted color))
+                                            }
+                                        {
+                                            (set text.color color)
+                                        }))))
+            // Click on text boxes to focus them
+            (inputTexts.forEach ->text
+                (when FlxG.mouse.justPressed
+                    (when (.containsPoint (text.getScreenBounds controlCamera) mousePos)
+                        (inputTexts.forEach ->text (set text.hasFocus false))
+                        (set otherIsSelected true)
+                        (set text.caretIndex (text.getCaretIndex controlCamera))
+                        (set text.hasFocus true))))
+            // Click anywhere else to take focus away from text boxes
+            (when (and !otherIsSelected FlxG.mouse.justPressed)
+                (inputTexts.forEach ->text (set text.hasFocus false))))))
 
 (function :SimpleWindow promptForChoice <>[T] [:String prompt
                                                     :Array<T> choices
