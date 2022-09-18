@@ -265,14 +265,14 @@
                                 archive
                                 ->:Void e {(collectedEntries.push e)
                                                 // If the maximum is reached, return it
-                                                (if (= max collectedEntries.length)
+                                                (if (= (#if debug 1 max) collectedEntries.length)
                                                         (resolve collectedEntries)
                                                     // Otherwise, recurse
                                                     (chooseNextEntry))})}]
         (set chooseNextEntry _chooseNextEntry)
         (_chooseNextEntry)))
 
-(var SCROLL_BOUND_MARGIN 200)
+(var SCROLL_BOUND_MARGIN 2000)
 (method handleChanges [:Archive archive :ChangeSet changeSet]
     (when changeSet
         // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
