@@ -17,7 +17,7 @@
     (cond
         ((hasComponent e Images2)
             (let [images (readComponent e Images2)]
-                (.onComplete (BitmapData.loadFromFile (joinPath archive.archiveDir "files" (nth images.imageFiles images.pinnedImageIndex)))
+                (.onComplete (BitmapData.loadFromFile (archive.filePath  (nth images.imageFiles images.pinnedImageIndex)))
                     ->bitmapData {
                         (loadGraphic bitmapData)
                     })))

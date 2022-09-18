@@ -74,3 +74,6 @@
         id (Uuid.v4)
         components (new Map)
         files []))
+
+(method filePath [file]
+    (joinPath archiveDir "files" file))
