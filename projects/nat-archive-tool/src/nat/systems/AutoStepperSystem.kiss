@@ -1,0 +1,28 @@
+(load "../Lib.kiss")
+
+(defNew []
+    [:String jarPath (joinPath (libPath "nat-archive-tool") "apps/autostepper/AutoStepper.jar")]
+    (super
+        ["mp3"]
+        ->[archive e mp3Files &opt ui] 
+            (unless (tagsMatch e "stepperProcessed")
+                (doFor file mp3Files
+                    (localFunction runAutoStepper []
+                        (try
+                            {
+                                (ui.displayMessage "autoStepping $file")
+                                ```
+                                java -jar "${jarPath}" input="$(archive.filePath file)" duration=130 hard=true
+                                ```
+                                (ui.displayMessage "done autostepping $file")
+                                // TODO attach the simfile and tag this as processed after ALL mp3 threads finish
+                                **(addTags archive e ["stepperProcessed"])
+                            }
+                            (catch [e] (ui.displayMessage "failed autostepping $file"))))
+                
+                    (#if target.threaded
+                            (Thread.create runAutoStepper)
+                        {
+                            (ui.displayMessage "threading unavailable -- the program will freeze while autostepping")
+                            (runAutoStepper)
+                        })))))
