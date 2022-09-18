@@ -272,7 +272,8 @@
             (+= controlCamera.scroll.x scrollAmount)
             (+= leftText.x scrollAmount)
             (+= rightText.x scrollAmount)
-            (+= xText.x scrollAmount))
+            (when xText
+                (+= xText.x scrollAmount)))
         (+= cameraColumn 1)
         (when (< (apply + (columnWidths.slice cameraColumn)) width)
             (controls.remove rightText))
