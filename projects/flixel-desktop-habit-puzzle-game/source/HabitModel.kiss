@@ -223,8 +223,10 @@
                 (_activeBonusEntries)
                 (_activeTodoEntries))))
 
+(prop &mut :Bool showLowerPriority false)
+
 (method :Bool topPriorityIsActive []
-    (apply or (for e (_allActiveEntries) e.topPriority)))
+    ?(unless showLowerPriority (apply or (for e (_allActiveEntries) e.topPriority))))
 
 (defMacro topPriority [name]
     `(method :Array<Entry> ,name []

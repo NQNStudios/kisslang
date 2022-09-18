@@ -342,6 +342,12 @@
                                                         }
                                                         null null FlxColor.WHITE 0.9 0.9 true (defAndReturn prop xKey "escape") backToEntryWindow  true)]
                             (set priorityWindow pw))))
+            (let [showOrHide (if model.showLowerPriority "Hide" "Show")]
+                (_makeText "$showOrHide lower-priority habits and tasks" 0
+                    ->_
+                        (defAndCall method toggleLowerPriority
+                            (set model.showLowerPriority !model.showLowerPriority)
+                            (refreshModel))))
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
