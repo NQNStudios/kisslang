@@ -363,11 +363,11 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
 (function _testCase []
     (case (toOption [])
         (None (Assert.pass))
-        (otherwise (Assert.fail)))
+        (never otherwise))
     (case (toOption "hey")
-        (None (Assert.fail))
+        (never None)
         ((Some "hey") (Assert.pass))
-        (otherwise (Assert.fail)))
+        (never otherwise))
     (Assert.equals 5 (case (toOption 0)
         (otherwise 5)))
     // Test case with guards and multiple values

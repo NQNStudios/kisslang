@@ -322,6 +322,23 @@ class SpecialForms {
             // to cover all patterns.
             var args:kiss.List<ReaderExp> = args.copy();
 
+            var cases:kiss.List<ReaderExp> = args.slice(1);
+            for (i in 0...cases.length) {
+                switch (cases[i].def) {
+                    case CallExp({pos: _, def: Symbol("never")}, neverExps):
+                        cases[i].checkNumArgs(1, 1, '(never <pattern>)');
+                        var b = cases[i].expBuilder();    
+                        var failureError = KissError.fromExp(cases[i], '').toString(AssertionFail);
+                        var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
+                        cases[i] = b.call(neverExps[0], [
+                            b.callSymbol('throw', [
+                                b.callSymbol('kiss.Prelude.runtimeInsertAssertionMessage', [b.str('${Reader.toString(neverExps[0].def)} should never match pattern ${Reader.toString(neverExps[0].def)}'), b.str(failureError), b.int(colonsInPrefix)])])]);
+                    case CallExp({pos: _, def: Symbol("otherwise")}, _) if (i != cases.length - 1):
+                        throw KissError.fromExp(cases[i], "(otherwise <body...>) branch must come last in a (case <...>) expression");
+                    default:
+                }
+            }
+
             var isTupleCase = switch (args[0].def) {
                 case ListExp(_):
                     true;
@@ -330,9 +347,9 @@ class SpecialForms {
             }
 
             var b = wholeExp.expBuilder();
-            var defaultExpr = switch (args[-1].def) {
+            var defaultExpr = switch (cases[-1].def) {
                 case CallExp({pos: _, def: Symbol("otherwise")}, otherwiseExps):
-                    args.pop();
+                    cases.pop();
                     k.convert(b.begin(otherwiseExps));
                 default:
                     null;
@@ -342,7 +359,7 @@ class SpecialForms {
 
             var canCompareNull = !isTupleCase;
 
-            var cases = args.slice(1);
+            
             // case also override's haxe's switch() behavior by refusing to match null values against <var> patterns.
             if (canCompareNull) {
                 var nullExpr = defaultExpr;
