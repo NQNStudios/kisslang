@@ -361,6 +361,10 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
     (if value (Some value) None))
 
 (function _testCase []
+    // otherwise branch must come last
+    (assertThrowsAtCompileTime (case null (otherwise "thing") (v "OtherThing")))
+    // null must be matched
+    (assertThrowsAtCompileTime (case null (v "thing")))
     (case (toOption [])
         (None (Assert.pass))
         (never otherwise))
