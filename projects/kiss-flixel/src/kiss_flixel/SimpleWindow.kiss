@@ -178,7 +178,14 @@
     (set nextControlY 0)
     (makeText title titleColor))
 
-(method :Void show []
+(method :Void show [&opt :Int _cameraColumn]
+    (when (and _cameraColumn !(= cameraColumn _cameraColumn))
+        (assert (<= 0 _cameraColumn (- columnWidths.length 1)) "Tried to show out-of-bounds camera column ${_cameraColumn} of ${columnWidths.length}")
+        (while (> cameraColumn _cameraColumn)
+            (scrollLeft))
+        (while (< cameraColumn _cameraColumn)
+            (scrollRight)))
+
     (unless _shown
         (FlxG.cameras.add controlCamera)
         (FlxG.state.add this)
