@@ -55,7 +55,7 @@
         (when title (-= controlsPerColumn 1)))
     
     (when title
-        (makeText title null))
+        (set titleText (makeText title null)))
 
     (set keyHandler.onBadKey ->:Void [key context]
         (unless (= key xKey)
@@ -117,6 +117,7 @@
                 (makeScrollArrows))))
     control)
 
+(prop &mut :FlxText titleText)
 (prop &mut :FlxText leftText)
 (prop &mut :FlxText rightText)
 (prop &mut :FlxText xText)
@@ -176,7 +177,7 @@
     (makeXControls)
     (set nextControlX 0)
     (set nextControlY 0)
-    (makeText title titleColor))
+    (set titleText (makeText title titleColor)))
 
 (method :Void show [&opt :Int _cameraColumn]
     (when (and _cameraColumn !(= cameraColumn _cameraColumn))
@@ -281,6 +282,8 @@
         (controls.add rightText)
         (let [scrollAmount (nth columnWidths cameraColumn)]
             (-= controlCamera.scroll.x scrollAmount)
+            (when titleText
+                (-= titleText.x scrollAmount))
             (-= leftText.x scrollAmount)
             (-= rightText.x scrollAmount)
             (when xText
@@ -290,6 +293,8 @@
     (when (< cameraColumn (- columnWidths.length 1 ))
         (let [scrollAmount (nth columnWidths cameraColumn)]
             (+= controlCamera.scroll.x scrollAmount)
+            (when titleText
+                (+= titleText.x scrollAmount))
             (+= leftText.x scrollAmount)
             (+= rightText.x scrollAmount)
             (when xText
