@@ -336,6 +336,7 @@
                                                         (model.allUndeletedEntries)
                                                         ->:Void [:Entry e] {
                                                             (model.toggleEntryPriority e)
+                                                            (model.save)
                                                             (refreshModel)
                                                             (priorityWindow.clearActions)
                                                             (priorityWindow.show)
@@ -373,6 +374,7 @@
                                                         (model.allUndeletedEntries)
                                                         ->:Void [:Entry e] {
                                                             (model.deleteEntry e)
+                                                            (model.save)
                                                             (refreshModel)
                                                             (entryWindow.show)
                                                         }

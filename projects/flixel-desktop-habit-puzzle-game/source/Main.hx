@@ -31,7 +31,7 @@ class Main extends Sprite
 			habitFile;
 		};
 		function reloadModel(_) {
-			if (t.draggingSprite == null) {
+			if (t.draggingSprite == null && !t.tempWindowIsShown()) {
 				var showLowerPriority = t.model.showLowerPriority;
 				var newModel = new HabitModel(habitFile);
 				newModel.showLowerPriority = showLowerPriority;
