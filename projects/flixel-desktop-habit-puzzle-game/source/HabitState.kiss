@@ -329,7 +329,8 @@
                 ->_
                     (defAndCall method choosePriorities
                         (entryWindow.hide)
-                        (let [pw (SimpleWindow.promptForChoice "Choose your top priorities. A ! will appear in front of them" 
+                        (let [cameraColumn (when priorityWindow priorityWindow.cameraColumn)
+                                pw (SimpleWindow.promptForChoice "Choose your top priorities. A ! will appear in front of them" 
                                                         (model.allUndeletedEntries)
                                                         ->:Void [:Entry e] {
                                                             (model.toggleEntryPriority e)
@@ -342,6 +343,7 @@
                                                                 })
                                                         }
                                                         null null FlxColor.WHITE 0.9 0.9 true (defAndReturn prop xKey "escape") backToEntryWindow  true)]
+                            (pw.show cameraColumn)
                             (set priorityWindow pw))))
 
             (_makeText "Edit a habit or task's labels" 0
