@@ -333,17 +333,11 @@ class Macros {
             arraySet(wholeExp, exps, k);
         };
 
-        k.doc("assert", 1, 2, "(assert <expression> <message>)");
+        k.doc("assert", 1, 2, "(assert <expression> <?failure message>)");
         macros["assert"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
             var expression = exps[0];
-            var failureError = KissError.fromExp(wholeExp, "").toString(AssertionFail);
-            var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
-            var messageExp = if (exps.length > 1) {
-                exps[1];
-            } else {
-                b.str("");
-            };
+            
             var letVal = b.symbol();
             b.callSymbol("let", [
                 b.list([
@@ -353,42 +347,35 @@ class Macros {
                 b.callSymbol("if", [
                     letVal,
                     letVal,
-                    b.callSymbol("throw", [
-                        b.callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, b.str(failureError), b.int(colonsInPrefix)])
-                    ])
+                    b.throwAssertionError()
                 ])
             ]);
         };
-        k.doc("assertThrows", 1, 2, "(assertThrows <expression> <message>)");
+        k.doc("assertThrows", 1, 2, "(assertThrows <expression> <?failure message>)");
         macros["assertThrows"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
             var expression = exps[0];
             var basicMessage = '${expression.def.toString()} should have thrown an error';
-            var messageExp = if (exps.length > 1) {
-                b.callSymbol("+", [b.str(basicMessage + ": "), exps[1]]);
-            } else {
-                b.str(basicMessage);
-            };
+            var messageExp = b.str(basicMessage);
 
             b.callSymbol("try", [
                 b.begin([expression, b.callSymbol("throw", [messageExp])]),
                 b.callSymbol("catch", [b.list([b.typed("Dynamic", b.symbol("error"))]),
                     b.callSymbol("if", [b.callSymbol("=", [b.symbol("error"), messageExp]),
-                            b.callSymbol("throw", [messageExp]),
+                            b.throwAssertionError(),
                         b.symbol("true")])])
             ]);
         };
 
-        k.doc("assertThrowsAtCompileTime", 1, 2, "(assertThrowsAtCompileTime <expression> <message>)");
+        k.doc("assertThrowsAtCompileTime", 1, 2, "(assertThrowsAtCompileTime <expression> <?failure message>)");
         macros["assertThrowsAtCompileTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
             try {
                 k.convert(exps[0]);
+                b.throwAssertionError();
             } catch (e) {
-                return b.none();
+                b.none();
             }
-
-            throw KissError.fromExp(wholeExp, "expression compiled successfully when it was supposed to throw a compiler error");
         };
 
         function stringsThatMatch(exp:ReaderExp, formName:String) {

@@ -656,6 +656,26 @@ class Helpers {
             set: (v:ReaderExp, value:ReaderExp) -> callSymbol("set", [v, value]),
             let: let,
             objectWith: objectWith,
+            // Only use within assertion macros
+            throwAssertionError: () -> {
+                var failureError = KissError.fromExp(posRef, "").toString(AssertionFail);
+                var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
+                var exps = switch (posRef.def) {
+                    case CallExp(_, exps):
+                        exps;
+                    default:
+                        throw KissError.fromExp(_symbol("throwAssertionError"), "throwAssertionError can only be used in a builder of an assertion macro");
+                }
+                var messageExp = if (exps.length > 1) {
+                    exps[1];
+                } else {
+                    str("");
+                };
+                callSymbol("throw", [
+                        callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, str(failureError), int(colonsInPrefix)])
+                    ]);
+            },
+            // Compile-time only!
             throwKissError: (reason:String) -> {
                 callSymbol("throw", [
                     callSymbol("KissError.fromExpStr", [
