@@ -120,7 +120,11 @@
 (prop &mut :FlxText titleText)
 (prop &mut :FlxText leftText)
 (prop &mut :FlxText rightText)
+(prop &mut :FlxText columnText)
 (prop &mut :FlxText xText)
+
+(method columnTextStr []
+    "$(* cameraColumn ".")*$(* (- columnWidths.length 1 cameraColumn) ".")")
 
 (method makeScrollArrows []
     (unless hasScrollArrows
@@ -141,7 +145,17 @@
             (controls.add ftext)
             (dictSet _actions ftext ->:Void _ (scrollRight))
             (set rightText ftext))
-        (set hasScrollArrows true)))
+        (let [ftext (new FlxText (fHalf width) height 0 (columnTextStr) textSize)]
+            (set ftext.cameras [controlCamera])
+            (-= ftext.x (fHalf ftext.width))
+            (-= ftext.y ftext.height)
+            (set ftext.color textColor)
+            (dictSet _colors ftext ftext.color)
+            (controls.add ftext)
+            (set columnText ftext))
+        (set hasScrollArrows true))
+    // A column could be added while the same window is shown.
+    (set columnText.text (columnTextStr)))
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
@@ -286,8 +300,10 @@
                 (-= titleText.x scrollAmount))
             (-= leftText.x scrollAmount)
             (-= rightText.x scrollAmount)
+            (-= columnText.x scrollAmount)
             (when xText
-                (-= xText.x scrollAmount)))))
+                (-= xText.x scrollAmount)))
+        (set columnText.text (columnTextStr))))
 
 (method scrollRight []
     (when (< cameraColumn (- columnWidths.length 1 ))
@@ -297,12 +313,14 @@
                 (+= titleText.x scrollAmount))
             (+= leftText.x scrollAmount)
             (+= rightText.x scrollAmount)
+            (+= columnText.x scrollAmount)
             (when xText
                 (+= xText.x scrollAmount)))
         (+= cameraColumn 1)
         (when (< (apply + (columnWidths.slice cameraColumn)) width)
             (controls.remove rightText))
-        (controls.add leftText)))
+        (controls.add leftText)
+        (set columnText.text (columnTextStr))))
 
  // Irreversibly disable the window's buttons (for when you're going to hide it in the next frame)
 (method clearActions []
