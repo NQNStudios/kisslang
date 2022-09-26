@@ -38,18 +38,18 @@
                                 (FileSystem.rename lastConfigDir activeConfigDir))
                         }
                         (catch [e] (throw "failed to delete bad config: $e")))
+                        (#if test
+                                // If there's a build error when testing, throw a test failure
+                                (throw errorMessage)
+                            // If there's a build error at runtime, tell the user
+                            (showCompileError errorMessage))
                     // When user config fails to build, use the default
                     // Counterintuitively, this unless is correct:
                     (unless fallbackToDefault
-                        (Vscode.window.showErrorMessage errorMessage)
                         (warningMessage "Falling back to the default Kiss-VSCode Config")
                         (unless config
-                            (tryLoadConfig true)))
-                    (#if test
-                            // If there's a build error when testing, throw a test failure
-                            (throw errorMessage)
-                        // If there's a build error at runtime, tell the user
-                        (showCompileError errorMessage))
+                            (tryLoadConfig false true)))
+                    
                 }]
         
         // Choose where to find the custom config
