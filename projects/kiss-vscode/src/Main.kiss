@@ -41,6 +41,7 @@
                     // When user config fails to build, use the default
                     // Counterintuitively, this unless is correct:
                     (unless fallbackToDefault
+                        (Vscode.window.showErrorMessage errorMessage)
                         (warningMessage "Falling back to the default Kiss-VSCode Config")
                         (unless config
                             (tryLoadConfig true)))
