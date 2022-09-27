@@ -1,4 +1,5 @@
 from imports import *
+import numpy as np
 
 def arg(num, usage, default=None):
     val = ''
@@ -30,7 +31,7 @@ class AudioCutter:
             self.wav = wave.open(f)
 
         self.nchannels, self.sampwidth, self.framerate, self.nframes, self.comptype, self.compname = self.wav.getparams()
-        _, self.data = wavfile.read(wav_file)
+        self.rate, self.data = wavfile.read(wav_file)
         
         # Accumulate new sound data cut from the original, along with new related json data
         self.new_data = self.data[0:1]
@@ -57,6 +58,12 @@ class AudioCutter:
         self.new_data = vstack((self.new_data, audio))
         self.current_sec += length
         self.new_json_info[tag] = info
+
+    def add_silence(self, seconds):
+        nframes = int(seconds * self.rate)
+        shape = self.new_data.shape
+        shape = (nframes,) + shape[1:]
+        self.new_data = vstack((self.new_data, np.zeros(shape, self.new_data.dtype)))
 
     def play_audio(self, start, end):
         audio, _ = self.audio_and_length(start, end)
