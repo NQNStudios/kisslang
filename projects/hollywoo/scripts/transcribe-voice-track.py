@@ -6,13 +6,9 @@ usage = 'python transcribe-voice-track.py <wav filenames...> '
 # If you don't get results, try re-exporting as Signed 16-bit PCM
 
 import util
-import wave
-import json
-import sys
 import os
 import requests
 from zipfile import ZipFile
-from scipy.io import wavfile
 
 from vosk import Model, KaldiRecognizer
 

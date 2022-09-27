@@ -1,19 +1,10 @@
 #! /usr/bin/env python
 # pip install -r requirements.txt
-usage = 'python cut-voice-track.py <?wav timestamp json> <?wav filename>'
+usage = 'python cut-voice-track.py <wav timestamp json> <?wav filename>'
 
+from imports import *
 import util
-import json
-import sys
-from numpy import vstack
-from scipy.io import wavfile
-from simpleaudio import play_buffer
-import wave
 import string
-try:
-    from getch import getch
-except:
-    from msvcrt import getwch as getch
 from os.path import exists
 from os import system
 system('color')
@@ -22,48 +13,27 @@ json_filename = util.arg(1, usage)
 default_wav_name = json_filename.replace('_4000.json', '')
 wav_filename = util.arg(2, usage, default_wav_name)
 
-timestamps = {}
-with open(json_filename, 'r') as f:
-    timestamps = json.load(f)
+cutter = util.AudioCutter(wav_filename, json_filename)
 
-wav = None
-with open(wav_filename, 'rb') as f:
-    wav = wave.open(f)
-
-nchannels, sampwidth, framerate, nframes, comptype, compname = wav.getparams()
-
-_, data = wavfile.read(wav_filename)
-
-new_data = data[0:1]
-new_json = {}
-
-def save():
+def new_wav_file():
     suffix = "0"
     new_wav = wav_filename.replace(".wav", f"-cut{suffix}.wav")
     while exists(new_wav):
         new_suffix = str(int(suffix) + 1)
         new_wav = new_wav.replace(f"-cut{suffix}.wav", f"-cut{new_suffix}.wav")
         suffix = new_suffix
-    wavfile.write(new_wav, framerate, new_data)
-    with open(new_wav.replace(".wav", ".json"), 'w') as f:
-        json.dump(new_json, f)
-    sys.exit(0)
+    return new_wav
 
-current_sec = 0
-searching_for = None
-last_search = None
-for (audio_guess, possible_sections) in timestamps.items():
-    if searching_for != None:
-        if searching_for in audio_guess:
-            searching_for = None
-        else:
-            continue
+def save():
+    new_wav = new_wav_file()
+    cutter.save_and_quit(new_wav)
 
+def process_chunk(audio_guess, possible_sections):
     num_takes = len(possible_sections)
     if num_takes > 36:
         print('\033[31m' + audio_guess + '\033[0m')
         print('\033[31m' + f'Warning! {num_takes} is too many! Skipping' + '\033[0m')
-        continue
+        return
     assert num_takes <= 36, "I didn't plan for this many takes of any line"
     alphabet_takes = 0
     if num_takes > 10:
@@ -73,7 +43,7 @@ for (audio_guess, possible_sections) in timestamps.items():
     if alphabet_takes > 0:
         takes += '/' + '/'.join(string.ascii_uppercase[:alphabet_takes])
 
-    def audio_and_length(choice):
+    def start_and_end(choice):
         take_num = -1
         if choice in string.ascii_uppercase:
             take_num = 10 + string.ascii_uppercase.index(choice)
@@ -82,9 +52,7 @@ for (audio_guess, possible_sections) in timestamps.items():
         take_info = possible_sections[take_num]
         start = take_info['start']
         end = take_info['end']
-        start_frame = int(start * framerate)
-        end_frame = int(end * framerate)
-        return data[start_frame:end_frame], end - start
+        return start, end
     
     print('\033[31m' + audio_guess + '\033[0m')
     print(f'{takes}/u({takes}/*)/d/f/n/h/q')
@@ -95,47 +63,44 @@ for (audio_guess, possible_sections) in timestamps.items():
         elif choice == 'd':
             break
         elif choice != '/' and choice in takes:
-            audio, _ = audio_and_length(choice)
-            play_buffer(audio, nchannels, sampwidth, framerate)
+            start, end = start_and_end(choice)
+            cutter.play_audio(start, end)
         elif choice == 'f':
-            phrase = input("phrase (lower-case) to search for?")
-            last_search = phrase
-            searching_for = phrase
+            cutter.search()
             break
         elif choice == 'n':
-            searching_for = last_search
+            cutter.repeat_search()
             break
         elif choice == 'q':
             save()
         elif choice == 'u':
             choice = getch()
+            choices = takes.split('/')
             if choice == '*':
                 # use all the takes
                 print('using all')
                 line_with_alts = {}
-                choices = takes.split('/')
-                audio, length = audio_and_length(choices[0])
-                new_data = vstack((new_data, audio))
-                line_with_alts['start'] = current_sec
-                line_with_alts['end'] = current_sec + length
-                current_sec += length
+                start, end = start_and_end(choices[0])
+                length = end - start
+                line_with_alts['start'] = cutter.current_sec
+                line_with_alts['end'] = cutter.current_sec + length
+                cutter.take_audio(audio_guess, line_with_alts, start, end)
                 alts = []
                 for choice in choices[1:]:
-                    audio, length = audio_and_length(choices[0])
-                    alts.append({'start': current_sec, 'end': current_sec + length})
-                    current_sec += length
-                    new_data = vstack((new_data, audio))
-                line_with_alts['alts'] = alts
-                new_json[audio_guess] = line_with_alts
+                    start, end = start_and_end(choices[0])
+                    length = end - start
+                    alts.append({'start': cutter.current_sec, 'end': cutter.current_sec + length})
+                    line_with_alts['alts'] = alts
+                    cutter.take_audio(audio_guess, line_with_alts, start, end)
                 break
             elif choice != '/' and choice in takes:
-                audio, length = audio_and_length(choice)
-                new_json[audio_guess] = {
-                    'start': current_sec,
-                    'end': current_sec + length
+                start, end = start_and_end(choices[0])
+                length = end - start
+                info = {
+                    'start': cutter.current_sec,
+                    'end': cutter.current_sec + length
                 }
-                new_data = vstack((new_data, audio))
-                current_sec += length
+                cutter.take_audio(audio_guess, info, start, end)
                 break
             else:
                 print(f'{choice} is not a valid take to use')
@@ -143,7 +108,4 @@ for (audio_guess, possible_sections) in timestamps.items():
         else:
             print(f'{choice} is not a valid option')
 
-if searching_for != None:
-    print(f"{searching_for} not found")
-
-save()
+cutter.process_audio(process_chunk, new_wav_file())
