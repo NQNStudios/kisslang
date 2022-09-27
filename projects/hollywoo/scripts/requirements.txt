@@ -1,7 +1,6 @@
+wheel
 requests
 vosk
 numpy
 scipy
 simpleaudio
-wheel
-getch
