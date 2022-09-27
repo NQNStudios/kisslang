@@ -59,7 +59,14 @@ def process_chunk(audio_guess, possible_sections):
     while True:
         choice = getch()
         if choice == 'h':
-            print(f'{num_takes} takes. Type {takes} to play one. Type u + {takes} to use one of them. u* to use all of them. Type f to search ahead for a word or phrase. Type n to repeat a search. Type d to discard this snippet. Type q to quit')
+            print(f'{num_takes} takes.')
+            print(f'{takes} - play a take')
+            print(f'u + {takes} - use a take.')
+            print(f'u + * -  use all takes as alts.')
+            print('f - search ahead for a word or phrase')
+            print('n - repeat a search.')
+            print('d - discard this snippet.')
+            print('q - save and quit')
         elif choice == 'd':
             break
         elif choice != '/' and choice in takes:
