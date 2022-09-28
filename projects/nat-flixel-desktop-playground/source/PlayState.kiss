@@ -43,64 +43,6 @@
 
     (set uiGroup.cameras [uiCamera])
 
-    (prop mouseDragCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
-    (set mouseDragCamera.bgColor FlxColor.TRANSPARENT)
-    (FlxG.cameras.add mouseDragCamera false)
-    (prop mouseDragSprite (new FlxSprite 0 0))
-    (prop &mut :FlxPoint mouseDown null)
-    (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT)
-    (set mouseDragSprite.cameras [mouseDragCamera])
-    (add mouseDragSprite)
-    (FlxMouseEventManager.add mouseDragSprite
-        // mouseDown
-        ->s {
-            (set mouseDown (FlxG.mouse.getScreenPosition))
-            (let [&mut clickedOnSomething false]
-                (entryGroup.forEach
-                    ->:Void entrySprite
-                        (when (.containsPoint (entrySprite.getScreenBounds) (FlxG.mouse.getScreenPosition))
-                            (when (hasComponent entrySprite.e Circle)
-                                (unless (entrySprite.pixelsOverlapPoint (FlxG.mouse.getWorldPosition))
-                                    (return)))
-                            (set clickedOnSomething true)
-                            (unless (controller.isSelected entrySprite.e)
-                                (controller.SelectEntry entrySprite.e))))
-                (unless clickedOnSomething (controller.SelectEntries [])))
-            }
-        // mouseUp
-        ->s {
-                (set mouseDown null)
-                (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
-            }
-        // mouseOver
-        ->s {}
-        // mouseOut
-        ->s {}
-        // also send events to sprites that overlap the dragging background
-        true
-        true
-        false)
-    (FlxMouseEventManager.setMouseMoveCallback mouseDragSprite
-        ->s (when mouseDown (unless FlxMouseControl.isDragging
-                // draw the selection rectangle
-                (mouseDragSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
-                (let [curPos (FlxG.mouse.getScreenPosition)
-                        x1 (min curPos.x mouseDown.x)
-                        y1 (min curPos.y mouseDown.y)
-                        x2 (max curPos.x mouseDown.x)
-                        y2 (max curPos.y mouseDown.y)
-                        selectWidth (- x2 x1)
-                        selectHeight (- y2 y1)
-                        rectangle (new FlxRect x1 y1 selectWidth selectHeight)]
-                    (when (< 0 (+ selectWidth selectHeight))
-                        (mouseDragSprite.drawRect x1 y1 selectWidth selectHeight FlxColor.TRANSPARENT (object color FlxColor.LIME)))
-                    // Handle entry selection
-                    (entryGroup.forEach ->entrySprite
-                        (let [overlaps (rectangle.overlaps (entrySprite.getScreenBounds))]
-                            (when !(= overlaps (controller.isSelected entrySprite.e))
-                                (unless (hasComponent entrySprite.e Circle)
-                                    (controller.ToggleSelectEntry entrySprite.e)))))))))
-
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (method :Void showPrefixMap [:Map<String,ShortcutKey<Entry>> map]
@@ -158,7 +100,7 @@
     // TODO allow changing the a scroll factor
 
     // Control the UI camera with WASD, and the playground camera with arrow keys:
-    (var KEYBOARD_SCROLL_SPEED 200)
+    (var KEYBOARD_SCROLL_SPEED 800)
     
     (FlxG.camera.updateKeyControl
         elapsed
@@ -167,7 +109,7 @@
         ->{FlxG.keys.pressed.RIGHT}
         ->{FlxG.keys.pressed.UP}
         ->{FlxG.keys.pressed.DOWN})
-    (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.15)
+    (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.01)
 
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
 

@@ -3,7 +3,7 @@ package;
 import kiss.Prelude;
 import kiss.List;
 import flash.display.BitmapData;
-import flixel.addons.display.FlxExtendedSprite;
+import kiss_flixel.KissExtendedSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxSpriteUtil;
 import nat.Entry;
@@ -16,4 +16,4 @@ import nat.components.Scale;
 using kiss_flixel.CameraTools;
 
 @:build(kiss.Kiss.build())
-class EntrySprite extends FlxExtendedSprite {}
+class EntrySprite extends KissExtendedSprite {}

@@ -15,6 +15,15 @@
         ->[archive e pos &opt ui]
             (unless (sprites.exists e.id)
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
+                    (sprite.enableDragToSelect
+                        ->:Void {
+                            (controller.AddSelectEntry e)
+                            (sprite.updateColor)
+                        }
+                        ->:Void {
+                            (controller.DeSelectEntry e)
+                            (sprite.updateColor)
+                        })
                     (playState.entryGroup.add sprite)
                     (dictSet sprites e.id sprite)))
         ->[archive e pos e2 pos2 &opt ui]
