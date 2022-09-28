@@ -77,13 +77,10 @@
                 // This part is hacky...
                 (set lastUI textInputLabel)
                 (hideUI textInputLabel))
-            (~sh.currentMap
-                (sh.cancel))
-            (confirmQuit
-                (Sys.exit 0))
-            (true
-                (displayMessage "Really quit?")
-                (set confirmQuit true))))
+            (sh.currentMap
+                (sh.cancel))))
+    (when FlxG.keys.justPressed.DELETE
+        (Sys.exit 0))
 
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)
