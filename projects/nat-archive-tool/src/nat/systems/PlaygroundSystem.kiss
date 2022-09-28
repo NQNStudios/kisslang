@@ -1,7 +1,11 @@
 (load "../Lib.kiss")
 
 (prop &mut :String _playgroundKey "")
+(prop &mut :TagList currentDefaultTags [])
 (method :String getPlaygroundKey [] _playgroundKey)
+
+(prop :Map<String,TagList> playgroundDefaultTags (new Map))
+(prop :Map<String,Color> playgroundBGColors (new Map))
 
 (defNew [&prop :ArchiveUI ui
             :EntryChecker canProcess
@@ -11,28 +15,45 @@
 
     (super
         ->[archive e]
-            (and (tagsMatch e "!(or done hidden)") (canProcess archive e))
+            (or (tagsMatch e "playground")
+                (and (tagsMatch e "!(or done hidden)") (canProcess archive e)))
         ->[archive e &opt ui]
-            (when (catsMatch e .catsMatch (dictGet archive.playgrounds _playgroundKey))
-                (when !(hasComponent e Positions)
-                    (addComponent archive e Positions (new Map)))
-                (withWritableComponents archive e [positions Positions]
-                    (when !(positions.exists _playgroundKey)
-                        (dictSet positions _playgroundKey (defaultPosition e))))
-                (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
-                    (processor archive e pos ui))))
+            (if setupProcess
+                    // Read playground information from playground Entries
+                    (when (catsMatch e "(and playground Name)")
+                        (let [name (readComponent e Name)]
+                            (if (hasComponent e CatsMatchExp)
+                                    (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (set .catsMatch (dictGet p name) (readComponent e CatsMatchExp)))
+                                (addComponent archive e CatsMatchExp .catsMatch (dictGet archive.playgrounds name)))
+                            (dictSet playgroundBGColors name (readComponentOr e Color (object r 0.0 g 0.0 b 0.0 a 1.0)))
+                            (dictSet playgroundDefaultTags name (readComponentOr e TagList []))))
+
+                // Process Entries belonging to the current playground
+                (when (catsMatch e .catsMatch (dictGet archive.playgrounds _playgroundKey))
+                    (when !(hasComponent e Positions)
+                        (addComponent archive e Positions (new Map)))
+                    (withWritableComponents archive e [positions Positions]
+                        (when !(positions.exists _playgroundKey)
+                            (dictSet positions _playgroundKey (defaultPosition e))))
+                    (let [pos (dictGet (readComponent e Positions) _playgroundKey)]
+                        (processor archive e pos ui)))))
     (set this.onRemoveEntry onRemoveEntry))
 
 (method switchPlaygroundKey [key]
-    (when _playgroundKey
-        (clear))
     (set _playgroundKey key)
+    (clear (or (dictGet playgroundBGColors _playgroundKey) (object r 0.0 g 0.0 b 0.0 a 1.0)))
     (process ui.controller.archive ui))
 
-(method :Void clear [])
+(method :Void clear [:Color color]
+    (throw "(PlaygroundSystem.clear <color>) not implemented"))
+
+(prop &mut :Bool setupProcess false)
 
 (method &override :Void process [:Archive archive &opt :ArchiveUI ui]
     (when _playgroundKey
+        (set setupProcess true)
+        (super.process archive ui)
+        (set setupProcess false)
         (super.process archive ui)
         (doFor e (entries.iterator)
             (when (hasComponent e Positions)

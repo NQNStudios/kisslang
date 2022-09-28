@@ -32,7 +32,8 @@
                 (controller.DeSelectEntry e)
             }))
 
-(method &override :Void clear []
+(method &override :Void clear [:Color color]
+    (set playState.bgColor (FlxColor.fromRGBFloat color.r color.g color.b color.a))
     (playState.debugLayer.clear)
     (sprites.clear)
     (playState.entryGroup.kill)

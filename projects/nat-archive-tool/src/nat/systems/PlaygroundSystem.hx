@@ -3,7 +3,8 @@ package nat.systems;
 import kiss.Prelude;
 import kiss.List;
 import nat.System;
-import nat.components.Position;
+import nat.components.*;
+import haxe.DynamicAccess;
 
 typedef PlaygroundEntryProcessor = (Archive, Entry, Position, ?ArchiveUI) -> Dynamic; // Whatever value is returned will be dropped, but this is easier than requiring ->:Void
 typedef PlaygroundConnectionProcessor = (Archive, Entry, Position, Entry, Position, ?ArchiveUI) -> Dynamic; // Whatever value is returned will be dropped, but this is easier than requiring ->:Void

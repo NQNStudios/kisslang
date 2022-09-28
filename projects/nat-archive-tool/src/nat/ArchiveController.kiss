@@ -209,6 +209,9 @@
     (whenLet [ps (ui.playgroundSystem)]
         (set playgroundSystem ps)
         (archive.addSystem ps)
+        (set ps.setupProcess true)
+        (ps.process archive ui)
+        (set ps.setupProcess false)
         (ps.switchPlaygroundKey (dictGet archive.playgrounds "default")))
 
     // Just for testing:
@@ -338,6 +341,7 @@
     (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p]
             (dictSet p name (object catsMatch catsMatchExp)))
+        // TODO make the corresponding playground entry and return it
         [])
     
     (defCommand SwitchPlayground [name (Text null)]

@@ -8,9 +8,8 @@ import nat.ArchiveController;
 import nat.ArchiveUI;
 import nat.Archive;
 import nat.Entry;
-import nat.components.Position;
+import nat.components.*;
 using kiss_flixel.CameraTools;
-import nat.components.Positions;
 import nat.systems.PlaygroundSystem;
 import flixel.util.FlxSort;
 
