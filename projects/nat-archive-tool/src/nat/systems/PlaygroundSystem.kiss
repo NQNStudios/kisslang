@@ -1,7 +1,7 @@
 (load "../Lib.kiss")
 
 (prop &mut :String _playgroundKey "")
-(prop &mut :TagList currentDefaultTags [])
+(method :TagList currentDefaultTags [] (or (dictGet playgroundDefaultTags _playgroundKey) []))
 (method :String getPlaygroundKey [] _playgroundKey)
 
 (prop :Map<String,TagList> playgroundDefaultTags (new Map))
@@ -50,10 +50,11 @@
 (prop &mut :Bool setupProcess false)
 
 (method &override :Void process [:Archive archive &opt :ArchiveUI ui]
-    (when _playgroundKey
-        (set setupProcess true)
+    (when setupProcess
         (super.process archive ui)
         (set setupProcess false)
+        (return))
+    (when _playgroundKey
         (super.process archive ui)
         (doFor e (entries.iterator)
             (when (hasComponent e Positions)

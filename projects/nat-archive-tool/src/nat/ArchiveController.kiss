@@ -211,7 +211,6 @@
         (archive.addSystem ps)
         (set ps.setupProcess true)
         (ps.process archive ui)
-        (set ps.setupProcess false)
         (ps.switchPlaygroundKey (dictGet archive.playgrounds "default")))
 
     // Just for testing:
@@ -243,7 +242,11 @@
         
     (defCommand CreateEntry [name (Text null)]
         [(archive.createEntry ->e
-            (addComponent archive e Name name))])
+            {
+                (when (and playgroundSystem (playgroundSystem.currentDefaultTags))
+                    (addTags archive e (playgroundSystem.currentDefaultTags)))
+                (addComponent archive e Name name)
+            })])
     
     (defCommand CreateEntries [names (VarText null)]
         // createEntry returns a list, so these lists must be flattened
@@ -338,11 +341,14 @@
                 (true (addComponent archive e Scale scale))))
         entries)
     
-    (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null)]
+    // TODO use VarTags
+    (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null) defaultTags (VarText null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p]
             (dictSet p name (object catsMatch catsMatchExp)))
-        // TODO make the corresponding playground entry and return it
-        [])
+        (let [[e] (CreateTaggedEntry ["playground"] name)]
+            (addComponent archive e CatsMatchExp catsMatchExp)
+            (addComponent archive e TagList defaultTags)
+            [e]))
     
     (defCommand SwitchPlayground [name (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (dictSet p "default" name))
