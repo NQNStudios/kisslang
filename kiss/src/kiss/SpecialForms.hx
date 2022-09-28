@@ -81,7 +81,8 @@ class SpecialForms {
 
         k.doc("rest", 1, 1, '(rest <list>)');
         map["rest"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            macro ${k.convert(args[0])}.slice(1);
+            var m = macro ${k.convert(args[0])}.slice(1);
+            wholeExp.expBuilder().haxeExpr(m);
         };
 
         // Declare anonymous objects
@@ -252,13 +253,16 @@ class SpecialForms {
             var namesExp = args[0];
             var listExp = args[1];
             var bodyExps = args.slice(2);
+            
+            var b = wholeExp.expBuilder();
+            var m = macro $i{uniqueVarName};
 
             var loopVarExpr:Expr = switch (namesExp.def) {
                 case KeyValueExp(_, _): k.convert(namesExp);
                 default: {
                         bodyExps.insert(0,
                             CallExp(Symbol("localVar").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
-                        macro $i{uniqueVarName};
+                        b.haxeExpr(m);
                     }
             };
 
@@ -285,7 +289,10 @@ class SpecialForms {
             var funcName = if (invert) "until" else "while";
             var b = wholeExp.expBuilder();
             var cond = k.convert(b.callSymbol("Prelude.truthy", [args[0]]));
-            if (invert) cond = macro !$cond;
+            if (invert) {
+                cond = macro !$cond;
+                cond = b.haxeExpr(cond);
+            }
             return EWhile(cond, k.convert(b.begin(args)), true).withMacroPosOf(wholeExp);
         }
 
@@ -455,6 +462,7 @@ class SpecialForms {
 
         k.doc("if", 2, 3, '(if <cond> <then> <?else>)');
         map["if"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
             var condition = macro Prelude.truthy(${k.convert(args[0])});
             var thenExp = k.convert(args[1]);
             var elseExp = if (args.length > 2) {
@@ -462,23 +470,27 @@ class SpecialForms {
             } else {
                 // Kiss (if... ) expressions all need to generate a Haxe else block
                 // to make sure they always return something
-                k.convert(wholeExp.expBuilder().symbol("null"));
+                k.convert(b.symbol("null"));
             };
 
             // TODO these macro forms cause the compiler errors to give line numbers
             // pointing back to SpecialForms.hx, which aren't helpful. withMacroPosOf should be used
             // to wrap them
-            macro if ($condition)
+            var m = macro if ($condition)
                 $thenExp
             else
                 $elseExp;
+
+            b.haxeExpr(m);
         };
 
         k.doc("not", 1, 1, '(not <value>)');
         map["not"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
             var condition = k.convert(args[0]);
             var truthyExp = macro Prelude.truthy($condition);
-            macro !$truthyExp;
+            var m = macro !$truthyExp;
+            b.haxeExpr(m);
         };
 
         k.doc("cast", 1, 2, '(cast <value> <optional type>)');
@@ -501,12 +513,13 @@ class SpecialForms {
             var b = wholeExp.expBuilder();
             var label = if (exps.length > 1) exps[1] else b.str("");
             var label = k.convert(label);
+            var m = macro kiss.Prelude.withLabel(v, $label);
             EBlock([
                 EVars([
                     toVar(b.symbol("v"), exps[0], k)
                 ]).withMacroPosOf(wholeExp),
                 ECall(EConst(CIdent("trace")).withMacroPosOf(wholeExp), [
-                    macro kiss.Prelude.withLabel(v, $label)
+                    b.haxeExpr(m)
                 ]).withMacroPosOf(wholeExp),
                 k.convert(exps[0])
             ]).withMacroPosOf(wholeExp);
@@ -529,15 +542,20 @@ class SpecialForms {
     
     public static function caseOr(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
         wholeExp.checkNumArgs(2, null, "(or <pattern1> <pattern2> <patterns...>)");
+        var b = wholeExp.expBuilder();
         return if (args.length == 2) {
-            macro ${k.convert(args[0])} | ${k.convert(args[1])};
+            var m = macro ${k.convert(args[0])} | ${k.convert(args[1])};
+            b.haxeExpr(m);
         } else {
-            macro ${k.convert(args[0])} | ${caseOr(wholeExp, args.slice(1), k)};
+            var m = macro ${k.convert(args[0])} | ${caseOr(wholeExp, args.slice(1), k)};
+            b.haxeExpr(m);
         };
     };
 
     public static function caseAs(wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState):Expr {
         wholeExp.checkNumArgs(2, 2, "(as <name> <pattern>)");
-        return macro ${k.convert(args[0])} = ${k.convert(args[1])};
+        var b = wholeExp.expBuilder();
+        var m = macro ${k.convert(args[0])} = ${k.convert(args[1])};
+        return b.haxeExpr(m);
     };
 }

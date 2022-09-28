@@ -692,6 +692,7 @@ class Helpers {
                     ])
                 ]);
             },
+            haxeExpr: (e:haxe.macro.Expr) -> withMacroPosOf(e.expr, posRef),
             none: () -> None.withPosOf(posRef)
         };
     }
