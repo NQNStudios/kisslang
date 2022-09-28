@@ -241,12 +241,7 @@
                 (ui.displayMessage "Entry ${e.id} has no $componentType component"))) [])
         
     (defCommand CreateEntry [name (Text null)]
-        [(archive.createEntry ->e
-            {
-                (when (and playgroundSystem (playgroundSystem.currentDefaultTags))
-                    (addTags archive e (playgroundSystem.currentDefaultTags)))
-                (addComponent archive e Name name)
-            })])
+        [(archive.createEntry ->e (addComponent archive e Name name))])
     
     (defCommand CreateEntries [names (VarText null)]
         // createEntry returns a list, so these lists must be flattened

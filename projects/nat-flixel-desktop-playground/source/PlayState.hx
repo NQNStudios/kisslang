@@ -25,6 +25,8 @@ import kiss_tools.FlxKeyShortcutHandler;
 import nat.systems.PlaygroundSystem;
 import flash.desktop.Clipboard;
 import flash.desktop.ClipboardFormats;
+import haxe.ds.Option;
+import nat.components.Position;
 
 @:build(kiss.Kiss.build())
 class PlayState extends FlxState implements ArchiveUI {}

@@ -331,3 +331,7 @@
     (doFor e (selectedEntries.concat lastSelectedEntries)
         (whenLet [sprite (dictGet spriteSystem.sprites e.id)]
             (sprite.updateColor))))
+
+(method :Option<Position> cursorPosition []
+    (let [pos (FlxG.mouse.getWorldPosition FlxG.camera)]
+        (Some (object x pos.x y pos.y z 0.0))))

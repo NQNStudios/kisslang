@@ -4,6 +4,8 @@ import nat.Entry;
 import nat.ArchiveController;
 import kiss_tools.KeyShortcutHandler;
 import nat.systems.PlaygroundSystem;
+import haxe.ds.Option;
+import nat.components.Position;
 
 interface ArchiveUI {
     /**
@@ -63,4 +65,9 @@ interface ArchiveUI {
      * Update UI to show that the set of selected entries has changed
      */
     function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>):Void;
+
+    /**
+     * A way to tell NAT where the cursor is
+     */
+    function cursorPosition():Option<Position>;
 }

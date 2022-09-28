@@ -42,6 +42,14 @@
 (method switchPlaygroundKey [key]
     (set _playgroundKey key)
     (clear (or (dictGet playgroundBGColors _playgroundKey) (object r 0.0 g 0.0 b 0.0 a 1.0)))
+    (set ui.controller.archive.defaultInitializer ->e
+        {
+            (when (currentDefaultTags)
+                (addTags ui.controller.archive e (currentDefaultTags)))
+
+            (whenLet [(Some position) (ui.cursorPosition)]
+                (addComponent ui.controller.archive e Positions [=>_playgroundKey position]))
+        })
     (process ui.controller.archive ui))
 
 (method :Void clear [:Color color]

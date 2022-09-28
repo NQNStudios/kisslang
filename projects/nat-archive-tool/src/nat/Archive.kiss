@@ -44,8 +44,12 @@
 (method processSystems [&opt :ArchiveUI ui]
     (doFor system systems (system.process this ui)))
 
+(prop &mut :Entry->Dynamic defaultInitializer null)
+
 (method :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
     (let [e (_newEntry)]
+        (when defaultInitializer
+            (defaultInitializer e))
         (initializer e)
         (dictSet entries e.id e)
         (refreshEntry e)
