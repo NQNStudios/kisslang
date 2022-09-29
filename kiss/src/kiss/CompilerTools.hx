@@ -236,7 +236,10 @@ class CompilerTools {
                             Prelude.tryProcess(envPython, ["-m", "pip", "install", "-r", Path.join([haxelibPath, args.langProjectFile])], handleError);
                         case "py":
                             // python setup.py install
-                            Prelude.tryProcess(envPython, [Path.join([args.outputFolder, args.langProjectFile.withoutDirectory()]), "install"], handleError);
+                            envPython = '../${envFolder.withoutDirectory()}/bin/python';
+                            if (Sys.systemName() == 'Windows')
+                                envPython = envPython.replace('/', '\\');
+                            Prelude.tryProcess(envPython, [args.langProjectFile.withoutDirectory(), "install"], handleError, args.outputFolder);
                     }
                 }
         }
