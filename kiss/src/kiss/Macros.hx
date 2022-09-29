@@ -180,7 +180,7 @@ class Macros {
                 // object, I don't know how to get it
                 conditionInterp.variables["target"] = {
                     threaded:
-                        #if target.threaded
+                        #if (cs || neko || cpp || java || python || hl)
                         true
                         #else
                         false
