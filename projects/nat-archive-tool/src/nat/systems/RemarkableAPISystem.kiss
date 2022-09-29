@@ -5,7 +5,7 @@
         ->[archive e] false
         ->[archive e &opt ui] null)
         
-    ~(#extern String js
+    **(#extern String js
         (object
             hxmlFile "extern-files/js/args.hxml"
             skipHaxelibInstall true
