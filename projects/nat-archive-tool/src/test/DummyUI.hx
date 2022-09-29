@@ -2,6 +2,7 @@ package test;
 
 import nat.*;
 import nat.ArchiveController.ChangeSet;
+import haxe.ds.Option;
 
 class DummyUI implements ArchiveUI {
     public var controller:ArchiveController = null;
@@ -35,4 +36,14 @@ class DummyUI implements ArchiveUI {
     public function reportError(error:String) {}
 
     public function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>) {}
+    
+    public function showPrefixMap(map:Map<String,ShortcutKey<Entry>>) {}
+    public function hidePrefixMap() {}
+    public function cursorPosition():Option<Position> {
+        return None;
+    };
+    public function playgroundSystem():Null<PlaygroundSystem> {
+        return null;
+    }
+    public var shortcutHandler:Null<KeyShortcutHandler<Entry>> = null;
 }
