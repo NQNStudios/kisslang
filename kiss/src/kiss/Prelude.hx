@@ -657,7 +657,7 @@ class Prelude {
         return tryProcess(command, args, (error) -> { throw error; }, inputLines, fullProcess);    
     }
     
-    public static function tryProcess(command:String, args:Array<String>, handleError:String->Void, ?inputLines:Array<String>, fullProcess = true):String {
+    public static function tryProcess(command:String, args:Array<String>, handleError:String->Void, ?inputLines:Array<String>, fullProcess = true, cwd:String = null):String {
         #if test
         Prelude.print('running $command $args $inputLines from ${Prelude.getTarget()}');
         #end
@@ -675,6 +675,7 @@ class Prelude {
             stdin: -1, // -1 represents PIPE which allows communication
             stdout: -1,
             stderr: -1,
+            cwd: cwd
         });
         if (inputLines != null) {
             for (line in inputLines) {
@@ -698,6 +699,13 @@ class Prelude {
         p.terminate();
         return output;
         #elseif sys
+        var lastCwd = Sys.getCwd();
+        if (cwd != null) {
+            #if java
+            throw 'Kiss cannot specify the working directory of a subprocess in Java';
+            #end
+            Sys.setCwd(cwd);
+        }
         var p = new Process(command, args);
         if (inputLines != null) {
             for (line in inputLines) {
@@ -716,12 +724,15 @@ class Prelude {
         }
         p.kill();
         p.close();
+        if (cwd != null) {
+            Sys.setCwd(lastCwd);
+        }
         return output;
         #elseif hxnodejs
         var p = if (inputLines != null) {
-            ChildProcess.spawnSync(command, args, {input: inputLines.join("\n")});
+            ChildProcess.spawnSync(command, args, {input: inputLines.join("\n"), cwd: cwd});
         } else {
-            ChildProcess.spawnSync(command, args);
+            ChildProcess.spawnSync(command, args, {cwd: cwd});
         }
         var output = switch (p.status) {
             case 0:
