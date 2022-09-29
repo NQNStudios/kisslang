@@ -43,7 +43,7 @@
 	<haxelib name="datetime" />
 	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
 	<assets path="assets" />
-	<assets path="puzzles/Photos by Trent Nelson" />
+	<assets path="puzzles/Photos by Trent Nelson" unless="CI_OS_NAME" />
 	<assets path="puzzles/neuro" if="debug" />
 	<assets path="puzzles/personal" if="debug" />
 
