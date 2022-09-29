@@ -37,6 +37,7 @@
                                 {
                                     (ui.displayMessage "threading unavailable -- the program will freeze while downloading with youtube-dl")
                                     (downloadMp3)
+                                    null
                                 }))
                         (true
                             (log ui "DLSystem doesn't know what to do with $(readComponent e Tags)")
