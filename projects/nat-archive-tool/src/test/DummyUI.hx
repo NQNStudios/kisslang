@@ -1,8 +1,11 @@
 package test;
 
 import nat.*;
+import nat.systems.PlaygroundSystem;
+import nat.components.Position;
 import nat.ArchiveController.ChangeSet;
 import haxe.ds.Option;
+import kiss_tools.KeyShortcutHandler;
 
 class DummyUI implements ArchiveUI {
     public var controller:ArchiveController = null;
