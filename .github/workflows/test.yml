@@ -20,12 +20,14 @@ jobs:
           - KISS_PROJECT=aoc
           - KISS_PROJECT=asciilib
           - KISS_PROJECT=flixel-ascii-game
+          - KISS_PROJECT=flixel-desktop-habit-puzzle-game
+          - KISS_PROJECT=flixel-desktop-handloose
           - KISS_PROJECT=flixel-rpg-tutorial
           - KISS_PROJECT=kiss-vscode
           - KISS_PROJECT=kiss-tools
           - KISS_PROJECT=nat-archive-tool
           - KISS_PROJECT=nat-flixel-desktop-playground
-          - KISS_PROJECT=flixel-desktop-habit-puzzle-game
+          - KISS_PROJECT=nat-globelet-playground
           - KISS_PROJECT=pdf-salad
           - KISS_PROJECT=leet-code
           - KISS_PROJECT=sched

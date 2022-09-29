@@ -29,7 +29,7 @@
     */
     (throw "not implemented"))
 
-(defMacroFunction prelearnFrequencies [str &builder b]
+(defMacroFunction prelearnFrequencies [str]
     (throw "not implemented"))
 
 (method learnAllFrequencies []

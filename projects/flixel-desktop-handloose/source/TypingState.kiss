@@ -20,7 +20,7 @@
 		var splitX = SPRITE_SPACING * 5 + SPRITE_SIZE * 4;
 		background.drawLine(splitX, 0, splitX, FlxG.height);
 		docText = new FlxText(splitX, 0, "", TEXT_SIZE);
-		docText.setFormat(null, null, FlxColor.WHITE);
+		docText.setFormat(null, 8, FlxColor.WHITE);
 	
 		add(background);
 		add(docText);
