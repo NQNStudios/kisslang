@@ -689,3 +689,8 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
 (function _testQuickFractions []
     (Assert.equals 0.5 (fHalf 1))
     (Assert.equals 0 (iHalf 1)))
+
+(function _testWhenLetGuards []
+    // Guards should be allowed in whenLet patterns
+    (whenLet [(when true 5) 5]
+        (Assert.pass)))

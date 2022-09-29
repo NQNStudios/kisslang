@@ -699,21 +699,24 @@ class Macros {
             var gensym = b.symbol();
             return b.let(
                 [gensym, firstValue],
-                [b.callSymbol("case", [
+                [b.callSymbol("if", [
                     gensym,
-                    b.call(
-                        b.callSymbol("when", [gensym, firstPattern]), [
-                            if (bindingList.length == 0) {
-                                thenExp;
-                            } else {
-                                ifLet(assertLet, wholeExp, [
-                                    b.list(bindingList)
-                                ].concat(exps.slice(1)), k);
-                            }
-                        ]),
-                    b.callSymbol("otherwise", [
-                        elseExp
-                    ])
+                    b.callSymbol("case", [
+                        gensym,
+                        b.call(firstPattern, [
+                                if (bindingList.length == 0) {
+                                    thenExp;
+                                } else {
+                                    ifLet(assertLet, wholeExp, [
+                                        b.list(bindingList)
+                                    ].concat(exps.slice(1)), k);
+                                }
+                            ]),
+                        b.callSymbol("otherwise", [
+                            elseExp
+                        ])
+                    ]),
+                    elseExp
                 ])]);
         }
         macros["ifLet"] = ifLet.bind(false);

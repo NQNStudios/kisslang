@@ -364,6 +364,9 @@ class BasicTestCase extends Test {
         _testQuickFractions();
     }
     
+     function testWhenLetGuards() {
+        _testWhenLetGuards();
+     }
      
 }
 
