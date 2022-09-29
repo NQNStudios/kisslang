@@ -671,12 +671,17 @@ class Prelude {
         }
         #if python
         // on Python, after new Process() is called, writing inputLines to stdin becomes impossible. Use python.lib.subprocess instead
-        var p = Popen.create([command].concat(args), {
-            stdin: -1, // -1 represents PIPE which allows communication
-            stdout: -1,
-            stderr: -1,
-            cwd: cwd
-        });
+        var p = try {
+            Popen.create([command].concat(args), {
+                stdin: -1, // -1 represents PIPE which allows communication
+                stdout: -1,
+                stderr: -1,
+                cwd: cwd
+            });
+        } catch (e:Dynamic) {
+            handleError(Std.string(e));
+            return null;
+        }
         if (inputLines != null) {
             for (line in inputLines) {
                 p.stdin.write(new Bytearray('$line\n', "utf-8"));
