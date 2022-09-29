@@ -19,19 +19,29 @@ jobs:
           - KISS_TARGET=py
           - KISS_PROJECT=aoc
           - KISS_PROJECT=asciilib
+          # TODO bump-version
           - KISS_PROJECT=flixel-ascii-game
           - KISS_PROJECT=flixel-desktop-habit-puzzle-game
           - KISS_PROJECT=flixel-desktop-handloose
           - KISS_PROJECT=flixel-rpg-tutorial
-          - KISS_PROJECT=kiss-vscode
+          - KISS_PROJECT=godot-squash-the-creeps-3d
+          # TODO hollywoo
+          # TODO hollywoo-flixel
+          # TODO iso-rpg-engine
+          # TODO kiss-express
+          # TODO kiss-flixel
           - KISS_PROJECT=kiss-tools
+          - KISS_PROJECT=kiss-vscode
+          - KISS_PROJECT=leet-code
+          # TODO lets-read
           - KISS_PROJECT=nat-archive-tool
           - KISS_PROJECT=nat-flixel-desktop-playground
           - KISS_PROJECT=nat-globelet-playground
           - KISS_PROJECT=pdf-salad
-          - KISS_PROJECT=leet-code
+          # TODO prokgen
+          # TODO re-flex
+          # skip requests-externs
           - KISS_PROJECT=sched
-          - KISS_PROJECT=godot-squash-the-creeps-3d
       fail-fast: true
     runs-on: ${{ matrix.os }}
     env:
