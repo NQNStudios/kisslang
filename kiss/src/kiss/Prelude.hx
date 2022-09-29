@@ -483,7 +483,7 @@ class Prelude {
         return v;
     }
 
-    public static function symbolNameValue(s:ReaderExp, allowTyped = false, allowMeta = false):String {
+    public static function symbolNameValue(s:ReaderExp, allowTyped:Null<Bool> = false, allowMeta:Null<Bool> = false):String {
         return switch (s.def) {
             case Symbol(name): name;
             case TypedExp(_, innerExp) if (allowTyped): symbolNameValue(innerExp, false); // Meta must always precede type annotation
@@ -504,7 +504,7 @@ class Prelude {
     }
 
     // TODO make this behavior DRY with symbolNameValue
-    public static function symbolName(s:ReaderExp, allowTyped = false, allowMeta = false):ReaderExpDef {
+    public static function symbolName(s:ReaderExp, allowTyped:Null<Bool> = false, allowMeta:Null<Bool> = false):ReaderExpDef {
         return switch (s.def) {
             case Symbol(name): StrExp(name);
             case TypedExp(_, innerExp) if (allowTyped): symbolName(innerExp, false); // Meta must always precede type annotation
