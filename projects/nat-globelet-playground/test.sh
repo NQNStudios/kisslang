@@ -1,4 +1,24 @@
 #! /bin/bash
 
-npm install .
+if [ ! -d node_modules ]; then
+    npm install .
+fi
+# npm install creates a .haxelib folder which needs to be pointed to the dependencies
+if [ ! -d .haxelib/kiss ]; then
+    cp .haxelib/express/.current .haxelib/express/.current.tmp
+    haxelib install all --always
+    # install all introduces an out-of-date express haxelib
+    mv .haxelib/express/.current.tmp .haxelib/express/.current
+
+    haxelib dev kiss ../../kiss
+    projects=$(ls ..)
+    for project in $projects
+    do
+        if [ -e ../${project}/haxelib.json ]
+        then
+            haxelib dev $project ../$project
+            # the word project has lost all meaning at this point
+        fi
+    done
+fi
 haxe build.hxml
