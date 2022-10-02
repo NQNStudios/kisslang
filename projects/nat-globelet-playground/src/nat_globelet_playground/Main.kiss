@@ -1,5 +1,6 @@
 (let [app (Express.call)
         port 3000]
     (app.get "/" ->[req res next] (res.send "Hello World!"))
-    (app.listen port ->(print "kiss-express listening at http://localhost:$port")))
+    (#unless test
+        (app.listen port ->(print "kiss-express listening at http://localhost:$port"))))
 

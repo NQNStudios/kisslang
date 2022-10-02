@@ -21,4 +21,4 @@ if [ ! -d .haxelib/kiss ]; then
         fi
     done
 fi
-haxe build.hxml
+haxe -D test build.hxml
