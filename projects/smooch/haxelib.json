@@ -5,7 +5,7 @@
 	"classPath": "src/",
 	"dependencies": {
 		"kiss": "",
-		"tink_syntaxhub"
+		"tink_syntaxhub" : ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
