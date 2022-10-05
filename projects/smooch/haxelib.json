@@ -4,7 +4,8 @@
 	"description": "auto build kiss scripts",
 	"classPath": "src/",
 	"dependencies": {
-		"kiss": ""
+		"kiss": "",
+		"tink_syntaxhub"
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
