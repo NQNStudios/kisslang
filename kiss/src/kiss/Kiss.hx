@@ -68,9 +68,12 @@ typedef KissState = {
 
 class Kiss {
     #if macro
-    public static function defaultKissState():KissState {
-        var className = Context.getLocalClass().get().name;
-
+    public static function defaultKissState(?name):KissState {
+        var className = if(name == null){
+            Context.getLocalClass().get().name;
+        }else{
+            name;
+        }
         var k = {
             className: className,
             file: "",
@@ -273,7 +276,7 @@ class Kiss {
     /**
         Build macro: add fields to a class from a corresponding .kiss file
     **/
-    public static function build(?kissFile:String, ?k:KissState, useClassFields = true):Array<Field> {
+    public static function build(?kissFile:String, ?k:KissState, useClassFields = true, ?className:String):Array<Field> {
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         // (load... ) relative to the original file
@@ -289,7 +292,7 @@ class Kiss {
                 trace(kissFile);
             #end
                 if (k == null)
-                    k = defaultKissState();
+                    k = defaultKissState(className);
 
                 if (useClassFields) {
                     k.fieldList = Context.getBuildFields();
