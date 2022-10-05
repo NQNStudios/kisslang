@@ -9,6 +9,7 @@ import util
 import os
 import requests
 from zipfile import ZipFile
+from imports import *
 
 from vosk import Model, KaldiRecognizer
 
