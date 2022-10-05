@@ -7,3 +7,5 @@
 -cp kiss/src
 -cp cloner/src
 -D analyzer-optimize
+--macro kiss.Kiss.setup()
+--macro kiss.KissFrontend.use()

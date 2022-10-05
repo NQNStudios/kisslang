@@ -1,1 +1,2 @@
 --macro kiss.Kiss.setup()
+--macro kiss.KissFrontend.use()

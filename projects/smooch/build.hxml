@@ -1,6 +1,5 @@
 -lib kiss
 -cp src
---macro kiss.KissFrontend.use()
 --main smooch.Main
 --interp
 
