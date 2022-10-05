@@ -1,0 +1,15 @@
+// solution to: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+  (function :Array<Int> twosum [:Array<Int> numbers target]
+     (let [di (new Map<Int,Int>)]
+         (doFor [i num] (enumerate numbers 1)
+          //  (print "$i $num")
+             (if (di.exists (- target num))
+             (return [(dictGet di (- target num)) i]))
+            (dictSet di num i)))
+  (return null))
+
+(assert (= (.toString [2 3]) (.toString (twosum [1 2 3 4 5 6] 5))))
+(assert (= (.toString [1 2]) (.toString (twosum [2 7 11 15] 9))))
+(assert (= (.toString [1 3]) (.toString (twosum [2 3 4] 6))))
+(assert (= (.toString [1 2]) (.toString (twosum [-1 0] -1))))
+(trace "here")
