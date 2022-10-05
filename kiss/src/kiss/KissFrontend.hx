@@ -1,4 +1,4 @@
-package;
+package kiss;
 
 import kiss.Kiss;
 import tink.syntaxhub.*;
