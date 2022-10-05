@@ -1,7 +1,7 @@
 -lib kiss
 -cp src
 --macro kiss.Kiss.setup()
---macro KissFrontend.use()
+--macro kiss.KissFrontend.use()
 -lib tink_syntaxhub
 --main smooch.Main
 --interp
