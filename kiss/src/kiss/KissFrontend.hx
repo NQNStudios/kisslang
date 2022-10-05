@@ -17,7 +17,7 @@ class KissFrontend implements FrontendPlugin {
 		
 		final fields 		= Kiss.build(file,null,false,context.name);
 		var pos 				= Context.makePosition({ file: file, min: 0, max: 999 });
-		trace(context.name);
+		#if debug trace(context.name); #end 
 		final type 			= context.getType();
 											context.addImport('kiss.Prelude',INormal,pos);
 		for (field in fields){
