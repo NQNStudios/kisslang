@@ -3,5 +3,4 @@
 --main leet_code.Main
 -dce full
 --python main.py
---macro kiss.Kiss.setup()
 -cmd bash test-python.sh

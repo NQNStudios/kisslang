@@ -2,8 +2,8 @@
 -lib uuid
 -lib tink_macro
 -lib tink_json
+-lib tink_syntaxhub
 -lib haxe-strings
 -cp kiss/src
 -cp cloner/src
 -D analyzer-optimize
---macro kiss.Kiss.setup()

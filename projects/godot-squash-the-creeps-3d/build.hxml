@@ -7,5 +7,4 @@
 --library godot
 --library kiss
 --macro godot.Godot.buildProject()
---macro kiss.Kiss.setup()
 --dce full

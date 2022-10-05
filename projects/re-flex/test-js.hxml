@@ -1,6 +1,5 @@
 -lib kiss
 -cp src
---macro kiss.Kiss.setup()
 --main re_flex.Main
 --js test.js
 --cmd node test.js

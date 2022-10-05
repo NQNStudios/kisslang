@@ -1,6 +1,5 @@
 -lib kiss
 -cp src
---macro kiss.Kiss.setup()
 --main requests_externs.Main
 --python bin/main.py
 --cmd python bin/main.py

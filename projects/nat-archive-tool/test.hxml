@@ -3,5 +3,4 @@
 -lib nat-archive-tool
 -lib requests-externs
 -cp test
---macro kiss.Kiss.setup()
 --main test.TestMain

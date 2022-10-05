@@ -4,6 +4,5 @@
 -lib tink_json
 -lib requests-externs
 -cp src
---macro kiss.Kiss.setup()
 --main nat.CLI
 --interp

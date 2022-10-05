@@ -11,7 +11,6 @@
 -D analyzer-optimize
 -D js-es=6
 -debug
---macro kiss.Kiss.setup()
 --main Main
 --next
 -lib kiss
@@ -19,5 +18,4 @@
 -lib re-flex
 -cp src
 -js bin/ktxt2editor.js
---macro kiss.Kiss.setup()
 --main ktxt2.KTxt2Editor
