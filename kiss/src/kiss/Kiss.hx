@@ -314,7 +314,7 @@ class Kiss {
                     // This doesn't need to be added to the fieldDict because all code generation is done
                     k.fieldList.push({
                         name: "main",
-                        access: [AStatic],
+                        access: [AStatic,APublic],
                         kind: FFun(Helpers.makeFunction(
                             b.symbol("main"),
                             false,
