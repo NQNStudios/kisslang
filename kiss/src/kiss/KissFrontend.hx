@@ -22,6 +22,8 @@ class KissFrontend implements FrontendPlugin {
 		final type = context.getType();
 		var pos = Context.makePosition({ file: file, min: 0, max: 0 });
 		context.addImport('kiss.Prelude',INormal,pos);
+		context.addImport('haxe.ds.Option',INormal,pos);
+		context.addUsing('StringTools',pos);
 		for (field in fields) {
 			type.fields.push(field);
 		}
