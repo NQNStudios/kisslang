@@ -1,6 +1,7 @@
 -lib kiss
 -lib express
 -lib kiss-express
+-lib hxnodejs
 -cp src
 --main nat_globelet_playground.Main
 --js index.js

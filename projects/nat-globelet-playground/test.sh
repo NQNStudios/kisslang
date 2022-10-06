@@ -6,7 +6,7 @@ fi
 # npm install creates a .haxelib folder which needs to be pointed to the dependencies
 if [ ! -d .haxelib/kiss ]; then
     cp .haxelib/express/.current .haxelib/express/.current.tmp
-    haxelib install all --always
+    (cp ../../kiss/build-scripts/common-args.hxml ./ && haxelib install all --always && rm common-args.hxml)
     # install all introduces an out-of-date express haxelib
     mv .haxelib/express/.current.tmp .haxelib/express/.current
 
