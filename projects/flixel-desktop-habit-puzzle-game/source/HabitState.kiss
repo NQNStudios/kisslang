@@ -248,6 +248,7 @@
 // Main.hx sets off 99% of the app's logic by parsing the model file and calling setModel on startup and on a 30s loop:
 
 (method backToEntryWindow []
+    (when priorityWindow (set priorityWindow.cameraColumn 0))
     (set entryNameText null)
     (nextFrame ->(entryWindow.show)))
 
