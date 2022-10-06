@@ -119,7 +119,7 @@
     {
 
         (unless (windowIsShown)
-            (when FlxG.mouse.justPressedRight
+            (when (or FlxG.mouse.justPressedRight FlxG.keys.justPressed.R)
                 (when draggingSprite
                     (draggingSprite.rotate 90)
                     (doFor s (recursivelyConnectedPieces draggingSprite)
