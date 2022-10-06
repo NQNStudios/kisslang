@@ -855,6 +855,8 @@ class Macros {
                             case TypedExp(_, {pos: _, def: Symbol(name)}):
                                 propertySetExps.push(
                                     b.call(b.symbol("set"), [b.field(name, b.symbol("this")), b.symbol(name)]));
+                            case Symbol(name):
+                                throw KissError.fromExp(arg, '&prop constructor argument $name must be typed');
                             default:
                                 throw KissError.fromExp(arg, "invalid use of &prop in defNew");
                         }
