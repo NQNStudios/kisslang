@@ -145,7 +145,7 @@
                     (otherwise "series of steps for completing this task")))
             (localVar title 
                 "Add a label for this ${typeDescriptor}, or use SHIFT+ENTER to add a ${multipleLabelDescriptor}:")
-            (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9 true xKey backToEntryWindow))
+            (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9 true xKey leftKey rightKey backToEntryWindow))
             // TODO don't allow /, +, $, *
             (set entryNameText (new KissInputText 0 0 FlxG.width "" textSize true))
             (entryCreationWindow.addControl entryNameText)
@@ -326,7 +326,7 @@
                                                                                             ((Some "Task") (createTaskEntry))
                                                                                             ((Some "Bonus") (createBonusEntry))
                                                                                             (otherwise (throw "nonexistent choice")))
-                                                                                    null null FlxColor.LIME 0.9 0.9 true xKey backToEntryWindow))))
+                                                                                    null null FlxColor.LIME 0.9 0.9 true xKey leftKey rightKey backToEntryWindow))))
             (_makeText "Choose Top-Priority habits and tasks" 0
                 ->_
                     (defAndCall method choosePriorities
@@ -345,7 +345,7 @@
                                                                 (choosePriorities)
                                                                 })
                                                         }
-                                                        null null FlxColor.WHITE 0.9 0.9 true (defAndReturn prop xKey "escape") backToEntryWindow  true)]
+                                                        null null FlxColor.WHITE 0.9 0.9 true (defAndReturn prop xKey "escape") (defAndReturn prop leftKey "left") (defAndReturn prop rightKey "right") backToEntryWindow  true)]
                             (pw.show cameraColumn)
                             (set priorityWindow pw))))
 
@@ -356,7 +356,7 @@
                         (let [editWindow (SimpleWindow.promptForChoice "Edit which habit/task's labels?" 
                                                         (model.allUndeletedEntries)
                                                         editLabels
-                                                        null null FlxColor.WHITE 0.9 0.9 true xKey backToEntryWindow true)]
+                                                        null null FlxColor.WHITE 0.9 0.9 true xKey leftKey rightKey backToEntryWindow true)]
                             (set entryEditWindow editWindow))))
 
             (let [showOrHide (if model.showLowerPriority "Hide" "Show")]
@@ -378,7 +378,7 @@
                                                             (refreshModel)
                                                             (entryWindow.show)
                                                         }
-                                                        null null FlxColor.WHITE 0.9 0.9 true xKey backToEntryWindow true)]
+                                                        null null FlxColor.WHITE 0.9 0.9 true xKey leftKey rightKey backToEntryWindow true)]
                             (set entryDeletionWindow delWindow))))
             
             (when (= rewardFileIndex (- m.rewardFiles.length 1))
@@ -832,7 +832,7 @@
                                         idxArr)
             dayText ->idx "$(nth days idx): $(if (nth daysEnabled idx) "yes" "no")"
             dayColor ->idx (if (nth daysEnabled idx) (FlxColor.LIME.getDarkened) FlxColor.GRAY)
-            window (new SimpleWindow prompt null null width height true xKey backToEntryWindow)]
+            window (new SimpleWindow prompt null null width height true xKey leftKey rightKey backToEntryWindow)]
         (localFunction refreshWindow []
             (window.clearControls)
             (doFor [idx day] (enumerate days)
@@ -859,7 +859,7 @@
         (createToggleIndicesType false Monthly (cast texts) 28 "Which days of the month?" 0.9 0.9)))
 
 (method createIntervalEntry []
-    (set entryCreationWindow (new SimpleWindow "After finishing this habit, how many days do you wait before doing it again?" null null 0.9 0.9 true xKey backToEntryWindow))
+    (set entryCreationWindow (new SimpleWindow "After finishing this habit, how many days do you wait before doing it again?" null null 0.9 0.9 true xKey leftKey rightKey backToEntryWindow))
     (set entryNameText (new KissInputText 0 0 FlxG.width "" textSize true))
     (set addingLabels false)
     (entryCreationWindow.addControl entryNameText)
@@ -913,7 +913,7 @@
                                 [s piece])))))
 
 (method editLabels [:Entry e]
-    (let [window (new SimpleWindow "Editing labels" null null 0.9 0.9 true xKey backToEntryWindow)
+    (let [window (new SimpleWindow "Editing labels" null null 0.9 0.9 true xKey leftKey rightKey backToEntryWindow)
             inputTexts (for l e.labels
                             // TODO don't allow /, +, $, *
                             (new KissInputText 0 0 FlxG.width l.label textSize true))]

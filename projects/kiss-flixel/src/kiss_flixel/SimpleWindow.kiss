@@ -18,6 +18,7 @@
             :Float percentWidth
             :Float percentHeight
             :Bool _xButton :String _xKey
+            :String _leftKey :String _rightKey
             :ShortcutAction _onClose]
     
     [:String title (or _title "")
@@ -28,9 +29,13 @@
         &mut :FlxColor textColor (or _textColor FlxColor.WHITE)
         :Bool xButton ?_xButton
         :String xKey _xKey
+        :String leftKey _leftKey
+        :String rightKey _rightKey
         :ShortcutAction onClose _onClose
         :FlxTypedGroup<FlxSprite> controls (new FlxTypedGroup)
         :FlxKeyShortcutHandler<ShortcutAction> keyHandler (new FlxKeyShortcutHandler)
+        // The xHandler exists so that when keyboard shortcuts are disabled,
+        // UI key controls are still available. it also handles left and right.
         :FlxKeyShortcutHandler<ShortcutAction> xHandler (new FlxKeyShortcutHandler)]
     
     (super 0 0)
@@ -142,6 +147,8 @@
             (dictSet _colors ftext ftext.color)
             (dictSet _actions ftext ->:Void _ (scrollLeft))
             (set leftText ftext))
+        (when leftKey
+            (xHandler.registerItem "{${leftKey}}" scrollLeft))
         (let [ftext (new FlxText width height 0 "->" textSize)]
             (set ftext.cameras [controlCamera])
             (-= ftext.x ftext.width)
@@ -151,6 +158,8 @@
             (controls.add ftext)
             (dictSet _actions ftext ->:Void _ (scrollRight))
             (set rightText ftext))
+        (when rightKey
+            (xHandler.registerItem "{${rightKey}}" scrollRight))
         (refreshColumnTexts)
         
         (set hasScrollArrows true))
@@ -299,9 +308,11 @@
                                                     :Float percentHeight
                                                     :Bool xButton
                                                     :String xKey
+                                                    :String leftKey
+                                                    :String rightKey
                                                     :ShortcutAction onClose
                                                     :Bool noShortcuts]
-    (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight xButton xKey onClose)
+    (let [window (new SimpleWindow prompt bgColor titleColor percentWidth percentHeight xButton xKey leftKey rightKey onClose)
             choiceColor (or choiceColor titleColor FlxColor.WHITE)]
         (doFor choice choices
             (window.makeText (Std.string choice) choiceColor
