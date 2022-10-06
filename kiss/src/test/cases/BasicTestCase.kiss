@@ -694,3 +694,14 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
     // Guards should be allowed in whenLet patterns
     (whenLet [(when true 5) 5]
         (Assert.pass)))
+
+(function _testImportAndUsingInBuildMacro []
+    (assertThrowsAtCompileTime (import pack.Type))
+    (assertThrowsAtCompileTime (importAs pack.Type Alias))
+    (assertThrowsAtCompileTime (importAll pack))
+    (assertThrowsAtCompileTime (using pack.Type))
+    (Assert.pass))
+
+(function _testPureKissClasses []
+    (PureKissClass.test)
+    (Assert.pass))

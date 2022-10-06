@@ -16,6 +16,7 @@ import kiss.SpecialForms;
 import kiss.Macros;
 import kiss.KissError;
 import kiss.cloner.Cloner;
+import tink.syntaxhub.*;
 
 using kiss.Kiss;
 using kiss.Helpers;
@@ -68,11 +69,11 @@ typedef KissState = {
 
 class Kiss {
     #if macro
-    public static function defaultKissState(?name):KissState {
-        var className = if(name == null){
+    public static function defaultKissState(?context:FrontendContext):KissState {
+        var className = if (context == null) {
             Context.getLocalClass().get().name;
-        }else{
-            name;
+        } else {
+            context.name;
         }
         var k = {
             className: className,
@@ -192,7 +193,7 @@ class Kiss {
         };
 
         FieldForms.addBuiltins(k);
-        k.specialForms = SpecialForms.builtins(k);
+        k.specialForms = SpecialForms.builtins(k, context);
         k.macros = Macros.builtins(k);
 
         return k;
@@ -276,7 +277,7 @@ class Kiss {
     /**
         Build macro: add fields to a class from a corresponding .kiss file
     **/
-    public static function build(?kissFile:String, ?k:KissState, useClassFields = true, ?className:String):Array<Field> {
+    public static function build(?kissFile:String, ?k:KissState, useClassFields = true, ?context:FrontendContext):Array<Field> {
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         // (load... ) relative to the original file
@@ -292,7 +293,7 @@ class Kiss {
                 trace(kissFile);
             #end
                 if (k == null)
-                    k = defaultKissState(className);
+                    k = defaultKissState(context);
 
                 if (useClassFields) {
                     k.fieldList = Context.getBuildFields();

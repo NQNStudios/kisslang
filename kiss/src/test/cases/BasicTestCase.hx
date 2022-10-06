@@ -364,9 +364,17 @@ class BasicTestCase extends Test {
         _testQuickFractions();
     }
     
-     function testWhenLetGuards() {
+    function testWhenLetGuards() {
         _testWhenLetGuards();
-     }
+    }
+     
+    function testImportAndUsingInBuildMacro() {
+        _testImportAndUsingInBuildMacro();
+    }
+     
+    function testPureKissClasses() {
+        _testPureKissClasses();
+    }
      
 }
 

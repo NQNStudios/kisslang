@@ -1,0 +1,9 @@
+(import test.OtherPureKissClass)
+(importAs test.OtherPureKissClass Alias)
+(using test.OtherPureKissClass)
+
+(function test []
+    (assert (= (.extensionMethod "string") "EXTENDED"))
+    (let [instance (new OtherPureKissClass 5)
+            other (new Alias 5)]
+        (assert (= instance.num other.num 5))))

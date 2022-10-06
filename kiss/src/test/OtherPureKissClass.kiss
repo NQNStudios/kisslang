@@ -1,0 +1,3 @@
+(function extensionMethod [:String s] "EXTENDED")
+
+(defNew [&prop :Int num])

@@ -13,12 +13,13 @@ using kiss.Helpers;
 using kiss.Prelude;
 using kiss.Kiss;
 using tink.MacroApi;
+import tink.syntaxhub.*;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
 typedef SpecialFormFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Expr;
 
 class SpecialForms {
-    public static function builtins(k:KissState) {
+    public static function builtins(k:KissState, ?context:FrontendContext) {
         var map:Map<String, SpecialFormFunction> = [];
 
         function renameAndDeprecate(oldName:String, newName:String) {
@@ -535,6 +536,48 @@ class SpecialForms {
             var e = Kiss.convert(k, exps[0]);
             Prelude.printStr(e.toString());
             return e;
+        };
+
+        function requireContext(exp, formName) {
+            if (context == null) {
+                throw KissError.fromExp(exp, '$formName cannot be used when calling Kiss as a build macro in a Haxe file.');
+            }
+        }
+
+        function none(exp) {
+            return EBlock([]).withMacroPosOf(exp);
+        }
+
+		k.doc("import", 1, null, "(import <types...>)");
+        map["import"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "import");
+            for (type in exps) {
+                context.addImport(Reader.toString(type.def), INormal, wholeExp.macroPos());
+            }
+            return none(wholeExp);
+        };
+
+        k.doc("importAs", 2, 2, "(importAs <Type> <Alias>)");
+        map["importAs"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "importAs");
+            context.addImport(Reader.toString(exps[0].def), IAsName(Reader.toString(exps[1].def)), wholeExp.macroPos());
+            return none(wholeExp);
+        };
+
+        k.doc("importAll", 1, 1, "(importAll <package>)");
+        map["importAll"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "importAll");
+            context.addImport(Reader.toString(exps[0].def), IAll, wholeExp.macroPos());
+            return none(wholeExp);
+        };
+        
+        k.doc("using", 1, null, "(using <Types...>)");
+        map["using"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "using");
+            for (type in exps) {
+                context.addUsing(Reader.toString(type.def), wholeExp.macroPos());
+            }
+            return none(wholeExp);
         };
 
         return map;
