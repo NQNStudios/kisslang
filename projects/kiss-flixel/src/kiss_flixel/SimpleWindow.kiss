@@ -107,8 +107,12 @@
     (+= nextControlY control.height)
     // TODO controls that aren't the same height as text will be able to vertically overflow
     (let [columnControls (controls.members.slice (if title 1 0))]
-        (doFor c [xText columnText leftText rightText]
+        // Don't count special controls as part of any column:
+        (doFor c [xText leftText rightText]
             (when c (columnControls.remove c)))
+        (doFor c columnTexts
+            (when c (columnControls.remove c)))
+
         (setNth columnWidths -1 (max (+ control.width textSize) (last columnWidths)))
         (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
             (set nextControlY 0)
@@ -122,11 +126,11 @@
 (prop &mut :FlxText titleText)
 (prop &mut :FlxText leftText)
 (prop &mut :FlxText rightText)
-(prop &mut :FlxText columnText)
+(prop &mut :Array<FlxText> columnTexts [])
 (prop &mut :FlxText xText)
 
-(method columnTextStr []
-    "$(* cameraColumn ".")*$(* (- columnWidths.length 1 cameraColumn) ".")")
+(method columnTextStr [:Int column]
+    (if (= cameraColumn column) ">${column}<" "$column"))
 
 (method makeScrollArrows []
     (unless hasScrollArrows
@@ -147,17 +151,35 @@
             (controls.add ftext)
             (dictSet _actions ftext ->:Void _ (scrollRight))
             (set rightText ftext))
-        (let [ftext (new FlxText (fHalf width) height 0 (columnTextStr) textSize)]
-            (set ftext.cameras [controlCamera])
-            (-= ftext.x (fHalf ftext.width))
-            (-= ftext.y ftext.height)
-            (set ftext.color textColor)
-            (dictSet _colors ftext ftext.color)
-            (controls.add ftext)
-            (set columnText ftext))
+        (refreshColumnTexts)
+        
         (set hasScrollArrows true))
     // A column could be added while the same window is shown.
-    (set columnText.text (columnTextStr)))
+    (refreshColumnTexts))
+
+(method refreshColumnTexts []
+    (doFor i (range columnWidths.length)
+        (unless (> columnTexts.length i)
+            (let [ftext (new FlxText (fHalf width) height 0 (columnTextStr i) textSize)]
+                // TODO make clickable action
+                (set ftext.cameras [controlCamera])
+                (-= ftext.x (fHalf ftext.width))
+                (-= ftext.y ftext.height)
+                (set ftext.color textColor)
+                (dictSet _colors ftext ftext.color)
+                (dictSet _actions ftext
+                    ->:Void _
+                        (until (= cameraColumn i) 
+                            (if (< cameraColumn i)
+                                    (scrollRight)
+                                (scrollLeft))))
+                (controls.add ftext)
+                (columnTexts.push ftext)))
+        (let [ftext (nth columnTexts i)]
+            (set ftext.text (columnTextStr i))
+            (set ftext.x (+ (fHalf width) controlCamera.scroll.x))
+            (-= ftext.x (* (- (fHalf columnWidths.length) i) textSize 3))
+            (when (= cameraColumn i) (-= ftext.x .width (new FlxText 0 0 0 ">" textSize))))))
 
 (prop :Map<FlxSprite,Action> _actions (new Map))
 (prop :Map<FlxSprite,FlxColor> _colors (new Map))
@@ -185,6 +207,7 @@
 
 (method clearControls []
     (set columnWidths [0.0])
+    (set columnTexts [])
     (set hasScrollArrows false)
     (_actions.clear)
     (controls.clear)
@@ -302,10 +325,11 @@
                 (-= titleText.x scrollAmount))
             (-= leftText.x scrollAmount)
             (-= rightText.x scrollAmount)
-            (-= columnText.x scrollAmount)
+            (doFor columnText columnTexts
+                (-= columnText.x scrollAmount))
             (when xText
                 (-= xText.x scrollAmount)))
-        (set columnText.text (columnTextStr))))
+        (refreshColumnTexts)))
 
 (method scrollRight []
     (when (< cameraColumn (- columnWidths.length 1 ))
@@ -315,14 +339,15 @@
                 (+= titleText.x scrollAmount))
             (+= leftText.x scrollAmount)
             (+= rightText.x scrollAmount)
-            (+= columnText.x scrollAmount)
+            (doFor columnText columnTexts
+                (+= columnText.x scrollAmount))
             (when xText
                 (+= xText.x scrollAmount)))
         (+= cameraColumn 1)
         (when (< (apply + (columnWidths.slice cameraColumn)) width)
             (controls.remove rightText))
         (controls.add leftText)
-        (set columnText.text (columnTextStr))))
+        (refreshColumnTexts)))
 
  // Irreversibly disable the window's buttons (for when you're going to hide it in the next frame)
 (method clearActions []
