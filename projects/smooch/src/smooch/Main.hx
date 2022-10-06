@@ -1,6 +1,6 @@
 package smooch;
 
-import LeetCode;
+import smooch.LeetCode;
 
 class Main{
   static public function main(){
