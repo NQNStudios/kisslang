@@ -161,7 +161,6 @@
     (doFor i (range columnWidths.length)
         (unless (> columnTexts.length i)
             (let [ftext (new FlxText (fHalf width) height 0 (columnTextStr i) textSize)]
-                // TODO make clickable action
                 (set ftext.cameras [controlCamera])
                 (-= ftext.x (fHalf ftext.width))
                 (-= ftext.y ftext.height)
@@ -213,6 +212,7 @@
     (controls.clear)
     (inputTexts.clear)
     (keyHandler.clear)
+    (xHandler.clear)
     (makeXControls)
     (set nextControlX 0)
     (set nextControlY 0)
