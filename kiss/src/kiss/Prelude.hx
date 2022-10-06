@@ -79,6 +79,16 @@ class Prelude {
     }
     public static var or:Function = Reflect.makeVarArgs(_or);
 
+    static function makeVarArgsWithArrayCheck(f:Array<Dynamic>->Dynamic, name:String):Function {
+        function fWithArrayCheck(args:Array<Dynamic>):Dynamic {
+            if (args.length == 1 && args[0] is Array) {
+                throw 'Array ${args[0]} was passed to variadic function $name. Use (apply $name args) instead';
+            }
+            return f(args);
+        }
+        return Reflect.makeVarArgs(fWithArrayCheck);
+    }
+
     // Kiss arithmetic will incur overhead because of these switch statements, but the results will not be platform-dependent
     static function _add(values:Array<Dynamic>):Dynamic {
         var sum:Dynamic = values[0];
@@ -87,7 +97,7 @@ class Prelude {
         return sum;
     }
 
-    public static var add:Function = Reflect.makeVarArgs(_add);
+    public static var add:Function = makeVarArgsWithArrayCheck(_add, "+");
 
     static function _subtract(values:Array<Dynamic>):Dynamic {
         var difference:Float = values[0];
@@ -96,7 +106,7 @@ class Prelude {
         return difference;
     }
 
-    public static var subtract:Function = Reflect.makeVarArgs(_subtract);
+    public static var subtract:Function = makeVarArgsWithArrayCheck(_subtract, "-");
 
     static function _multiply2(a:Dynamic, b:Dynamic):Dynamic {
         return switch ([stringOrFloat(a), stringOrFloat(b)]) {
@@ -122,7 +132,7 @@ class Prelude {
         return product;
     }
 
-    public static var multiply:Function = Reflect.makeVarArgs(_multiply);
+    public static var multiply:Function = makeVarArgsWithArrayCheck(_multiply, "*");
 
     static function _divide(values:Array<Dynamic>):Dynamic {
         var quotient:Float = values[0];
@@ -131,7 +141,7 @@ class Prelude {
         return quotient;
     }
 
-    public static var divide:Function = Reflect.makeVarArgs(_divide);
+    public static var divide:Function = makeVarArgsWithArrayCheck(_divide, "/");
 
     public static function mod(top:Dynamic, bottom:Dynamic):Dynamic {
         return top % bottom;
@@ -148,7 +158,7 @@ class Prelude {
         return min;
     }
 
-    public static var min:Function = Reflect.makeVarArgs(_min);
+    public static var min:Function = makeVarArgsWithArrayCheck(_min, "min");
 
     static function _max(values:Array<Dynamic>):Dynamic {
         var max = values[0];
@@ -158,7 +168,7 @@ class Prelude {
         return max;
     }
 
-    public static var max:Function = Reflect.makeVarArgs(_max);
+    public static var max:Function = makeVarArgsWithArrayCheck(_max, "max");
 
     static function _comparison(op:String, values:Array<Dynamic>):Bool {
         for (idx in 1...values.length) {
@@ -178,11 +188,11 @@ class Prelude {
         return true;
     }
 
-    public static var greaterThan:Function = Reflect.makeVarArgs(_comparison.bind(">"));
-    public static var greaterEqual:Function = Reflect.makeVarArgs(_comparison.bind(">="));
-    public static var lessThan:Function = Reflect.makeVarArgs(_comparison.bind("<"));
-    public static var lesserEqual:Function = Reflect.makeVarArgs(_comparison.bind("<="));
-    public static var areEqual:Function = Reflect.makeVarArgs(_comparison.bind("=="));
+    public static var greaterThan:Function = makeVarArgsWithArrayCheck(_comparison.bind(">"), ">");
+    public static var greaterEqual:Function = makeVarArgsWithArrayCheck(_comparison.bind(">="), ">=");
+    public static var lessThan:Function = makeVarArgsWithArrayCheck(_comparison.bind("<"), "<");
+    public static var lesserEqual:Function = makeVarArgsWithArrayCheck(_comparison.bind("<="), "<=");
+    public static var areEqual:Function = makeVarArgsWithArrayCheck(_comparison.bind("=="), "=");
 
     // Like quickNths but for division. Support int and float output:
     private static function iFraction (num:Float, denom:Float) {

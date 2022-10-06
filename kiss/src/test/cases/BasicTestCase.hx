@@ -375,7 +375,10 @@ class BasicTestCase extends Test {
     function testPureKissClasses() {
         _testPureKissClasses();
     }
-     
+
+    function testArraysToVariadic() {
+        _testArraysToVariadic();
+    }
 }
 
 class BasicObject {
