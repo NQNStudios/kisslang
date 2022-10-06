@@ -221,7 +221,6 @@
     (controls.clear)
     (inputTexts.clear)
     (keyHandler.clear)
-    (xHandler.clear)
     (makeXControls)
     (set nextControlX 0)
     (set nextControlY 0)

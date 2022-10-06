@@ -80,6 +80,10 @@
                         conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
                     (if keys
                             (case existingKey
+                                // No harm in registering the same item twice:
+                                ((when (= otherItem item) (or (Final otherItem) (Cancel otherItem)))
+                                    (return))
+                                // Conflicting with a different one, on the other hand:
                                 ((or (Final _) (Cancel _))
                                     (tryCallOrThrow onBadShortcut conflictMessage false description existingKey))
                                 ((Prefix innerPrefixMap)
