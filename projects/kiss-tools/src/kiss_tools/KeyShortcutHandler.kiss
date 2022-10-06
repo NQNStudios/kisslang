@@ -39,8 +39,8 @@
             (cancel)
         (case (dictGet currentMap key)
             ((Final item)
-                (tryCall onSelectItem item)
-                (cancel))
+                (cancel)
+                (tryCall onSelectItem item))
             ((Prefix nextMap)
                 (_selectMap nextMap))
             (otherwise
