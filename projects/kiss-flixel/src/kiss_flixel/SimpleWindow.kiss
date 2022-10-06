@@ -107,6 +107,8 @@
     (+= nextControlY control.height)
     // TODO controls that aren't the same height as text will be able to vertically overflow
     (let [columnControls (controls.members.slice (if title 1 0))]
+        (doFor c [xText columnText leftText rightText]
+            (when c (columnControls.remove c)))
         (setNth columnWidths -1 (max (+ control.width textSize) (last columnWidths)))
         (when (and columnControls (= 0 (% columnControls.length controlsPerColumn)))
             (set nextControlY 0)
