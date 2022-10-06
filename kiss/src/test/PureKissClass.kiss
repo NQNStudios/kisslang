@@ -2,8 +2,16 @@
 (importAs test.OtherPureKissClass Alias)
 (using test.OtherPureKissClass)
 
+(extends OtherPureKissClass)
+(implements test.BasicInterface)
+
+(defNew [num &prop :Int otherNum]
+    (super num))
+
 (function test []
     (assert (= (.extensionMethod "string") "EXTENDED"))
     (let [instance (new OtherPureKissClass 5)
-            other (new Alias 5)]
-        (assert (= instance.num other.num 5))))
+            other (new Alias 5)
+            third (new PureKissClass 5 6)]
+        (assert (= instance.num other.num third.num 5))
+        (assert (= third.otherNum 6))))

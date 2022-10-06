@@ -580,6 +580,33 @@ class SpecialForms {
             return none(wholeExp);
         };
 
+        k.doc("extends", 1, 1, "(extends <Class>)");
+        map["extends"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "extends");
+            var type = context.getType();
+            type.kind = switch (type.kind) {
+                case TDClass(null, interfaces, false, false, false):
+                    TDClass(Reader.toString(exps[0].def).asTypePath(), interfaces, false, false, false);
+                default:
+                    throw KissError.fromExp(wholeExp, '${type.name} must be a class without a superclass');
+            }
+            return none(wholeExp);
+        };
+
+        k.doc("implements", 1, null, "(implements <Interfaces...>)");
+        map["implements"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            requireContext(wholeExp, "implements");
+            var type = context.getType();
+            var interfaces = [for (exp in exps) Reader.toString(exp.def).asTypePath()];
+            type.kind = switch (type.kind) {
+                case TDClass(superClass, [], false, false, false):
+                    TDClass(superClass, interfaces, false, false, false);
+                default:
+                    throw KissError.fromExp(wholeExp, '${type.name} must be a class without any interfaces');
+            }
+            return none(wholeExp);
+        };
+
         return map;
     }
     
