@@ -18,7 +18,7 @@ interface ArchiveUI {
      */
     var shortcutHandler(default, null):Null<KeyShortcutHandler<Entry>>;
 
-    function showPrefixMap(map:Map<String,ShortcutKey<Entry>>):Void;
+    function showPrefixMap(map:Map<String,String>):Void;
     function hidePrefixMap():Void;
 
     /**

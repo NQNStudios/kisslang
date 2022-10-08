@@ -11,7 +11,7 @@
             {   
                 (when (and ui ui.shortcutHandler)
                     (unless setup
-                        (set ui.shortcutHandler.onSelectPrefixMap ui.showPrefixMap)
+                        (set ui.shortcutHandler.onSelectPrefixMap ->:Void [_ map] (ui.showPrefixMap map))
                         (set ui.shortcutHandler.onSelectItem
                             ->e {
                                     (ui.hidePrefixMap)

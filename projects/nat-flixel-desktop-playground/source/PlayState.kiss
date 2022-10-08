@@ -46,7 +46,7 @@
 
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
-(method :Void showPrefixMap [:Map<String,ShortcutKey<Entry>> map]
+(method :Void showPrefixMap [:Map<String,String> map]
     (clearUI)
     (doFor =>key thing map
         (displayMessage "$key - $thing")))

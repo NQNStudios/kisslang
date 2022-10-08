@@ -93,7 +93,7 @@
                 (_runCommand command selectedTextBeforeShortcut))
         (_runCommand command selectedTextBeforeShortcut)))
 
-(function :Void showShortcutPanel [:PrefixMap<String> prefixMap]
+(function :Void showShortcutPanel [:PrefixMap<String> prefixMap :Map<String,String> strings]
     // Preserve the selected text and focused document before opening the webview:
     (whenLet [text (selectedText)] (set selectedTextBeforeShortcut text))
     (when activeTextEditor
@@ -109,20 +109,15 @@
     (set keyListener
         (shortcutPanel.webview.onDidReceiveMessage
             ->:Void key (shortcutHandler.handleKey (the String key))))
-    (set shortcutPanel.webview.html (shortcutPanelHtml prefixMap))
+    (set shortcutPanel.webview.html (shortcutPanelHtml strings))
     (shortcutPanel.webview.postMessage (object command "focus")))
 
-(function shortcutPanelHtml [:PrefixMap<String> prefixMap]
+(function shortcutPanelHtml [:Map<String,String> keys]
     (let [&mut unusedKeys "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-/"
             shortcutParagraphs
-                (for =>key shortcutKey prefixMap
+                (for =>key rep keys
                     (set unusedKeys (unusedKeys.replace key ""))
-                    "<p><strong>${key}</strong> - $(case shortcutKey
-                                    ((Prefix innerMap)
-                                        "$(Lambda.count innerMap) shortcuts")
-                                    ((Final command)
-                                        command)
-                                    (otherwise))</p>")]
+                    "<p><strong>${key}</strong> - ${rep}</p>")]
         "<!DOCTYPE html>
         <html lang=\"en\">
             <head>

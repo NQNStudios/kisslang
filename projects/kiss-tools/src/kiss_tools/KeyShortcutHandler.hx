@@ -5,7 +5,7 @@ import kiss.Stream;
 import kiss.List;
 
 typedef PrefixMap<T> = Map<String, ShortcutKey<T>>;
-typedef PrefixMapHandler<T> = (Map<String, ShortcutKey<T>>) -> Void;
+typedef PrefixMapHandler<T> = (Map<String, ShortcutKey<T>>, Map<String,String>) -> Void;
 typedef ItemHandler<T> = (T) -> Void;
 typedef FinishHandler = () -> Void;
 typedef BadKeyHandler<T> = (String, PrefixMap<T>) -> Void;

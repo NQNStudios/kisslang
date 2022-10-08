@@ -21,7 +21,7 @@
 
 (method _selectMap [m]
     (set currentMap m)
-    (tryCall onSelectPrefixMap m))
+    (tryCall onSelectPrefixMap m (prefixMapToStrings m)))
 
 (method start []
     (_selectMap rootMap))
@@ -100,3 +100,11 @@
 (method :Void registerItem [description :T item]
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
         (registerShortcut keyboardShortcut description item)))
+
+(method :Map<String,String> prefixMapToStrings [:PrefixMap<T> map]
+    (for =>key mapping map
+        =>key (case mapping
+                        ((Cancel _) "cancel")
+                        ((Final thing) (Std.string thing))
+                        ((Prefix map) (.join (collect (map.keys)) ", "))
+                        (never null))))
