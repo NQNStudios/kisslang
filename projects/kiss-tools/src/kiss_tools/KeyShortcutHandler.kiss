@@ -71,11 +71,11 @@
         (otherwise
             shortcuts)))
 
-(method :Void registerShortcut [keys description item &opt :PrefixMap<T> prefixMap]
+(method :Void registerShortcut [keys description item &opt :Bool force :PrefixMap<T> prefixMap]
     (unless prefixMap (set prefixMap rootMap))
     (let [firstKey (keys.shift)]
         (cond 
-            ((or (prefixMap.exists firstKey) (= firstKey cancelKey))
+            ((and !force (or (prefixMap.exists firstKey) (= firstKey cancelKey)))
                 (let [existingKey (if (= firstKey cancelKey) (Cancel cancelKey) (dictGet prefixMap firstKey))
                         conflictMessage "Keyboard shortcut for $description conflicts with $existingKey"]
                     (if keys
@@ -94,12 +94,12 @@
                 (if keys
                         (let [innerPrefixMap (new Map)]
                             (dictSet prefixMap firstKey (Prefix innerPrefixMap))
-                            (registerShortcut keys description item innerPrefixMap))
+                            (registerShortcut keys description item force innerPrefixMap))
                     (dictSet prefixMap firstKey (Final item)))))))
 
-(method :Void registerItem [description :T item]
+(method :Void registerItem [description :T item &opt :Bool force]
     (whenLet [keyboardShortcut (extractKeyboardShortcuts description)]
-        (registerShortcut keyboardShortcut description item)))
+        (registerShortcut keyboardShortcut description item force)))
 
 (method :Map<String,String> prefixMapToStrings [:PrefixMap<T> map]
     (for =>key mapping map

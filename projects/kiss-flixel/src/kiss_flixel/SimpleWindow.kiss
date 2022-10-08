@@ -94,7 +94,7 @@
                 (when xKey
                     (when (= keyHandler.cancelKey xKey)
                         (set keyHandler.cancelKey null))
-                    (xHandler.registerItem "{${xKey}}" closeAction))))
+                    (xHandler.registerItem "{${xKey}}" closeAction true))))
         
     // TODO show which shortcuts' prefixes are partially highlighted?
     )
@@ -148,7 +148,7 @@
             (dictSet _actions ftext ->:Void _ (scrollLeft))
             (set leftText ftext))
         (when leftKey
-            (xHandler.registerItem "{${leftKey}}" scrollLeft))
+            (xHandler.registerItem "{${leftKey}}" scrollLeft true))
         (let [ftext (new FlxText width height 0 "->" textSize)]
             (set ftext.cameras [controlCamera])
             (-= ftext.x ftext.width)
@@ -159,7 +159,7 @@
             (dictSet _actions ftext ->:Void _ (scrollRight))
             (set rightText ftext))
         (when rightKey
-            (xHandler.registerItem "{${rightKey}}" scrollRight))
+            (xHandler.registerItem "{${rightKey}}" scrollRight true))
         (refreshColumnTexts)
         
         (set hasScrollArrows true))
