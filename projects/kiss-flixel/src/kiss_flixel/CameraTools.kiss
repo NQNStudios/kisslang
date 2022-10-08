@@ -51,7 +51,7 @@
         (-= camera.height dy (* border.scale.y borderSizeBottom)))))
 
 // GOTCHA: if you change FlxG.camera to a moving camera, you MUST provide a default camera for FlxG.mouse.getScreenPosition()
-(function updateMouseBorderControl [:FlxCamera camera :Float elapsed :Float speed :Float heightFraction &opt :FlxCamera screenCamera]
+(function updateMouseBorderControl [:FlxCamera camera :Float elapsed :Float speed :Float heightFraction :FlxCamera screenCamera]
     (let [viewport (ifLet [bc (dictGet borderCameras camera)] bc camera)
             left viewport.x
             top viewport.y

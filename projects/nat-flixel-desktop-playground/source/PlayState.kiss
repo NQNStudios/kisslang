@@ -38,6 +38,7 @@
     (add debugLayer)
 
     (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
+    (prop screenCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
     (FlxG.cameras.add uiCamera false)
 
@@ -106,7 +107,7 @@
         ->{FlxG.keys.pressed.RIGHT}
         ->{FlxG.keys.pressed.UP}
         ->{FlxG.keys.pressed.DOWN})
-    (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.01)
+    (FlxG.camera.updateMouseBorderControl elapsed KEYBOARD_SCROLL_SPEED 0.01 screenCamera)
 
     (FlxG.camera.updateScrollWheelZoom elapsed 1)
 
