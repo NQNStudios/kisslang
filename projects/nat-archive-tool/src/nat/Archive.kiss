@@ -47,7 +47,7 @@
 (prop &mut :Entry->Dynamic defaultInitializer null)
 
 (method :Entry createEntry [:Entry->Dynamic initializer] // initializer returns Dynamic so ->:Void isn't required
-    (let [e (_newEntry)]
+    (let [e (new Entry)]
         (when defaultInitializer
             (defaultInitializer e))
         (initializer e)
@@ -72,12 +72,6 @@
 
 (method fullString [:Entry e]
     (haxe.Json.stringify e null "\t"))
-
-(function :Entry _newEntry []
-    (object
-        id (Uuid.v4)
-        components (new Map)
-        files []))
 
 (method filePath [file]
     (joinPath archiveDir "files" file))
