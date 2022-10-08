@@ -28,6 +28,7 @@ jobs:
           # TODO hollywoo
           # TODO hollywoo-flixel
           # TODO iso-rpg-engine
+          - KISS_PROJECT=kill-carriage-return
           # TODO kiss-express
           # TODO kiss-flixel
           - KISS_PROJECT=kiss-tools

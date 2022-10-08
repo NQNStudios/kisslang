@@ -1,0 +1,46 @@
+(function usageError []
+    (print "Usage: haxelib run kill-carriage-return <kill or stun> <extensions...>")
+    (Sys.exit 1)
+    false)
+
+(using haxe.io.Path)
+(function run [dir :Array<String> extensions _kill]
+    (walkDirectory 
+        ""
+        dir
+        ->:Void file
+            (when (contains extensions (file.extension))
+                ((if _kill kill stun) file))
+        ->:Void dir 0
+        ->:Void dir 0)
+    (when stunnedFiles
+        (print "Windows line ending(s) detected in:")
+        (doFor file stunnedFiles (print file))
+        (Sys.exit 1)))
+
+(import sys.io.File)
+(function kill [file]
+    (File.saveContent file (.replace (File.getContent file) "\r" "")))
+
+(var stunnedFiles [])
+(function stun [file]
+    (when (contains (File.getContent file) "\r")
+        (stunnedFiles.push file)))
+
+(ifLet [[::killOrStun ...extensions cwd] (Sys.args)]
+        {
+            (run 
+                cwd 
+                (for ext extensions
+                    (if (ext.startsWith ".")
+                            (ext.substr 1)
+                        ext))
+                (case killOrStun
+                    ("kill"
+                        true)
+                    ("stun"
+                        false)
+                    (otherwise
+                        (usageError))))
+        }
+    (usageError))

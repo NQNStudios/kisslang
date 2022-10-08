@@ -1,0 +1,17 @@
+{
+	"main": "kill_carriage_return.Main",
+	"name": "kill-carriage-return",
+	"description": "Do you hate Windows-style line endings as much as I do?",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
