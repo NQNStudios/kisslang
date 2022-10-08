@@ -206,6 +206,25 @@
     (archive.addSystem (new KeyShortcutSystem this))
     (archive.addSystem (new DLSystem))
     (archive.addSystem (new AutoStepperSystem))
+    
+    (localFunction colorEqual [:nat.components.Color c1 :nat.components.Color c2]
+        (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b) (= c1.a c2.a)))
+    (localFunction colorsContain [:Array<nat.components.Color> cs :nat.components.Color c1]
+        (doFor c2 cs
+            (when (colorEqual c2 c1)
+                (return true)))
+        (return false))
+    (localFunction addColorTagSystems [:Map<String,nat.components.Color> info]
+        (let [colors (collect (info.iterator))]
+            (doFor =>tagExp color info
+                (archive.addSystem (new TagSystem tagExp ->[archive e &opt ui]
+                    (when (or !(hasComponent e Color) (colorsContain colors (readComponent e Color)))
+                        (addComponent archive e Color color)))))))
+    (addColorTagSystems [
+        =>"(or active enabled)" (object r 0 g 1 b 0 a 1)
+        =>"(or inactive disabled)" (object r 0.5 g 0.5 b 0.5 a 1)
+        =>"todo" (object r 1 g (/ 165.0 255) b 0 a 1)])
+
     (whenLet [ps (ui.playgroundSystem)]
         (set playgroundSystem ps)
         (archive.addSystem ps)
