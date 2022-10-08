@@ -20,6 +20,7 @@ import flixel.input.mouse.FlxMouseEventManager;
 using StringTools;
 using kiss_flixel.DebugLayer;
 using kiss_flixel.CameraTools;
+using kiss_flixel.SimpleWindow;
 import kiss_tools.KeyShortcutHandler;
 import kiss_tools.FlxKeyShortcutHandler;
 import nat.systems.PlaygroundSystem;

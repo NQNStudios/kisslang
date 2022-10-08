@@ -15,6 +15,7 @@
         ->[archive e pos &opt ui]
             (unless (sprites.exists e.id)
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]
+                    (set sprite.cameras [FlxG.camera])
                     (sprite.enableDragToSelect
                         ->:Void {
                             (controller.AddSelectEntry e)

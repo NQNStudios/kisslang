@@ -28,21 +28,18 @@
                 this)))
 
 
-    (prop &mut :FlxGroup uiGroup (new FlxGroup))
-    (add uiGroup)
+    (prop screenCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
+    (prop &mut :SimpleWindow uiWindow (new SimpleWindow 0.5 0.5 true "escape"))
+    (set uiWindow.cameras [screenCamera])
+    (set uiWindow.keyboardEnabled false)
 
     (prop :FlxTypedGroup<EntrySprite> entryGroup (new FlxTypedGroup<EntrySprite>))
     (add entryGroup)
 
     (prop debugLayer (new DebugLayer))
+    (set debugLayer.cameras [FlxG.camera])
     (add debugLayer)
 
-    (prop uiCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
-    (prop screenCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
-    (set uiCamera.bgColor FlxColor.TRANSPARENT)
-    (FlxG.cameras.add uiCamera false)
-
-    (set uiGroup.cameras [uiCamera])
 
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
@@ -71,15 +68,8 @@
                 (set textInput.caretIndex textInput.text.length))))
 
     (when FlxG.keys.justPressed.ESCAPE
-        (cond
-            ((and textInput textInput.hasFocus)
-                (set textInput.callback null)
-                (hideUI textInput)
-                // This part is hacky...
-                (set lastUI textInputLabel)
-                (hideUI textInputLabel))
-            (sh.currentMap
-                (sh.cancel))))
+        (when sh.currentMap
+            (sh.cancel)))
     (when FlxG.keys.justPressed.DELETE
         (Sys.exit 0))
 
@@ -92,11 +82,6 @@
 
     
     
-    // Scroll the UI with the mouse:
-    (var UI_SCROLL_FACTOR 2)
-    (+= uiCamera.scroll.y (* FlxG.mouse.wheel UI_SCROLL_FACTOR))
-    // TODO allow changing the a scroll factor
-
     // Control the UI camera with WASD, and the playground camera with arrow keys:
     (var KEYBOARD_SCROLL_SPEED 800)
     
@@ -124,19 +109,7 @@
                     (-= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1)))
             (when FlxG.keys.justPressed.PLUS
                 (withWritableComponents archive e [positions Positions]
-                    (+= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1))))
-
-        // don't move the ui camera before ui has been placed -- new UI elements could appear offscreen
-        (when (> uiGroup.length 0)
-            (unless (and textInput textInput.hasFocus)
-                (uiCamera.updateKeyControl
-                    elapsed
-                    KEYBOARD_SCROLL_SPEED
-                    // TODO support dvorak
-                    ->{FlxG.keys.pressed.A}
-                    ->{FlxG.keys.pressed.D}
-                    ->{FlxG.keys.pressed.W}
-                    ->{FlxG.keys.pressed.S})))))
+                    (+= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1))))))
 
 (method :Void typeCommand []
     (enterText
@@ -151,9 +124,8 @@
 (prop &mut :FlxInputText textInput null)
 
 (method :Void enterText [prompt resolve maxLength]
-    (set textInputLabel (new FlxText 0 0 300 prompt TEXT_SIZE))
-    (showUI textInputLabel)
-    (set textInput (new FlxInputText 0 0 300 "" TEXT_SIZE))
+    (displayMessage prompt)
+    (set textInput (new FlxInputText 0 0 FlxG.width "" TEXT_SIZE))
     (set textInput.hasFocus true)
     (set textInput.callback
         ->:Void [text action]
@@ -161,15 +133,11 @@
             (when textInput
                 (case [text action]
                     ([text FlxInputText.ENTER_ACTION]
-                        (set textInput.callback null)
-                        (hideUI textInput)
-                        // This part is hacky...
-                        (set lastUI textInputLabel)
-                        (hideUI textInputLabel)
+                        (clearUI)
                         (resolve text))
                     //([_ FlxInputText.])
                     (otherwise {}))))
-    (showUI textInput))
+    (uiWindow.addControl textInput))
     
 (method :Void enterNumber [prompt resolve min max &opt inStepsOf]
     (enterText prompt 
@@ -231,41 +199,17 @@
             
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
-(prop &mut :Int uiY 0)
-
-(prop &mut :FlxSprite lastUI null)
-
-(method :Void showUI [:FlxSprite ui]
-    (set ui.y uiY)
-    (uiGroup.add ui)
-    (set lastUI ui)
-    (+= uiY ui.height)
-    (when (> uiY FlxG.height) (+= uiCamera.scroll.y ui.height)))
-
-(method :Void hideUI [:FlxSprite ui]
-    (uiGroup.remove ui)
-    (ui.kill)
-    (when (= lastUI ui) (-= uiY ui.height)))
-
 (method :Void displayMessage [:String message]
-    (let [messageText (new FlxText 0 0 0 (message.replace "\n" "|") TEXT_SIZE)]
-        (showUI messageText)))
+    (uiWindow.makeText message)
+    (uiWindow.show))
 
 (method :Void clearUI []
-    (when textInput
-        (set textInput.callback null))
-    (uiGroup.kill)
-    (set uiGroup (new FlxGroup))
-    (set uiGroup.cameras [uiCamera])
-    (add uiGroup)
-    (set uiY 0)
-    (set uiCamera.scroll.x 0)
-    (set uiCamera.scroll.y 0))
+    (uiWindow.clearControls)
+    (uiWindow.hide))
 
 (method :Void reportError [:String error] 
-    (let [text (new FlxText 0 0 0 (error.replace "\n" "|"))]
-        (text.setFormat null 8 FlxColor.RED)
-        (showUI text)))
+    (uiWindow.makeText error FlxColor.RED)
+    (uiWindow.show))
 
 (method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries]
     (doFor e (selectedEntries.concat lastSelectedEntries)
