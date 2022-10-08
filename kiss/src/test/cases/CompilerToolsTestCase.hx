@@ -23,14 +23,14 @@ class CompilerToolsTestCase extends Test {
 
     static macro function _testCompileHelloWorldJs() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", JavaScript, {
+            "kiss/template/src/template/Main_.kiss", JavaScript, {
                 outputFolder: "bin/helloWorldJsTest",
             });
     }
 
     static macro function _testCompileHelloWorldJsWithPackageJson() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", JavaScript, {
+            "kiss/template/src/template/Main_.kiss", JavaScript, {
                 outputFolder: "bin/helloWorldJsTestWithPackageJson",
                 langProjectFile: "src/test/files/package.json"
             });
@@ -44,14 +44,14 @@ class CompilerToolsTestCase extends Test {
 
     static macro function _testCompileHelloWorldPy() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", Python, {
+            "kiss/template/src/template/Main_.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTest",
             });
     }
 
     static macro function _testCompileHelloWorldPyWithRequirementsTxt() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", Python, {
+            "kiss/template/src/template/Main_.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTestWithRequirementsTxt",
                 langProjectFile: "src/test/files/requirements.txt"
             });
@@ -59,7 +59,7 @@ class CompilerToolsTestCase extends Test {
 
     static macro function _testCompileHelloWorldPyWithSetupPy() {
         return CompilerTools.compileFileToScript(
-            "kiss/template/src/template/Main.kiss", Python, {
+            "kiss/template/src/template/Main_.kiss", Python, {
                 outputFolder: "bin/helloWorldPyTestWithSetupPy",
                 langProjectFile: "src/test/files/setup.py"
             });
