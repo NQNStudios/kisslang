@@ -29,7 +29,7 @@
 
 
     (prop screenCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
-    (prop &mut :SimpleWindow uiWindow (new SimpleWindow 0.5 0.5 true "escape"))
+    (prop &mut :SimpleWindow uiWindow (new SimpleWindow 0.8 0.8 true "escape"))
     (set uiWindow.cameras [screenCamera])
     (set uiWindow.keyboardEnabled false)
 
@@ -202,6 +202,7 @@
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
 
 (method :Void displayMessage [:String message]
+    (print message)
     (uiWindow.makeText message)
     (uiWindow.show))
 
@@ -210,6 +211,7 @@
     (uiWindow.hide))
 
 (method :Void reportError [:String error] 
+    (print error)
     (uiWindow.makeText error FlxColor.RED)
     (uiWindow.show))
 
