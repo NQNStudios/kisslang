@@ -4,7 +4,7 @@
     (case arg.type
         (SelectedEntry
             (if (= 1 _selectedEntries.length)
-                    (continuation (first _selectedEntries))
+                    (continuation (first (getSelectedEntries)))
                 (ui.reportError "The requested command expects 1 entry to be selected. You have selected: $_selectedEntries.length")))
         ((SelectedEntries min max)
             (unless min (set min 0))
@@ -12,7 +12,7 @@
             (unless max (set max (count archive.entries)))
             (if !(<= min _selectedEntries.length max)
                     (ui.reportError "The requested command expects between $min and $max entries to be selected. You have selected: $_selectedEntries.length")
-                (continuation _selectedEntries)))
+                (continuation (getSelectedEntries))))
         ((Text maxLength)
             (unless maxLength (set maxLength Math.POSITIVE_INFINITY))
             (stream.dropWhitespace)
@@ -366,6 +366,7 @@
     
     (defCommand SwitchPlayground [name (Text null)]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (dictSet p "default" name))
+        (SelectEntries [])
         (when playgroundSystem (playgroundSystem.switchPlaygroundKey name))
         [])
         

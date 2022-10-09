@@ -37,9 +37,6 @@
                     (sprite.kill)
                     (playState.entryGroup.remove sprite true)
                     (sprites.remove e.id))
-                
-                // When an Entry is hidden, we can bet the user doesn't want it selected anymore
-                (controller.DeSelectEntry e)
             }))
 
 (method &override :Void clear [:Color color]
@@ -48,8 +45,7 @@
     (sprites.clear)
     (playState.entryGroup.kill)
     (playState.entryGroup.clear)
-    (playState.entryGroup.revive)
-    (controller.SelectEntries []))
+    (playState.entryGroup.revive))
 
 (method z [:Entry e]
     .z (dictGet (readComponent e Positions) _playgroundKey))
