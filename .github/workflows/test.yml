@@ -30,6 +30,7 @@ jobs:
           # TODO iso-rpg-engine
           - KISS_PROJECT=kill-carriage-return
           # TODO kiss-express
+          - KISS_PROJECT=kiss-cli-tests
           # TODO kiss-flixel
           - KISS_PROJECT=kiss-tools
           - KISS_PROJECT=kiss-vscode

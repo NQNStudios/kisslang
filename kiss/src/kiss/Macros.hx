@@ -179,12 +179,7 @@ class Macros {
                 // Context.definedValue only returns a string so if there's a whole
                 // object, I don't know how to get it
                 conditionInterp.variables["target"] = {
-                    threaded:
-                        #if (cs || neko || cpp || java || python || hl)
-                        true
-                        #else
-                        false
-                        #end
+                    threaded: Context.getModule("sys.thread.Thread") != null
                 };
                 #if test
                 Prelude.print("#if condition hscript: " + hscriptStr);
