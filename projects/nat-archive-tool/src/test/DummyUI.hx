@@ -40,7 +40,7 @@ class DummyUI implements ArchiveUI {
 
     public function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>) {}
     
-    public function showPrefixMap(map:Map<String,ShortcutKey<Entry>>) {}
+    public function showPrefixMap(map:Map<String,String>) {}
     public function hidePrefixMap() {}
     public function cursorPosition():Option<Position> {
         return None;
