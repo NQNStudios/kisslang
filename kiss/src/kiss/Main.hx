@@ -114,7 +114,7 @@ class Main {
         var kissLibPath = new Process("haxelib", ["libpath", "kiss"]).stdout.readAll().toString().trim();
         var name = promptFor("name");
         // TODO put the prompted name and description in a README.md
-        var pkg = name.replace("-", "_");
+        var pkg = name.toLowerCase().replace("-", "_");
         var haxelibJson = {
             "name": name,
             "contributors": promptFor("authors (comma-separated)").split(",").map(StringTools.trim),
@@ -139,7 +139,7 @@ class Main {
         var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissLibPath, _, workingDir, name, pkg);
         FileSystem.createDirectory(Path.join([workingDir, name, "src", pkg]));
         makeFileForNewProject(["src", "template", "Main.hx"]);
-        makeFileForNewProject(["src", "template", "Main.kiss"]);
+        makeFileForNewProject(["src", "template", "Main_.kiss"]);
         makeFileForNewProject(["build.hxml"]);
         makeFileForNewProject(["test.sh"]);
         File.saveContent(Path.join([workingDir, name, 'haxelib.json']), Json.stringify(haxelibJson, null, "\t"));
