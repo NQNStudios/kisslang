@@ -134,6 +134,8 @@
                 (case [text action]
                     ([text FlxInputText.ENTER_ACTION]
                         (clearUI)
+                        (set textInput.callback null)
+                        (set textInput null)
                         (resolve text))
                     //([_ FlxInputText.])
                     (otherwise {}))))

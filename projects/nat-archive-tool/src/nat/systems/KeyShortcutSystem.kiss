@@ -32,6 +32,5 @@
         ((hasComponent e NATCommand)
             (controller.tryRunCommand (readComponent e NATCommand)) 0)
         ((hasComponent e NATCommands)
-            // TODO chain them together asynchronously (they may be partial)
-            0)
+            (controller.tryRunCommands (readComponent e NATCommands)) 0)
         (true (ui.displayMessage "tried to invoke ${e.id} but it has no available actions"))) 0)

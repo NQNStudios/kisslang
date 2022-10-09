@@ -128,16 +128,20 @@
     (lambda :Void []
         (_collectAndValidateArg arg stream ->:Void [:Dynamic argValue] {(collectedArgs.push argValue) (lastCollector)})))
 
-(method :Void tryRunCommand [:String command]
+(method :Void tryRunCommand [:String command &opt :Void->Void doAfter]
     (let [parts (command.split " ")
             commandName (parts.shift)
             stream (Stream.fromString (parts.join " "))
             lowerCommandName (commandName.toLowerCase)]
         (if (commands.exists lowerCommandName)
-                (_runCommand (dictGet commands lowerCommandName) stream)
+                (_runCommand (dictGet commands lowerCommandName) stream doAfter)
             (ui.reportError "$commandName is not a valid command"))))
 
-(method :Void _runCommand [:Command command :Stream stream]
+(method :Void tryRunCommands [:Array<String> commands]
+    (when commands
+        (tryRunCommand (commands.shift) ->:Void (tryRunCommands commands))))
+
+(method :Void _runCommand [:Command command :Stream stream &opt :Void->Void doAfter]
     (let [collectedArgs
                 []
             &mut lastCollector
@@ -149,7 +153,8 @@
                         (when lastChangeSet
                             (doFor e lastChangeSet
                                 (assert (and e (isEntry e)) "Lib function forgot to return the Entry that was modified"))
-                            (ui.handleChanges archive lastChangeSet))))]
+                            (ui.handleChanges archive lastChangeSet)
+                            (when doAfter (doAfter)))))]
         // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
         (doFor arg (reverse command.args)
             (set lastCollector (_composeArgCollector collectedArgs arg stream lastCollector)))
@@ -320,6 +325,12 @@
             (addComponent archive e Name description)
             (AddKeyShortcut e description)
             (AddNATCommand [e] command)})])
+
+    (defCommand CreateMultiCommandShortcut [description (Text null) commands (VarText null)]
+        [(archive.createEntry ->e {
+            (addComponent archive e Name description)
+            (AddKeyShortcut e description)
+            (AddNATCommands [e] commands)})])
 
     (defCommand AddFiles [entries (SelectedEntries 1 null)
         // TODO add File and Files as an argument type for commands, ArchiveUI
