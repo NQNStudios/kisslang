@@ -212,6 +212,7 @@
     (archive.addSystem (new DLSystem))
     (archive.addSystem (new AutoStepperSystem))
     
+    // TODO this needs to use epsilon!
     (localFunction colorEqual [:nat.components.Color c1 :nat.components.Color c2]
         (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b) (= c1.a c2.a)))
     (localFunction colorsContain [:Array<nat.components.Color> cs :nat.components.Color c1]
@@ -228,7 +229,7 @@
     (addColorTagSystems [
         =>"(or active enabled)" (object r 0 g 1 b 0 a 1)
         =>"(or inactive disabled)" (object r 0.5 g 0.5 b 0.5 a 1)
-        =>"todo" (object r 1 g (/ 165.0 255) b 0 a 1)])
+        =>"todo" (object r 1 g 0.5 b 0 a 1)])
 
     (whenLet [ps (ui.playgroundSystem)]
         (set playgroundSystem ps)
@@ -254,15 +255,22 @@
             (set name newName))
         [e])
 
-    (defCommand PrintSelectedEntries [entries (SelectedEntries null null)]
+    (defCommand PrintSelectedEntries [entries (SelectedEntries 1 null)]
         (doFor e entries (ui.displayMessage (archive.fullString e))) [])
     
-    (defCommand PrintComponent [entries (SelectedEntries null null)
+    (defCommand PrintComponent [entries (SelectedEntries 1 null)
                                     componentType (Text null)]
         (doFor e entries
             (if (e.components.exists componentType)
                     (ui.displayMessage (dictGet e.components componentType))
                 (ui.displayMessage "Entry ${e.id} has no $componentType component"))) [])
+        
+    (defCommand RemoveComponent [entries (SelectedEntries 1 null)
+                                    componentType (Text null)]
+        (for e entries
+            (withWritableEntry archive e
+                (e.components.remove componentType)
+                e)))
         
     (defCommand CreateEntry [name (Text null)]
         [(archive.createEntry ->e (addComponent archive e Name name))])
