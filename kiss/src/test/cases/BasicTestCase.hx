@@ -379,6 +379,14 @@ class BasicTestCase extends Test {
     function testArraysToVariadic() {
         _testArraysToVariadic();
     }
+
+    function testThreadingSupportCheck() {
+        #if target.threaded
+        Assert.isTrue(_hasThreadSupport());
+        #else
+        Assert.isFalse(_hasThreadSupport());
+        #end
+    }
 }
 
 class BasicObject {

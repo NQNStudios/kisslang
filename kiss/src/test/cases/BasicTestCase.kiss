@@ -722,3 +722,8 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         
         )
     (Assert.pass))
+
+(function _hasThreadSupport []
+    (#if target.threaded
+            true
+        false))
