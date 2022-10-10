@@ -181,7 +181,7 @@ class Main {
     }
 
     static function newExpressProject(args:Array<String>) {
-        var title = promptFor("title");
+        var title = promptFor("title (lower-case!)").toLowerCase();
         var pkg = title.replace("-", "_");
         var kissExpressLibPath = new Process("haxelib", ["libpath", "kiss-express"]).stdout.readAll().toString().trim();
         var workingDir = Sys.args().pop();

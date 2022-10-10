@@ -10,8 +10,8 @@
 	"devDependencies": {
 		"dts2hx": "^0.19.0"
 	},
-	"version": "0.0.0",
 	"scripts": {
 		"postinstall": "dts2hx --all"
-	}
+	},
+	"version": "0.0.0"
 }
