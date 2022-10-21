@@ -64,7 +64,10 @@
 
     (set keyHandler.onBadKey ->:Void [key context]
         (unless (= key xKey)
-            (print "bad key $key in context $context"))) // TODO do SOMETHING like visual/audio bell, cancel and restart
+            (#when debug
+                (print "bad key $key in context $context"))
+            // TODO do SOMETHING like visual/audio bell, cancel and restart
+            ))
     (set keyHandler.onSelectItem
         ->:Void [:ShortcutAction a] {
             (a)

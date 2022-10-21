@@ -44,6 +44,7 @@ import jigsawx.JigsawPiece;
 import jigsawx.Jigsawx;
 import jigsawx.math.Vec2;
 import kiss_flixel.DragToSelectPlugin;
+import re_flex.R;
 
 typedef StartPuzzleFunc = (Int, Int) -> Void;
 

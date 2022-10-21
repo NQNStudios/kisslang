@@ -146,8 +146,10 @@
             (localVar title 
                 "Add a label for this ${typeDescriptor}, or use SHIFT+ENTER to add a ${multipleLabelDescriptor}:")
             (set entryCreationWindow (new SimpleWindow title null null 0.9 0.9 true xKey leftKey rightKey backToEntryWindow))
-            // TODO don't allow /, +, $, *
-            (set entryNameText (new KissInputText 0 0 FlxG.width "" textSize true))
+            (set entryNameText (defAndCall method newNameInputText
+                                    (let [t (new KissInputText 0 0 FlxG.width "" textSize true)]
+                                        (set t.customFilterPattern (new EReg (R.oneOfChars #"/+$*[]{}"# ) ""))
+                                        t)))
             (entryCreationWindow.addControl entryNameText)
             (entryCreationWindow.makeText "Create" FlxColor.LIME ->:Void _ (addCreatedEntry))
             (when entryWindow
@@ -916,8 +918,7 @@
 (method editLabels [:Entry e]
     (let [window (new SimpleWindow "Editing labels" null null 0.9 0.9 true xKey leftKey rightKey backToEntryWindow)
             inputTexts (for l e.labels
-                            // TODO don't allow /, +, $, *
-                            (new KissInputText 0 0 FlxG.width l.label textSize true))]
+                            (newNameInputText))]
 
         // TODO allow adding more labels in between/before/at end
         // TODO allow deleting labels (keep score?)

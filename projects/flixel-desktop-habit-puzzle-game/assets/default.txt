@@ -1,29 +1,29 @@
 DAILY
 -----
-MTWThF: [w]eekday chores
-SSu: [w]eekend chores
-healthy [b]reakfast
+MTWThF: weekday chores
+SSu: weekend chores
+healthy breakfast
 
 MONTHLY
 --------
-1: [p]ay rent
+1: pay rent
 
 INTERVAL
 --------
-7: buy [g]roceries 
+7: buy groceries 
 
 BONUS
 -----
-[j]ournal
-[c]all someone you love
-[r]eading session
-[R]ead a book for fun /[R]ead a book to grow/[R]ead a book for fun /[R]ead a book to learn 
-play [H]abit Puzzles |
-[d]o chores
+journal
+call someone you love
+reading session
+Finish a book for fun/Finish a book to grow as a person/Finish a book for fun /Finish a book to learn something
+play Habit Puzzles |
+do chores
 
 TODO
 ----
-[C]ustomize my Habit Puzzles file
+Customize your habits and tasks
 
 FILES
 -----

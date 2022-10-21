@@ -15,7 +15,10 @@ import flixel.util.FlxTimer;
 import flixel.FlxCamera;
 
 /**
- * KissInputText based on
+ * KissInputText is based on FlxInputText.
+ * 
+ * It is modified to be compatible with kiss_flixel's SimpleWindow
+ * 
  * FlxInputText v1.11, ported to Haxe
  * @author larsiusprime, (Lars Doucet)
  * @link http://github.com/haxeflixel/flixel-ui

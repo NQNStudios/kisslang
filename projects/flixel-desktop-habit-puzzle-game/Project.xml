@@ -41,6 +41,7 @@
 	<haxelib name="kiss-tools" />
 	<haxelib name="kiss-flixel" />
 	<haxelib name="datetime" />
+	<haxelib name="re-flex" />
 	<assets path="assets" />
 	<assets path="puzzles/Photos by Trent Nelson" unless="CI_OS_NAME" />
 	<assets path="puzzles/neuro" if="debug" />
