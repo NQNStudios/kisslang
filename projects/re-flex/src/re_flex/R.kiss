@@ -28,6 +28,9 @@
 
 (var :Function oneOf (Reflect.makeVarArgs _oneOf))
 
+(function :String oneOfChars [:String chars]
+    (_oneOf (map (chars.split "") R.escape)))
+
 (function :String repeat [:String expr &opt :Int min :Int max]
     (apply group
         (concat
