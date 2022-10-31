@@ -1306,6 +1306,68 @@ class Macros {
         macros["printAllNulls"] = printAllNulls.bind(false);
         k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
         macros["printLocalNulls"] = printAllNulls.bind(true);
+        
+        k.doc("savedVar", 2, 2, "(savedVar <:Type> <name> <initial value>)");
+        macros["savedVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            var name = exps[0];
+            var nameString = Prelude.symbolNameValue(name, true, false);
+            var type = Helpers.explicitTypeString(name);
+            var initialValue = exps[1];
+            var filename = b.str("." + k.className + ".json");
+        
+            function ifLetFileJson(thenBlock:Array<ReaderExp>, elseBlock:Array<ReaderExp>) {
+                return b.callSymbol("if", [
+                    b.callSymbol("and", [
+                        b.callSymbol("sys.FileSystem.exists", [filename]),
+                        b.not(b.callSymbol("sys.FileSystem.isDirectory", [filename]))
+                    ]),
+                    // then
+                    b.let([
+                        b.symbol("content"), b.callSymbol("sys.io.File.getContent", [filename]),
+                        b.typed("haxe.DynamicAccess<String>", b.symbol("json")), b.callSymbol("haxe.Json.parse", [b.symbol("content")])
+                    ], thenBlock),
+                    // else
+                    b.begin(elseBlock)
+                ]);
+            }
+        
+            var setAndSave = [
+                b.callSymbol("dictSet", [b.symbol("json"), b.str(nameString), b.raw("tink.Json.stringify(v)")]),
+                b.callSymbol("sys.io.File.saveContent", [filename, b.raw("haxe.Json.stringify(json)")]),
+                b.raw("v;")
+            ];
+        
+            b.begin([
+                b.callSymbol("var", [name, b.callSymbol("property", [b.symbol("get"), b.symbol("set")])]),
+                b.callSymbol(
+                    "function", [
+                        b.typed(type, b.symbol('get_${nameString}')), 
+                        b.list([]), 
+                        ifLetFileJson([
+                            b.callSymbol("if", [
+                                b.callSymbol("json.exists", [b.str(nameString)]),
+                                b.raw("{ var v:" + type + " = tink.Json.parse(json['" + nameString + "']); v;}"),
+                                initialValue
+                            ])
+                        ], 
+                        [
+                            initialValue
+                        ])
+                    ]),
+                b.callSymbol(
+                    "function", [
+                        b.typed(type, b.symbol('set_${nameString}')), 
+                        b.list([b.typed(type, b.symbol("v"))]), 
+                        ifLetFileJson(
+                            setAndSave,
+                            [
+                                b.let([b.typed("haxe.DynamicAccess<String>", b.symbol("json")), b.raw("haxe.Json.parse('{}')")], setAndSave)
+                            ])
+                    ])
+            ]);
+        };
+
         return macros;
     }
 

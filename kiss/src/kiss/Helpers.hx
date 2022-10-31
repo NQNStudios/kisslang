@@ -88,14 +88,20 @@ class Helpers {
         }
     }
 
-    public static function explicitType(nameExp:ReaderExp):ComplexType {
+    public static function explicitTypeString(nameExp:ReaderExp):String {
         return switch (nameExp.def) {
             case MetaExp(_, innerExp):
-                explicitType(innerExp);
+                explicitTypeString(innerExp);
             case TypedExp(type, _):
-                Helpers.parseComplexType(type, nameExp);
+                type;
             default: null;
         };
+    }
+
+    public static function explicitType(nameExp:ReaderExp):ComplexType {
+        var string = explicitTypeString(nameExp);
+        if (string == null) return null; 
+        return Helpers.parseComplexType(string, nameExp);
     }
 
     public static function varName(formName:String, nameExp:ReaderExp, nameType = "variable") {
