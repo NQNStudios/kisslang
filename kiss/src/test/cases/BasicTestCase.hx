@@ -387,6 +387,10 @@ class BasicTestCase extends Test {
         Assert.isFalse(_hasThreadSupport());
         #end
     }
+
+    function testHaxeProperties() {
+        _testHaxeProperties();
+    }
 }
 
 class BasicObject {

@@ -727,3 +727,14 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
     (#if target.threaded
             true
         false))
+
+(var &mut _staticProp 5)
+(var :Int staticProp (property get set))
+(function set_staticProp [v] (set _staticProp v))
+(function get_staticProp [] _staticProp)
+
+(function _testHaxeProperties []
+    (Assert.equals 5 staticProp)
+    (Assert.equals 9 (set staticProp 9))
+    (Assert.equals 9 staticProp)
+    (Assert.equals 9 _staticProp))

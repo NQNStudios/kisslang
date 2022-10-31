@@ -3,6 +3,7 @@ package kiss;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import kiss.Reader;
+import kiss.ReaderExp;
 import kiss.Helpers;
 import kiss.Stream;
 import kiss.KissError;
@@ -105,10 +106,36 @@ class FieldForms {
             if (type != null)
                 k.addVarInScope({name: name, type: type}, false);
 
+                
+            function varOrPropKind(args:Array<ReaderExp>) {
+                return if (args.length > 1) {
+                    switch (args[1].def) {
+                        case CallExp({pos:_, def:Symbol("property")}, innerArgs):
+                            args[1].checkNumArgs(2, 3, "(property <read access> <write access> <?value>)");
+                            function accessType(read, arg) {
+                                var acceptable = ["default", "null", if (read) "get" else "set", "dynamic", "never"];
+                                return switch (arg.def) {
+                                    case Symbol(access) if (acceptable.contains(access)):
+                                        access;
+                                    default: throw KissError.fromExp(arg, 'Expected a haxe property access keyword: one of [${acceptable.join(", ")}]');
+                                };
+                            }
+                            var readAccess = accessType(true, innerArgs[0]);
+                            var writeAccess = accessType(false, innerArgs[1]);
+                            var value = if (innerArgs.length > 2) k.convert(innerArgs[2]) else null;
+                            FProp(readAccess, writeAccess, type, value);
+                        default:
+                            FVar(type, k.convert(args[1]));
+                    };
+                } else {
+                    FVar(type, null);
+                };
+            }
+
             ({
                 name: name,
                 access: access,
-                kind: FVar(type, if (args.length > 1) k.convert(args[1]) else null),
+                kind: varOrPropKind(args), 
                 pos: wholeExp.macroPos()
             } : Field);
         }
