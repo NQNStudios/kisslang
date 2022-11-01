@@ -1,0 +1,51 @@
+(import
+    datetime.DateTime
+    datetime.DateTimeInterval)
+
+(var oneDayInterval (DateTimeInterval.create (DateTime.make 1970 1 1) (DateTime.make 1970 1 2)))
+
+(defMacroVar cardId 0)
+
+(defMacro card [front back &builder b]
+    (let [cObject (b.symbol "cObject$cardId")
+            cScore (b.symbol "cScore$cardId")
+            cRepetitions (b.symbol "cRepetitions$cardId")
+            cPreviousEaseFactor (b.symbol "cPreviousEaseFactor$cardId")
+            cPreviousInterval (b.symbol "cPreviousInterval$cardId")
+            cNextDate (b.symbol "cNextDate$cardId")]
+        (setMacroVar cardId (+ cardId 1))
+        `{
+            (var ,cObject (object front ,front back ,back))
+            (savedVar :Int ,cRepetitions 0)
+            (savedVar :Float ,cPreviousEaseFactor 2.5)
+            (savedVar :Int ,cPreviousInterval 0)
+            (savedVar :Float ,cNextDate (DateTime.make))
+
+            (function :Void ,cScore [:Int quality]
+                (localVar &mut interval 0)
+                (cond 
+                    ((>= quality 3)
+                        (set interval (Math.ceil (case ,cRepetitions (0 1) (1 6) (more (* ,cPreviousEaseFactor ,cPreviousInterval)) (never otherwise))))
+                        (+= ,cRepetitions 1)
+                        (set ,cPreviousEaseFactor (+ ,cPreviousEaseFactor (- 0.1 (* (- 5 quality) (+ 0.08 (* (- 5 quality ) 0.02)))))))
+                    (true
+                        (set ,cRepetitions 0)
+                        (set interval 1)))
+                (set ,cPreviousEaseFactor (max 1.3 ,cPreviousEaseFactor))
+                (set ,cPreviousInterval interval)
+                (doFor _ (range interval)
+                    (set ,cNextDate #{DateTime.now() + oneDayInterval;}#))
+                (print interval))
+
+            (let [:DateTime nextDate ,cNextDate]
+                (if #{DateTime.now() > nextDate;}#
+                        {
+                            (print .front ,cObject)
+                            (.readLine (Sys.stdin))
+                            (print .back ,cObject)
+                            (,cScore (Std.parseInt (.readLine (Sys.stdin))))
+                        }
+                    (print "skipping a card until $(nextDate.toString)")))
+        }))
+
+(card "dog" "chien")

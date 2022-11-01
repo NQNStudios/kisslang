@@ -1,0 +1,18 @@
+{
+	"main": "kiss_spaced_rep.Main",
+	"name": "kiss-spaced-rep",
+	"description": "DSL for spaced repetition study guides",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": "",
+		"datetime": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}
