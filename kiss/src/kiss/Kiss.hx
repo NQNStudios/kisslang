@@ -281,7 +281,13 @@ class Kiss {
 
         var classPath = Context.getPosInfos(Context.currentPos()).file;
         // (load... ) relative to the original file
-        var loadingDirectory = Path.directory(classPath);
+        var loadingDirectory = if (classPath == '?') {
+            var p = Path.directory(kissFile);
+            kissFile = kissFile.withoutDirectory();
+            p;
+        } else {
+            Path.directory(classPath);
+        }
         if (kissFile == null) {
             kissFile = classPath.withoutDirectory().withoutExtension().withExtension("kiss");
         }
