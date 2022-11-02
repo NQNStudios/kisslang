@@ -35,29 +35,30 @@ class Macros {
             k.formDocs[newName] = k.formDocs[oldName];
         }
 
+        function compileTimeResolveToString(description:String, description2:String, exp:ReaderExp, k:KissState):String {
+            switch (exp.def) {
+                case StrExp(str):
+                    return str;
+                case CallExp({pos: _, def: Symbol(mac)}, innerArgs) if (macros.exists(mac)):
+                    var docs = k.formDocs[mac];
+                    exp.checkNumArgs(docs.minArgs, docs.maxArgs, docs.expectedForm);
+                    return compileTimeResolveToString(description, description2, macros[mac](exp, innerArgs, k), k);
+                default:
+                    throw KissError.fromExp(exp, '${description} should resolve at compile-time to a string literal of ${description2}');
+            }
+        }
+
         k.doc("load", 1, 1, '(load "<file.kiss>")');
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            switch (args[0].def) {
-                case StrExp(otherKissFile):
-                    Kiss.load(otherKissFile, k);
-                default:
-                    throw KissError.fromExp(args[0], "only argument to load should be a string literal of a .kiss file path");
-            };
+            Kiss.load(compileTimeResolveToString("The only argument to (load...)", "a .kiss file path", args[0], k), k);
         };
+
         k.doc("loadFrom", 2, 2, '(loadFrom "<haxelib name>" "<file.kiss>")');
         macros["loadFrom"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            var libPath = switch (args[0].def) {
-                case StrExp(libName):
-                    Prelude.libPath(libName);
-                default:
-                    throw KissError.fromExp(args[0], "first argument to loadFrom should be a string literal of a haxe library's name");
-            };
-            switch (args[1].def) {
-                case StrExp(otherKissFile):
-                    Kiss.load(otherKissFile, k, libPath);
-                default:
-                    throw KissError.fromExp(args[1], "second argument to loadFrom should be a string literal of a .kiss file path");
-            };
+            var libName = compileTimeResolveToString("The first argument to (loadFrom...)", "a haxe library's name", args[0], k);
+            var libPath = Prelude.libPath(libName);
+            var otherKissFile = compileTimeResolveToString("The second argument to (loadFrom...)", "a .kiss file path", args[1], k);
+            Kiss.load(otherKissFile, k, libPath);
         };
 
         function destructiveVersion(op:String, assignOp:String) {
