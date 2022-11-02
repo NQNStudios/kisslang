@@ -7,20 +7,48 @@
 (var halfDayInterval (DateTimeInterval.create (DateTime.make 1970 1 1 0) (DateTime.make 1970 1 1 12)))
 (var studyList [])
 
-(function :Void basicShow [text :Void->Void cc]
+(function :Void confirmShow [text :Void->Void cc]
     (Sys.print text)
     (.readLine (Sys.stdin))
     (cc))
 
-(function basicScore [text :Int->Void resolve]
+(function :Void basicScore [text :Int->Void resolve]
     (Sys.println text)
     (Sys.print "Score (0-5): ")
     (resolve (Std.parseInt (.readLine (Sys.stdin)))))
 
+(function :Void noConfirmShow [text :Void->Void cc]
+    (Sys.println text)
+    (cc))
+
+(function :Void typeScore [text :Int->Void resolve]
+    (Sys.print "Your answer: ")
+    (cond
+        ((= text (.readLine (Sys.stdin)))
+            (Sys.println "Correct!")
+            (resolve 5))
+        (true
+            (Sys.println "Wrong! Correct answer was $text")
+            (resolve 0))))
+
+(function :Void clozeShow [index textLines :Void->Void cc]
+    (doFor [idx line] (enumerate textLines)
+        (Sys.println (if (= idx index) "????" line)))
+    (.readLine (Sys.stdin))
+    (cc))
+
+(function :Void clozeScore [index textLines :Int->Void resolve]
+    (basicScore (nth textLines index) resolve))
+
 (function :CardSide basicText [:String text]
     (object
-        show (basicShow.bind text)
+        show (confirmShow.bind text)
         score (basicScore.bind text)))
+
+(function :CardSide typeText [:String text]
+    (object
+        show (noConfirmShow.bind text)
+        score (typeScore.bind text)))
 
 (defMacroVar cardId 0)
 
@@ -72,6 +100,22 @@
                 (studyList.push ,cStudy))
         }))
 
+(defMacro reversed [front back]
+    `{
+        (card ,front ,back)
+        (card ,back ,front)
+    })
+
+(defMacro cloze [&builder b &body textLines]
+    (b.begin
+        (for i (range textLines.length)
+            `(card
+                (object
+                    show (clozeShow.bind ,i ,textLines) 
+                    score ->:Void _ 0)
+                (object
+                    show ->:Void _ 0
+                    score (clozeScore.bind ,i ,textLines))))))
 
 (function :Void studyAll []
     (when studyList
