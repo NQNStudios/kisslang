@@ -1,5 +1,6 @@
 (loadFrom "kiss-spaced-rep" "src/kiss_spaced_rep/KSR.kiss")
 
+(savedVarFile (#value "cards"))
 (load (#value "cards"))
 
 (studyAll)

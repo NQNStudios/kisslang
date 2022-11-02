@@ -1,3 +1,3 @@
 #! /bin/bash
 
-haxe build.hxml
+haxe -D cards=$(pwd)/examples/Nonsense.kiss build.hxml
