@@ -1314,6 +1314,13 @@ class Macros {
         k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
         macros["printLocalNulls"] = printAllNulls.bind(true);
         
+        var savedVarFilename = null;
+        k.doc("savedVarFile", 1, 1, '(savedVarFilename "<path>")');
+        macros["savedVarFile"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            savedVarFilename = compileTimeResolveToString("The only argument to (savedVarFile...)", "a json filename", exps[0], k);
+            null;
+        };
+        
         k.doc("savedVar", 2, 2, "(savedVar <:Type> <name> <initial value>)");
         macros["savedVar"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
@@ -1321,7 +1328,13 @@ class Macros {
             var nameString = Prelude.symbolNameValue(name, true, false);
             var type = Helpers.explicitTypeString(name);
             var initialValue = exps[1];
-            var filename = b.str("." + k.className + ".json");
+            var filename = if (savedVarFilename != null) {
+                if (!savedVarFilename.endsWith(".json"))
+                    savedVarFilename = '${savedVarFilename}.json';
+                b.str(savedVarFilename);
+            } else {
+                b.str("." + k.className + ".json");
+            };
         
             function ifLetFileJson(thenBlock:Array<ReaderExp>, elseBlock:Array<ReaderExp>) {
                 return b.callSymbol("if", [
