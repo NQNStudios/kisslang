@@ -1,6 +1,11 @@
 package kiss_spaced_rep;
 
+typedef CardSide = {
+    show: (Void->Void) -> Void,
+    score: (Int->Void) -> Void
+};
+
 typedef Card = {
-    front: String,
-    back: String
+    front: CardSide,
+    back: CardSide
 };
