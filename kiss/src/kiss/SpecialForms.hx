@@ -89,7 +89,7 @@ class SpecialForms {
         // Declare anonymous objects
         map["object"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             if (args.length % 2 != 0) {
-                throw KissError.fromExp(wholeExp, "(object [field bindings]...) must have an even number of arguments");
+                throw KissError.fromExp(wholeExp, "(object <field bindings...>) must have an even number of arguments");
             }
             EObjectDecl([
                 for (pair in args.groups(2))
