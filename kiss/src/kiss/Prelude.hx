@@ -663,8 +663,8 @@ class Prelude {
         #end
     }
 
-    public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true):String {
-        return tryProcess(command, args, (error) -> { throw error; }, inputLines, fullProcess);    
+    public static function assertProcess(command:String, args:Array<String>, ?inputLines:Array<String>, fullProcess = true, cwd = null):String {
+        return tryProcess(command, args, (error) -> { throw error; }, inputLines, fullProcess, cwd);    
     }
     
     public static function tryProcess(command:String, args:Array<String>, handleError:String->Void, ?inputLines:Array<String>, fullProcess = true, cwd:String = null):String {
