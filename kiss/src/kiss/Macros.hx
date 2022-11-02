@@ -268,6 +268,12 @@ class Macros {
         addCond(k, macros, "cond", "if");
         addCond(k, macros, "#cond", "#if");
 
+        k.doc("#value", 1, 1, '(#value "<name>")');
+        macros["#value"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            b.str(Context.definedValue(compileTimeResolveToString("The only argument to (#value...)", "a compiler flag's name", args[0], k)));
+        };
+
         k.doc("or", 1, null, "(or <v1> <values...>)");
         function _or(wholeExp:ReaderExp, args:Array<ReaderExp>, k) {
             var b = wholeExp.expBuilder();
