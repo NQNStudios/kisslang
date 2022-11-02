@@ -550,7 +550,7 @@ class Kiss {
             case Quasiquote(innerExp):
                 // This statement actually turns into an HScript expression before running
                 macro {
-                    Helpers.evalUnquotes($v{innerExp}).def;
+                    Helpers.evalUnquotes($v{innerExp});
                 };
             default:
                 throw KissError.fromExp(exp, 'conversion not implemented');
