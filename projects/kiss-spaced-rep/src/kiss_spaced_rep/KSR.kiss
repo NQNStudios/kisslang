@@ -49,6 +49,12 @@
         show (noConfirmShow.bind text)
         score (typeScore.bind text)))
 
+(function :CardSide image [:String path]
+    (object
+        show ->:Void [engine cc] (engine.showImageCC path cc)
+    
+        score ->:Void [engine :Int->Void resolve] {(engine.showImage path)(engine.print "Score (0-5): ")(engine.input ->:Void str (resolve (Std.parseInt str)))}))
+
 (defMacroVar cardId 0)
 
 (defMacro card [front back &builder b]
@@ -87,7 +93,7 @@
                                 #{cNextDate += oneDayInterval;}#)
                             (set ,cNextDate cNextDate))
                         (cc))
-
+                    (engine.clear)
                     (if (or #{DateTime.now() > nextDate;}# (#if debug true false))
                             (.show .front ,cObject engine
                                 ->:Void 
@@ -123,9 +129,10 @@
                 clear ->:Void {}
                 print ->:Void text (Sys.print text)
                 println ->:Void text (Sys.println text)
+                showImage ->:Void path (assertProcess (case (Sys.systemName) ("Windows" "cmd.exe") ("Linux" "xdg-open") ("Mac" "start") (never otherwise)) (case (Sys.systemName) ("Windows" ["/C" path]) ((or "Mac" "Linux") [path]) (never otherwise)))
                 printCC ->:Void [text cc] {(Sys.print text)(.readLine (Sys.stdin))(cc)}
                 printlnCC ->:Void [text cc] {(Sys.println text)(.readLine (Sys.stdin))(cc)}
-                showImageCC ->:Void [path cc] 0
+                showImageCC ->:Void [path cc] {(assertProcess (case (Sys.systemName) ("Windows" "cmd.exe") ("Linux" "xdg-open") ("Mac" "start") (never otherwise)) (case (Sys.systemName) ("Windows" ["/C" path]) ((or "Mac" "Linux") [path]) (never otherwise)))(.readLine (Sys.stdin))(cc)}
                 input ->:Void resolve (resolve (.readLine (Sys.stdin))))))
     (when studyList
         (let [nextIndex (Std.random studyList.length)
