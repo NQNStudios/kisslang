@@ -1,44 +1,43 @@
 (import
     datetime.DateTime
     datetime.DateTimeInterval
-    kiss_spaced_rep.Card)
+    kiss_spaced_rep.Card
+    kiss_spaced_rep.StudyEngine)
 
 (var oneDayInterval (DateTimeInterval.create (DateTime.make 1970 1 1) (DateTime.make 1970 1 2)))
 (var halfDayInterval (DateTimeInterval.create (DateTime.make 1970 1 1 0) (DateTime.make 1970 1 1 12)))
 (var studyList [])
 
-(function :Void confirmShow [text :Void->Void cc]
-    (Sys.print text)
-    (.readLine (Sys.stdin))
+(function :Void confirmShow [text :StudyEngine engine :Void->Void cc]
+    (engine.printCC text cc))
+
+(function :Void basicScore [text :StudyEngine engine :Int->Void resolve]
+    (engine.println text)
+    (engine.print "Score (0-5): ")
+    (engine.input ->:Void str (resolve (Std.parseInt str))))
+
+(function :Void noConfirmShow [text :StudyEngine engine :Void->Void cc]
+    (engine.println text)
     (cc))
 
-(function :Void basicScore [text :Int->Void resolve]
-    (Sys.println text)
-    (Sys.print "Score (0-5): ")
-    (resolve (Std.parseInt (.readLine (Sys.stdin)))))
+(function :Void typeScore [text :StudyEngine engine :Int->Void resolve]
+    (engine.print "Your answer: ")
+    (engine.input ->:Void input
+        (cond
+            ((= text input)
+                (engine.println "Correct!")
+                (resolve 5))
+            (true
+                (engine.println "Wrong! Correct answer was $text")
+                (resolve 0)))))
 
-(function :Void noConfirmShow [text :Void->Void cc]
-    (Sys.println text)
-    (cc))
-
-(function :Void typeScore [text :Int->Void resolve]
-    (Sys.print "Your answer: ")
-    (cond
-        ((= text (.readLine (Sys.stdin)))
-            (Sys.println "Correct!")
-            (resolve 5))
-        (true
-            (Sys.println "Wrong! Correct answer was $text")
-            (resolve 0))))
-
-(function :Void clozeShow [index textLines :Void->Void cc]
+(function :Void clozeShow [index textLines :StudyEngine engine :Void->Void cc]
     (doFor [idx line] (enumerate textLines)
-        (Sys.println (if (= idx index) "????" line)))
-    (.readLine (Sys.stdin))
-    (cc))
+        (engine.println (if (= idx index) "????" line)))
+    (engine.input ->:Void _ (cc)))
 
-(function :Void clozeScore [index textLines :Int->Void resolve]
-    (basicScore (nth textLines index) resolve))
+(function :Void clozeScore [index textLines :StudyEngine engine :Int->Void resolve]
+    (basicScore (nth textLines index) engine resolve))
 
 (function :CardSide basicText [:String text]
     (object
@@ -69,7 +68,7 @@
             (savedVar :Float ,cNextDate (DateTime.make))
 
             (let [:DateTime nextDate ,cNextDate]
-                (localFunction :Void ,cStudy [:Void->Void cc]
+                (localFunction :Void ,cStudy [:StudyEngine engine :Void->Void cc]
                     (localFunction :Void ,cScore [:Int quality]
                         (localVar &mut interval 0)
                         (cond 
@@ -90,11 +89,11 @@
                         (cc))
 
                     (if (or #{DateTime.now() > nextDate;}# (#if debug true false))
-                            (.show .front ,cObject
+                            (.show .front ,cObject engine
                                 ->:Void 
-                                    (.score .back ,cObject ,cScore))
+                                    (.score .back ,cObject engine ,cScore))
                         {
-                            (print "skipping a card until $(nextDate.toString)")
+                            (engine.println "skipping a card until $(nextDate.toString)")
                             (cc)
                         }))
                 (studyList.push ,cStudy))
@@ -117,12 +116,22 @@
                     show ->:Void _ 0
                     score (clozeScore.bind ,i ,textLines))))))
 
-(function :Void studyAll []
+(function :Void studyAll [&opt :StudyEngine engine]
+    (unless engine
+        (set engine
+            (object
+                clear ->:Void {}
+                print ->:Void text (Sys.print text)
+                println ->:Void text (Sys.println text)
+                printCC ->:Void [text cc] {(Sys.print text)(.readLine (Sys.stdin))(cc)}
+                printlnCC ->:Void [text cc] {(Sys.println text)(.readLine (Sys.stdin))(cc)}
+                showImageCC ->:Void [path cc] 0
+                input ->:Void resolve (resolve (.readLine (Sys.stdin))))))
     (when studyList
         (let [nextIndex (Std.random studyList.length)
                 nextToStudy (nth studyList nextIndex)]
             (studyList.splice nextIndex 1)
-            (nextToStudy studyAll))))
+            (nextToStudy engine (studyAll.bind engine)))))
 
 // TODO make a note macro that defines a card then defines it in reverse
 // TODO make a cloze macro that makes a card with each group deleted
