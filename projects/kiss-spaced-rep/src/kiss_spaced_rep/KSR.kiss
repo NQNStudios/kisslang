@@ -33,7 +33,12 @@
 
 (function :Void clozeShow [index textLines :StudyEngine engine :Void->Void cc]
     (doFor [idx line] (enumerate textLines)
-        (engine.println (if (= idx index) "????" line)))
+        (engine.println
+            (if (= idx index)
+                    "????"
+                (if (StringTools.startsWith line "?")
+                        (line.substr 1)
+                    line))))
     (engine.input ->:Void _ (cc)))
 
 (function :Void clozeScore [index textLines :StudyEngine engine :Int->Void resolve]
@@ -118,15 +123,19 @@
         (card ,back ,front)))
 
 (defMacro cloze [&builder b &body textLines]
-    (b.callSymbol "group"
-        (for i (range textLines.length)
-            `(card
-                (object
-                    show (clozeShow.bind ,i ,textLines) 
-                    score ->:Void _ 0)
-                (object
-                    show ->:Void _ 0
-                    score (clozeScore.bind ,i ,textLines))))))
+    (let [cardDecls []]
+        (doFor [i line] (enumerate textLines)
+            (let [line (eval line)]
+                (when (StringTools.startsWith line "?")
+                    (cardDecls.push
+                        `(card
+                            (object
+                                show (clozeShow.bind ,i ,textLines) 
+                                score ->:Void _ 0)
+                            (object
+                                show ->:Void _ 0
+                                score (clozeScore.bind ,i ,textLines)))))))
+        (b.callSymbol "group" cardDecls)))
 
 (function :Void studyAll [&opt :StudyEngine engine]
     (unless engine
@@ -145,6 +154,3 @@
                 nextToStudy (nth studyList nextIndex)]
             (studyList.splice nextIndex 1)
             (nextToStudy engine (studyAll.bind engine)))))
-
-// TODO make a note macro that defines a card then defines it in reverse
-// TODO make a cloze macro that makes a card with each group deleted

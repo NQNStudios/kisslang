@@ -1,4 +1,4 @@
 (reversed (basicText "dog") (basicText "chien"))
 (reversed (typeText "owl") (typeText "chouette"))
-(cloze "un" "deux" "trois" "quatre" "cinq")
+(cloze "Numbers 1 through 5:" "?un" "?deux" "?trois" "?quatre" "?cinq")
 (reversed (image "examples/france.png") (basicText "France"))
