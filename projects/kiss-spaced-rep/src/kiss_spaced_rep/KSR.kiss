@@ -56,15 +56,22 @@
         score ->:Void [engine :Int->Void resolve] {(engine.showImage path)(engine.print "Score (0-5): ")(engine.input ->:Void str (resolve (Std.parseInt str)))}))
 
 (defMacroVar cardId 0)
+(defMacroVar groupId 0)
+
+(defMacro group [&body body]
+    (setMacroVar groupId (+ groupId 1))
+    (setMacroVar cardId 0)
+    `{,@body})
 
 (defMacro card [front back &builder b]
-    (let [cObject (b.symbol "cObject$cardId")
-            cScore (b.symbol "cScore$cardId")
-            cRepetitions (b.symbol "cRepetitions$cardId")
-            cPreviousEaseFactor (b.symbol "cPreviousEaseFactor$cardId")
-            cPreviousInterval (b.symbol "cPreviousInterval$cardId")
-            cNextDate (b.symbol "cNextDate$cardId")
-            cStudy (b.symbol "cStudy$cardId")]
+    (let [idSymbol ->name (b.symbol "${name}${groupId}_${cardId}")
+            cObject (idSymbol "cObject")
+            cScore (idSymbol "cScore")
+            cRepetitions (idSymbol "cRepetitions")
+            cPreviousEaseFactor (idSymbol "cPreviousEaseFactor")
+            cPreviousInterval (idSymbol "cPreviousInterval")
+            cNextDate (idSymbol "cNextDate")
+            cStudy (idSymbol "cStudy")]
         (setMacroVar cardId (+ cardId 1))
         `{
             (var ,cObject (object front ,front back ,back))
@@ -106,13 +113,12 @@
         }))
 
 (defMacro reversed [front back]
-    `{
+    `(group
         (card ,front ,back)
-        (card ,back ,front)
-    })
+        (card ,back ,front)))
 
 (defMacro cloze [&builder b &body textLines]
-    (b.begin
+    (b.callSymbol "group"
         (for i (range textLines.length)
             `(card
                 (object
