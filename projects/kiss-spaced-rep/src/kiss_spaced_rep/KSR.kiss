@@ -41,8 +41,8 @@
                     line))))
     (engine.input ->:Void _ (cc)))
 
-(function :Void clozeScore [index textLines :StudyEngine engine :Int->Void resolve]
-    (basicScore (nth textLines index) engine resolve))
+(function :Void clozeScore [index :Array<String> textLines :StudyEngine engine :Int->Void resolve]
+    (basicScore (.substr (nth textLines index) 1) engine resolve))
 
 (function :CardSide basicText [:String text]
     (object
@@ -141,7 +141,7 @@
     (unless engine
         (set engine
             (object
-                clear ->:Void {}
+                clear ->:Void (doFor i (range 5) (Sys.println ""))
                 print ->:Void text (Sys.print text)
                 println ->:Void text (Sys.println text)
                 showImage ->:Void path (assertProcess (case (Sys.systemName) ("Windows" "cmd.exe") ("Linux" "xdg-open") ("Mac" "start") (never otherwise)) (case (Sys.systemName) ("Windows" ["/C" path]) ((or "Mac" "Linux") [path]) (never otherwise)))
