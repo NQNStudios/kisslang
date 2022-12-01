@@ -1189,6 +1189,7 @@ class Macros {
             return b.callSymbol("haxe.Timer.measure", [b.callSymbol("lambda", [b.list([])].concat(exps))]);
         };
 
+        // TODO should indexOf and lastIndexOf accept negative starting indices?
         function indexOfMacro(last:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var funcName = if (last) "lastIndexOf" else "indexOf";
             k.doc(funcName, 2, 3, '($funcName <list or string> <element or substring> <?startingIndex>)');

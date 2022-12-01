@@ -1,0 +1,12 @@
+(import year2022.Food)
+
+(function :Array<Food> parseFood [file]
+    (for paragraph (Util.readParagraphLines file)
+        (paragraph.map Std.parseInt)))
+
+(function sumFood [:Array<Food> food]
+    (for elf food (apply + elf)))
+
+(let [sums (sumFood (parseFood "src/year2022/inputs/day1.txt"))]
+    (assert (= 71502 (apply max sums)))
+    (assert (= 208191 (apply + (.slice (sort sums) -3)))))

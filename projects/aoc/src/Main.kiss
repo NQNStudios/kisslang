@@ -6,3 +6,5 @@
     (Solutions2020.run))
 (year 2021
     (Solutions2021.run))
+(year 2022
+    (Solutions2022.main))

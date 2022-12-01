@@ -12,6 +12,9 @@ import year2020.Solutions2020;
 #if year2021
 import year2021.Solutions2021;
 #end
+#if year2022
+import year2022.Solutions2022;
+#end
 
 @:build(kiss.Kiss.build())
 class Main {}
