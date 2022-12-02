@@ -1,7 +1,9 @@
 (load "../UtilMacros.kiss")
 (import Util)
+(function input [num]
+    "src/year2022/inputs/day${num}.txt")
 (day 1 (load "Day1.kiss"))
-(dayTodo 2)
+(day 2 (load "Day2.kiss"))
 (dayTodo 3)
 (dayTodo 4)
 (dayTodo 5)

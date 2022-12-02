@@ -1,0 +1,48 @@
+(var ROCK 1)
+(var PAPER 2)
+(var SCISSORS 3)
+
+(var LOSE 0)
+(var DRAW 3)
+(var WIN 6)
+
+(function playScore [:Array<String> round]
+    (case round
+        ([_ "X" "1"] ROCK)
+        ([_ "Y" "1"] PAPER)
+        ([_ "Z" "1"] SCISSORS)
+        (["A" "Y" "2"] ROCK)
+        (["A" "Z" "2"] PAPER)
+        (["A" "X" "2"] SCISSORS)
+        (["B" "X" "2"] ROCK)
+        (["B" "Y" "2"] PAPER)
+        (["B" "Z" "2"] SCISSORS)
+        (["C" "Z" "2"] ROCK)
+        (["C" "X" "2"] PAPER)
+        (["C" "Y" "2"] SCISSORS)
+        (never otherwise)))
+
+(function outcomeScore [:Array<String> round]
+    (case round
+        (["A" "Z" "1"] LOSE)
+        (["A" "X" "1"] DRAW)
+        (["A" "Y" "1"] WIN)
+        (["B" "X" "1"] LOSE)
+        (["B" "Y" "1"] DRAW)
+        (["B" "Z" "1"] WIN)
+        (["C" "Y" "1"] LOSE)
+        (["C" "Z" "1"] DRAW)
+        (["C" "X" "1"] WIN)
+        ([_ "X" "2"] LOSE)
+        ([_ "Y" "2"] DRAW)
+        ([_ "Z" "2"] WIN)
+        (never otherwise)))
+
+(function totalScore [round]
+    (+ (playScore round) (outcomeScore round)))
+
+(function readRounds [file encoding]
+    (for line (Util.readLines file) (.concat (line.split " ") [encoding])))
+
+(assert (= 9759 (apply + (.map (readRounds (input 2) "1") totalScore))))
+(assert (= 12429 (apply + (.map (readRounds (input 2) "2") totalScore))))
