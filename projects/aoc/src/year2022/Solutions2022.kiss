@@ -1,10 +1,11 @@
 (load "../UtilMacros.kiss")
+(loadFrom "kiss-tools" "src/kiss_tools/RefactorUtil.kiss")
 (import Util)
 (function input [num]
     "src/year2022/inputs/day${num}.txt")
 (day 1 (load "Day1.kiss"))
 (day 2 (load "Day2.kiss"))
-(dayTodo 3)
+(day 3 (load "Day3.kiss"))
 (dayTodo 4)
 (dayTodo 5)
 (dayTodo 6)

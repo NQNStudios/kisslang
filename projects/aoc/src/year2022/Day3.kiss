@@ -1,0 +1,31 @@
+(var itemPriorities (for [idx c] (enumerate (defAndCall function allCharCodes (concat (for c (range 26) (+ .code "a" c)) (for c (range 26) (+ .code "A" c))))) =>(String.fromCharCode c) (+ idx 1)))
+
+(function splitHalves [:String line]
+    (let [halfLen (iHalf line.length)]
+        [(line.substr 0 halfLen) (line.substr halfLen)]))
+
+(function duplicateItem [:String line]
+    (let [[firstHalf secondHalf] (splitHalves line)
+        firstHalfMap (for char (firstHalf.split "") =>char true)]
+        (doFor char (secondHalf.split "") (when (firstHalfMap.exists char) (return char))))
+    "")
+
+(assert (= 8018 (apply + (for item (filter (.map (Util.readLines (input 3)) duplicateItem)) (dictGet itemPriorities item)))))
+
+(function :Map<String,Map<Int,Bool>> emptyGroupPossessionMap [] (for c (allCharCodes) =>(String.fromCharCode c) (new Map)))
+
+(var GROUP_SIZE 3)
+
+(assert 
+    (= 2518 
+        (apply + 
+            (for group (groups (Util.readLines (input 3)) GROUP_SIZE)
+                (let [freqMap (emptyGroupPossessionMap)
+                        &mut badge ""]
+                    (doFor [idx :String elf] (enumerate group)
+                        (doFor char (elf.split "")
+                            (dictSet (dictGet freqMap char) idx true)
+                            (when (= GROUP_SIZE (count (dictGet freqMap char)))
+                                (set badge char)
+                                (break))))
+                    (dictGet itemPriorities badge))))))
