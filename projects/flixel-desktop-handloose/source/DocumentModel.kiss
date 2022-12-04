@@ -1,16 +1,18 @@
 (defNew [&prop :String path]
     (when (FileSystem.exists path) (set content (File.getContent path)))
     (type "") // If the file can't be written to, throw the error right away
-    (learnAllFrequencies))
+    (learnAllFrequencies)
+    ~charFrequencies)
 
 (prop &mut :String content "")
 (method :Void type [:String str]
     (+= content str)
-    (File.saveContent path content)
-    (print content))
+    (File.saveContent path content))
 
-(prop :Map<String,Map<String,Float>> charFrequencies (new Map))
-(prop :Map<String,Map<String,Float>> wordFrequencies (new Map))
+// TODO make this a map of String,DateTime and re-learn from files that were modified more recently
+(savedVar :Map<String,Bool> filesLearnedFrom (new Map))
+(savedVar :Map<String,Map<String,Float>> charFrequencies (new Map))
+(savedVar :Map<String,Map<String,Float>> wordFrequencies (new Map))
 
 (method incFrequency [:Map<String,Map<String,Float>> m :String c :String following]
     (let [&mut weight 1.0]
@@ -21,38 +23,30 @@
             (let [followingMap (dictGet m following)]
                 (dictSet followingMap c (+ weight (or (dictGet followingMap c) 0)))))))
 
-(defMacro prelearnAllFrequencies []
-    /* TODO - add Context.definedValues to macro variables
-            - walk LEARN_FROM, adding to a frequency map in prelearnFrequencies() below
-            - stringify the frequency map with "" specially added around the keys
-            - inject a Context.parse of the stringified frequency map
-    */
-    (throw "not implemented"))
-
-(defMacroFunction prelearnFrequencies [str]
-    (throw "not implemented"))
-
 (method learnAllFrequencies []
-    (#if LEARN_FROM
-            (prelearnAllFrequencies)
-        // Use files with the same extension in the current working directory to determine letter frequencies
+    // Use files with the same extension in the current working directory to determine letter frequencies
+    (withMutProperties [filesLearnedFrom]
         (walkDirectory "" (FileSystem.absolutePath "")
             ->file (when (= (Path.extension file) (Path.extension path))
-                (learnFrequencies (File.getContent file))))))
+                    (unless (filesLearnedFrom.exists path)
+                        (print "learning from $file")
+                        (learnFrequencies (File.getContent file))
+                        (dictSet filesLearnedFrom path true))))))
 
 (method learnFrequencies [:String str]
     (let [chars (str.split "")]
         (when chars
-            (incFrequency charFrequencies (first chars) "")
-            (doFor [following c] (pairs chars)
-                (incFrequency charFrequencies c following)))
-            // TODO learn word frequencies
-            ))
+            (withMutProperties [charFrequencies wordFrequencies]
+                (incFrequency charFrequencies (first chars) "")
+                (doFor [following c] (pairs chars)
+                    (incFrequency charFrequencies c following)))
+                // TODO learn word frequencies
+                )))
 
 (prop :FlxRandom r (new FlxRandom))
 (var ANY_CHANCE 25) // percent
 (method :ArrowStuff generateArrowStuff []
-    // TODO also generate word arrows if lastChar is a space
+    // TODO also generate word arrows if lastChar is a space or the word in progress is a substring of a common word
     (let [lastChar (substr content -1)
             charFreq (dictGet charFrequencies lastChar)
             chars []
