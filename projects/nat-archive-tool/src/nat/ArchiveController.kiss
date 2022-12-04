@@ -182,7 +182,8 @@
             // Preserve the capitalization of the command name for pretty help message
             (commandNames.push ,(symbolName name))
             // Store the command name without capitalization for forgiving call conventions
-            (dictSet commands ,(ReaderExp.StrExp (.toLowerCase (symbolNameValue name))) (object args [,@commandArgs] handler (the Function ,name)))}))
+            (dictSet commands ,(ReaderExp.StrExp (.toLowerCase (symbolNameValue name))) (object args [,@commandArgs] handler (the Function ,name)))
+        }))
 
 (var :Array<String> commandNames [])
 
@@ -211,25 +212,25 @@
     (archive.addSystem (new KeyShortcutSystem this))
     (archive.addSystem (new DLSystem))
     (archive.addSystem (new AutoStepperSystem))
+    (archive.addSystem (new ColorSystem))
     
-    // TODO this needs to use epsilon!
-    (localFunction colorEqual [:nat.components.Color c1 :nat.components.Color c2]
+    (localFunction colorEqual [:nat.components.ColorI c1 :nat.components.ColorI c2]
         (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b) (= c1.a c2.a)))
-    (localFunction colorsContain [:Array<nat.components.Color> cs :nat.components.Color c1]
+    (localFunction colorsContain [:Array<nat.components.ColorI> cs :nat.components.ColorI c1]
         (doFor c2 cs
             (when (colorEqual c2 c1)
                 (return true)))
         (return false))
-    (localFunction addColorTagSystems [:Map<String,nat.components.Color> info]
+    (localFunction addColorTagSystems [:Map<String,nat.components.ColorI> info]
         (let [colors (collect (info.iterator))]
             (doFor =>tagExp color info
                 (archive.addSystem (new TagSystem tagExp ->[archive e &opt ui]
-                    (when (or !(hasComponent e Color) (colorsContain colors (readComponent e Color)))
-                        (addComponent archive e Color color)))))))
+                    (when (or !(hasComponent e ColorI) (colorsContain colors (readComponent e ColorI)))
+                        (AddColorIRGBA [e] color.r color.g color.b color.a)))))))
     (addColorTagSystems [
-        =>"(or active enabled)" (object r 0 g 1 b 0 a 1)
-        =>"(or inactive disabled)" (object r 0.5 g 0.5 b 0.5 a 1)
-        =>"todo" (object r 1 g 0.5 b 0 a 1)])
+        =>"(or active enabled)" (object r 0 g 255 b 0 a 255)
+        =>"(or inactive disabled)" (object r 128 g 128 b 128 a 255)
+        =>"todo" (object r 255 g 128 b 0 a 255)])
 
     (whenLet [ps (ui.playgroundSystem)]
         (set playgroundSystem ps)
@@ -397,7 +398,11 @@
         (for e entries
             (addConnections archive e entriesToRemove)))
     
-    (defCommand AddColorRGBA [entries (SelectedEntries 1 null) r (Number 0 1 null) g (Number 0 1 null) b (Number 0 1 null) a (Number 0 1 null)]
+    (defCommand AddColorFRGBA [entries (SelectedEntries 1 null) r (Number 0 1 null) g (Number 0 1 null) b (Number 0 1 null) a (Number 0 1 null)]
         (for e entries
-            (addColorRGBA archive e r g b a)))
+            (addColorFRGBA archive e r g b a)))
+
+    (defCommand AddColorIRGBA [entries (SelectedEntries 1 null) r (Number 0 255 1) g (Number 0 255 1) b (Number 0 255 1) a (Number 0 255 1)]
+        (for e entries
+            (addColorIRGBA archive e (Std.int r) (Std.int g) (Std.int b) (Std.int a))))
     )

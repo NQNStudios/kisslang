@@ -149,8 +149,21 @@
             (doFor e2 entriesToRemove (conn.remove e2.id))))
     e)
 
-(function addColorRGBA [:nat.Archive archive :nat.Entry e :Float r :Float g :Float b :Float a]
-    (addComponent archive e Color (objectWith r g b a)))
+(function colorIFromF [:nat.components.ColorF cf]
+    (object r (Std.int (* 255 cf.r)) g (Std.int (* 255 cf.g)) b (Std.int (* 255 cf.b)) a (Std.int (* 255 cf.a))))
+
+(function colorFFromI [:nat.components.ColorI ci]
+    (object r (/ ci.r 255.0) g (/ ci.g 255.0) b (/ ci.b 255.0) a (/ ci.a 255)))
+
+(function addColorFRGBA [:nat.Archive archive :nat.Entry e :Float r :Float g :Float b :Float a]
+    (let [cf (objectWith r g b a)]
+        (addComponent archive e ColorF cf)
+        (addComponent archive e ColorI (colorIFromF cf))))
+
+(function addColorIRGBA [:nat.Archive archive :nat.Entry e :Int r :Int g :Int b :Int a]
+    (let [ci (objectWith r g b a)]
+        (addComponent archive e ColorI ci)
+        (addComponent archive e ColorF (colorFFromI ci))))
 
 (function isEntry [o]
     (let [fields (Reflect.fields o)]

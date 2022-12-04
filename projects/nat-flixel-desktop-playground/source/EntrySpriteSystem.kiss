@@ -39,7 +39,7 @@
                     (sprites.remove e.id))
             }))
 
-(method &override :Void clear [:Color color]
+(method &override :Void clear [:ColorF color]
     (set playState.bgColor (FlxColor.fromRGBFloat color.r color.g color.b color.a))
     (playState.debugLayer.clear)
     (sprites.clear)

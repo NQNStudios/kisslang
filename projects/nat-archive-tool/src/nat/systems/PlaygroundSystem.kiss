@@ -5,7 +5,7 @@
 (method :String getPlaygroundKey [] _playgroundKey)
 
 (prop :Map<String,TagList> playgroundDefaultTags (new Map))
-(prop :Map<String,Color> playgroundBGColors (new Map))
+(prop :Map<String,ColorF> playgroundBGColors (new Map))
 
 (defNew [&prop :ArchiveUI ui
             :EntryChecker canProcess
@@ -25,7 +25,7 @@
                             (if (hasComponent e CatsMatchExp)
                                     (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p] (set .catsMatch (dictGet p name) (readComponent e CatsMatchExp)))
                                 (addComponent archive e CatsMatchExp .catsMatch (dictGet archive.playgrounds name)))
-                            (dictSet playgroundBGColors name (readComponentOr e Color (object r 0.0 g 0.0 b 0.0 a 1.0)))
+                            (dictSet playgroundBGColors name (readComponentOr e ColorF (object r 0.0 g 0.0 b 0.0 a 1.0)))
                             (dictSet playgroundDefaultTags name (readComponentOr e TagList []))))
 
                 // Process Entries belonging to the current playground
@@ -52,7 +52,7 @@
         })
     (process ui.controller.archive ui))
 
-(method :Void clear [:Color color]
+(method :Void clear [:ColorF color]
     (throw "(PlaygroundSystem.clear <color>) not implemented"))
 
 (prop &mut :Bool setupProcess false)

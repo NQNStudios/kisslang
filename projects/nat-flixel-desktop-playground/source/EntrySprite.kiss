@@ -36,8 +36,8 @@
                 (FlxSpriteUtil.drawCircle this -1 -1 c.radius FlxColor.TRANSPARENT (object thickness CIRCLE_THICKNESS color color))))
         (true
             (set pixels .pixels 
-                            (let [color (if (hasComponent e Color)
-                                                (let [c (readComponent e Color)]
+                            (let [color (if (hasComponent e ColorF)
+                                                (let [c (readComponent e ColorF)]
                                                     (FlxColor.fromRGBFloat c.r c.g c.b c.a))
                                             DEFAULT_COLOR)
                                 t (new FlxText 0 0 0 (readComponent e Name) PlayState.TEXT_SIZE)]
