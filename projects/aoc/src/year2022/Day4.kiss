@@ -1,0 +1,15 @@
+(defMacro intOverlapCheck [name &body cases]
+    `(function ,name [line]
+        (let [[min1 inner max2] (line.split "-")
+                [max1 min2] (inner.split ",")]
+            (or
+                ,@(for _case cases
+                    `(apply <= (.map ,_case Std.parseInt)))))))
+
+(intOverlapCheck oneIsSubset [min1 min2 max2 max1] [min2 min1 max1 max2])
+
+(assert (= 441 .length (filter (Util.readLines (input 4)) oneIsSubset)))
+
+(intOverlapCheck hasOverlap [min1 min2 max1] [min1 max2 max1] [min2 min1 max2] [min2 max1 max2])
+
+(assert (= 861 .length (filter (Util.readLines (input 4)) hasOverlap)))
