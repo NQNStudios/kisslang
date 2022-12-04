@@ -1389,6 +1389,29 @@ class Macros {
             ]);
         };
 
+        k.doc("withMutProperties", 2, null, "(withMutProperties [<vars...>] <body...>)");
+        // Because properties like the ones created with savedVar won't automatically invoke their set() behavior when setNth, dictSet, or methods modify their object's data,
+        // this macro exists to help you enforce that the set() behavior will be invoked. Also enforces that get() is only called once and the returned reference persists changes.
+        macros["withMutProperties"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+
+            // TODO the nomenclature in the implementation is misleading. This macro is not just useful for savedVar properties.
+            var savedVarList = Helpers.argList(exps[0], "withMutProperties");
+            var uuids = [for (savedVar in savedVarList) {
+                switch (savedVar.def) {
+                    case Symbol(_):
+                    default:
+                        throw KissError.fromExp(savedVar, "withMutProperties requires its initial arguments to be plain symbols of property names");
+                }
+                b.symbol();
+            }];
+
+            var body = exps.slice(1);
+            b.let(Lambda.flatten(Prelude.zipThrow(uuids, savedVarList)), [
+                b.let(Lambda.flatten(Prelude.zipThrow(savedVarList, uuids)), body),
+            ].concat([for (savedVar in savedVarList) b.set(savedVar, uuids.shift())]));
+        };
+
         return macros;
     }
 
