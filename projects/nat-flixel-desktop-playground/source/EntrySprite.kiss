@@ -16,11 +16,17 @@
     
     (cond
         ((hasComponent e Images2)
-            (let [images (readComponent e Images2)]
-                (.onComplete (BitmapData.loadFromFile (archive.filePath  (nth images.imageFiles images.pinnedImageIndex)))
-                    ->bitmapData {
-                        (loadGraphic bitmapData)
-                    })))
+            (let [images (readComponent e Images2)
+                    pinnedImage (archive.filePath (nth images.imageFiles images.pinnedImageIndex))]
+                (case (pinnedImage.extension)
+                    ("svg" (let [sprite (new Sprite)]
+                                (.render (new SVG (File.getContent pinnedImage)) sprite.graphics)
+                                (let [bitmapData (new BitmapData (Std.int sprite.width) (Std.int sprite.height))]
+                                    (bitmapData.draw sprite)
+                                    (loadGraphic bitmapData))))
+                    (otherwise
+                        (.onComplete (BitmapData.loadFromFile pinnedImage)
+                            ->bitmapData (loadGraphic bitmapData))))))
         ((hasComponent e Circle)
             (set isCircle true)
             (let [c (readComponent e Circle)

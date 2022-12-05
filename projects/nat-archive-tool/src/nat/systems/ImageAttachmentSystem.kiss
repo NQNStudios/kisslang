@@ -2,7 +2,7 @@
 
 (defNew []
     (super
-        ["jpg" "jpeg" "png"]
+        ["jpg" "jpeg" "png" "svg"]
         ->[archive e imageFiles &opt ui]
             (unless (upgradeToVersion2 archive e)  
                 // TODO an edge case exists when more image files are added to an Entry

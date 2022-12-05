@@ -18,6 +18,7 @@ then
         haxelib install flixel-addons --quiet
         haxelib install flixel-ui --quiet
         haxelib install hxcpp --quiet
+        haxelib install svg --quiet
     fi
 
     # if "desktop-" is in the project name, only test for C++

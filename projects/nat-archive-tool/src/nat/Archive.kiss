@@ -73,5 +73,5 @@
 (method fullString [:Entry e]
     (haxe.Json.stringify e null "\t"))
 
-(method filePath [file]
+(method :String filePath [file]
     (joinPath archiveDir "files" file))

@@ -36,6 +36,7 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
+	<haxelib name="svg" />
 
 	<haxelib name="kiss" />
 	<haxelib name="kiss-tools" />
