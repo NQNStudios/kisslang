@@ -1,0 +1,31 @@
+(let [[manifest commands] (Util.readParagraphLines (input 5))
+        :Map<String,kiss.List<String>> stacks (new Map)]
+    (case manifest
+        ([::...stackLines labelsLine]
+            (let [rows (reverse (collect (range stackLines.length)))
+                    labels (filter (enumerate (labelsLine.split "")) ->idxPair (let [[idx :String c] idxPair] (< 0 .length (c.trim))))]
+                (doFor [idx label] labels
+                    (dictSet stacks label [])
+                    (doFor row rows
+                        (whenLet [crate (.trim (.charAt (nth stackLines row) idx))]
+                            (.push (dictGet stacks label) crate))))
+                // Within this block, stacks contains the parsed model of the manifest,
+                // and commands contains the instructions for moving the crates around
+                (withFunctions
+                    [
+                        (simulateCommands [:Map<String,kiss.List<String>> stacks :Bool part1]
+                            (doFor command commands
+                                (case (command.split " ")
+                                    (["move" count "from" from "to" to]
+                                        (let [count (Std.parseInt count)
+                                                fromList (.copy (dictGet stacks from))
+                                                toList (dictGet stacks to)
+                                                toMove (fromList.splice -count count)]
+                                            (dictSet stacks from fromList)
+                                            (dictSet stacks to (toList.concat (if part1 (reverse toMove) toMove)))))
+                                    (never otherwise)))
+                            (.join (for label (sort (collect (stacks.keys))) (last (dictGet stacks label))) ""))
+                    ]
+                    (assert (= "TWSGQHNHL" (simulateCommands (stacks.copy) true)))
+                    (assert (= "JNRSCDWPP" (simulateCommands (stacks.copy) false))))))
+        (never otherwise)))

@@ -1433,7 +1433,7 @@ class Macros {
             } while (funcList.length > 0);
 
             var exp = b.begin(localFunctions.concat(args.slice(1)));
-            Prelude.print(Reader.toString(exp.def));
+            // Prelude.print(Reader.toString(exp.def));
             exp;
         };
 
