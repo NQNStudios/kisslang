@@ -63,7 +63,8 @@ typedef KissState = {
     varsInScope:Array<Var>,
     localVarsInScope:Array<Var>,
     conversionStack:Array<ReaderExp>,
-    stateChanged:Bool
+    stateChanged:Bool,
+    printFieldsCalls:Array<ReaderExp>
 };
 #end
 
@@ -179,7 +180,8 @@ class Kiss {
             varsInScope: [],
             localVarsInScope: [],
             conversionStack: [],
-            stateChanged: false
+            stateChanged: false,
+            printFieldsCalls: []
         };
 
         k.doc = (form:String, minArgs:Null<Int>, maxArgs:Null<Int>, expectedForm = "", doc = "") -> {

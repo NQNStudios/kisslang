@@ -1292,6 +1292,7 @@ class Macros {
         };
 
         function printAll (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            k.printFieldsCalls.push(wholeExp);
             var b = wholeExp.expBuilder();
             var list = if (locals) k.localVarsInScope else k.varsInScope;
             return b.begin([for (v in list) b.callSymbol("print", [b.symbol(v.name), b.str(v.name)])]);
@@ -1303,6 +1304,7 @@ class Macros {
 
         k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
         function printAllNulls (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+            k.printFieldsCalls.push(wholeExp);
             var b = wholeExp.expBuilder();
             var list = if (locals) k.localVarsInScope else k.varsInScope;
             return b.begin([for (v in list) {

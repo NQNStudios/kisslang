@@ -747,3 +747,11 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         ]
         (localFunction c [val] (+ (a val) (b val)))
         (Assert.equals 5 (c 1))))
+
+(function _testPrintMacrosCheck []
+    (printAllNulls)
+    (var t "bad")
+    (let [u "good"]
+        (localVar v "bad")
+        (printLocalNulls))
+    (Assert.pass))

@@ -100,6 +100,7 @@ class FieldForms {
         k.doc(formName, 1, 3, '($formName <optional &mut> <optional :Type> <name> <optional value>)');
         k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             var name = Helpers.varName(formName, args[0]);
+            checkPrintFieldsCalledWarning(name, wholeExp, k);
             var access = fieldAccess(formName, name, args[0]);
 
             var type = Helpers.explicitType(args[0]);
@@ -144,8 +145,8 @@ class FieldForms {
     static function funcOrMethod(formName:String, k:KissState) {
         k.doc(formName, 2, null, '($formName <optional &dynamic> <optional :Type> <name> [<argNames...>] <body...>)');
         k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-
             var name = Helpers.varName(formName, args[0]);
+            checkPrintFieldsCalledWarning(name, wholeExp, k);
             var access = fieldAccess(formName, name, args[0]);
             var inStaticFunction = access.indexOf(AStatic) != -1;
             var returnsValue = !isVoid(args[0]);
@@ -176,6 +177,15 @@ class FieldForms {
 
             k = k.forStaticFunction(wasInStatic);
             return f;
+        }
+    }
+
+    static function checkPrintFieldsCalledWarning(name, exp:ReaderExp, k:KissState) {
+        if (k.printFieldsCalls.length > 0) {
+            KissError.warnFromExp(exp, 'new field "$name" defined here will not be printed by preceding print macro(s)');
+            for (printCall in k.printFieldsCalls) {
+                KissError.warnFromExp(printCall, "print macro used here");
+            }
         }
     }
 }
