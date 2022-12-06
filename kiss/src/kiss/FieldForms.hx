@@ -104,9 +104,10 @@ class FieldForms {
             var access = fieldAccess(formName, name, args[0]);
 
             var type = Helpers.explicitType(args[0]);
-            if (type != null)
-                k.addVarInScope({name: name, type: type}, false);
-
+            k.addVarInScope(
+                {name: name, type: type}, 
+                false,
+                access.indexOf(AStatic) != -1);
                 
             function varOrPropKind(args:Array<ReaderExp>) {
                 return if (args.length > 1) {

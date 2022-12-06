@@ -395,6 +395,12 @@ class BasicTestCase extends Test {
     function testWithFunctions() {
         _testWithFunctions();
     }
+
+    function testPrintMacrosCheck() {
+        _testPrintMacrosCheck();
+    }
+
+    var aNullToPrint = null;
 }
 
 class BasicObject {

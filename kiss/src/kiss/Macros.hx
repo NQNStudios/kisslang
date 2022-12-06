@@ -1291,31 +1291,30 @@ class Macros {
             return Quasiquote(b.let(bindings, body)).withPosOf(wholeExp);
         };
 
-        function printAll (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
+        function printAll (locals:Bool, nullCheck:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             k.printFieldsCalls.push(wholeExp);
             var b = wholeExp.expBuilder();
             var list = if (locals) k.localVarsInScope else k.varsInScope;
-            return b.begin([for (v in list) b.callSymbol("print", [b.symbol(v.name), b.str(v.name)])]);
+            if (!locals && k.inStaticFunction) {
+                list = [for (idx in 0...list.length) if (!k.varsInScopeAreStatic[idx]) continue; else list[idx]];
+            }
+            return b.begin([for (v in list) {
+                var symbol = b.symbol(v.name);
+                var pr = b.callSymbol("print", [symbol, b.str(v.name)]);
+                if (nullCheck) {
+                    pr = b.callSymbol("unless", [symbol, pr]);
+                }
+                pr;
+            }]);
         }
         k.doc("printAll", 0, 0, "(printAll)");
-        macros["printAll"] = printAll.bind(false);
+        macros["printAll"] = printAll.bind(false, false);
         k.doc("printLocals", 0, 0, "(printLocals)");
-        macros["printLocals"] = printAll.bind(true);
-
-        k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
-        function printAllNulls (locals:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            k.printFieldsCalls.push(wholeExp);
-            var b = wholeExp.expBuilder();
-            var list = if (locals) k.localVarsInScope else k.varsInScope;
-            return b.begin([for (v in list) {
-                        var symbol = b.symbol(v.name);
-                        b.callSymbol("unless", [symbol,
-                                            b.callSymbol("print", [symbol, b.str(v.name)])]);}]);
-        };
+        macros["printLocals"] = printAll.bind(true, false);
         k.doc("printAllNulls", 0, 0, "(printAllNulls)");
-        macros["printAllNulls"] = printAllNulls.bind(false);
+        macros["printAllNulls"] = printAll.bind(false, true);
         k.doc("printLocalNulls", 0, 0, "(printLocalNulls)");
-        macros["printLocalNulls"] = printAllNulls.bind(true);
+        macros["printLocalNulls"] = printAll.bind(true, true);
         
         var savedVarFilename = null;
         k.doc("savedVarFile", 1, 1, '(savedVarFilename "<path>")');

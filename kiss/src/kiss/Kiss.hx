@@ -61,6 +61,7 @@ typedef KissState = {
     inStaticFunction:Bool,
     typeHints:Array<Var>,
     varsInScope:Array<Var>,
+    varsInScopeAreStatic:Array<Bool>,
     localVarsInScope:Array<Var>,
     conversionStack:Array<ReaderExp>,
     stateChanged:Bool,
@@ -178,6 +179,7 @@ class Kiss {
             inStaticFunction: false,
             typeHints: [],
             varsInScope: [],
+            varsInScopeAreStatic: [],
             localVarsInScope: [],
             conversionStack: [],
             stateChanged: false,
@@ -569,10 +571,11 @@ class Kiss {
         return expr;
     }
     
-    public static function addVarInScope(k: KissState, v:Var, local:Bool) {
+    public static function addVarInScope(k: KissState, v:Var, local:Bool, isStatic:Bool=false) {
         if (v.type != null)
             k.typeHints.push(v);
         k.varsInScope.push(v);
+        k.varsInScopeAreStatic.push(isStatic);
         if (local)
             k.localVarsInScope.push(v);
     }
@@ -581,10 +584,12 @@ class Kiss {
         function removeLast(list:Array<Var>, v:Var) {
             var index = list.lastIndexOf(v);
             list.splice(index, 1);
+            return index;
         }
         if (v.type != null)
             removeLast(k.typeHints, v);
-        removeLast(k.varsInScope, v);
+        var idx = removeLast(k.varsInScope, v);
+        k.varsInScopeAreStatic.splice(idx, 1);
         if (local)
             removeLast(k.localVarsInScope, v);
     }
