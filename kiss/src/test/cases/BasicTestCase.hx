@@ -391,6 +391,10 @@ class BasicTestCase extends Test {
     function testHaxeProperties() {
         _testHaxeProperties();
     }
+
+    function testWithFunctions() {
+        _testWithFunctions();
+    }
 }
 
 class BasicObject {

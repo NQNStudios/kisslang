@@ -1412,6 +1412,31 @@ class Macros {
             ].concat([for (savedVar in savedVarList) b.set(savedVar, uuids.shift())]));
         };
 
+        k.doc("withFunctions", 2, null, "(withFunctions [(<funcName1> [<args...>] <body...>) <more functions...>] <body...>)");
+        macros["withFunctions"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+
+            var funcList = Helpers.argList(args[0], "withFunctions");
+            if (funcList.length == 0) throw KissError.fromExp(args[0], "withFunctions requires at least one function definition");
+            var localFunctions = [];
+            do {
+                var funcExp = funcList.shift();
+                switch (funcExp.def) {
+                    case CallExp(nameExp, argsAndBody) if (argsAndBody.length >= 2):
+                        localFunctions.push(b.callSymbol("localFunction", [
+                            nameExp, argsAndBody.shift()
+                        ].concat(argsAndBody)));
+                    default:
+                        throw KissError.fromExp(funcExp, "withFunctions function definition should follow this form: (<funcName> [<args...>] <body...>)");
+                }
+                
+            } while (funcList.length > 0);
+
+            var exp = b.begin(localFunctions.concat(args.slice(1)));
+            Prelude.print(Reader.toString(exp.def));
+            exp;
+        };
+
         return macros;
     }
 
