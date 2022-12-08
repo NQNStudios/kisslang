@@ -116,6 +116,7 @@ class Kiss {
                 "assertProcess" => Symbol("Prelude.assertProcess"),
                 "tryProcess" => Symbol("Prelude.tryProcess"),
                 "libPath" => Symbol("Prelude.libPath"),
+                "userHome" => Symbol("Prelude.userHome"),
                 "random" => Symbol("Std.random"),
                 "walkDirectory" => Symbol("Prelude.walkDirectory"),
                 "purgeDirectory" => Symbol("Prelude.purgeDirectory"),
