@@ -54,11 +54,11 @@
         show (noConfirmShow.bind text)
         score (typeScore.bind text)))
 
-(function :CardSide image [:String path]
+(function :CardSide image [:String path &opt :String caption]
     (object
-        show ->:Void [engine cc] (engine.showImageCC path cc)
+        show ->:Void [engine cc] {(when caption (engine.print caption)) (engine.showImageCC path cc)}
     
-        score ->:Void [engine :Int->Void resolve] {(engine.showImage path)(engine.print "Score (0-5): ")(engine.input ->:Void str (resolve (Std.parseInt str)))}))
+        score ->:Void [engine :Int->Void resolve] {(when caption (engine.print caption))(engine.showImage path)(engine.print "Score (0-5): ")(engine.input ->:Void str (resolve (Std.parseInt str)))}))
 
 (defMacroVar cardId 0)
 (defMacroVar groupId 0)
