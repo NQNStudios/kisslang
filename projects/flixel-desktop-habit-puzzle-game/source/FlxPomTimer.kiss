@@ -1,0 +1,33 @@
+(savedVar :Bool workMode false)
+(savedVar :Float timerValue 0)
+(savedVar :Float workMin 25)
+(savedVar :Float breakMin 5)
+(savedVar :Float longBreakMin 10)
+(savedVar :Int totalPoms 0)
+(prop :FlxSound dingSound)
+
+(prop &mut :Void->Void onFinishedPom)
+
+(method getText []
+    "$(if workMode "FOCUS ON WORK FOR " "TAKE A BREAK FOR ")$(Std.int (/ timerValue 60)):$(.lpad (Std.string (Std.int (% timerValue 60))) "0" 2)")
+
+(method new []
+    (super (fHalf FlxG.width) 0 (getText) SimpleWindow.textSize)
+    (set color FlxColor.ORANGE)
+    (set dingSound (FlxG.sound.load "assets/ding.wav")))
+
+(method &override :Void update [:Float elapsed]
+    (super.update elapsed)
+    (-= timerValue elapsed)
+    (#when debug
+        (when FlxG.keys.justPressed.P
+            (set timerValue 0)))
+    (when (<= timerValue 0)
+        (when workMode
+            (+= totalPoms 1)
+            (when onFinishedPom
+                (onFinishedPom)))
+        (set workMode !workMode)
+        (dingSound.play)
+        (set timerValue (* 60 (if workMode workMin (if (= 0 (% totalPoms 4)) longBreakMin breakMin)))))
+    (set text (getText)))

@@ -6,6 +6,8 @@
 
 (defAlias &ident textSize SimpleWindow.textSize)
 
+(prop &mut :FlxPomTimer pomTimer null)
+
 (method &override :Void create [] 
     (set FlxG.sound.soundTrayEnabled false)
     (add logTexts)
@@ -31,6 +33,8 @@
     (FlxG.plugins.add (new FlxMouseControl))
     (set FlxMouseControl.sortIndex "priorityID")
     (set bgColor FlxColor.TRANSPARENT)
+    (set pomTimer (new FlxPomTimer))
+    (set pomTimer.cameras [uiCamera])
     (super.create))
 
 (defAlias &ident KEYBOARD_SCROLL_SPEED (keyboardScrollSpeed))
@@ -256,6 +260,7 @@
 
 (method :Void setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
+    (set pomTimer.onFinishedPom ->:Void {(model.addPomPoint) (refreshModel)})
 
     (let [p (m.totalPoints)
             &mut i 0
@@ -368,6 +373,21 @@
                         (defAndCall method toggleLowerPriority
                             (set model.showLowerPriority !model.showLowerPriority)
                             (refreshModel))))
+                        (prop &mut pomRunning false)
+            (if pomRunning
+                    (_makeText "Stop Pomodoro Timer Mode" m.pomodoroPoints
+                            ->_ {
+                                (set pomRunning false)
+                                (remove pomTimer)
+                                (refreshModel)
+                                })
+                (_makeText "Start Pomodoro Timer Mode" m.pomodoroPoints
+                    ->_ {
+                        // TODO hide puzzle pieces until the pom is over or the mode is stopped
+                        (set pomRunning true)
+                        (add pomTimer)
+                        (refreshModel)
+                        }) )    
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
@@ -391,6 +411,7 @@
                             (entryWindow.hide)
                             (model.skipRewardFile)
                             (setModel model)))))
+        
         (set entryWindow.textColor FlxColor.ORANGE)
         (map (m.activeDailyEntries) makeText)
         (set entryWindow.textColor FlxColor.GREEN)
@@ -690,7 +711,6 @@
         (let [bubblePoints (dictGet jig.bubblePoints compass)]
             (unless bubblePoints
                 (return (new FlxRect 0 0 0 0)))
-            (printLocalNulls)
             (let [ros (roughOptimalScale)
                     pointsX (for point bubblePoints point.x)
                     pointsY (for point bubblePoints point.y)

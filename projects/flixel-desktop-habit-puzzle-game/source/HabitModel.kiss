@@ -4,6 +4,7 @@
 (prop :Array<Entry> bonusEntries [])
 (prop :Array<Entry> todoEntries [])
 (prop :kiss.List<RewardFile> rewardFiles [])
+(prop &mut :Int pomodoroPoints 0)
 
 (defNew [&prop :String textFile]
     (let [s (Stream.fromFile textFile)
@@ -23,6 +24,8 @@
                     (set lastHeader "TODO"))
                 ((Some "FILES")
                     (set lastHeader "FILES"))
+                ((Some "POMODORO")
+                    (set lastHeader "POMODORO"))
                 ((when (apply = (concat ["-"] (line.split ""))) (Some line))
                     (continue))
                 ((Some "") (continue))
@@ -40,6 +43,7 @@
                                 startingPoints (Std.parseInt (parts.pop))
                                 path (parts.join " ")]
                             (objectWith path startingPoints puzzleWidth puzzleHeight piecesPerPoint skipped))))
+                ((when (= lastHeader "POMODORO") (Some line)) (set pomodoroPoints (Std.parseInt line)))
                 ((Some line)
                     (let [topPriority (line.startsWith "! ")]
                         (when topPriority (set line (line.substr 2)))
@@ -127,7 +131,7 @@
     (filter (allEntries) isNotDeleted))
 
 (method :Int totalPoints []
-    (apply + (for l (flatten (for e (allEntries) e.labels)) l.points)))
+    (+ pomodoroPoints (apply + (for l (flatten (for e (allEntries) e.labels)) l.points))))
 
 (function stringify [:Entry e]
     (e.toString))
@@ -146,6 +150,7 @@
     (+= content (.join (map bonusEntries stringify) "\n") "\n")
     (+= content "\nTODO\n----\n")
     (+= content (.join (map todoEntries stringify) "\n") "\n")
+    (+= content "\nPOMODORO\n--------\n${pomodoroPoints}\n")
     (+= content "\nFILES\n-----\n")
     (+= content (.join (map rewardFiles stringifyRewardFile) "\n") "\n")
     (File.saveContent textFile 
@@ -279,6 +284,10 @@
                 (set e.type (Monthly days (.toString (DateTime.now)))))
             (whenLet [(Interval days lastDayDone) e.type]
                 (set e.type (Interval days (.toString (DateTime.now)))))))
+    (save))
+
+(method addPomPoint []
+    (+= pomodoroPoints 1)
     (save))
 
 (var tallyUnit 5)
