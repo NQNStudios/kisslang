@@ -1,0 +1,17 @@
+(function nextMarkerEnd [:String buffer :Int start :Int markerLength]
+    (let [:Map<Int,Int> lastNCharMap (new Map)]
+        (doFor idx (range start buffer.length)
+            // Decrement and remove the letters that are no longer within the window of the last 4
+            (doFor =>letter counter lastNCharMap
+                (let [nextCounter (- counter 1)]
+                    (if (= 0 nextCounter)
+                            (lastNCharMap.remove letter)   
+                        (dictSet lastNCharMap letter nextCounter))))
+            (dictSet lastNCharMap (buffer.fastCodeAt idx) markerLength)
+            (when (= markerLength (count lastNCharMap))
+                (return (+ 1 idx)))))
+    null)
+
+(assert (= 5 (nextMarkerEnd "bvwbjplbgvbhsrlpgdmjqwftvncz" 0 4)))
+(assert (= 1566 (nextMarkerEnd (first (Util.readLines (input 6))) 0 4)))
+(assert (= 2265 (nextMarkerEnd (first (Util.readLines (input 6))) 0 14)))
