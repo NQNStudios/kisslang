@@ -10,6 +10,7 @@
 
 (method &override :Void create [] 
     (set FlxG.sound.soundTrayEnabled false)
+    (set FlxG.autoPause false)
     (add logTexts)
     (set Prelude.printStr log)
     (defAndCall method newPieceCamera
