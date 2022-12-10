@@ -1,0 +1,60 @@
+(import year2022.FileSystem)
+
+(function :FileSystem reconstructFileSystem [file]
+    (let [:FileSystem rootFs (Folder [=>"/" (Folder (new Map))])
+            &mut :FileSystem currFs rootFs
+            terminalLines (Util.readLines file)]
+        (doFor line terminalLines 
+            (case (line.split " ")
+                (["\$" "ls"] null)
+                (["dir" dir] null)
+                (["\$" "cd" dir]
+                    (case currFs
+                        ((Folder contents)
+                            (if (contents.exists dir)
+                                    (set currFs (dictGet contents dir))
+                                (let [newFolder (Folder [=>".." currFs])]
+                                    (dictSet contents dir newFolder)
+                                    (set currFs newFolder))))
+                        (never otherwise)))
+                ([size file]
+                    (case currFs
+                        ((Folder contents)
+                            (dictSet contents file (File (Std.parseInt size))))
+                        (never otherwise)))
+                (never otherwise)))
+        rootFs))
+
+(var &mut :Float sumUnder100000)
+(function :SizeStats sizeStats [:FileSystem fs &opt :Array<String> path :SizeStats stats]
+    (unless path
+        (set path [])
+        (set sumUnder100000 0))
+    (unless stats (set stats (new Map)))
+    (when !(stats.exists (path.join "/"))
+        (dictSet stats (path.join "/")
+            (case fs
+                ((Folder contents)
+                    (let [size
+                                (apply +
+                                    (for =>innerPath innerFs contents
+                                        (ifLet [".." innerPath]
+                                                0
+                                            (let [fullPath (path.concat [innerPath])]
+                                                (sizeStats innerFs fullPath stats)
+                                                (dictGet stats (fullPath.join "/"))))))]
+                        (when (>= 100000 size) (+= sumUnder100000 size))
+                        size))
+                ((File size)
+                    size)
+                (never otherwise))))
+    stats)
+(let [fs (reconstructFileSystem (input 7))
+        stats (sizeStats fs)
+        sizeAvailable (- 70000000 (dictGet stats "/"))
+        minSizeToDelete (- 30000000 sizeAvailable)]
+    (assert (= 1449447 sumUnder100000))
+    (assert (= 8679207 (apply min (for =>path size stats
+                                        (if (>= size minSizeToDelete)
+                                                size
+                                            (continue)))))))
