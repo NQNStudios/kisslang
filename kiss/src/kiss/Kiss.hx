@@ -641,9 +641,17 @@ class Kiss {
             };
         };
 
+        copy.macros["expect"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            wholeExp.checkNumArgs(3, null, "(expect <stream> <description> <stream method> <args...>)");
+            var b = wholeExp.expBuilder();
+            var streamSymbol = exps.shift();
+            b.callField("expect", streamSymbol, [exps.shift(), b.callSymbol("lambda", [b.list([]), b.callField(Prelude.symbolNameValue(exps.shift()), streamSymbol, exps)])]);
+        };
+
         // TODO should this also be in forHScript()?
         // In macro evaluation,  
         copy.macros.remove("eval");
+        // BECAUSE it is provided as a function instead.
 
         return copy;
     }

@@ -39,6 +39,7 @@ abstract List<T>(Array<T>) from Array<T> to Array<T> {
         return v;
     }
 
+    // TODO deleting these should be fine, because the haxe Array functions already allow negative arguments
     public function insert(idx:Int, v:T) {
         this.insert(realIndex(idx), v);
     }

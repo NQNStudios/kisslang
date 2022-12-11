@@ -294,7 +294,7 @@ class Reader {
         }
     }
 
-    public static function readExpArray(stream:Stream, end:String, k:KissState, startingPos=null):Array<ReaderExp> {
+    public static function readExpArray(stream:Stream, end:String, k:KissState, allowEof=false, startingPos=null):Array<ReaderExp> {
         var array = [];
         if (startingPos == null)
             startingPos = stream.position();
@@ -306,7 +306,8 @@ class Reader {
                         case Some(exp):
                             array.push(exp);
                         case None:
-                            throw new StreamError(startingPos, 'Ran out of expressions before $end was found.');
+                            if (allowEof) return array;
+                            else throw new StreamError(startingPos, 'Ran out of expressions before $end was found.');
                     }
                 } catch (s:UnmatchedBracketSignal) {
                     if (s.type == end)
