@@ -1,4 +1,5 @@
 -lib kiss
+--macro kiss.KissFrontend.dsl("monkeys", "src/year2022/MonkeyDSL.kiss")
 -cp src
 --main Main
 --interp

@@ -13,7 +13,7 @@
 (dayTodo 8)//(day 8 (load "Day8.kiss"))
 (dayTodo 9)//(day 9 (load "Day9.kiss"))
 (dayTodo 10)//(day 10 (load "Day10.kiss"))
-(dayTodo 11)//(day 11 (load "Day11.kiss"))
+(day 11 (load "Day11.kiss"))
 (dayTodo 12)//(day 12 (load "Day12.kiss"))
 (dayTodo 13)//(day 13 (load "Day13.kiss"))
 (dayTodo 14)//(day 14 (load "Day14.kiss"))

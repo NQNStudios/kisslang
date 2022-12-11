@@ -1,0 +1,31 @@
+(importAs year2022.inputs.Day11Example MonkeysExample)
+(importAs year2022.inputs.Day11 Monkeys)
+
+(MonkeysExample.main)
+(Monkeys.main)
+(doFor _ (range 20)
+    (MonkeysExample.round true)
+    (Monkeys.round true))
+
+(doFor [id monkey] (enumerate MonkeysExample.monkeys)
+    (print "${id}: $monkey.items (${monkey.inspections} inspections)"))
+
+(function :Float monkeyBusiness [:Array<Monkey> monkeys]
+    (apply * ~(.slice (sort (for monkey monkeys monkey.inspections)) -2)))
+
+(assertEquals 10605 (monkeyBusiness MonkeysExample.monkeys))
+(assertEquals 118674 (monkeyBusiness Monkeys.monkeys))
+
+(MonkeysExample.main)
+(MonkeysExample.round false)
+
+(doFor [id monkey] (enumerate MonkeysExample.monkeys)
+    (print "${id}: $monkey.items (${monkey.inspections} inspections)"))
+
+(MonkeysExample.main)
+(Monkeys.main)
+(doFor _ (range 10000)
+    (MonkeysExample.round false)
+    (Monkeys.round false))
+
+(assertEquals 2713310158 ~(monkeyBusiness MonkeysExample.monkeys))

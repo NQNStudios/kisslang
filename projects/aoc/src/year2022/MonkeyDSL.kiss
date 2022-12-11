@@ -1,0 +1,51 @@
+(import year2022.Monkey)
+(var :Array<Monkey> monkeys [])
+
+(defReaderMacro "Monkey " [stream]
+    (let [id (Std.parseInt (expect stream "monkey id" takeUntilAndDrop ":"))
+            items {
+                    (stream.takeUntilAndDrop "Starting items: ")
+                    (.map (.split (expect stream "item list" takeLine) ", ") ->i (Prelude.symbol "${i}.0"))
+                }
+            operationBody {
+                    (stream.takeUntilAndDrop "Operation: new = ")
+                    (expect stream "operation" takeLine)
+                }
+            testDenominator {
+                    (stream.takeUntilAndDrop "Test: divisible by ")
+                    (Std.parseInt (expect stream "divisibility specifier" takeLine))
+                }
+            trueMonkey {
+                    (stream.takeUntilAndDrop "If true: throw to monkey ")
+                    (Std.parseInt (expect stream "true monkey target" takeLine))
+                }
+            falseMonkey {
+                    (stream.takeUntilAndDrop "If false: throw to monkey ")
+                    (Std.parseInt (expect stream "false monkey target" takeLine))
+                }]
+        `(setNth monkeys ,id
+                            (object
+                                items
+                                    ,items
+                                operation
+                                    ->old ,(ReaderExp.RawHaxe operationBody)
+                                testDenominator
+                                    ,testDenominator
+                                testAndThrow
+                                    ->item (if (= 0 (% item ,testDenominator))
+                                                    ,trueMonkey
+                                                ,falseMonkey)
+                                inspections 0))))
+
+(function turn [:Monkey monkey :Bool part1]
+    (set monkey.items (monkey.items.map monkey.operation))
+    (set monkey.items (for item monkey.items (if part1
+                                                    (Std.int (/ item 3))
+                                                item)))
+    (doFor item (monkey.items.copy)
+        (+= monkey.inspections 1)
+        (monkey.items.shift)
+        (.push .items (nth monkeys (monkey.testAndThrow item)) item)))
+    
+(function round [:Bool part1]
+    (doFor monkey monkeys (turn monkey part1)))

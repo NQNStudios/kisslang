@@ -10,3 +10,6 @@
 
 (defMacro dayTodo [num]
     `(day ,num (print "TODO")))
+
+(defMacro assertEquals [expected actual]
+    `(assert (= ,expected ,actual)))
