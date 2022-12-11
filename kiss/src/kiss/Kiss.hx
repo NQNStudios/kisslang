@@ -417,9 +417,9 @@ class Kiss {
     /**
      * Build macro: add fields to a Haxe class by compiling multiple Kiss files in order with the same KissState
      */
-    public static function buildAll(kissFiles:Array<String>, ?k:KissState, useClassFields = true):Array<Field> {
+    public static function buildAll(kissFiles:Array<String>, ?k:KissState, useClassFields = true, ?context:FrontendContext):Array<Field> {
         if (k == null)
-            k = defaultKissState();
+            k = defaultKissState(context);
 
         if (useClassFields) {
             k.fieldList = Context.getBuildFields();
@@ -429,7 +429,7 @@ class Kiss {
         }
 
         for (file in kissFiles) {
-            build(file, k, false);
+            build(file, k, false, context);
         }
 
         return k.fieldList;
