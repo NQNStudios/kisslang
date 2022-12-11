@@ -527,6 +527,8 @@ class Helpers {
             ListExp(listExps).withPosOf(source);
         } else if (Std.isOfType(e, Float) || Std.isOfType(e, Int)) {
             Symbol(Std.string(e)).withPosOf(source);
+        } else if (Std.isOfType(e, Bool)) {
+            Symbol(Std.string(e)).withPosOf(source);
         } else if (Std.isOfType(e, String)) {
             var s:String = e;
             StrExp(s).withPosOf(source);
