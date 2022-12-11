@@ -201,6 +201,10 @@ class Stream {
         return takeChars(firstIndex);
     }
 
+    public function takeUntil(s:String, allowEOF:Bool = false):Option<String> {
+        return takeUntilOneOf([s], allowEOF);
+    }
+
     public function takeUntilAndDrop(s:String, allowEOF:Bool = false):Option<String> {
         var idx = content.indexOf(s);
 
