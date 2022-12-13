@@ -1,0 +1,50 @@
+(function visibleTrees [file]
+    (let [lines (Util.readLines file)
+            :Array<Array<Bool>> visibleTrees
+                                        (for x (range .length (first lines))
+                                            (for y (range lines.length) false))]
+        (withFunctions
+            [
+                (:Array<Array<Array<Int>>> horizontalViews [perspectiveRight]
+                    (for [y :String line] (enumerate lines)
+                        (let [&mut maxHeight -1
+                                xList (collect (range line.length))
+                                xInOrder (if perspectiveRight (reverse xList) xList)]
+                            (for x xInOrder
+                                (case (Std.parseInt (line.charAt x))
+                                    ((when (= maxHeight 9) obscuredHeight)
+                                        (break))
+                                    ((when (>= maxHeight obscuredHeight) obscuredHeight)
+                                        (continue))
+                                    (height 
+                                        (set maxHeight height)
+                                        [x y height])
+                                    (never otherwise))))))
+                (:Array<Array<Array<Int>>> verticalViews [perspectiveBottom]
+                    (let [&mut maxHeight -1
+                            yList (collect (range lines.length))
+                            yInOrder (if perspectiveBottom (reverse yList) yList)]
+                        (for x (range .length (first lines))
+                            (set maxHeight -1)
+                            (for y yInOrder
+                                (when (= maxHeight 9)
+                                    (break))
+                                (let [height (Std.parseInt (.charAt (nth lines y) x))]
+                                    (when (>= maxHeight height)
+                                        (continue))
+                                    (set maxHeight height)
+                                    [x y height])))))
+            ]
+            (let [views
+                        (concat 
+                            (horizontalViews false) 
+                            (horizontalViews true)
+                            (verticalViews false)
+                            (verticalViews true))]
+                (doFor :Array<Array<Int>> view views
+                    (doFor [x y height] view
+                        (setNth visibleTrees x y true))))
+            (count (flatten visibleTrees) ->visible visible))))
+
+(assertEquals 21 (visibleTrees "src/year2022/inputs/day8example.txt"))
+(assertEquals 1672 (visibleTrees (input "8")))
