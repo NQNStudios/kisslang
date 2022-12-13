@@ -240,6 +240,9 @@ class SpecialForms {
                 case TypedExp("Void", {pos:_, def: Symbol(fname)}):
                     name = fname;
                     false;
+                case TypedExp(_, {pos:_, def: Symbol(fname)}):
+                    name = fname;
+                    true;
                 case Symbol(fname):
                     name = fname;
                     true;
