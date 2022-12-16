@@ -1446,7 +1446,7 @@ class Macros {
             var argsList = Helpers.argList(argsListExp, "typeCase", false);
 
             var cases:kiss.List<ReaderExp> = [for (c in args) {
-                Prelude.print(c.expBuilder().neverCase());
+                c.expBuilder().neverCase();
             }];
 
             Helpers.checkNoEarlyOtherwise(cases);
