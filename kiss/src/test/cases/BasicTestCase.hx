@@ -400,6 +400,10 @@ class BasicTestCase extends Test {
         _testPrintMacrosCheck();
     }
 
+    function testTypeCase() {
+        _testTypeCase();
+    }
+
     var aNullToPrint = null;
 }
 

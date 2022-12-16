@@ -1437,7 +1437,67 @@ class Macros {
             // Prelude.print(Reader.toString(exp.def));
             exp;
         };
+        
+        k.doc("typeCase", 2, null, "(typeCase [<values>] ([:<Type> <name> <more typed names...>] <body>) <more cases...> (otherwise <required default>))");
+        macros["typeCase"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
 
+            var argsListExp = args.shift();
+            var argsList = Helpers.argList(argsListExp, "typeCase", false);
+
+            var cases:kiss.List<ReaderExp> = [for (c in args) {
+                Prelude.print(c.expBuilder().neverCase());
+            }];
+
+            Helpers.checkNoEarlyOtherwise(cases);
+
+            var symbols = [for (i in 0...argsList.length) b.symbol()];
+            var dynamicSymbols = [for (s in symbols) b.typed("Dynamic", s)];
+            var outerLetBindings = [];
+            for (i in 0...argsList.length) {
+                outerLetBindings.push(dynamicSymbols[i]);
+                outerLetBindings.push(argsList[i]);
+            }
+
+            cases = [for (c in cases) {
+                var b = c.expBuilder();
+                switch (c.def) {
+                    case CallExp({pos:_, def:ListExp(typedNames)}, body):
+                        var names = [];
+                        var types = [];
+                        var typesWithoutGenerics = [];
+                        for (exp in typedNames) {
+                            switch (exp.def) {
+                                case TypedExp(type, nameSymbol):
+                                    names.push(nameSymbol);
+                                    types.push(type);
+                                    if (type.contains("<")) {
+                                        type = type.substr(type.indexOf("<"));
+                                    }
+                                    typesWithoutGenerics.push(type);
+                                default:
+                                    throw KissError.fromExp(c, "bad typeCase case");
+                            }
+                        }
+                        var letBindings = [];
+                        for (i in 0...names.length) {
+                            letBindings.push(typedNames[i]);
+                            letBindings.push(names[i]);
+                        }
+                        b.call(b.callSymbol("when", [b.callSymbol("and", [
+                            for (i in 0...names.length) {
+                                b.callSymbol("Std.isOfType", [names[i], b.symbol(typesWithoutGenerics[i])]);
+                            }
+                        ]), b.list(names)]), [b.let(letBindings, body)]);
+                    default: c;
+                }
+            }];
+            
+            b.let(outerLetBindings, [
+                b.callSymbol("case", [b.list(symbols)].concat(cases))
+            ]);
+        }
+        
         return macros;
     }
 

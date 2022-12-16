@@ -758,3 +758,16 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (localVar v "bad")
         (printLocalNulls))
     (Assert.pass))
+
+(function :Void _testTypeCase []
+    (typeCase ["a"]
+        ([:String a]
+            (Assert.equals "a" a)))
+    (typeCase ["a" 1]
+        (never [:String a :String one])
+        ([:String a :Int one]
+            (Assert.equals "a1" "${a}${one}")))
+    (typeCase ["a" 5 5.5 true]
+        ([:String a :Int five :Float fivePointFive :Bool tt]
+            (Assert.equals "a55.5true" "${a}${five}${fivePointFive}${tt}"))
+        (never otherwise)))
