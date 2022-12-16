@@ -705,8 +705,12 @@ class Helpers {
         };
     }
 
-    public static function argList(exp:ReaderExp, forThis:String):Array<ReaderExp> {
+    public static function argList(exp:ReaderExp, forThis:String, allowEmpty = true):Array<ReaderExp> {
         return switch (exp.def) {
+            case ListExp([]) if (allowEmpty):
+                [];
+            case ListExp([]) if (!allowEmpty):
+                throw KissError.fromExp(exp, 'arg list for $forThis must not be empty');
             case ListExp(argExps):
                 argExps;
             default:
