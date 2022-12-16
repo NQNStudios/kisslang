@@ -1472,7 +1472,7 @@ class Macros {
                                     names.push(nameSymbol);
                                     types.push(type);
                                     if (type.contains("<")) {
-                                        type = type.substr(type.indexOf("<"));
+                                        type = type.substr(0, type.indexOf("<"));
                                     }
                                     typesWithoutGenerics.push(type);
                                 default:
