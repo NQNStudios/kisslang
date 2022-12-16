@@ -344,6 +344,11 @@ class SpecialForms {
                         cases[i] = b.call(neverExps[0], [
                             b.callSymbol('throw', [
                                 b.callSymbol('kiss.Prelude.runtimeInsertAssertionMessage', [b.str('${Reader.toString(neverExps[0].def)} should never match pattern ${Reader.toString(neverExps[0].def)}'), b.str(failureError), b.int(colonsInPrefix)])])]);
+                    default:
+                }
+            }
+            for (i in 0...cases.length) {
+                switch (cases[i].def) {
                     case CallExp({pos: _, def: Symbol("otherwise")}, _) if (i != cases.length - 1):
                         throw KissError.fromExp(cases[i], "(otherwise <body...>) branch must come last in a (case <...>) expression");
                     default:

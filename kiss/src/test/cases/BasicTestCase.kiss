@@ -363,6 +363,8 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
 (function _testCase []
     // otherwise branch must come last
     (assertThrowsAtCompileTime (case null (otherwise "thing") (v "OtherThing")))
+    // Even if it is in (never otherwise) form
+    (assertThrowsAtCompileTime (case null (never otherwise) (v "OtherThing")))
     // null must be matched
     (assertThrowsAtCompileTime (case null (v "thing")))
     (case (toOption [])
