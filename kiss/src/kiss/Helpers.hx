@@ -642,7 +642,13 @@ class Helpers {
         function let(bindings:Array<ReaderExp>, body:Array<ReaderExp>) {
             return callSymbol("let", [list(bindings)].concat(body));
         }
-        
+        function throwAssertOrNeverError(messageExp:ReaderExp) {
+            var failureError = KissError.fromExp(posRef, "").toString(AssertionFail);
+            var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
+            return callSymbol("throw", [
+                callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, str(failureError), int(colonsInPrefix)])
+            ]);
+        }
         return {
             call: call,
             callSymbol: callSymbol,
@@ -666,22 +672,30 @@ class Helpers {
             objectWith: objectWith,
             // Only use within assertion macros
             throwAssertionError: () -> {
-                var failureError = KissError.fromExp(posRef, "").toString(AssertionFail);
-                var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
+                var usage = "throwAssertionError can only be used in a builder of an assertion macro";
                 var exps = switch (posRef.def) {
                     case CallExp(_, exps):
                         exps;
                     default:
-                        throw KissError.fromExp(_symbol("throwAssertionError"), "throwAssertionError can only be used in a builder of an assertion macro");
+                        throw KissError.fromExp(_symbol("throwAssertionError"), usage);
                 }
                 var messageExp = if (exps.length > 1) {
                     exps[1];
                 } else {
                     str("");
                 };
-                callSymbol("throw", [
-                        callSymbol("kiss.Prelude.runtimeInsertAssertionMessage", [messageExp, str(failureError), int(colonsInPrefix)])
-                    ]);
+                throwAssertOrNeverError(messageExp);
+            },
+            neverCase: () -> {
+                switch (posRef.def) {
+                    case CallExp({pos: _, def: Symbol("never")}, neverExps):
+                        posRef.checkNumArgs(1, 1, '(never <pattern>)');
+                        call(neverExps[0], [
+                            throwAssertOrNeverError(str('case should never match pattern ${Reader.toString(neverExps[0].def)}'))
+                        ]);
+                    default:
+                        posRef;
+                }
             },
             // Compile-time only!
             throwKissError: (reason:String) -> {
@@ -703,6 +717,16 @@ class Helpers {
             haxeExpr: (e:haxe.macro.Expr) -> withMacroPosOf(e.expr, posRef),
             none: () -> None.withPosOf(posRef)
         };
+    }
+
+    public static function checkNoEarlyOtherwise(cases:kiss.List<ReaderExp>) {
+        for (i in 0...cases.length) {
+            switch (cases[i].def) {
+                case CallExp({pos: _, def: Symbol("otherwise")}, _) if (i != cases.length - 1):
+                    throw KissError.fromExp(cases[i], "(otherwise <body...>) branch must come last in a (case <...>) expression");
+                default:
+            }
+        }
     }
 
     public static function argList(exp:ReaderExp, forThis:String, allowEmpty = true):Array<ReaderExp> {

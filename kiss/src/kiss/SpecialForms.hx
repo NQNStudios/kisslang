@@ -333,27 +333,11 @@ class SpecialForms {
             // to cover all patterns.
             var args:kiss.List<ReaderExp> = args.copy();
 
-            var cases:kiss.List<ReaderExp> = args.slice(1);
-            for (i in 0...cases.length) {
-                switch (cases[i].def) {
-                    case CallExp({pos: _, def: Symbol("never")}, neverExps):
-                        cases[i].checkNumArgs(1, 1, '(never <pattern>)');
-                        var b = cases[i].expBuilder();    
-                        var failureError = KissError.fromExp(cases[i], '').toString(AssertionFail);
-                        var colonsInPrefix = if (Sys.systemName() == "Windows") 5 else 4;
-                        cases[i] = b.call(neverExps[0], [
-                            b.callSymbol('throw', [
-                                b.callSymbol('kiss.Prelude.runtimeInsertAssertionMessage', [b.str('${Reader.toString(neverExps[0].def)} should never match pattern ${Reader.toString(neverExps[0].def)}'), b.str(failureError), b.int(colonsInPrefix)])])]);
-                    default:
-                }
-            }
-            for (i in 0...cases.length) {
-                switch (cases[i].def) {
-                    case CallExp({pos: _, def: Symbol("otherwise")}, _) if (i != cases.length - 1):
-                        throw KissError.fromExp(cases[i], "(otherwise <body...>) branch must come last in a (case <...>) expression");
-                    default:
-                }
-            }
+            var cases:kiss.List<ReaderExp> = [for (c in args.slice(1)) {
+                c.expBuilder().neverCase();
+            }];
+            
+            Helpers.checkNoEarlyOtherwise(cases);
 
             var isTupleCase = switch (args[0].def) {
                 case ListExp(_):
