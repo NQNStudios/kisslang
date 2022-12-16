@@ -147,7 +147,6 @@ class FieldForms {
         k.doc(formName, 2, null, '($formName <optional &dynamic> <optional :Type> <name> [<argNames...>] <body...>)');
         k.fieldForms[formName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             var name = Helpers.varName(formName, args[0]);
-            checkPrintFieldsCalledWarning(name, wholeExp, k);
             var access = fieldAccess(formName, name, args[0]);
             var inStaticFunction = access.indexOf(AStatic) != -1;
             var returnsValue = !isVoid(args[0]);
