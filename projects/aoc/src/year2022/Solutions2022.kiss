@@ -1,6 +1,7 @@
 (load "../UtilMacros.kiss")
 (loadFrom "kiss-tools" "src/kiss_tools/RefactorUtil.kiss")
 (import Util)
+(import haxe.Json)
 (function input [num]
     "src/year2022/inputs/day${num}.txt")
 (day 1 (load "Day1.kiss"))
@@ -15,7 +16,7 @@
 (dayTodo 10)//(day 10 (load "Day10.kiss"))
 (day 11 (load "Day11.kiss"))
 (dayTodo 12)//(day 12 (load "Day12.kiss"))
-(dayTodo 13)//(day 13 (load "Day13.kiss"))
+(day 13 (load "Day13.kiss"))
 (dayTodo 14)//(day 14 (load "Day14.kiss"))
 (dayTodo 15)//(day 15 (load "Day15.kiss"))
 (dayTodo 16)//(day 16 (load "Day16.kiss"))

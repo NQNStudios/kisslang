@@ -1,0 +1,42 @@
+(import year2022.ListOrdering)
+
+(function :ListOrdering isInOrder [:Dynamic left :Dynamic right]
+    (typeCase [left right]
+        ([:Int l :Int r]
+            (cond
+                ((< l r) Good)
+                ((> l r) Bad)
+                (true Inconclusive)))
+        ([:Array<Dynamic> l :Array<Dynamic> r]
+            (let [innerL (l.shift) innerR (r.shift)]
+                (case [(isNull innerL) (isNull innerR)]
+                    ([true false]
+                        Good)
+                    ([false true]
+                        Bad)
+                    ([true true]
+                        Inconclusive)
+                    ([false false]
+                        (case
+                            (isInOrder innerL innerR)
+                            (Inconclusive
+                                (isInOrder l r))
+                            (other other)
+                            (never null))))))
+        ([:Int l :Array<Dynamic> r]
+            (isInOrder [l] r))
+        ([:Array<Dynamic> l :Int r]
+            (isInOrder l [r]))
+        (never otherwise)))
+
+(function indicesInOrder [file]
+    (let [pairs (Util.readParagraphLines file)]
+        (for [idx :Array<String> pair] (enumerate pairs)
+            (let [[left right] (for line pair (Json.parse line))]
+                (case (isInOrder left right)
+                    (Good (+ 1 idx))
+                    (Inconclusive (print (first pair)) (print (second pair)) (print "INCONCLUSIVE"))
+                    (otherwise (continue)))))))
+
+(assertEquals 13 (apply + (indicesInOrder "src/year2022/inputs/day13example.txt")))
+(assertEquals 6420 (apply + (indicesInOrder (input 13))))
