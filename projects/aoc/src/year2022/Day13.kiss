@@ -35,8 +35,28 @@
             (let [[left right] (for line pair (Json.parse line))]
                 (case (isInOrder left right)
                     (Good (+ 1 idx))
-                    (Inconclusive (print (first pair)) (print (second pair)) (print "INCONCLUSIVE"))
-                    (otherwise (continue)))))))
+                    (Bad (continue))
+                    (never otherwise))))))
 
 (assertEquals 13 (apply + (indicesInOrder "src/year2022/inputs/day13example.txt")))
 (assertEquals 6420 (apply + (indicesInOrder (input 13))))
+
+(function sortedPackets [file]
+    (let [packets (Util.readLines file)]
+        (packets.push "[[2]]")
+        (packets.push "[[6]]")
+        (packets.sort ->[left right] 
+                            (case (isInOrder (Json.parse left) (Json.parse right))
+                                (Good -1)
+                                (Bad 1)
+                                (never otherwise)))
+        packets))
+
+(let [sp (sortedPackets "src/year2022/inputs/day13example.txt")]
+    (assertEquals 9 (sp.indexOf "[[2]]"))
+    (assertEquals 13 (sp.indexOf "[[6]]")))
+
+(let [sp (sortedPackets (input 13))]
+    (let [a (sp.indexOf "[[2]]")
+            b (sp.indexOf "[[6]]")]
+        (assertEquals 22000 #{(a+1) * (b+1);}}#)))
