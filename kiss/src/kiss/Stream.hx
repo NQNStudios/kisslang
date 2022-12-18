@@ -65,7 +65,7 @@ class Stream {
     }
 
     private function new(file:String, content:String) {
-        this.file = file;
+        this.file = file.replace('\\', '/');
 
         // Banish ye Windows line-endings
         if (content.indexOf('\r') >= 0) {
