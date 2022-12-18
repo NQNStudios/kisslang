@@ -66,7 +66,13 @@
 
 (defSelectCommand SelectByTags [tagsBoolExp (Text null)]
     (filter archive.entries ->e (tagsMatch e tagsBoolExp)))
-        
+
+// variations of SelectByTags that take input from TagsFromAll, not a tagsBoolExp:
+// TODO if we're being really picky these would want a variation of TagsFromAll where DEFINE NEW TAG is not an option :)
+// TODO SelectByTagsAnd
+
+// TODO SelectByTagsOr
+
 (defSelectCommand SelectByComponents [componentsBoolExp (Text null)]
     (filter archive.entries ->e (componentsMatch e componentsBoolExp)))
 

@@ -50,6 +50,8 @@
                                 maxLength)
                         (trySubmit (readString stream))))
                 (enterTextAgain)))
+        ((or TagsFromAll TagsFromSelected)
+            (chooseFromTags arg.type continuation))
         ((Number min max inStepsOf)
             (unless min (set min Math.NEGATIVE_INFINITY))
             (unless max (set max Math.POSITIVE_INFINITY))
@@ -109,6 +111,43 @@
         (Position
             (ui.choosePosition "${arg.name}:" continuation))
         (never null)))
+
+(method :Array<String> allTags [&opt :Array<Entry> entries]
+    (let [:Array<Entry> entries (or entries (collect (archive.entries.iterator)))
+            :Tags tags (new Map)]
+        (doFor e entries
+            (when (hasComponent e Tags)
+                (doFor =>tag _ (readComponent e Tags)
+                    (dictSet tags tag 1))))
+        (collect (tags.keys))))
+
+(method :Array<String> allSelectedTags []
+    (allTags _selectedEntries))
+
+(method chooseFromTags [:CommandArgType type :Dynamic->Void cc &opt tagsToChooseFrom &opt tagsChosen]
+    (let [tagsToChooseFrom 
+                (or tagsToChooseFrom 
+                    (concat ["CONFIRM"]
+                        (case type 
+                            (TagsFromAll (concat ["DEFINE NEW TAG"] (allTags)))
+                            (TagsFromSelected (allSelectedTags))
+                            (never otherwise))))
+            tagsChosen (or tagsChosen [])]
+        (ui.chooseBetweenStrings
+            "Tags:" 
+            tagsToChooseFrom 
+            ->:Void choice (case choice
+                ("CONFIRM" (cc tagsChosen))
+                ("DEFINE NEW TAG"
+                    (ui.enterText "New tag (must be legal as a haxe var name):"
+                        // TODO check lowercase valid symbol etc.
+                        ->:Void newTag {(tagsChosen.push newTag) (chooseFromTags type cc tagsToChooseFrom tagsChosen)}
+                        Math.POSITIVE_INFINITY))
+                (other
+                    (tagsToChooseFrom.remove other)
+                    (tagsChosen.push other)
+                    (chooseFromTags type cc tagsToChooseFrom tagsChosen))
+                (never null)))))
 
 // TODO try catch and ui.reportError
 // TODO maaaybe support escape sequences?
@@ -178,6 +217,8 @@
                         ((exprOr (SelectedEntries _ _) (Entries _ _)) `:Array<nat.Entry> ,name)
                         ((Text _) `:String ,name)
                         ((VarText _) `:Array<String> ,name)
+                        (TagsFromAll `:Array<String> ,name)
+                        (TagsFromSelected `:Array<String> ,name)
                         ((Number _ _ _) `:Float ,name)
                         (Position `:Position ,name)))
             commandArgs
@@ -283,14 +324,12 @@
         (flatten (for name names
             (CreateEntry name))))
 
-    // TODO use VarTags
-    (defCommand CreateTaggedEntry [tags (VarText null) name (Text null)]
+    (defCommand CreateTaggedEntry [tags TagsFromAll name (Text null)]
         [(archive.createEntry ->e
             {(addComponent archive e Name name)
                 (addTags archive e tags)})])
 
-    // TODO use VarTags
-    (defCommand CreateTaggedEntries [tags (VarText null) names (VarText null)]
+    (defCommand CreateTaggedEntries [tags TagsFromAll names (VarText null)]
         // createEntry returns a list, so these lists must be flattened
         (flatten (for name names
             (CreateTaggedEntry tags name))))
@@ -300,15 +339,13 @@
             {(addTags archive e tags)
             (addComponent archive e Circle (objectWith radius))})])
 
-    // TODO use Tag and VarTag arg types for AddTags and RemoveTags
     (defCommand AddTags [entries (SelectedEntries 1 null)
-                            tagsToAdd (VarText null)]
+                            tagsToAdd TagsFromAll]
         (doFor e entries
             (addTags archive e tagsToAdd))
         entries) // TODO this includes entries that already had the tag in the changeset
 
-    (defCommand RemoveTags [entries (SelectedEntries 1 null)
-                                tagsToRemove (VarText null)]
+    (defCommand RemoveTags [entries (SelectedEntries 1 null) tagsToRemove TagsFromSelected]
         (doFor e entries
             (removeTags archive e tagsToRemove))
         entries) // TODO this includes entries that didn't have the tag in the changeset
@@ -393,8 +430,7 @@
                 (true (addComponent archive e Scale scale))))
         entries)
     
-    // TODO use VarTags
-    (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null) defaultTags (VarText null)]
+    (defCommand CreatePlayground [name (Text null) catsMatchExp (Text null) defaultTags TagsFromAll]
         (archive.changePlaygrounds ->:Void [:DynamicAccess<Dynamic> p]
             (dictSet p name (object catsMatch catsMatchExp)))
         (let [[e] (CreateTaggedEntry ["playground"] name)]

@@ -8,6 +8,7 @@ import haxe.Constraints;
 import haxe.DynamicAccess;
 import uuid.Uuid;
 import nat.systems.*;
+import nat.components.*;
 
 enum CommandArgType {
     // When called interactively, automatically pass the currently selected Entry(s) to the function
@@ -24,9 +25,8 @@ enum CommandArgType {
     OneEntry; // This constructor must be disambiguated from the typedef "Entry"
     Entries(min:Null<Int>, max:Null<Int>);
     
-    // TODO Tag -- make sure a tag input is a valid haxe variable name for tagsMatch compatibility
-    // TODO VarTag
-    // What I really want is tags autocomplete, which is UNREALISTIC
+    TagsFromAll;
+    TagsFromSelected;
 
     // TODO File
     // TODO Files
