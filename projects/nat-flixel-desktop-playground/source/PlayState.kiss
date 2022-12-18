@@ -53,6 +53,7 @@
 
 (prop &mut :Bool confirmQuit false)
 (defAlias &ident sh (cast shortcutHandler FlxKeyShortcutHandler<Dynamic>))
+
 (method &override :Void update [:Float elapsed]
     (super.update elapsed)
     
@@ -68,6 +69,7 @@
                 (set textInput.caretIndex textInput.text.length))))
 
     (when FlxG.keys.justPressed.ESCAPE
+        (clearUI)
         (when sh.currentMap
             (sh.cancel)))
     (when FlxG.keys.justPressed.DELETE
@@ -117,6 +119,7 @@
                     (+= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1))))))
 
 (method :Void typeCommand []
+    (sh.cancel)
     (enterText
         "command to run:"
         ->commandName (controller.tryRunCommand commandName)
@@ -140,7 +143,7 @@
                     ([text FlxInputText.ENTER_ACTION]
                         (clearUI)
                         (set textInput.callback null)
-                        (set textInput null)
+                        (textInput.kill)
                         (resolve text))
                     //([_ FlxInputText.])
                     (otherwise {}))))
@@ -206,6 +209,9 @@
     (uiWindow.show))
 
 (method :Void clearUI []
+    (when textInput
+        (textInput.kill)
+        (set textInput.callback null))
     (uiWindow.clearControls)
     (uiWindow.hide))
 
