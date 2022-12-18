@@ -165,3 +165,15 @@
                     ("" (break))
                     (otherwise (throw "bad element for a cloze sequence: $line")))))
         `(cloze ,@elements)))
+
+(defMacroFunction btDefault [exp]
+    (case (Type.enumConstructor exp.def)
+        ("StrExp"
+            `(basicText ,exp))
+        (otherwise exp)))
+
+(defReaderMacro "=>" [stream]
+    `(card ,(btDefault (read stream)) ,(btDefault (read stream))))
+
+(defReaderMacro "<=>" [stream]
+    `(reversed ,(btDefault (read stream)) ,(btDefault (read stream))))
