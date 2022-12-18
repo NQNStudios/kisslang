@@ -153,7 +153,10 @@
                         (when lastChangeSet
                             (doFor e lastChangeSet
                                 (assert (and e (isEntry e)) "Lib function forgot to return the Entry that was modified"))
+                            (doFor e lastChangeSet
+                                (archive.refreshEntry e))
                             (ui.handleChanges archive lastChangeSet)
+                            (archive.processSystems)
                             (when doAfter (doAfter)))))]
         // To facilitate asynchronous arg input via UI, we need to construct an insanely complicated nested callback to give the UI
         (doFor arg (reverse command.args)
@@ -205,11 +208,11 @@
     (set ui.controller this)
 
     // Add systems!
-    (archive.addSystem nameSystem)
+    (archive.addAndProcessSystem nameSystem ui)
     (archive.addSystem (new RemarkableAPISystem))
     (archive.addSystem (new WikipediaImageSystem))
     (archive.addSystem (new ImageAttachmentSystem))
-    (archive.addSystem (new KeyShortcutSystem this))
+    (archive.addAndProcessSystem (new KeyShortcutSystem this) ui)
     (archive.addSystem (new DLSystem))
     (archive.addSystem (new AutoStepperSystem))
     (archive.addSystem (new ColorSystem))
@@ -234,15 +237,9 @@
 
     (whenLet [ps (ui.playgroundSystem)]
         (set playgroundSystem ps)
-        (archive.addSystem ps)
         (set ps.setupProcess true)
-        (ps.process archive ui)
+        (archive.addAndProcessSystem ps)
         (ps.switchPlaygroundKey (dictGet archive.playgrounds "default")))
-
-    // Just for testing:
-    // (archive.addSystem (new AttachmentSystem ["jpg" "jpeg" "png"] ->[archive e files] ~files))
-
-    (archive.processSystems ui)
     
     (defCommand Help []
         (ui.displayMessage

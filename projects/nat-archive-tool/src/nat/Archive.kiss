@@ -35,14 +35,26 @@
     (File.saveContent (joinPath archiveDir "playgrounds.json") (haxe.Json.stringify playgrounds "\t")))
 
 (method addSystem [:System system]
-    // Assign entries to the Systems that care about them
-    (doFor =>id entry entries
-        (system.checkEntryInOrOut this entry))
     (systems.push system)
     system)
 
+(method addAndProcessSystem [:System system &opt :ArchiveUI ui]
+    (addSystem system)
+    (refreshSystem system)
+    (system.process this ui)
+    system)
+
+(method refreshSystem [:System system]
+    (doFor =>id e entries
+        (system.checkEntryInOrOut this e)))
+
+(method forceProcessAll [&opt :ArchiveUI ui]
+    (doFor system systems (refreshSystem system))
+    (processSystems))
+
 (method processSystems [&opt :ArchiveUI ui]
-    (doFor system systems (system.process this ui)))
+    (doFor system systems 
+        (system.process this ui)))
 
 (prop &mut :Entry->Dynamic defaultInitializer null)
 

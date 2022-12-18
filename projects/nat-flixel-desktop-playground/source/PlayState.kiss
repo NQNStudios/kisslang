@@ -184,12 +184,6 @@
 
 (var SCROLL_BOUND_MARGIN 2000)
 (method handleChanges [:Archive archive :ChangeSet changeSet]
-    (when changeSet
-        // process the WikipediaImageSystem and run spriteSystem process on newly created entries that get one
-        (archive.processSystems this)
-        // Do a second loop through the systems, so Playground systems that trigger Core systems have their effects processed
-        (archive.processSystems this))
-
     (doFor e changeSet
         // Entries whose data changed to remove them from the sprite pool will already have been removed
         // by refreshEntry()
