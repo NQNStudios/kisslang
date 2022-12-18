@@ -3,6 +3,7 @@ package nat;
 import kiss.Prelude;
 import kiss.List;
 import kiss.Stream;
+import nat.components.Position;
 import haxe.Constraints;
 import haxe.DynamicAccess;
 import uuid.Uuid;
@@ -27,6 +28,8 @@ enum CommandArgType {
 
     // TODO playground name -- choose from archive.playgrounds
 
+    Position;
+    
     // Then again the more of these I add the more convoluted CollectAndValidateArgs gets,
     // and the more stream reader methods I need to write
 }

@@ -80,7 +80,12 @@
     (when (and textInput !textInput.alive)
         (set textInput null))
 
-    
+    (when resolvePosition
+        (when FlxG.mouse.justPressed
+            (whenLet [rp resolvePosition
+                    (Some pos) (cursorPosition)]
+                (set resolvePosition null)
+                (rp pos))))
     
     // Control the UI camera with WASD, and the playground camera with arrow keys:
     (var KEYBOARD_SCROLL_SPEED 800)
@@ -213,6 +218,11 @@
     (doFor e (selectedEntries.concat lastSelectedEntries)
         (whenLet [sprite (dictGet spriteSystem.sprites e.id)]
             (sprite.updateColor))))
+
+(prop &mut :Position->Void resolvePosition)
+(method :Void choosePosition [prompt resolve]
+    (displayMessage prompt)
+    (set resolvePosition resolve))
 
 (method :Option<Position> cursorPosition []
     (let [pos (FlxG.mouse.getWorldPosition FlxG.camera)]

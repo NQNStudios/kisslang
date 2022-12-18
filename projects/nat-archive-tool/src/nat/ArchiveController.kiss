@@ -106,7 +106,9 @@
                     (continuation entries)))
                 min
                 max))
-        (null)))
+        (Position
+            (ui.choosePosition "${arg.name}:" continuation))
+        (never null)))
 
 // TODO try catch and ui.reportError
 // TODO maaaybe support escape sequences?
@@ -176,7 +178,8 @@
                         ((exprOr (SelectedEntries _ _) (Entries _ _)) `:Array<nat.Entry> ,name)
                         ((Text _) `:String ,name)
                         ((VarText _) `:Array<String> ,name)
-                        ((Number _ _ _) `:Float ,name)))
+                        ((Number _ _ _) `:Float ,name)
+                        (Position `:Position ,name)))
             commandArgs
                 (for [name type] argPairs
                     `(object name ,(symbolName name) type ,type))]

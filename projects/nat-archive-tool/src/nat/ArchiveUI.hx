@@ -65,7 +65,12 @@ interface ArchiveUI {
      * Update UI to show that the set of selected entries has changed
      */
     function onSelectionChanged(selectedEntries:Array<Entry>, lastSelectedEntries:Array<Entry>):Void;
-
+    
+    /**
+     * Prompt the user to choose a position
+     */
+    function choosePosition(prompt:String, resolve:Position->Void):Void;
+    
     /**
      * A way to tell NAT where the cursor is
      */
