@@ -32,8 +32,8 @@
             (let [c (readComponent e Circle)
                     diam (Std.int (* 2 c.radius))
                     squareSize (+ diam CIRCLE_THICKNESS)
-                    color (if (hasComponent e Color)
-                                    (let [c (readComponent e Color)]
+                    color (if (hasComponent e ColorF)
+                                    (let [c (readComponent e ColorF)]
                                         (FlxColor.fromRGBFloat c.r c.g c.b c.a))
                                 CIRCLE_COLOR)]
                 (makeGraphic squareSize squareSize FlxColor.TRANSPARENT true)

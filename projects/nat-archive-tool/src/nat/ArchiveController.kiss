@@ -215,7 +215,6 @@
     (archive.addAndProcessSystem (new KeyShortcutSystem this) ui)
     (archive.addSystem (new DLSystem))
     (archive.addSystem (new AutoStepperSystem))
-    (archive.addSystem (new ColorSystem))
     
     (localFunction colorEqual [:nat.components.ColorI c1 :nat.components.ColorI c2]
         (and (= c1.r c2.r) (= c1.g c2.g) (= c1.b c2.b) (= c1.a c2.a)))
@@ -231,8 +230,11 @@
                     (when (or !(hasComponent e ColorI) (colorsContain colors (readComponent e ColorI)))
                         (AddColorIRGBA [e] color.r color.g color.b color.a)))))))
     (addColorTagSystems [
+        // Active: green
         =>"(or active enabled)" (object r 0 g 255 b 0 a 255)
+        // Inactive: gray
         =>"(or inactive disabled)" (object r 128 g 128 b 128 a 255)
+        // todo: orange
         =>"todo" (object r 255 g 128 b 0 a 255)])
 
     (whenLet [ps (ui.playgroundSystem)]
