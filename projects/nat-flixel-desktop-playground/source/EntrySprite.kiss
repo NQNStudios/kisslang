@@ -27,6 +27,12 @@
                     (otherwise
                         (.onComplete (BitmapData.loadFromFile pinnedImage)
                             ->bitmapData (loadGraphic bitmapData))))))
+        ((hasComponent e Rectangle)
+            (let [rect (readComponent e Rectangle)
+                    w (Std.int rect.width)
+                    h (Std.int rect.height)]
+                (makeGraphic w h FlxColor.TRANSPARENT)
+                (FlxSpriteUtil.drawRect this 0 0 w h FlxColor.TRANSPARENT (object color FlxColor.WHITE))))
         ((hasComponent e Circle)
             (set isCircle true)
             (let [c (readComponent e Circle)

@@ -11,7 +11,7 @@
     (super
         playState
         ->[archive e]
-            ?(or (hasComponent e Name) (hasComponent e Circle))
+            ?(or (hasComponent e Name) (hasComponent e Circle) (hasComponent e Rectangle))
         ->[archive e pos &opt ui]
             (unless (sprites.exists e.id)
                 (let [sprite (new EntrySprite this _playgroundKey pos archive e controller)]

@@ -34,6 +34,9 @@
     (change playgrounds)
     (File.saveContent (joinPath archiveDir "playgrounds.json") (haxe.Json.stringify playgrounds "\t")))
 
+(method :String currentPlayground []
+    (dictGet playgrounds "default"))
+
 (method addSystem [:System system]
     (systems.push system)
     system)

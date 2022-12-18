@@ -313,6 +313,22 @@
             (removeTags archive e tagsToRemove))
         entries) // TODO this includes entries that didn't have the tag in the changeset
         
+    (defCommand AddRectangle [entries (SelectedEntries 1 null)
+                                width (Number 0 null null)
+                                height (Number 0 null null)]
+        (doFor e entries
+            (addComponent archive e Rectangle (objectWith width height)))
+        entries)
+
+    (defCommand CreateRectangleEntry [p1 Position p2 Position]
+        [(archive.createEntry ->e
+            (let [x (min p1.x p2.x)
+                    y (min p1.y p2.y)
+                    w (- (max p1.x p2.x) x)
+                    h (- (max p1.y p2.y) y)]
+                (addComponent archive e Positions [=>(archive.currentPlayground) (objectWith [z 0.0] x y)])
+                (addComponent archive e Rectangle (object width w height h))))])
+        
     (defCommand AddDLURL [e SelectedEntry url (Text null)]
         [(addComponent archive e DLURL url)])
 
