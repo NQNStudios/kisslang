@@ -154,3 +154,14 @@
                 nextToStudy (nth studyList nextIndex)]
             (studyList.splice nextIndex 1)
             (nextToStudy engine (studyAll.bind engine)))))
+
+(defReaderMacro ["*" "?"] [stream &builder b]
+    (let [elements []]
+        (loop
+            (let [line (expect stream "An element for a cloze sequence" takeLine)]
+                (case (line.charAt 0)
+                    ("*" (elements.push (b.str (line.substr 1))))
+                    ("?" (elements.push (b.str line)))
+                    ("" (break))
+                    (otherwise (throw "bad element for a cloze sequence: $line")))))
+        `(cloze ,@elements)))
