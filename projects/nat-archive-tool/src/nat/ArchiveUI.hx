@@ -75,4 +75,9 @@ interface ArchiveUI {
      * A way to tell NAT where the cursor is
      */
     function cursorPosition():Option<Position>;
+
+    /**
+     * Prompt the user between some string options
+     */
+    function chooseBetweenStrings(prompt:String, choices:Array<String>, resolve:String->Void):Void;
 }

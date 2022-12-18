@@ -23,10 +23,13 @@ enum CommandArgType {
     // Make the user select Entry(s) when called interactively
     OneEntry; // This constructor must be disambiguated from the typedef "Entry"
     Entries(min:Null<Int>, max:Null<Int>);
+    
     // TODO Tag -- make sure a tag input is a valid haxe variable name for tagsMatch compatibility
     // TODO VarTag
+    // What I really want is tags autocomplete, which is UNREALISTIC
 
-    // TODO playground name -- choose from archive.playgrounds
+    // TODO File
+    // TODO Files
 
     Position;
     

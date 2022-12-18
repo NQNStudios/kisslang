@@ -230,6 +230,13 @@
     (displayMessage prompt)
     (set resolvePosition resolve))
 
+(method :Void chooseBetweenStrings [prompt :Array<String> choices resolve]
+    (clearUI)
+    (displayMessage prompt)
+    (doFor choice choices
+        (uiWindow.makeText choice null ->_ {(clearUI)(resolve choice)}))
+    (uiWindow.show))
+
 (method :Option<Position> cursorPosition []
     (let [pos (FlxG.mouse.getWorldPosition FlxG.camera)]
         (Some (object x pos.x y pos.y z 0.0))))

@@ -407,6 +407,13 @@
         (SelectEntries [])
         (when playgroundSystem (playgroundSystem.switchPlaygroundKey name))
         [])
+
+    (defCommand ChoosePlayground []
+        (ui.chooseBetweenStrings
+            "Choose a playground:"
+            (for =>key _ archive.playgrounds (if (= key "default") (continue) key))
+            ->pg (SwitchPlayground pg))
+        [])
         
     (defCommand AddConnections [entries (SelectedEntries 1 null) entriesToConnect (Entries 1 null)]
         (for e entries
