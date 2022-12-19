@@ -1,0 +1,30 @@
+(import year2022.OpCode)
+(var cyclesToMeasure [20 60 100 140 180 220])
+(function :Array<Int> signalStrengths [:String programFile :Bool cycleLock]
+    (let [&mut x 1
+            program (Util.readLines programFile)
+            ctm (cyclesToMeasure.copy)
+            &mut nextCycleToMeasure (ctm.shift)
+            :Array<OpCode> opCodes []]
+        (for cycle (range (+ 1 (last cyclesToMeasure)))
+            (let [properCycleNum (+ 1 cycle)
+                    startX x]
+                (when (or !cycleLock !opCodes)
+                    (case (.split (if cycleLock (program.shift) (nth program ~cycle)) " ")
+                        (["addx" v]
+                            (opCodes.push (object delay 2 op ->:Void (+= x (Std.parseInt v)))))
+                        (otherwise)))
+                (doFor [idx opCode] (zip (reverse (collect (range opCodes.length))) (reverse opCodes))
+                    (-= opCode.delay 1)
+                    (when (= 0 opCode.delay)
+                        (opCode.op)
+                        (opCodes.remove opCode)))
+                (if (= properCycleNum nextCycleToMeasure)
+                        {
+                            (set nextCycleToMeasure (ctm.shift))
+                            (* properCycleNum startX)
+                        }
+                    (continue))))))
+
+(assertEquals 13140 (apply + (signalStrengths "src/year2022/inputs/day10example.txt" true)))
+(assertEquals 15680 (apply + (signalStrengths (input 10) true)))
