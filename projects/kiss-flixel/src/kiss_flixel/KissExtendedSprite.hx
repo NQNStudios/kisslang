@@ -5,6 +5,8 @@ import flixel.FlxCamera;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
+import flixel.math.FlxAngle;
+import flixel.math.FlxMath;
 import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.addons.plugin.FlxMouseControl;
@@ -81,6 +83,21 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
         return false;
     }
 
+    // For some reason this change to HaxeFlixel broke this code:
+    // https://github.com/HaxeFlixel/flixel/commit/1c11ea1cbf56b5f9c44bc04c0b30b38e0fa23045?diff=split#diff-ca3dcf1bf29575d0e8931904cc90bacd182ffd1af266761804d18387dc5014dcL361
+    // This function is adapted from the old code pre-change because
+    // I don't have time to figure out if upstream flixel is broken now
+    // and contribute a fix, or if the behavior is just different now.
+    function oldRotate(point:FlxPoint, pivot:FlxPoint, degrees:Float) {
+        var radians:Float = degrees * FlxAngle.TO_RAD;
+        var sin:Float = FlxMath.fastSin(radians);
+        var cos:Float = FlxMath.fastCos(radians);
+        var dx:Float = point.x - pivot.x;
+        var dy:Float = point.y - pivot.y;
+        point.x = cos * dx - sin * dy + pivot.x;
+        point.y = sin * dx + cos * dy + pivot.y;
+    }
+
     // Sleazy method just for Habit Puzzles
     public function rotate(deg:Float) {
         if (deg < 0) {
@@ -93,7 +110,7 @@ class KissExtendedSprite extends flixel.addons.display.FlxExtendedSprite {
                 var thisCenter = new FlxPoint(x + origin.x, y + origin.y);
                 var sCenter = new FlxPoint(s.x + s.origin.x, s.y + s.origin.y);
                 var offset = sCenter.subtractPoint(thisCenter);
-                offset.rotate(new FlxPoint(0, 0), deg);
+                oldRotate(offset, new FlxPoint(0, 0), deg);
                 s.x = thisCenter.x + offset.x - s.origin.x;
                 s.y = thisCenter.y + offset.y - s.origin.y;
             }
