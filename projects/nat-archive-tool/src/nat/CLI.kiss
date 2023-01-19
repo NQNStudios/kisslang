@@ -1,16 +1,17 @@
 // External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "Lib.kiss")
 
-(let [[archiveDir] (Sys.args)
-        controller
-            (new ArchiveController
-                (new Archive archiveDir)
-                (new CLI))]
-    (loop
-        (Sys.print ">> ")
-        (let [command
-                    (.trim (.toString (.readLine (Sys.stdin))))]
-                (controller.tryRunCommand command))))
+(let [[archiveDir] (Sys.args)]
+    (unless (= "_TEST_" archiveDir)
+        (let [controller
+                    (new ArchiveController
+                        (new Archive archiveDir)
+                        (new CLI))]
+            (loop
+                (Sys.print ">> ")
+                (let [command
+                            (.trim (.toString (.readLine (Sys.stdin))))]
+                        (controller.tryRunCommand command))))))
 
 (prop &mut :ArchiveController controller)
 (prop :kiss_tools.KeyShortcutHandler<Entry> shortcutHandler null)
@@ -26,7 +27,7 @@
                 {(resolve entered)
                     (break)}))))
 
-(method :Void enterNumber [prompt :Float->Void resolve min max &opt inStepsOf]
+(method :Void enterNumber [prompt :Float->Void resolve :Float min :Float max &opt :Float inStepsOf]
     (Sys.print "$prompt ")
     (loop
         (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
@@ -95,3 +96,24 @@
 (method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> _]
     (print "Selected:")
     (controller.PrintSelectedEntries selectedEntries))
+
+(method :Void chooseBetweenStrings [prompt :Array<String> choices :String->Void resolve]
+    (print prompt)
+    (doFor [idx choice] (enumerate choices)
+        (print "$(+ idx 1). $choice"))
+    (enterNumber "Choice" ->num (resolve (nth choices (- (Std.int num) 1))) 1 choices.length 1))
+
+(defAlias &ident neg Math.NEGATIVE_INFINITY)
+(defAlias &ident pos Math.POSITIVE_INFINITY)
+(method :Void choosePosition [prompt :Position->Void resolve]
+    (enterNumber "x" ->x (enterNumber "y" ->y (enterNumber "z" ->z (resolve (objectWith x y z)) neg pos) neg pos) neg pos))
+
+(method :Option<Position> cursorPosition [] None)
+
+(method :Void showPrefixMap [:Map<String,String> map]
+    (doFor =>key thing map
+        (print "$key - $thing")))
+    
+(method :Void hidePrefixMap [])
+
+(method :PlaygroundSystem playgroundSystem [] null)

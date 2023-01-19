@@ -32,6 +32,10 @@ class DummyUI implements ArchiveUI {
         resolve([]);
     }
 
+    public function chooseBetweenStrings(prompt:String, choices:Array<String>, resolve:String->Void) {
+        resolve(choices[0]);
+    }
+
     public function handleChanges(archive:Archive, changeSet:ChangeSet) {}
 
     public function displayMessage(message:String) {}
@@ -45,6 +49,9 @@ class DummyUI implements ArchiveUI {
     public function cursorPosition():Option<Position> {
         return None;
     };
+    public function choosePosition(prompt:String, resolve:Position->Void) {
+        resolve({x: 0, y: 0, z: 0});
+    }
     public function playgroundSystem():Null<PlaygroundSystem> {
         return null;
     }

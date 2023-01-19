@@ -5,4 +5,5 @@
 haxe test.hxml py.hxml &&
 haxe test.hxml js.hxml &&
 haxe test.hxml cpp.hxml &&
-haxe test.hxml --interp
+haxe test.hxml --interp &&
+haxelib run nat-archive-tool _TEST_
