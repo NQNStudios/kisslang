@@ -149,14 +149,13 @@
                     (otherwise {}))))
     (uiWindow.addControl textInput))
     
-(method :Void enterNumber [prompt resolve min max &opt inStepsOf]
+(method :Void enterNumber [prompt resolve min max &opt inStepsOf allowNaN]
     (enterText prompt 
         ->:Void [numberStr]
-            (let [number
-                        (try (Std.parseFloat numberStr)
-                            (catch [e]
-                                (reportError "Not a number: $numberStr")
-                                (return)))]
+            (let [number (Std.parseFloat numberStr)]
+                (when (and !allowNaN (Math.isNaN number))
+                    (reportError "Not a number: $numberStr")
+                    (return))
                 (resolve number))
         Math.POSITIVE_INFINITY))
 

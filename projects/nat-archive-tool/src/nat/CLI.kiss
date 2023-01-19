@@ -27,34 +27,35 @@
                 {(resolve entered)
                     (break)}))))
 
-(method :Void enterNumber [prompt :Float->Void resolve :Float min :Float max &opt :Float inStepsOf]
+(method :Void enterNumber [prompt :Float->Void resolve :Float min :Float max &opt :Float inStepsOf :Bool allowNaN]
     (Sys.print "$prompt ")
     (loop
         (let [entered (Std.parseFloat (.toString (.readLine (Sys.stdin))))]
             (if
-                (or
-                        !(<= min entered max)
-                        (and inStepsOf !(= 0 (% (- entered min) inStepsOf))))
-                    (Sys.print "Try again? ")
-                {(resolve entered)
-                    (break)}))))
+                (and (or !allowNaN !(Math.isNaN entered))
+                    (or
+                            !(<= min entered max)
+                            (and inStepsOf !(= 0 (% (- entered min) inStepsOf)))))
+                        (Sys.print "Try again? ")
+                    {(resolve entered)
+                        (break)}))))
 
-(method :Void chooseEntry [prompt :Archive archive :Entry->Void resolve]
-    (_chooseEntry prompt archive resolve ->(chooseEntry "empty name doesn't match any entries. Try again?" archive resolve)))
+    (method :Void chooseEntry [prompt :Archive archive :Entry->Void resolve]
+        (_chooseEntry prompt archive resolve ->(chooseEntry "empty name doesn't match any entries. Try again?" archive resolve)))
 
-(method :Void _chooseEntry [prompt :Archive archive :Entry->Void resolve :Void->Void onEmptyString]
-    // TODO allow narrowing down with a tag string
-    (enterText "entry name for $prompt"
-        ->:Void name {
-            (if !name
-                    (onEmptyString)
-                (let [matchingEntries (controller.nameSystem.getEntries name)]
-                    (case (the Array<Entry> matchingEntries)
-                        ([e] (resolve e))
-                        ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))
-                        // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
-                        (multipleEntries (throw "ambiguous between multiple entries"))
-                        (otherwise))))}
+    (method :Void _chooseEntry [prompt :Archive archive :Entry->Void resolve :Void->Void onEmptyString]
+        // TODO allow narrowing down with a tag string
+        (enterText "entry name for $prompt"
+            ->:Void name {
+                (if !name
+                        (onEmptyString)
+                    (let [matchingEntries (controller.nameSystem.getEntries name)]
+                        (case (the Array<Entry> matchingEntries)
+                            ([e] (resolve e))
+                            ([] (chooseEntry "name $name doesn't match any entries. Try again?" archive resolve))
+                            // TODO disambiguate entries with the same names by listing stringified versions of them and using enterNumber
+                            (multipleEntries (throw "ambiguous between multiple entries"))
+                            (otherwise))))}
         Math.POSITIVE_INFINITY))
 
 (method :Void chooseEntries [prompt archive :Array<nat.Entry>->Void resolve min max]

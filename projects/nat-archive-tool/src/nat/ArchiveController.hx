@@ -21,6 +21,8 @@ enum CommandArgType {
     VarText(maxLength:Null<Float>);
     // Numerical input, can be forced to align with a fixed step from the minimum
     Number(min:Null<Float>, max:Null<Float>, inStepsOf:Null<Float>);
+    // Any number of numerical inputs, can be forced to align with a fixed step from the minimum
+    Numbers(min:Null<Float>, max:Null<Float>, inStepsOf:Null<Float>);
     // Make the user select Entry(s) when called interactively
     OneEntry; // This constructor must be disambiguated from the typedef "Entry"
     Entries(min:Null<Int>, max:Null<Int>);

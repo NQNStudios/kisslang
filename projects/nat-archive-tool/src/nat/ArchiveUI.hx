@@ -34,7 +34,7 @@ interface ArchiveUI {
     /**
      * Prompt the user to enter a number
      */
-    function enterNumber(prompt:String, resolve:(Float) -> Void, min:Float, max:Float, ?inStepsOf:Float):Void;
+    function enterNumber(prompt:String, resolve:(Float) -> Void, min:Float, max:Float, ?inStepsOf:Float, ?allowNaN:Bool):Void;
 
     /**
      * Prompt the user to choose a single Entry

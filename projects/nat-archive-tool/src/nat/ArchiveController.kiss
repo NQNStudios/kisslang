@@ -86,7 +86,46 @@
                             max
                             inStepsOf)
                     (trySubmit (readNumber stream)))))
+        ((Numbers min max inStepsOf)
+            (unless min (set min Math.NEGATIVE_INFINITY))
+            (unless max (set max Math.POSITIVE_INFINITY))
+            (stream.dropWhitespace)
+            (let [&mut prompt "${arg.name} (${min}-${max}"
+                    collectedNumbers []]
+                (when inStepsOf
+                    (+= prompt " in steps of ${inStepsOf}"))
+                (+= prompt "):")
+                (localFunction :Void enterNumAgain []
+                    (localFunction :Void trySubmit [number]
+                        (stream.dropWhitespace)
+                        (let [minMaxError
+                                    "The requested command expected numbers between $min and $max"
+                                stepError
+                                    "$minMaxError in steps of $inStepsOf"
+                                youEntered
+                                    ". You entered: $number"]
+                            (if (Math.isNaN number)
+                                    (continuation collectedNumbers)
+                                (if (or
+                                            !(<= min number max)
+                                            (and inStepsOf !(= 0 (% (- number min) inStepsOf))))
+                                        (if inStepsOf
+                                                (ui.reportError "${stepError}$youEntered")
+                                            (ui.reportError "${minMaxError}$youEntered"))
+                                    {(collectedNumbers.push number)
+                                        (enterNumAgain)}))))
 
+                    (if (or (stream.isEmpty) (stream.dropStringIf "_"))
+                            // If no vartext argument was pre-supplied, use the ui for it
+                            (ui.enterNumber
+                                prompt
+                                trySubmit
+                                min
+                                max
+                                inStepsOf
+                                true)
+                        (trySubmit (readNumber stream))))
+                (enterNumAgain)))
         (OneEntry
             (ui.chooseEntry
                 "${arg.name}:"
@@ -220,6 +259,7 @@
                         (TagsFromAll `:Array<String> ,name)
                         (TagsFromSelected `:Array<String> ,name)
                         ((Number _ _ _) `:Float ,name)
+                        ((Numbers _ _ _) `:Array<Float> ,name)
                         (Position `:Position ,name)))
             commandArgs
                 (for [name type] argPairs
