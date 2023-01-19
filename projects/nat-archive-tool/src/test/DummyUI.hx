@@ -17,7 +17,7 @@ class DummyUI implements ArchiveUI {
         resolve("");
     }
 
-    public function enterNumber(prompt:String, resolve:(Float) -> Void, min:Float, max:Float, ?inStepsOf:Float) {
+    public function enterNumber(prompt:String, resolve:(Float) -> Void, min:Float, max:Float, ?inStepsOf:Float, ?allowNaN:Bool) {
         // TODO for proper testing, this will need to resolve with specific pre-coded numbers
         resolve(min);
     }
