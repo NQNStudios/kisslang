@@ -47,4 +47,4 @@
             (count (flatten visibleTrees) ->visible visible))))
 
 (assertEquals 21 (visibleTrees "src/year2022/inputs/day8example.txt"))
-(assertEquals 1672 (visibleTrees (input "8")))
+(assertEquals 1672 (visibleTrees (input 8)))

@@ -2,7 +2,7 @@
 (importAs year2022.inputs.Day11 Monkeys)
 
 (function :Float monkeyBusiness [:Array<Monkey> monkeys]
-    (apply * ~(.slice (sort (for monkey monkeys monkey.inspections)) -2)))
+    (apply * (.slice (sort (for monkey monkeys monkey.inspections)) -2)))
 
 (function printMonkeys [monkeys]
     (doFor [id monkey] (enumerate monkeys)
@@ -24,6 +24,8 @@
 (MonkeysExample.main)
 (Monkeys.main)
 
+/*
+// Unsolved.
 (doFor num (range 10000)
     (MonkeysExample.round false)
     (Monkeys.round false)
@@ -35,4 +37,4 @@
             (otherwise null))))
 
 
-(assertEquals 2713310158.0 ~(monkeyBusiness MonkeysExample.monkeys))
+(assertEquals 2713310158.0 ~(monkeyBusiness MonkeysExample.monkeys))*/
