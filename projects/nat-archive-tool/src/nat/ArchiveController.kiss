@@ -506,4 +506,18 @@
     (defCommand AddColorIRGBA [entries (SelectedEntries 1 null) r (Number 0 255 1) g (Number 0 255 1) b (Number 0 255 1) a (Number 0 255 1)]
         (for e entries
             (addColorIRGBA archive e (Std.int r) (Std.int g) (Std.int b) (Std.int a))))
+    
+    (defCommand VibeCheck [accounts (Numbers null null null) monthlyExpenses (Numbers null null null) energy (Number 1 10 1) hope (Number 1 10 1) note (Text null)]
+        [(archive.createEntry ->e {
+            (let [nw (apply + accounts)
+                    me (apply + monthlyExpenses)
+                    runway (/ nw me)]
+                (ui.displayMessage "Your net worth is \$$nw")
+                (if (< nw 0)
+                        (ui.displayMessage "You are in debt and spending \$$me per month.")
+                    (ui.displayMessage "It will last for roughly $runway months!")))
+            (addComponent archive e VibeCheck (objectWith [energy (Std.int energy) hope (Std.int hope)] accounts monthlyExpenses note))
+            (addComponent archive e Dates [=>"Created" (Date.now)])
+        })])
+    
     )
