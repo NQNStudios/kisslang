@@ -1,3 +1,3 @@
 package nat.components;
 
-typedef Tags = Map<String, Date>;
+typedef Dates = Map<String, Date>;
