@@ -1,3 +1,6 @@
+(import flixel.FlxState)
+(extends FlxState)
+
 (method &override :Void create []
     (super.create))
 
