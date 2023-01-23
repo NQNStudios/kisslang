@@ -7,6 +7,7 @@ fi &&
 cat new-project-input.txt | haxelib run kiss new-project && (cd TestNewProject && sh test.sh) &&
 
 # Test kiss new-express-project command
+haxelib install hxnodejs &&
 if [ -d testnewexpressproject ]; then
     rm -rf testnewexpressproject
 fi &&
