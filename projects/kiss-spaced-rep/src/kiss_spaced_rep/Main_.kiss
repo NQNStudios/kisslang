@@ -1,6 +1,8 @@
 (loadFrom "kiss-spaced-rep" "src/kiss_spaced_rep/KSR.kiss")
 
+(import kiss_spaced_rep.StudyEngine)
+
 (savedVarFile (#value "cards"))
 (load (#value "cards"))
 
-(studyAll)
+(studyAll (new (#symbol "engine")))

@@ -2,13 +2,11 @@ package kiss_spaced_rep;
 
 typedef Continuation = Void -> Void;
 
-typedef StudyEngine = {
-    clear: Void -> Void,
-    print: (String) -> Void,
-    println: (String) -> Void,
-    showImage: (String) -> Void,
-    printCC: (String, Continuation) -> Void,
-    printlnCC: (String, Continuation) -> Void,
-    showImageCC: (String, Continuation) -> Void,
-    input: (String->Void) -> Void
-};
+interface StudyEngine {
+    function clear():Void;
+    function print(s:String):Void;
+    function println(s:String):Void;
+    function showImage(s:String):Void;
+    function delayForUserInput(cc:Continuation):Void;
+    function getUserInput(resolve:String->Void):Void;
+}

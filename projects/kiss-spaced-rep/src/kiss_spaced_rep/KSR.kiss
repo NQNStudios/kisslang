@@ -9,12 +9,13 @@
 (var studyList [])
 
 (function :Void confirmShow [text :StudyEngine engine :Void->Void cc]
-    (engine.printCC text cc))
+    (engine.print text)
+    (engine.delayForUserInput cc))
 
 (function :Void basicScore [text :StudyEngine engine :Int->Void resolve]
     (engine.println text)
     (engine.print "Score (0-5): ")
-    (engine.input ->:Void str (resolve (Std.parseInt str))))
+    (engine.getUserInput ->:Void str (resolve (Std.parseInt str))))
 
 (function :Void noConfirmShow [text :StudyEngine engine :Void->Void cc]
     (engine.println text)
@@ -22,7 +23,7 @@
 
 (function :Void typeScore [text :StudyEngine engine :Int->Void resolve]
     (engine.print "Your answer: ")
-    (engine.input ->:Void input
+    (engine.getUserInput ->:Void input
         (cond
             ((= text input)
                 (engine.println "Correct!")
@@ -39,7 +40,7 @@
                 (if (StringTools.startsWith line "?")
                         (line.substr 1)
                     line))))
-    (engine.input ->:Void _ (cc)))
+    (engine.delayForUserInput cc))
 
 (function :Void clozeScore [index :Array<String> textLines :StudyEngine engine :Int->Void resolve]
     (basicScore (.substr (nth textLines index) 1) engine resolve))
@@ -56,9 +57,9 @@
 
 (function :CardSide image [:String path &opt :String caption]
     (object
-        show ->:Void [engine cc] {(when caption (engine.print caption)) (engine.showImageCC path cc)}
+        show ->:Void [engine cc] {(when caption (engine.print caption)) (engine.showImage path) (engine.delayForUserInput cc)}
     
-        score ->:Void [engine :Int->Void resolve] {(when caption (engine.print caption))(engine.showImage path)(engine.print "Score (0-5): ")(engine.input ->:Void str (resolve (Std.parseInt str)))}))
+        score ->:Void [engine :Int->Void resolve] {(when caption (engine.print caption))(engine.showImage path)(engine.print "Score (0-5): ")(engine.getUserInput ->:Void str (resolve (Std.parseInt str)))}))
 
 (defMacroVar cardId 0)
 (defMacroVar groupId 0)
@@ -137,18 +138,8 @@
                                 score (clozeScore.bind ,i ,textLines)))))))
         (b.callSymbol "group" cardDecls)))
 
-(function :Void studyAll [&opt :StudyEngine engine]
-    (unless engine
-        (set engine
-            (object
-                clear ->:Void (doFor i (range 5) (Sys.println ""))
-                print ->:Void text (Sys.print text)
-                println ->:Void text (Sys.println text)
-                showImage ->:Void path (assertProcess (case (Sys.systemName) ("Windows" "cmd.exe") ("Linux" "xdg-open") ("Mac" "start") (never otherwise)) (case (Sys.systemName) ("Windows" ["/C" path]) ((or "Mac" "Linux") [path]) (never otherwise)))
-                printCC ->:Void [text cc] {(Sys.print text)(.readLine (Sys.stdin))(cc)}
-                printlnCC ->:Void [text cc] {(Sys.println text)(.readLine (Sys.stdin))(cc)}
-                showImageCC ->:Void [path cc] {(assertProcess (case (Sys.systemName) ("Windows" "cmd.exe") ("Linux" "xdg-open") ("Mac" "start") (never otherwise)) (case (Sys.systemName) ("Windows" ["/C" path]) ((or "Mac" "Linux") [path]) (never otherwise)))(.readLine (Sys.stdin))(cc)}
-                input ->:Void resolve (resolve (.readLine (Sys.stdin))))))
+(function :Void studyAll [:StudyEngine engine]
+    
     (when studyList
         (let [nextIndex (Std.random studyList.length)
                 nextToStudy (nth studyList nextIndex)]

@@ -1,0 +1,30 @@
+(implements kiss_spaced_rep.StudyEngine)
+
+(defNew [])
+
+(method :Void clear []
+    (doFor i (range 5) (Sys.println "")))
+
+(method :Void print [text]
+    (Sys.print text))
+
+(method :Void println [text]
+    (Sys.println text))
+
+(method :Void showImage [path] 
+    (assertProcess (case (Sys.systemName) 
+                        ("Windows" "cmd.exe")
+                        ("Linux" "xdg-open")
+                        ("Mac" "start")
+                        (never otherwise)) 
+                    (case (Sys.systemName) 
+                        ("Windows" ["/C" path])
+                        ((or "Mac" "Linux") [path])
+                        (never otherwise))))
+
+(method :Void delayForUserInput [cc]
+    (.readLine (Sys.stdin))
+    (cc))
+
+(method :Void getUserInput [resolve]
+    (resolve (.readLine (Sys.stdin))))
