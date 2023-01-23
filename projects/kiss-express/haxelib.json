@@ -3,7 +3,8 @@
 	"description": "Make ExpressJS websites with Kisslang",
 	"classPath": "src/",
 	"dependencies": {
-		"kiss": ""
+		"kiss": "",
+		"hxnodejs": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
