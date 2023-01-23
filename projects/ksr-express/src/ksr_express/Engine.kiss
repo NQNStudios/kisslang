@@ -6,7 +6,8 @@
 (defNew []
     [&mut :String image ""
         &mut :Continuation cc null
-        &mut :String->Void resolve null]
+        &mut :String->Void resolve null
+        &mut :Dynamic connection null]
     (let [app (Express.call)
             port 3000]
         (app.use (Express.static_.call (Sys.getCwd)))
@@ -22,8 +23,13 @@
             (whenLet [_resolve resolve] (set resolve null) (_resolve req.query.value))
             (res.redirect "/")
         })
+        (app.get "/restart" ->[req :Dynamic res next] {
+            (res.redirect "/")
+            (connection.close)
+            (kiss_spaced_rep.Main_.main)
+        })
         (#unless test
-            (app.listen port ->(print "kiss-express listening at http://localhost:$port")))))
+            (set connection (app.listen port ->(print "kiss-express listening at http://localhost:$port"))))))
 
 (method :Void clear []
     (set content ""))
