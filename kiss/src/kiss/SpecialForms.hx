@@ -108,7 +108,11 @@ class SpecialForms {
 
         k.doc("new", 1, null, '(new <type> <constructorArgs...>)');
         map["new"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            var classType = k.convert(args[0]).toString();
+            var classType = switch (args[0].def) {
+                case Symbol(name): name;
+                default: k.convert(args[0]).toString();
+            };
+
             ENew(Helpers.parseTypePath(classType, args[0]), args.slice(1).map(k.convert)).withMacroPosOf(wholeExp);
         };
 
