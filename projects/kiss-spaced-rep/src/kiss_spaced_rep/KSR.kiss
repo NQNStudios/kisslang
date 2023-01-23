@@ -139,12 +139,15 @@
         (b.callSymbol "group" cardDecls)))
 
 (function :Void studyAll [:StudyEngine engine]
-    
-    (when studyList
-        (let [nextIndex (Std.random studyList.length)
-                nextToStudy (nth studyList nextIndex)]
-            (studyList.splice nextIndex 1)
-            (nextToStudy engine (studyAll.bind engine)))))
+    (if studyList
+            (let [nextIndex (Std.random studyList.length)
+                    nextToStudy (nth studyList nextIndex)]
+                (studyList.splice nextIndex 1)
+                (nextToStudy engine (studyAll.bind engine)))
+        {
+            (engine.clear)
+            (engine.println "All cards studied")
+        }))
 
 (defReaderMacro ["*" "?"] [stream &builder b]
     (let [elements []]
