@@ -1,0 +1,47 @@
+(import kiss_spaced_rep.StudyEngine)
+(implements StudyEngine)
+
+(prop &mut :String content "")
+
+(defNew []
+    [&mut :String image ""
+        &mut :Continuation cc null
+        &mut :String->Void resolve null]
+    (let [app (Express.call)
+            port 3000]
+        (app.use (Express.static_.call (Sys.getCwd)))
+        (app.get "/" ->[req :Dynamic res next]
+            (res.send content))
+        (app.get "/image/:path" ->[:Dynamic req :Dynamic res next]
+            (res.sendFile req.params.path (object root (Sys.getCwd))))
+        (app.get "/continue" ->[req res next] {
+            (whenLet [_cc cc] (set cc null) (_cc))
+            (res.redirect "/")
+        })
+        (app.get "/submit" ->[:Dynamic req :Dynamic res next] {
+            (whenLet [_resolve resolve] (set resolve null) (_resolve req.query.value))
+            (res.redirect "/")
+        })
+        (#unless test
+            (app.listen port ->(print "kiss-express listening at http://localhost:$port")))))
+
+(method :Void clear []
+    (set content ""))
+
+(method :Void print [text]
+    (+= content text))
+
+(method :Void println [text]
+    (+= content text "<br />"))
+
+(method :Void showImage [path] 
+    (+= content "<img src=\"/image/${path}\" /><br />"))
+
+(method :Void delayForUserInput [cc]
+    (set this.cc cc)
+    (+= content "<br /><a href=\"/continue\">Next</a><br />"))
+
+(method :Void getUserInput [resolve]
+    (set this.resolve resolve)
+    (+= content "<br /><input type=\"text\" id=\"value\"><br /><a href=\"#\" onclick=\"window.open('/submit?value=' + document.getElementById('value').value);\">Submit</a><br />"))
+

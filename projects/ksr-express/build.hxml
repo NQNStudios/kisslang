@@ -1,0 +1,8 @@
+-lib kiss
+-lib express
+-lib kiss-express
+-lib kiss-spaced-rep
+-cp src
+--main kiss_spaced_rep.Main
+--js index.js
+--cmd node index.js

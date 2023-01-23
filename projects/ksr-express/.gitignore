@@ -1,0 +1,4 @@
+node_modules/
+.haxelib/
+libs/
+index.js
