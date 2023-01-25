@@ -49,5 +49,5 @@
 
 (method :Void getUserInput [resolve]
     (set this.resolve resolve)
-    (+= content "<br /><input type=\"text\" id=\"value\"><br /><a href=\"#\" onclick=\"window.open('/submit?value=' + document.getElementById('value').value);\">Submit</a><br />"))
+    (+= content "<br /><input type=\"text\" id=\"value\"><br /><a href=\"/\" onclick=\"window.open('/submit?value=' + document.getElementById('value').value, '_self');\">Submit</a><br />"))
 
