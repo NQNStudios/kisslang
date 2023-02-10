@@ -4,6 +4,7 @@ import sys.io.Process;
 #if macro
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import haxe.macro.Type;
 import kiss.Kiss;
 import kiss.Reader;
 import kiss.Stream;
@@ -275,6 +276,137 @@ class Main {
                 var classType = classTypeRef.get();
                 var fields = classType.fields.get();
                 trace(fields);
+
+                for (field in fields) {
+                    function printAccess() {
+                        if (!field.isPublic) {
+                            Sys.print("&private ");
+                        }
+                        switch (field.kind) {
+                            case FVar(_, _):
+                                if (!field.isFinal) {
+                                    Sys.print("&mut ");
+                                }
+                            default:
+                        }
+                    }
+                    function printPropertyAccess(access, getOrSet:Bool) {
+                        Sys.print(switch (access) {
+                            case AccNormal: "default";
+                            case AccNo: "null";
+                            case AccCall if (getOrSet): "get";
+                            case AccCall if (!getOrSet): "set";
+                            default: '/* TODO automatic interface property access printing is not supported for access ${access}*/';
+                        });
+                    }
+                    function printType(type, precedingColon = true, followingSpace = true, argType = false) {
+                        function _printType(t:{function get():{var name:String;}}, params:Array<Type>) {
+                            var t = t.get();
+                            Sys.print(t.name);
+                            if (params.length > 0) {
+                                Sys.print("<");
+                                var first = true;
+                                for (param in params) {
+                                    if (!first) {
+                                        Sys.print(",");
+                                    }
+                                    first = false;
+                                    printType(param, false, false);
+                                }
+                                Sys.print(">");
+                            }
+                            if (followingSpace) {
+                                Sys.print(" ");
+                            }
+                        }
+
+                        if (precedingColon) {
+                            Sys.print(":");
+                        }
+                        switch (type) {
+                            case TInst(t, params):
+                                _printType(t, params);
+                            case TEnum(t, params):
+                                _printType(t, params);
+                            case TAbstract(t, params):
+                                _printType(t, params);
+                            case TType(t, params):
+                                _printType(t, params);
+                            case TFun(args, ret) if (argType):
+                                Sys.print("(");
+                                var first = true;
+                                for (arg in args) {
+                                    if (!first) {
+                                        Sys.print(",");
+                                    }
+                                    first = false;
+                                    printType(arg.t,false,false,true);
+                                }
+                                Sys.print(")->");
+                                printType(ret, false);
+                            case TFun(_args, ret):
+                                printType(ret, false);
+                            default:
+                                Sys.print('/* TODO Automatic interface type printing is not supported for type: $type */');
+                        }
+                    }
+
+                    switch (field.kind) {
+                        case FVar(read, write):
+                            Sys.print("(prop ");
+                            printAccess();
+                            printType(field.type);
+                            Sys.print('${field.name} ');
+                            {
+                                Sys.print("(property ");
+                                printPropertyAccess(read, true);
+                                Sys.print(" ");
+                                printPropertyAccess(write, false);
+                                Sys.print(")");
+                            }
+                            Sys.print(")");
+                        case FMethod(k):
+                            Sys.print("(method ");
+                            printAccess();
+                            switch (k) {
+                                case MethNormal:
+                                case MethInline:
+                                    Sys.print("/* TODO Automatic interface implementation does not support inline methods */");
+                                case MethMacro:
+                                    throw "There should never be macro functions in an interface";
+                                case MethDynamic:
+                                    Sys.print("&dynamic ");    
+                            }
+                            printType(field.type);
+                            Sys.print('${field.name} ');
+                            Sys.print("[");
+                            switch (field.type) {
+                                case TFun(args, _ret):
+                                    var first = true;
+                                    for (arg in args) {
+                                        if (!first) {
+                                            Sys.print(" ");
+                                        }
+                                        first = false;
+                                        if (arg.opt) {
+                                            Sys.print("&opt ");
+                                        }
+                                        printType(arg.t, true, true, true);
+                                        Sys.print(arg.name);
+                                    }
+                                default:
+                                    throw "Function is not a function?";
+                            }
+
+                            Sys.print("] ");
+                            Sys.print('(throw "TODO Not implemented!")');
+                            Sys.print(")");
+                        default:
+                            Sys.print("// TODO Automatic interface implementation not supported for field:");
+                            Sys.print('/* ${Std.string(field).replace("/*", "").replace("*/", "")} */');
+                        }
+                    Sys.println("");
+                }
             default:
                 throw 'Unexpected result from resolveType of $theInterface';
         }
