@@ -45,7 +45,7 @@ class KissInterp extends Interp {
         variables.set("FileSystem", sys.FileSystem);
         variables.set("File", sys.io.File);
         #end
-        #if sys
+        #if (sys && !cs)
         variables.set("Http", sys.Http);
         #end
 
