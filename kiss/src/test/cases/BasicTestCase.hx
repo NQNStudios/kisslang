@@ -404,6 +404,10 @@ class BasicTestCase extends Test {
         _testTypeCase();
     }
 
+    function testTryProcess() {
+        Assert.equals("", Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}, []));
+    }
+
     var aNullToPrint = null;
 }
 
