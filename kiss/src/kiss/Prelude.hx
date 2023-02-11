@@ -721,28 +721,33 @@ class Prelude {
             #end
             Sys.setCwd(cwd);
         }
-        var p = new Process(command, args);
-        if (inputLines != null) {
-            for (line in inputLines) {
-                p.stdin.writeString('$line\n');
+        try {
+            var p = new Process(command, args);
+            if (inputLines != null) {
+                for (line in inputLines) {
+                    p.stdin.writeString('$line\n');
+                }
             }
-        }
-        var output = if (fullProcess) {
-            if (p.exitCode() == 0) {
-                p.stdout.readAll().toString().trim();
+            var output = if (fullProcess) {
+                if (p.exitCode() == 0) {
+                    p.stdout.readAll().toString().trim();
+                } else {
+                    handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
+                    return "";
+                }
             } else {
-                handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
-                return "";
+                p.stdout.readLine().toString().trim();
             }
-        } else {
-            p.stdout.readLine().toString().trim();
+            p.kill();
+            p.close();
+            if (cwd != null) {
+                Sys.setCwd(lastCwd);
+            }
+            return output;
+        } catch (e) {
+            handleError('process $command $args failed: $e');
+            return "";
         }
-        p.kill();
-        p.close();
-        if (cwd != null) {
-            Sys.setCwd(lastCwd);
-        }
-        return output;
         #elseif hxnodejs
         var p = if (inputLines != null) {
             ChildProcess.spawnSync(command, args, {input: inputLines.join("\n"), cwd: cwd});
