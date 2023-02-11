@@ -1,0 +1,12 @@
+--cs build
+--define net-ver=50
+--define no-compilation
+--define analyzer-optimize
+--class-path scripts
+--library hxcs
+--library godot
+--library kiss
+--library kiss-tools
+--library nat-archive-tool
+--macro godot.Godot.buildProject()
+--dce full

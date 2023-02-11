@@ -16,13 +16,13 @@ func _ready():
 #	pass
 
 
-func _on_EntryControl_mouse_entered():
+func _on_EntryContainer_mouse_entered():
 	var current_focus_z = get_parent().current_focus_z
 	if is_nan(current_focus_z) or current_focus_z <= self.z:
 		get_parent().current_focus = self
 		get_parent().current_focus_z = self.z
 
-func _on_EntryControl_mouse_exited():
+func _on_EntryContainer_mouse_exited():
 	if get_parent().current_focus == self:
 		get_parent().current_focus = null
 		get_parent().current_focus_z = NAN

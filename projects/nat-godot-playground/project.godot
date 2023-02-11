@@ -8,15 +8,59 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Control",
+"class": "Building",
+"language": "GDScript",
+"path": "res://addons/haxe/scripts/building.gd"
+}, {
+"base": "EditorPlugin",
+"class": "HaxePlugin",
+"language": "GDScript",
+"path": "res://addons/haxe/scripts/haxe.gd"
+}, {
+"base": "Reference",
+"class": "HaxePluginConstants",
+"language": "GDScript",
+"path": "res://addons/haxe/scripts/constants.gd"
+}, {
+"base": "EditorProperty",
+"class": "HaxePluginEditorProperty",
+"language": "GDScript",
+"path": "res://addons/haxe/scripts/editor_property.gd"
+}, {
+"base": "EditorInspectorPlugin",
+"class": "HaxePluginInspectorPlugin",
+"language": "GDScript",
+"path": "res://addons/haxe/scripts/inspector_plugin.gd"
+} ]
+_global_script_class_icons={
+"Building": "",
+"HaxePlugin": "",
+"HaxePluginConstants": "",
+"HaxePluginEditorProperty": "",
+"HaxePluginInspectorPlugin": ""
+}
+
 [application]
 
 config/name="nat-godot-playground"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/haxe/plugin.cfg" )
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
+
+[haxe]
+
+hide_native_script_field=true
+external_editor="VSCode"
+build_on_play=false
 
 [mono]
 

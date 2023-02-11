@@ -1,11 +1,16 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Playground.gd" type="Script" id=1]
-[ext_resource path="res://EntryControl.gd" type="Script" id=2]
+[ext_resource path="res://scripts/Playground.gd" type="Script" id=1]
+[ext_resource path="res://scripts/EntryContainer.gd" type="Script" id=2]
+[ext_resource path="res://build/src/RootNode.cs" type="Script" id=3]
 
-[node name="Control" type="Control"]
+[node name="RootNode" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"haxe_script": "res://scripts/RootNode.hx"
+}
 
 [node name="PlaygroundTabContainer" type="TabContainer" parent="."]
 anchor_right = 1.0
@@ -14,8 +19,12 @@ margin_right = 8.0
 margin_bottom = 36.0
 
 [node name="PlaygroundScrollContainer" type="ScrollContainer" parent="PlaygroundTabContainer"]
-margin_right = -8.0
-margin_bottom = -36.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
 rect_min_size = Vector2( 1280, 720 )
 
 [node name="Playground" type="Control" parent="PlaygroundTabContainer/PlaygroundScrollContainer"]
@@ -37,5 +46,5 @@ margin_right = 192.0
 margin_bottom = 27.0
 text = "Hello NAT Godot Playground!"
 
-[connection signal="mouse_entered" from="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" to="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" method="_on_EntryControl_mouse_entered"]
-[connection signal="mouse_exited" from="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" to="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" method="_on_EntryControl_mouse_exited"]
+[connection signal="mouse_entered" from="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" to="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" method="_on_EntryContainer_mouse_entered"]
+[connection signal="mouse_exited" from="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" to="PlaygroundTabContainer/PlaygroundScrollContainer/Playground/EntryContainer" method="_on_EntryContainer_mouse_exited"]

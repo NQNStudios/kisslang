@@ -1,0 +1,18 @@
+(prop &mut :ArchiveController controller (property default default))
+(prop &mut :Null<KeyShortcutHandler<Entry>> shortcutHandler (property default null))
+(method :Void showPrefixMap [:Map<String,String> map] (throw "TODO Not implemented!"))
+(method :Void hidePrefixMap [] (throw "TODO Not implemented!"))
+(method :Null<PlaygroundSystem> playgroundSystem [] (throw "TODO Not implemented!"))
+(method :Void enterText [:String prompt :String->Void resolve :Float maxLength] (throw "TODO Not implemented!"))
+(method :Void enterNumber [:String prompt :Float->Void resolve :Float min :Float max &opt :Null<Float> inStepsOf &opt :Null<Bool> allowNaN] (throw "TODO Not implemented!"))
+(method :Void chooseEntry [:String prompt :Archive archive :Entry->Void resolve] (throw "TODO Not implemented!"))
+(method :Void chooseEntries [:String prompt :Archive archive :Array<Entry>->Void resolve :Int min :Float max] (throw "TODO Not implemented!"))
+(method :Void handleChanges [:Archive archive :ChangeSet changeSet] (throw "TODO Not implemented!"))
+(method :Void displayMessage [:String message] (throw "TODO Not implemented!"))
+(method :Void reportError [:String error] (throw "TODO Not implemented!"))
+(method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries] (throw "TODO Not implemented!"))
+(method :Void choosePosition [:String prompt :Position->Void resolve] (throw "TODO Not implemented!"))
+(method :Option<Position> cursorPosition [] (throw "TODO Not implemented!"))(method :Void chooseBetweenStrings [:String prompt :Array<String> choices :String->Void resolve] (throw "TODO Not implemented!"))
+
+(defNew [&prop :Archive archive 
+            &prop :Node rootNode])
