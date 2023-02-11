@@ -405,7 +405,8 @@ class BasicTestCase extends Test {
     }
 
     function testTryProcess() {
-        Assert.equals("", Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}, []));
+        Assert.equals("", Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}));
+        Assert.equals("4.2.5", Prelude.tryProcess("haxe", ["--version"], error->{throw error;}));
     }
 
     var aNullToPrint = null;
