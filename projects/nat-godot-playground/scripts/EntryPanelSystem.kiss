@@ -1,0 +1,31 @@
+(loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
+(loadFrom "kiss-godot" "src/kiss_godot/Macros.kiss")
+
+(defNew [&prop :GodotUI godotUI
+            &prop :Node rootNode]
+    (super
+        godotUI
+        ->[archive e] (hasComponent e Name)
+        // Create Entry node:
+        ->[archive e pos &opt ui]
+            (let [:PackedScene ePanelScene (GD.load "res://EntryPanel.tscn")
+                    :PanelContainer ePanel (cast (ePanelScene.instance))
+                    :Label eLabel (getNode ePanel "EntryLabel")]
+                (set eLabel.text (readComponentOr e Name ""))
+                (.addChild (getNode pgScrollContainer "Entries") ePanel)
+                ePanel)
+        // Draw line:
+        ->[archive e pos e2 pos2 &opt ui]
+            null
+        // Remove Entry node:
+        ->[archive e &opt ui]
+            null))
+
+(prop &mut :ScrollContainer pgScrollContainer null)
+
+(method &override :Void switchPlaygroundKey [key]
+    (super.switchPlaygroundKey key)
+    (set pgScrollContainer (getNode rootNode key)))
+
+(method &override :Void clear [:ColorF color]
+    null)
