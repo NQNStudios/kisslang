@@ -1,0 +1,2 @@
+(defMacro getNode [parent childPath]
+    `(cast (.getNode ,parent ,childPath)))
