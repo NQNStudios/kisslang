@@ -91,13 +91,13 @@
     (for =>cType cId e.components cType))
 
 (function tagsMatch [e tagsBoolExp]
-    (BoolExpInterp.eval tagsBoolExp (tagList e)))
+    (nat.BoolExpInterp.eval tagsBoolExp (tagList e)))
 
 (function componentsMatch [:nat.Entry e componentsBoolExp]
-    (BoolExpInterp.eval componentsBoolExp (componentList e)))
+    (nat.BoolExpInterp.eval componentsBoolExp (componentList e)))
 
 (function componentsAndTagsMatch [:nat.Entry e componentsAndTagsBoolExp]
-    (BoolExpInterp.eval componentsAndTagsBoolExp (cast (concat (tagList e) (componentList e)))))
+    (nat.BoolExpInterp.eval componentsAndTagsBoolExp (cast (concat (tagList e) (componentList e)))))
 
 (defAlias &call catsMatch componentsAndTagsMatch)
 
