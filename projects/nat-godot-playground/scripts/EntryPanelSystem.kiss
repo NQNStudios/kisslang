@@ -1,5 +1,5 @@
 (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
-(loadFrom "kiss-godot" "src/kiss_godot/Macros.kiss")
+(loadFrom "kiss-godot" "src/kiss_godot/Util.kiss")
 
 (defNew [&prop :GodotUI godotUI
             &prop :Node rootNode]

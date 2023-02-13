@@ -1,0 +1,5 @@
+(defMacro getNode [parent childPath]
+    `(cast (.getNode ,parent ,childPath)))
+
+(function printThroughGD []
+    (set Prelude.printStr ->s (GD.print s)))

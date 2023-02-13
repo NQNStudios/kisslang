@@ -1,4 +1,4 @@
-(loadFrom "kiss-godot" "src/kiss_godot/Macros.kiss")
+(loadFrom "kiss-godot" "src/kiss_godot/Util.kiss")
 
 (prop &mut :ArchiveController controller (property default default))
 (prop &mut :Null<KeyShortcutHandler<Entry>> shortcutHandler (property default null))
