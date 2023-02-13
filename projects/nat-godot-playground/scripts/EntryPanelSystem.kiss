@@ -2,7 +2,7 @@
 (loadFrom "kiss-godot" "src/kiss_godot/Util.kiss")
 
 (defNew [&prop :GodotUI godotUI
-            &prop :Node rootNode]
+            &prop :RootNode rootNode]
     (super
         godotUI
         ->[archive e] (hasComponent e Name)
@@ -12,7 +12,7 @@
                     :PanelContainer ePanel (cast (ePanelScene.instance))
                     :Label eLabel (getNode ePanel "EntryLabel")]
                 (set eLabel.text (readComponentOr e Name ""))
-                (.addChild (getNode pgScrollContainer "Entries") ePanel)
+                (pgEntries.addChild ePanel)
                 ePanel)
         // Draw line:
         ->[archive e pos e2 pos2 &opt ui]
@@ -22,10 +22,12 @@
             null))
 
 (prop &mut :ScrollContainer pgScrollContainer null)
+(prop &mut :Node pgEntries null)
 
-(method &override :Void switchPlaygroundKey [key]
-    (super.switchPlaygroundKey key)
-    (set pgScrollContainer (getNode rootNode key)))
+(method &override :Void switchPlaygroundKey [:String key]
+    (set pgScrollContainer (getNode rootNode.pgTabs key))
+    (set pgEntries (getNode pgScrollContainer "Entries"))
+    (super.switchPlaygroundKey key))
 
 (method &override :Void clear [:ColorF color]
     null)

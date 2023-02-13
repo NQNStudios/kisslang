@@ -1,9 +1,26 @@
+(loadFrom "kiss-godot" "src/kiss_godot/Util.kiss")
+
+(prop &mut :TabContainer pgTabs) 
+(prop &mut :PackedScene pgScene)
+
 (method &override &public :Void _Ready []
+    (printThroughGD)
+
+    (set pgTabs (getNode this "PlaygroundTabContainer"))
+    (set pgScene (GD.load "res://Playground.tscn"))
+
     // TODO find a better way to pass the archiveDir to a Godot game
     (let [archiveDir
                 (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))
             archive
-                (new Archive archiveDir)
-            ui (new GodotUI archive this)
-            controller (new ArchiveController archive ui)]
-        (set ui.controller controller)))
+                (new Archive archiveDir)]
+
+        (doFor =>key playground archive.playgrounds
+        (unless (= key "default")
+            (let [pg (pgScene.instance)]
+                (set pg.name key)
+                (pgTabs.addChild pg))))
+
+        (let [ui (new GodotUI archive this)
+                controller (new ArchiveController archive ui)]
+            (set ui.controller controller))))

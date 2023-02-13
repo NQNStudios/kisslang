@@ -32,14 +32,7 @@
 (method :Void chooseBetweenStrings [:String prompt :Array<String> choices :String->Void resolve] (throw "TODO Not implemented!"))
 
 (defNew [&prop :Archive archive 
-            &prop :Node rootNode]
+            &prop :RootNode rootNode]
     [
         :EntryPanelSystem pgSystem (new EntryPanelSystem this rootNode)
-        :TabContainer pgTabs (getNode rootNode "PlaygroundTabContainer")
-        :PackedScene pgScene (GD.load "res://Playground.tscn")
-    ]
-    
-    (doFor =>key playground archive.playgrounds
-        (let [pg (pgScene.instance)]
-            (set pg.name key)
-            (pgTabs.addChild pg))))
+    ])
