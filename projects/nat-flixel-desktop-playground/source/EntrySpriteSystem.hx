@@ -14,4 +14,4 @@ import nat.systems.PlaygroundSystem;
 import flixel.util.FlxSort;
 
 @:build(kiss.Kiss.build())
-class EntrySpriteSystem extends PlaygroundSystem {}
+class EntrySpriteSystem extends PlaygroundSystem<EntrySprite> {}

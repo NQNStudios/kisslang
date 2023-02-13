@@ -117,4 +117,4 @@
     
 (method :Void hidePrefixMap [])
 
-(method :PlaygroundSystem playgroundSystem [] null)
+(method :PlaygroundSystem<String> playgroundSystem [] null)

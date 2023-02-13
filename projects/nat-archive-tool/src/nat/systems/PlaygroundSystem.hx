@@ -15,4 +15,4 @@ typedef PlaygroundConnectionProcessor = (Archive, Entry, Position, Entry, Positi
  * (EntrySpriteSystem, for example)
  */
 @:build(kiss.Kiss.build())
-class PlaygroundSystem extends System {}
+class PlaygroundSystem<EntryRep> extends System {}

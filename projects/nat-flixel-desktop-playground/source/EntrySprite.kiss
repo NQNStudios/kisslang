@@ -65,7 +65,7 @@
     (enableMouseDrag false (hasComponent e Circle))
     (set mouseStartDragCallback
         ->[self _dx _dy]
-            (doFor sprite (system.getSelectedSprites)
+            (doFor sprite (system.getSelectedReps)
                 (unless (= sprite.e.id this.e.id)
                     (sprite.fixToSprite this))))
 
@@ -73,7 +73,7 @@
         ->[self _dx _dy]
             {
                 (savePos)
-                (doFor sprite (system.getSelectedSprites)
+                (doFor sprite (system.getSelectedReps)
                     (unless (= sprite.e.id this.e.id)
                         (sprite.endFixToSprite)))
             }))

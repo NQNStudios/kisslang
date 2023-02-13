@@ -4,7 +4,7 @@
 
 (prop &mut :EntrySpriteSystem spriteSystem)
 
-(method :PlaygroundSystem playgroundSystem []
+(method :PlaygroundSystem<EntrySprite> playgroundSystem []
     (set spriteSystem (new EntrySpriteSystem this controller)))
 
 (prop :KeyShortcutHandler<Entry> shortcutHandler (new FlxKeyShortcutHandler<Entry>))
@@ -196,8 +196,9 @@
         // by refreshEntry()
         (when (spriteSystem.entries.exists e.id)
             // refresh the sprites for entries that changed data but still should have sprites
-            (when (spriteSystem.sprites.exists e.id)
-                (spriteSystem.onRemoveEntry archive e))
+            (when (spriteSystem.entryReps.exists e.id)
+                (spriteSystem.onRemoveEntry archive e)
+                (spriteSystem.entryReps.remove e.id))
             (spriteSystem.processEntry archive e)))
             
     (FlxG.camera.calculateScrollBounds entryGroup SCROLL_BOUND_MARGIN))
@@ -221,7 +222,7 @@
 
 (method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries]
     (doFor e (selectedEntries.concat lastSelectedEntries)
-        (whenLet [sprite (dictGet spriteSystem.sprites e.id)]
+        (whenLet [sprite (dictGet spriteSystem.entryReps e.id)]
             (sprite.updateColor))))
 
 (prop &mut :Position->Void resolvePosition)

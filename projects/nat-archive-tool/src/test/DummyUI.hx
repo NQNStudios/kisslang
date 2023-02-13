@@ -52,7 +52,7 @@ class DummyUI implements ArchiveUI {
     public function choosePosition(prompt:String, resolve:Position->Void) {
         resolve({x: 0, y: 0, z: 0});
     }
-    public function playgroundSystem():Null<PlaygroundSystem> {
+    public function playgroundSystem():Null<PlaygroundSystem<Dynamic>> {
         return null;
     }
     public var shortcutHandler:Null<KeyShortcutHandler<Entry>> = null;

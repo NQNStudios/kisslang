@@ -280,7 +280,7 @@
 (method getSelectedEntries []
     (_selectedEntries.copy))
 
-(prop &mut :PlaygroundSystem playgroundSystem null)
+(prop &mut :PlaygroundSystem<Dynamic> playgroundSystem null)
 
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]

@@ -24,7 +24,7 @@ interface ArchiveUI {
     /**
      * A PlaygroundSystem that will display interactible entry representations
      */
-    function playgroundSystem():Null<PlaygroundSystem>;
+    function playgroundSystem():Null<PlaygroundSystem<Dynamic>>;
 
     /**
      * Prompt the user to enter text
