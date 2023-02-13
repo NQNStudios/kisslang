@@ -4,7 +4,6 @@
             :ArchiveController controller]
     (super
         playState
-        controller
         ->[archive e]
             ?(or (hasComponent e Name) (hasComponent e Circle) (hasComponent e Rectangle))
         ->[archive e pos &opt ui]

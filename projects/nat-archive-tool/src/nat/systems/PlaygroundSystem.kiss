@@ -9,7 +9,6 @@
 (prop :Map<String,EntryRep> entryReps (new Map))
 
 (defNew [&prop :ArchiveUI ui
-            &prop :ArchiveController controller
             :EntryChecker canProcess
             &prop :PlaygroundEntryProcessor createEntryRep
             &prop :PlaygroundConnectionProcessor connectionProcessor
@@ -88,7 +87,7 @@
     (object x 0.0 y 0.0 z 0.0))
 
 (method getSelectedReps []
-    (filter (for e (controller.getSelectedEntries) (dictGet entryReps e.id))))
+    (filter (for e (ui.controller.getSelectedEntries) (dictGet entryReps e.id))))
 
 // TODO overridable circleContainsEntry function (default is to check only the position, Flixel version will use scaled sprite bounding box)
 
