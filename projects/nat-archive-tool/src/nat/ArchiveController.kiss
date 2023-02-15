@@ -282,6 +282,16 @@
 
 (prop &mut :PlaygroundSystem<Dynamic> playgroundSystem null)
 
+(method :Void typeCommand []
+    (when ui.shortcutHandler (ui.shortcutHandler.cancel))
+    (ui.enterText
+        "Command:" 
+        ->command
+            (tryRunCommand command)
+        Math.POSITIVE_INFINITY))
+
+// TODO typeShortcut   
+
 (defNew [&prop :Archive archive
             &prop :ArchiveUI ui]
     [&mut :Array<Entry> _selectedEntries []

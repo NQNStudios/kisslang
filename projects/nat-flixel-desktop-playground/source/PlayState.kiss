@@ -78,7 +78,7 @@
     // Press ENTER to type a command to run
     (when (and !textInput FlxG.keys.justPressed.ENTER)
         (set confirmQuit false)
-        (typeCommand))
+        (controller.typeCommand))
     (when (and textInput !textInput.alive)
         (set textInput null))
 
@@ -117,13 +117,6 @@
             (when FlxG.keys.justPressed.PLUS
                 (withWritableComponents archive e [positions Positions]
                     (+= .z (dictGet positions (spriteSystem.getPlaygroundKey)) 1))))))
-
-(method :Void typeCommand []
-    (sh.cancel)
-    (enterText
-        "command to run:"
-        ->commandName (controller.tryRunCommand commandName)
-        Math.POSITIVE_INFINITY))
 
 (prop &mut :ArchiveController controller)
 (prop &mut :Archive archive)
