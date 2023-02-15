@@ -22,8 +22,6 @@ class PlaygroundEntries extends Control {
     public override function dropData(position:Vector2, data:Dynamic):Void {
         var data:EntryPanel = cast(data);
         data.rectPosition = position;
-        kiss.Prelude.print(ui);
-        kiss.Prelude.print(data.e);
         ui.playgroundSystem().savePosition(data.e, position.x, position.y, data.z);
     }
 }

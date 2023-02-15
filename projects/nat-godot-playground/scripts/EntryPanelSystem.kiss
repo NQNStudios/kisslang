@@ -24,11 +24,19 @@
         ->[archive e &opt ui]
             null))
 
+(prop &mut :TabContainer pgTabs null)
 (prop &mut :ScrollContainer pgScrollContainer null)
 (prop &mut :Node pgEntries null)
 
 (method &override :Void switchPlaygroundKey [:String key]
-    (set pgScrollContainer (getNode rootNode.pgTabs key))
+    (set pgTabs rootNode.pgTabs)
+    
+    (unless (= .name (pgTabs.getChild pgTabs.currentTab) key)
+        (doFor [idx :Control tab] (enumerate (collect (pgTabs.getChildren)) -1)
+            (when (and tab (= tab.name key))
+                (set pgTabs.currentTab idx))))
+
+    (set pgScrollContainer (getNode pgTabs key))
     (set pgEntries (getNode pgScrollContainer "Entries"))
     (super.switchPlaygroundKey key))
 
