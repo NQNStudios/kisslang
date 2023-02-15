@@ -83,6 +83,12 @@
                                     pos2 (dictGet (readComponent e2 Positions) _playgroundKey)]
                             (connectionProcessor archive e pos e2 pos2 ui))))))))
 
+(method savePosition [:Entry e :Float x :Float y &opt :Float z]
+    (withWritableComponents ui.controller.archive e [positions Positions]
+        (let [oldPos (dictGet positions _playgroundKey)]
+            (dictSet positions _playgroundKey
+                (objectWith [z (or z oldPos.z)] x y)))))
+
 (method defaultPosition [:Entry e]
     (object x 0.0 y 0.0 z 0.0))
 
