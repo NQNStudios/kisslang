@@ -1,12 +1,15 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://scripts/EntryContainer.gd" type="Script" id=1]
+[ext_resource path="res://build/src/EntryPanel.cs" type="Script" id=1]
 
 [node name="EntryPanel" type="PanelContainer"]
 margin_right = 40.0
 margin_bottom = 40.0
 mouse_filter = 1
 script = ExtResource( 1 )
+__meta__ = {
+"haxe_script": "res://scripts/EntryPanel.hx"
+}
 
 [node name="EntryLabel" type="Label" parent="."]
 margin_left = 7.0

@@ -9,9 +9,12 @@
         // Create Entry node:
         ->[archive e pos &opt ui]
             (let [:PackedScene ePanelScene (GD.load "res://EntryPanel.tscn")
-                    :PanelContainer ePanel (cast (ePanelScene.instance))
+                    :EntryPanel ePanel (cast (ePanelScene.instance))
                     :Label eLabel (getNode ePanel "EntryLabel")]
                 (set eLabel.text (readComponentOr e Name ""))
+                (set ePanel.rectPosition (new Vector2 pos.x pos.y))
+                (set ePanel.z pos.z)
+                (set ePanel.e e)
                 (pgEntries.addChild ePanel)
                 ePanel)
         // Draw line:

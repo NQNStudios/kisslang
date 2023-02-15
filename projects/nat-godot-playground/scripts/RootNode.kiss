@@ -3,24 +3,31 @@
 (prop &mut :TabContainer pgTabs) 
 (prop &mut :PackedScene pgScene)
 
+
+(defNew []
+    [
+    // TODO find a better way to pass the archiveDir to a Godot game
+    :Archive archive
+        (let [archiveDir (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))]
+            (new Archive archiveDir))
+        :GodotUI ui
+            (new GodotUI archive this)
+    ]
+    &first (super))
+
 (method &override &public :Void _Ready []
     (printThroughGD)
 
     (set pgTabs (getNode this "PlaygroundTabContainer"))
     (set pgScene (GD.load "res://Playground.tscn"))
 
-    // TODO find a better way to pass the archiveDir to a Godot game
-    (let [archiveDir
-                (or (Sys.getEnv "NAT_DIR") (throw "NAT_DIR environment variable must be set"))
-            archive
-                (new Archive archiveDir)]
-
-        (doFor =>key playground archive.playgrounds
+    (doFor =>key playground archive.playgrounds
         (unless (= key "default")
             (let [pg (pgScene.instance)]
                 (set pg.name key)
                 (pgTabs.addChild pg))))
 
-        (let [ui (new GodotUI archive this)
-                controller (new ArchiveController archive ui)]
-            (set ui.controller controller))))
+    (set ui.controller (new ArchiveController archive ui)))
+
+(method :Void _on_PlaygroundTabContainer_tab_changed [:Int tab]
+    (when ui.controller (.switchPlaygroundKey (ui.playgroundSystem) .name (pgTabs.getChild tab))))

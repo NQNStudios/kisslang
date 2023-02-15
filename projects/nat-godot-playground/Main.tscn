@@ -15,3 +15,5 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = 8.0
 margin_bottom = 36.0
+
+[connection signal="tab_changed" from="PlaygroundTabContainer" to="." method="_on_PlaygroundTabContainer_tab_changed"]
