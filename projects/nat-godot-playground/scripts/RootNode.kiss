@@ -2,7 +2,7 @@
 
 (prop &mut :TabContainer pgTabs) 
 (prop &mut :PackedScene pgScene)
-
+(prop &mut :VBoxContainer uiContainer)
 
 (defNew []
     [
@@ -20,6 +20,7 @@
 
     (set pgTabs (getNode this "PlaygroundTabContainer"))
     (set pgScene (GD.load "res://Playground.tscn"))
+    (set uiContainer (getNode this "UIPanel/ScrollContainer/UIContainer"))
 
     (doFor =>key playground archive.playgrounds
         (unless (= key "default")
@@ -29,5 +30,28 @@
 
     (set ui.controller (new ArchiveController archive ui)))
 
+(method &override &public :Void _Process [:Float delta]
+    (when (Input.isActionJustPressed "type_command")
+        (ui.controller.typeCommand))
+        
+    (when (Input.isActionJustPressed "type_shortcut")
+        0 **(ui.controller.typeShortcut)))
+
 (method :Void _on_PlaygroundTabContainer_tab_changed [:Int tab]
     (when ui.controller (.switchPlaygroundKey (ui.playgroundSystem) .name (pgTabs.getChild tab))))
+
+(prop &mut :String->Void resolveString null)
+(method :Void _on_LineEdit_text_entered [:String text]
+    (let [rs resolveString]
+        (set resolveString null)
+        (rs text)))
+
+(prop &mut :Position->Void resolvePosition null)
+(method &override &public :Void _Input [:InputEvent event]
+    (typeCase [event]
+        ([:InputEventMouseButton mouseButtonEvent]
+            (when (= mouseButtonEvent.buttonIndex ButtonList.Left)
+                (whenLet [rp resolvePosition]
+                    (set resolvePosition null)
+                    (rp (GodotUI.vector2ToPosition (.getMousePosition (getViewport)))))))
+        (otherwise)))

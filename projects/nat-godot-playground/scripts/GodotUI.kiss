@@ -9,7 +9,14 @@
 
 (method :Null<PlaygroundSystem<Dynamic>> playgroundSystem [] pgSystem)
 
-(method :Void enterText [:String prompt :String->Void resolve :Float maxLength] (throw "TODO Not implemented!"))
+(method :Void enterText [:String prompt :String->Void resolve :Float maxLength]
+    (displayMessage prompt)
+    (let [lineEdit (new LineEdit)]
+        (unless (= maxLength Math.POSITIVE_INFINITY)
+            (set lineEdit.maxLength (Std.int maxLength)))
+        (set rootNode.resolveString resolve)
+        (lineEdit.connect "text_entered" rootNode "_on_LineEdit_text_entered")
+        (rootNode.uiContainer.addChild lineEdit)))
 
 (method :Void enterNumber [:String prompt :Float->Void resolve :Float min :Float max &opt :Null<Float> inStepsOf &opt :Null<Bool> allowNaN] (throw "TODO Not implemented!"))
 
@@ -17,17 +24,27 @@
 
 (method :Void chooseEntries [:String prompt :Archive archive :Array<Entry>->Void resolve :Int min :Float max] (throw "TODO Not implemented!"))
 
-(method :Void handleChanges [:Archive archive :ChangeSet changeSet] (throw "TODO Not implemented!"))
+(method :Void handleChanges [:Archive archive :ChangeSet changeSet]
+    null)
 
-(method :Void displayMessage [:String message] (throw "TODO Not implemented!"))
+(method :Void displayMessage [:String message]
+    (let [label (new Label)]
+        (set label.text message)
+        (rootNode.uiContainer.addChild label)))
 
 (method :Void reportError [:String error] (throw "TODO Not implemented!"))
 
 (method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries] (throw "TODO Not implemented!"))
 
-(method :Void choosePosition [:String prompt :Position->Void resolve] (throw "TODO Not implemented!"))
+(method :Void choosePosition [:String prompt :Position->Void resolve]
+    (throw "TODO Not implemented!"))
 
-(method :Option<Position> cursorPosition [] (throw "TODO Not implemented!"))
+(method :Option<Position> cursorPosition []
+    (let [pos (.getMousePosition (rootNode.getViewport))]
+        (Some (vector2ToPosition pos))))
+
+(function :Position vector2ToPosition [:Vector2 pos]
+    (object x pos.x y pos.y z 0.0))
 
 (method :Void chooseBetweenStrings [:String prompt :Array<String> choices :String->Void resolve] (throw "TODO Not implemented!"))
 
