@@ -1,7 +1,10 @@
 (load "../Lib.kiss")
 
 (prop &mut :String _playgroundKey "")
-(method :TagList currentDefaultTags [] (or (dictGet playgroundDefaultTags _playgroundKey) []))
+(method :TagList currentDefaultTags []
+    (or
+        (dictGet playgroundDefaultTags _playgroundKey)
+        (new Array<String>)))
 (method :String getPlaygroundKey [] _playgroundKey)
 
 (prop :Map<String,TagList> playgroundDefaultTags (new Map))
