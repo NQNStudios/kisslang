@@ -14,11 +14,43 @@
     (let [lineEdit (new LineEdit)]
         (unless (= maxLength Math.POSITIVE_INFINITY)
             (set lineEdit.maxLength (Std.int maxLength)))
-        (set rootNode.resolveString resolve)
+        (set rootNode.resolveString
+            ->[:String text] {
+                (rootNode.uiContainer.removeChild lineEdit)
+                (displayMessage text)
+                (resolve text)
+            })
         (lineEdit.connect "text_entered" rootNode "_on_LineEdit_text_entered")
-        (rootNode.uiContainer.addChild lineEdit)))
+        (rootNode.uiContainer.addChild lineEdit)
+        (lineEdit.grabFocus)))
 
-(method :Void enterNumber [:String prompt :Float->Void resolve :Float min :Float max &opt :Null<Float> inStepsOf &opt :Null<Bool> allowNaN] (throw "TODO Not implemented!"))
+(method :Void enterNumber [:String prompt :Float->Void resolve :Float min :Float max &opt :Null<Float> inStepsOf &opt :Null<Bool> allowNaN]
+    (displayMessage prompt)
+    (let [spinBox (new SpinBox)
+            nanButton (new Button)
+            submitButton (new Button)
+            resolve
+                ->[:Float num]
+                    {
+                        (set rootNode.resolveFloat null)
+                        (rootNode.uiContainer.removeChild spinBox)
+                        (when allowNaN (rootNode.uiContainer.removeChild nanButton))
+                        (rootNode.uiContainer.removeChild submitButton)
+                        (displayMessage "$num")
+                        (resolve num)
+                    }]
+        (set rootNode.resolveFloat resolve)
+        (set spinBox.minValue min)
+        (set spinBox.maxValue max)
+        (rootNode.uiContainer.addChild spinBox)
+        (when allowNaN
+            (set nanButton.text "NaN")
+            (nanButton.connect "pressed" rootNode "_on_NaNButton_pressed")
+            (rootNode.uiContainer.addChild nanButton))
+        (set submitButton.text "Submit")
+        (submitButton.connect "pressed" rootNode "_on_SubmitNumberButton_pressed" (new godot.collections.Array (NativeArray.make spinBox)))
+        (rootNode.uiContainer.addChild submitButton)
+        (submitButton.grabFocus)))
 
 (method :Void chooseEntry [:String prompt :Archive archive :Entry->Void resolve] (throw "TODO Not implemented!"))
 
@@ -32,12 +64,14 @@
         (set label.text message)
         (rootNode.uiContainer.addChild label)))
 
-(method :Void reportError [:String error] (throw "TODO Not implemented!"))
+(method :Void reportError [:String error]
+    (displayMessage "Error! $error"))
 
 (method :Void onSelectionChanged [:Array<Entry> selectedEntries :Array<Entry> lastSelectedEntries] (throw "TODO Not implemented!"))
 
 (method :Void choosePosition [:String prompt :Position->Void resolve]
-    (throw "TODO Not implemented!"))
+    (displayMessage prompt)
+    (set rootNode.resolvePosition resolve))
 
 (method :Option<Position> cursorPosition []
     (let [pos (.getMousePosition (rootNode.getViewport))]

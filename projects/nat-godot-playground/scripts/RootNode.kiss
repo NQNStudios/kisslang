@@ -41,12 +41,14 @@
     (when ui.controller (.switchPlaygroundKey (ui.playgroundSystem) .name (pgTabs.getChild tab))))
 
 (prop &mut :String->Void resolveString null)
+
 (method :Void _on_LineEdit_text_entered [:String text]
     (let [rs resolveString]
         (set resolveString null)
         (rs text)))
 
 (prop &mut :Position->Void resolvePosition null)
+
 (method &override &public :Void _Input [:InputEvent event]
     (typeCase [event]
         ([:InputEventMouseButton mouseButtonEvent]
@@ -55,3 +57,11 @@
                     (set resolvePosition null)
                     (rp (GodotUI.vector2ToPosition (.getMousePosition (getViewport)))))))
         (otherwise)))
+
+(prop &mut :Float->Void resolveFloat)
+
+(method :Void _on_NaNButton_pressed []
+    (resolveFloat Math.NaN))
+
+(method :Void _on_SubmitNumberButton_pressed [:SpinBox spinBox]
+    (resolveFloat spinBox.value))
