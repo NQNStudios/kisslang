@@ -819,7 +819,6 @@ class Macros {
             ]);
         };
 
-        // TODO test defNew
         k.doc("defnew", 1, null, "(defNew [<args...>] [<optional property bindings...>] <optional body...>");
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var args = exps.shift();
@@ -842,6 +841,19 @@ class Macros {
                 var b = bindingPair[1].expBuilder();
                 b.call(b.symbol("set"), [b.symbol(Helpers.varName("a prop property binding", bindingPair[0])), bindingPair[1]]);
             }];
+
+            var firstExps = [];
+            // &first (super <...>) ensures super is called before anything else (for extending native classes).
+            // You can put more than one expression &first but they all have to come before non-first expressions (for readability)
+            while (exps.length > 0) {
+                switch (exps[0].def) {
+                    case MetaExp("first", exp):
+                        exps.shift();
+                        firstExps.push(exp);
+                    default:
+                        break;
+                }
+            }
 
             var argList = [];
             // &prop in the argument list defines a property supplied directly as an argument
@@ -879,7 +891,7 @@ class Macros {
                 b.call(b.symbol("method"), [
                     b.symbol("new"),
                     b.list(argList)
-                ].concat(propertySetExps).concat(exps))
+                ].concat(firstExps).concat(propertySetExps).concat(exps))
             ]));
         };
         renameAndDeprecate("defnew", "defNew");
