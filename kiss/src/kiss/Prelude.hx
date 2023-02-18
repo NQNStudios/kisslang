@@ -771,7 +771,7 @@ class Prelude {
                 handleError('process $command $args failed:\n${output.toString() + error.toString()}');
                 return null;
         }
-        return output;
+        return output.trim();
         #else
         handleError("Can't run a subprocess on this target.");
         return null;
