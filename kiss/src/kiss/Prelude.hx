@@ -675,7 +675,7 @@ class Prelude {
             for (line in inputLines) {
                 if (line.indexOf("\n") != -1) {
                     handleError('newline is not allowed in the middle of a process input line: "${line.replace("\n", "\\n")}"');
-                    return "";
+                    return null;
                 }
             }
         }
@@ -703,7 +703,7 @@ class Prelude {
                 p.stdout.readall().decode().trim();
             } else {
                 handleError('process $command $args failed:\n${p.stdout.readall().decode().trim() + p.stderr.readall().decode().trim();}');
-                return "";
+                return null;
             }
         } else {
             // The haxe extern for FileIO.readline() says it's a string, but it's not, it's bytes!
@@ -735,7 +735,7 @@ class Prelude {
                         p.stdout.readAll().toString().trim();
                     } else {
                         handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
-                        return "";
+                        return null;
                     }
                 } else
                 #end
@@ -750,7 +750,7 @@ class Prelude {
             return output;
         } catch (e) {
             handleError('process $command $args failed: $e');
-            return "";
+            return null;
         }
         #elseif hxnodejs
         var p = if (inputLines != null) {
@@ -769,12 +769,12 @@ class Prelude {
                 var error:Buffer = p.stderr;
                 if (error == null) error = Buffer.alloc(0);
                 handleError('process $command $args failed:\n${output.toString() + error.toString()}');
-                return "";
+                return null;
         }
         return output;
         #else
         handleError("Can't run a subprocess on this target.");
-        return "";
+        return null;
         #end
     }
 
