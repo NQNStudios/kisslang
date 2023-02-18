@@ -524,9 +524,10 @@ class SpecialForms {
         // Then at runtime, evaluate the expression normally.
         map["macroPrint"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var b = wholeExp.expBuilder();
-            Helpers.printExp(exps[0]);
+            var expansion = Kiss.macroExpand(exps[0], k);
+            Helpers.printExp(expansion);
 
-            var e = Kiss.convert(k, exps[0]);
+            var e = Kiss.convert(k, expansion);
             Prelude.printStr(e.toString());
             return e;
         };

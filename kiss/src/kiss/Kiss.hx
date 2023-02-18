@@ -17,6 +17,7 @@ import kiss.Macros;
 import kiss.KissError;
 import kiss.cloner.Cloner;
 import tink.syntaxhub.*;
+import haxe.ds.Either;
 
 using kiss.Kiss;
 using kiss.Helpers;
@@ -440,18 +441,36 @@ class Kiss {
     static var expCache:haxe.DynamicAccess<String> = null;
     static var cacheFile = ".kissCache.json";
     static var cacheThreshold = 0.2;
-    public static function readerExpToHaxeExpr(exp:ReaderExp, k:KissState):Expr {
+    
+    public static function readerExpToHaxeExpr(exp, k): Expr {
+        return switch (macroExpandAndConvert(exp, k, false)) {
+            case Right(expr): expr;
+            default: throw "macroExpandAndConvert is broken";
+        };
+    }
+
+    public static function macroExpand(exp, k):ReaderExp {
+        return switch (macroExpandAndConvert(exp, k, true)) {
+            case Left(exp): exp;
+            default: throw "macroExpandAndConvert is broken";
+        };
+    }
+
+    // Core functionality of Kiss: returns ReaderExp when macroExpandOnly is true, and haxe.macro.Expr otherwise
+    public static function macroExpandAndConvert(exp:ReaderExp, k:KissState, macroExpandOnly:Bool):Either<ReaderExp,Expr> {
         #if kissCache
-        if (expCache == null) {
-            expCache = if (sys.FileSystem.exists(cacheFile)) {
-                haxe.Json.parse(File.getContent(cacheFile));
-            } else {
-                {};
+        if (!macroExpandOnly) {
+            if (expCache == null) {
+                expCache = if (sys.FileSystem.exists(cacheFile)) {
+                    haxe.Json.parse(File.getContent(cacheFile));
+                } else {
+                    {};
+                }
             }
-        }
-        var str = Reader.toString(exp.def);
-        if (expCache.exists(str)) {
-            return Context.parse(expCache[str], Helpers.macroPos(exp));
+            var str = Reader.toString(exp.def);
+            if (expCache.exists(str)) {
+                return Context.parse(expCache[str], Helpers.macroPos(exp));
+            }
         }
         #end
         
@@ -464,7 +483,29 @@ class Kiss {
         var formDocs = k.formDocs;
 
         // Bind the table arguments of this function for easy recursive calling/passing
-        var convert = readerExpToHaxeExpr.bind(_, k);
+        var convert = macroExpandAndConvert.bind(_, k, macroExpandOnly);
+
+        function left (c:Either<ReaderExp,Expr>) {
+            return switch (c) {
+                case Left(exp): exp;
+                default: throw "macroExpandAndConvert is broken";
+            };
+        }
+
+        function right (c:Either<ReaderExp,Expr>) {
+            return switch (c) {
+                case Right(exp): exp;
+                default: throw "macroExpandAndConvert is broken";
+            };
+        }
+        
+        function leftForEach(convertedExps:Array<Either<ReaderExp,Expr>>) {
+            return convertedExps.map(left);
+        }
+
+        function rightForEach(convertedExps:Array<Either<ReaderExp,Expr>>) {
+            return convertedExps.map(right);
+        }
 
         function checkNumArgs(form:String) {
             if (formDocs.exists(form)) {
@@ -481,45 +522,55 @@ class Kiss {
         var none = EBlock([]).withMacroPosOf(exp);
 
         var startTime = haxe.Timer.stamp();
-        var expr = switch (exp.def) {
+        var expr:Either<ReaderExp,Expr> = switch (exp.def) {
             case None:
-                none;
+                if (macroExpandOnly) Left(exp) else Right(none);
             case Symbol(alias) if (k.identAliases.exists(alias)):
-                readerExpToHaxeExpr(k.identAliases[alias].withPosOf(exp), k);
-            case Symbol(name):
+                var substitution = k.identAliases[alias].withPosOf(exp);
+                if (macroExpandOnly) Left(substitution) else macroExpandAndConvert(substitution, k, false);
+            case Symbol(name) if (!macroExpandOnly):
                 try {
-                    Context.parse(name, exp.macroPos());
+                    Right(Context.parse(name, exp.macroPos()));
                 } catch (err:haxe.Exception) {
                     throw KissError.fromExp(exp, "invalid symbol");
                 };
-            case StrExp(s):
-                EConst(CString(s)).withMacroPosOf(exp);
-            case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff)):
+            case StrExp(s) if (!macroExpandOnly):
+                Right(EConst(CString(s)).withMacroPosOf(exp));
+            case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff) && !macroExpandOnly):
                 checkNumArgs(ff);
                 var field = fieldForms[ff](exp, args.copy(), k);
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
                 k.stateChanged = true;
-                none; // Field forms are no-ops
+                Right(none); // Field forms are no-ops
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
-                checkNumArgs(mac);    
+                checkNumArgs(mac);
                 macroUsed = true;
                 var expanded = macros[mac](exp, args.copy(), k);
                 if (expanded != null) {
                     convert(expanded);
                 } else {
-                    none;
+                    Right(none);
                 };
-            case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm)):
+            case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm) && !macroExpandOnly):
                 checkNumArgs(specialForm);    
-                specialForms[specialForm](exp, args.copy(), k);
+                Right(specialForms[specialForm](exp, args.copy(), k));
             case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
                 convert(CallExp(k.callAliases[alias].withPosOf(exp), args).withPosOf(exp));
             case CallExp(func, args):
-                ECall(convert(func), [for (argExp in args) convert(argExp)]).withMacroPosOf(exp);
+                var convertedArgs = [for (argExp in args) convert(argExp)];
+                if (macroExpandOnly) {
+                    var convertedArgs = leftForEach(convertedArgs);
+                    Left(CallExp(func, convertedArgs).withPosOf(exp));
+                }
+                else {
+                    var convertedArgs = rightForEach(convertedArgs);
+                    Right(ECall(right(convert(func)), convertedArgs).withMacroPosOf(exp));
+                }
+
             case ListExp(elements):
                 var isMap = false;
-                var arrayDecl = EArrayDecl([
+                var convertedElements = [
                     for (elementExp in elements) {
                         switch (elementExp.def) {
                             case KeyValueExp(_, _):
@@ -528,45 +579,59 @@ class Kiss {
                         }
                         convert(elementExp);
                     }
-                ]).withMacroPosOf(exp);
-                if (!isMap && k.wrapListExps && !k.hscript) {
-                    ENew({
-                        pack: ["kiss"],
-                        name: "List"
-                    }, [arrayDecl]).withMacroPosOf(exp);
-                } else {
-                    arrayDecl;
-                };
-            case RawHaxe(code):
+                ];
+                if (macroExpandOnly)
+                    Left(ListExp(leftForEach(convertedElements)).withPosOf(exp));
+                else {
+                    var arrayDecl = EArrayDecl(rightForEach(convertedElements)).withMacroPosOf(exp);
+                    Right(if (!isMap && k.wrapListExps && !k.hscript) {
+                        ENew({
+                            pack: ["kiss"],
+                            name: "List"
+                        }, [arrayDecl]).withMacroPosOf(exp);
+                    } else {
+                        arrayDecl;
+                    });
+                }
+            case RawHaxe(code) if (!macroExpandOnly):
                 try {
-                    Context.parse(code, exp.macroPos());
+                    Right(Context.parse(code, exp.macroPos()));
                 } catch (err:Exception) {
                     throw KissError.fromExp(exp, 'Haxe parse error: $err');
                 };
-            case RawHaxeBlock(code):
+            case RawHaxeBlock(code) if (!macroExpandOnly):
                 try {
-                    Context.parse('{$code}', exp.macroPos());
+                    Right(Context.parse('{$code}', exp.macroPos()));
                 } catch (err:Exception) {
                     throw KissError.fromExp(exp, 'Haxe parse error: $err');
                 };
             case FieldExp(field, innerExp):
-                EField(convert(innerExp), field).withMacroPosOf(exp);
-            case KeyValueExp(keyExp, valueExp):
-                EBinop(OpArrow, convert(keyExp), convert(valueExp)).withMacroPosOf(exp);
-            case Quasiquote(innerExp):
+                var convertedInnerExp = convert(innerExp);
+                if (macroExpandOnly)
+                    Left(FieldExp(field, left(convertedInnerExp)).withPosOf(exp));
+                else
+                    Right(EField(right(convertedInnerExp), field).withMacroPosOf(exp));
+            case KeyValueExp(keyExp, valueExp) if (!macroExpandOnly):
+                Right(EBinop(OpArrow, right(convert(keyExp)), right(convert(valueExp))).withMacroPosOf(exp));
+            case Quasiquote(innerExp) if (!macroExpandOnly):
                 // This statement actually turns into an HScript expression before running
-                macro {
+                Right(macro {
                     Helpers.evalUnquotes($v{innerExp});
-                };
+                });
             default:
-                throw KissError.fromExp(exp, 'conversion not implemented');
+                if (macroExpandOnly)
+                    Left(exp);
+                else
+                    throw KissError.fromExp(exp, 'conversion not implemented');
         };
         var conversionTime = haxe.Timer.stamp() - startTime;
         k.conversionStack.pop();
         #if kissCache
-        if (conversionTime > cacheThreshold && !k.stateChanged) {
-            expCache[str] = expr.toString();
-            File.saveContent(cacheFile, haxe.Json.stringify(expCache));
+        if (!macroExpandOnly) {
+            if (conversionTime > cacheThreshold && !k.stateChanged) {
+                expCache[str] = expr.toString();
+                File.saveContent(cacheFile, haxe.Json.stringify(expCache));
+            }
         }
         #end
 
