@@ -728,18 +728,22 @@ class Prelude {
                     p.stdin.writeString('$line\n');
                 }
             }
-            var output = if (fullProcess) {
-                if (p.exitCode() == 0) {
-                    p.stdout.readAll().toString().trim();
-                } else {
-                    handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
-                    return "";
-                }
-            } else {
-                p.stdout.readLine().toString().trim();
-            }
+            var output =
+                #if !cs
+                if (fullProcess) {
+                    if (p.exitCode() == 0) {
+                        p.stdout.readAll().toString().trim();
+                    } else {
+                        handleError('process $command $args failed:\n${p.stdout.readAll().toString().trim() + p.stderr.readAll().toString().trim()}');
+                        return "";
+                    }
+                } else
+                #end
+                    p.stdout.readLine().toString().trim();
+            #if !cs
             p.kill();
             p.close();
+            #end
             if (cwd != null) {
                 Sys.setCwd(lastCwd);
             }
