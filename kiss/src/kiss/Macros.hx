@@ -752,24 +752,25 @@ class Macros {
         macros["assertLet"] = ifLet.bind(true);
 
         k.doc("awaitLet", 2, null, "(awaitLet [<promise bindings...>] <?catchHandler> <body...>)");
-        function awaitLet(rejectionHandler:ReaderExp->ReaderExp, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
-            
+        function awaitLet(rejectionHandler:ReaderExp, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             var bindingList = exps[0].bindingList("awaitLet");
+
             var firstName = bindingList.shift();
             var firstValue = bindingList.shift();
             var b = wholeExp.expBuilder();
 
+            var rejectionHandlerArgsAndBody = [];
             if (rejectionHandler == null) {
                 function error(firstName:ReaderExp) {
                     return b.callSymbol("+", [b.str('awaitLet ${firstName.symbolNameValue()} rejected promise: '), b.symbol("reason")]);
                 }
-                rejectionHandler = switch (exps[1].def) {
-                    case CallExp({pos: _, def: Symbol("catch")}, args):
+                rejectionHandler = b.symbol();    
+                rejectionHandlerArgsAndBody = switch (exps[1].def) {
+                    case CallExp({pos: _, def: Symbol("catch")}, catchArgs):
                         exps.splice(1,1);
-                        (exp) -> b.callSymbol("lambda", args);
+                        catchArgs;
                     default:
-                        (firstName) -> b.callSymbol("lambda", [
-                            b.list([b.symbol("reason")]),
+                        [b.list([b.symbol("reason")])].concat([
                             b.callSymbol("#when", [
                                 b.symbol("vscode"),
                                 b.callSymbol("Vscode.window.showErrorMessage", [error(firstName)]),
@@ -795,14 +796,23 @@ class Macros {
                 default:
             }
 
-            return b.call(b.field("then", firstValue), [
+            var exp = b.call(b.field("then", firstValue), [
                 b.callSymbol("lambda", [
                     b.list([firstName]),
                     innerExp
                 ]),
-                // Handle rejections:
-                rejectionHandler(firstName)
+                rejectionHandler
             ]);
+            
+            if (rejectionHandlerArgsAndBody.length > 0) {
+                exp = b.callSymbol("withFunctions", [
+                    b.list([b.call(b.typed("Dynamic", rejectionHandler),
+                                rejectionHandlerArgsAndBody)]),
+                    exp
+                ]);
+            }
+
+            return exp;
         }
        
         macros["awaitLet"] = awaitLet.bind(null);
