@@ -772,40 +772,41 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
             (Assert.equals "a55.5true" "${a}${five}${fivePointFive}${tt}"))
         (never otherwise)))
 
-(function _testAwaitLet [:utest.Async async]
-    (localFunction :Promise<Bool> newPromise [:Bool succeed]
-        (new Promise
-            ->:Void [
-                :Bool->Void resolve
-                :Dynamic->Void reject
-            ] (if succeed (resolve true) (reject false))))
-            
-    (awaitLet [result (newPromise true)]
-        (catch [:Dynamic e] (Assert.fail))
-        (Assert.isTrue result)
-        (awaitLet [res1 (newPromise false)
-                    res2 (newPromise true)
-                    res3 (newPromise true)]
-            (catch [:Dynamic e]
-                (Assert.isFalse e)
-                (awaitLet [res1 (newPromise true)
-                            res2 (newPromise false)
-                            res3 (newPromise true)]
-                    (catch [:Dynamic e]
-                        (Assert.isFalse e)
-                        (awaitLet [res1 (newPromise true)
-                                    res2 (newPromise true)
-                                    res3 (newPromise false)]
-                            (catch [:Dynamic e]
-                                (Assert.isFalse e)
-                                (awaitLet [res1 (newPromise true)
-                                            res2 (newPromise res1)
-                                            res3 (newPromise res2)]
-                                    (Assert.isTrue ?(and res1 res2 res3))
-                                    (async.done))
-                                e)
-                            (Assert.fail))
-                        e)
-                    (Assert.fail))
-                e)
-            (Assert.fail))))
+(#when js
+    (function _testAwaitLet [:utest.Async async]
+        (localFunction :Promise<Bool> newPromise [:Bool succeed]
+            (new Promise
+                ->:Void [
+                    :Bool->Void resolve
+                    :Dynamic->Void reject
+                ] (if succeed (resolve true) (reject false))))
+                
+        (awaitLet [result (newPromise true)]
+            (catch [:Dynamic e] (Assert.fail))
+            (Assert.isTrue result)
+            (awaitLet [res1 (newPromise false)
+                        res2 (newPromise true)
+                        res3 (newPromise true)]
+                (catch [:Dynamic e]
+                    (Assert.isFalse e)
+                    (awaitLet [res1 (newPromise true)
+                                res2 (newPromise false)
+                                res3 (newPromise true)]
+                        (catch [:Dynamic e]
+                            (Assert.isFalse e)
+                            (awaitLet [res1 (newPromise true)
+                                        res2 (newPromise true)
+                                        res3 (newPromise false)]
+                                (catch [:Dynamic e]
+                                    (Assert.isFalse e)
+                                    (awaitLet [res1 (newPromise true)
+                                                res2 (newPromise res1)
+                                                res3 (newPromise res2)]
+                                        (Assert.isTrue ?(and res1 res2 res3))
+                                        (async.done))
+                                    e)
+                                (Assert.fail))
+                            e)
+                        (Assert.fail))
+                    e)
+                (Assert.fail)))))
