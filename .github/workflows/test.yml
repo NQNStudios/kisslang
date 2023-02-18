@@ -46,15 +46,15 @@ jobs:
       - uses: actions/checkout@v3
       # Set up Kiss runtimes:
       # haxe
-      - uses: krdlab/setup-haxe@v1.1.5
+      - uses: krdlab/setup-haxe@v1.4.1
         with:
           haxe-version: ${{ matrix.haxe-version }}
       # nodejs
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       # python
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       # mono
