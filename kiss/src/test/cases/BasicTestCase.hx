@@ -404,10 +404,12 @@ class BasicTestCase extends Test {
         _testTypeCase();
     }
 
+    #if (sys || hxnodejs)
     function testTryProcess() {
         Assert.equals("", Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}));
         Assert.equals("4.2.5", Prelude.tryProcess("haxe", ["--version"], error->{throw error;}));
     }
+    #end
 
     var aNullToPrint = null;
 }
