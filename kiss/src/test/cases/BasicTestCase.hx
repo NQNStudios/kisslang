@@ -7,6 +7,9 @@ import kiss.List;
 import kiss.Stream;
 import haxe.ds.Option;
 import kiss.Kiss;
+#if js
+import js.lib.Promise;
+#end
 
 using StringTools;
 
@@ -410,6 +413,12 @@ class BasicTestCase extends Test {
         Assert.equals(null, Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}));
         // tryProcess returns output on success:
         Assert.equals("4.2.5", Prelude.tryProcess("haxe", ["--version"], error->{throw error;}));
+    }
+    #end
+
+    #if js
+    function testAwaitLet(async:utest.Async) {
+        _testAwaitLet(async);
     }
     #end
 
