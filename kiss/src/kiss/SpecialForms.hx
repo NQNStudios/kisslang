@@ -188,6 +188,8 @@ class SpecialForms {
 
         k.doc("deflocal", 2, 3, "(localVar <optional :type> <variable> <optional: &mut> <value>)");
         map["deflocal"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
+            k.localVarCalls.push(wholeExp);
+            k.localVarWarning();
             EVars(toVars(args[0], args[1], k)).withMacroPosOf(wholeExp);
         };
         renameAndDeprecate("deflocal", "localVar");

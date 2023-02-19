@@ -66,7 +66,8 @@ typedef KissState = {
     localVarsInScope:Array<Var>,
     conversionStack:Array<ReaderExp>,
     stateChanged:Bool,
-    printFieldsCalls:Array<ReaderExp>
+    printFieldsCalls:Array<ReaderExp>,
+    localVarCalls:Array<ReaderExp>
 };
 #end
 
@@ -186,7 +187,8 @@ class Kiss {
             localVarsInScope: [],
             conversionStack: [],
             stateChanged: false,
-            printFieldsCalls: []
+            printFieldsCalls: [],
+            localVarCalls: []
         };
 
         k.doc = (form:String, minArgs:Null<Int>, maxArgs:Null<Int>, expectedForm = "", doc = "") -> {
@@ -751,5 +753,15 @@ class Kiss {
     public static function convert(k:KissState, exp:ReaderExp) {
         return readerExpToHaxeExpr(exp, k);
     }
+
+    public static function localVarWarning(k:KissState) {
+        if (k.localVarCalls.length > 0 && k.printFieldsCalls.length > 0) {
+            for (call in k.localVarCalls) {
+                KissError.warnFromExp(call, 'variables declared with with `localVar` are incompatible with printAll macros. Use `let` instead.');
+            }
+            k.localVarCalls = [];
+        }
+    }
+
     #end
 }

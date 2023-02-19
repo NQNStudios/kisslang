@@ -1356,6 +1356,7 @@ class Macros {
 
         function printAll (locals:Bool, nullCheck:Bool, wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) {
             k.printFieldsCalls.push(wholeExp);
+            k.localVarWarning();
             var b = wholeExp.expBuilder();
             var list = if (locals) k.localVarsInScope else k.varsInScope;
             if (!locals && k.inStaticFunction) {
