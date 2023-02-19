@@ -7,6 +7,7 @@
 (defAlias &ident textSize SimpleWindow.textSize)
 
 (prop &mut :FlxPomTimer pomTimer null)
+(prop &mut :FlxText availableMatchesText (new FlxText 0 0 0 "" SimpleWindow.textSize))
 
 (method &override :Void create [] 
     (set FlxG.sound.soundTrayEnabled false)
@@ -30,6 +31,9 @@
     (set uiCamera (new FlxCamera))
     (set SimpleWindow.defaultCamera uiCamera)
     (set uiCamera.bgColor FlxColor.TRANSPARENT)
+    (set availableMatchesText.color FlxColor.LIME)
+    (set availableMatchesText.cameras [uiCamera])
+    (add availableMatchesText)
     (FlxG.cameras.add uiCamera)
     (FlxG.plugins.add (new FlxMouseControl))
     (set FlxMouseControl.sortIndex "priorityID")
@@ -58,6 +62,10 @@
     (when nextFrameFunctions
         (whileLet [f (nextFrameFunctions.shift)]
             (f)))
+
+    (set availableMatchesText.text "$(countAvailableMatches) matches can be made.")
+    (set availableMatchesText.y (- FlxG.height availableMatchesText.height))
+    (set availableMatchesText.x (- FlxG.width availableMatchesText.width))
 
     // workaround for text box somehow losing focus:
     (when entryNameText (set entryNameText.hasFocus true))
