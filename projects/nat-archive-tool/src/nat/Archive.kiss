@@ -2,17 +2,24 @@
 
     [:Array<System> systems
             []
+        :Option<String> gitDir
+            (let [gitDir (joinPath archiveDir ".git")]
+                (if (FileSystem.exists gitDir)
+                        (Some gitDir)
+                    None))
         // Parse all entries into a dictionary of id => entry
         :Map<String,Entry> entries
             (let [entryDir (joinPath archiveDir "entries")
-                    componentDir (joinPath archiveDir "components")
                     filesDir (joinPath archiveDir "files")]
                 (assert (FileSystem.exists archiveDir) "Archive directory $archiveDir does not exist")
                 (assert (FileSystem.isDirectory archiveDir) "$archiveDir is not a directory")
                 (FileSystem.createDirectory entryDir)
-                (FileSystem.createDirectory componentDir)
                 (FileSystem.createDirectory filesDir)
                 
+                // Sync with git if the archive is a repository:
+                (whenLet [(Some gitDir) gitDir]
+                    (assertProcess "git" ["pull"] [] true archiveDir))
+
                 (let [entryFiles (FileSystem.readDirectory entryDir)]
                     (for file entryFiles
                         =>(file.withoutExtension)
@@ -83,7 +90,16 @@
 (method _saveEntry [:Entry e]
     (File.saveContent
         (joinPath archiveDir "entries" (e.id.withExtension "json"))
-        (tink.Json.stringify e)))
+        (tink.Json.stringify e))
+
+    // Sync with git if the archive is a repository:
+    (whenLet [(Some gitDir) gitDir
+                gitDo ->gitArgs (assertProcess "git" gitArgs [] true archiveDir)]
+        (gitDo ["add" "playgrounds.json"])
+        (gitDo ["add" "entries"])
+        (gitDo ["add" "files"])
+        (gitDo ["commit" "-m" "$(Date.now)"])
+        (gitDo ["push"])))
 
 (method fullString [:Entry e]
     (haxe.Json.stringify e null "\t"))
