@@ -768,14 +768,54 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (assertEquals 3 v2))
     (Assert.pass))
 
-(var anotherNullToPrint null)
-(function _testPrintMacrosCheck []
-    (printAllNulls)
-    (var t "bad")
-    (let [u "good"]
-        (localVar v "bad")
-        (printLocalNulls))
-    (Assert.pass))
+(var &mut savedPrints [])
+(function savePrint []
+    (set savedPrints [])
+    ->:Void [:String s] (savedPrints.push s))
+
+(prop anotherNullToPrint null)
+(var anotherStaticNullToPrint null)
+
+(method _testPrintMacrosInstance []
+    (withTempSet [Prelude.printStr (savePrint)]
+        (printAllNulls)
+        (Assert.isTrue (savedPrints.contains "anotherNullToPrint: null"))
+        (Assert.isTrue (savedPrints.contains "anotherStaticNullToPrint: null"))
+        (Assert.isTrue (savedPrints.contains "nullDefinedInHaxe: null"))
+        (Assert.isTrue (savedPrints.contains "staticNullDefinedInHaxe: null"))
+        
+        // TODO This statement prints a warning at compile-time, which won't
+        // appear in savedPrints, so it's harder to test...
+        (prop tp "bad")
+        
+        (let [u null]
+            // TODO this statement should print a warning at compile-time (#112) 
+            (localVar v "bad")
+
+            (set savedPrints [])
+            (printLocalNulls)
+            (Assert.isFalse (savedPrints.contains "anotherNullToPrint: null"))
+            (Assert.isFalse (savedPrints.contains "anotherStaticNullToPrint: null"))
+            (Assert.isTrue (savedPrints.contains "u: null")))))
+
+(function _testPrintMacrosStatic []
+    (withTempSet [Prelude.printStr (savePrint)]
+        (printAllNulls)
+        (Assert.isTrue (savedPrints.contains "anotherStaticNullToPrint: null"))
+        (Assert.isTrue (savedPrints.contains "staticNullDefinedInHaxe: null"))
+
+        // TODO This statement prints a warning at compile-time, which won't
+        // appear in savedPrints, so it's harder to test...
+        (var ts "bad")
+
+        (let [u null]
+            // TODO this statement should print a warning at compile-time (#112) 
+            (localVar v "bad")
+
+            (set savedPrints [])
+            (printLocalNulls)
+            (Assert.isFalse (savedPrints.contains "anotherStaticNullToPrint: null"))
+            (Assert.isTrue (savedPrints.contains "u: null")))))
 
 (function :Void _testTypeCase []
     (typeCase ["a"]

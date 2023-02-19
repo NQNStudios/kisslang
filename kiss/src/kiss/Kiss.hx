@@ -281,6 +281,26 @@ class Kiss {
         });
     }
     #if macro
+    static function addContextFields(k:KissState, useClassFields:Bool) {
+        if (useClassFields) {
+            k.fieldList = Context.getBuildFields();
+            for (field in k.fieldList) {
+                k.fieldDict[field.name] = field;
+                switch (field.kind) {
+                    case FVar(t, e) | FProp(_, _, t, e):
+                        var v = {
+                            name: field.name,
+                            type: t,
+                            expr: e
+                        };
+                        k.addVarInScope(v, false, field.access.indexOf(AStatic) != -1);
+                    default:
+                }
+                
+            }
+        }
+    }
+
     /**
         Build macro: add fields to a class from a corresponding .kiss file
     **/
@@ -308,12 +328,7 @@ class Kiss {
                 if (k == null)
                     k = defaultKissState(context);
 
-                if (useClassFields) {
-                    k.fieldList = Context.getBuildFields();
-                    for (field in k.fieldList) {
-                        k.fieldDict[field.name] = field;
-                    }
-                }
+                k.addContextFields(useClassFields);
                 k.loadingDirectory = loadingDirectory;
 
                 var topLevelBegin = load(kissFile, k);
@@ -423,12 +438,7 @@ class Kiss {
         if (k == null)
             k = defaultKissState(context);
 
-        if (useClassFields) {
-            k.fieldList = Context.getBuildFields();
-            for (field in k.fieldList) {
-                k.fieldDict[field.name] = field;
-            }
-        }
+        k.addContextFields(useClassFields);
 
         for (file in kissFiles) {
             build(file, k, false, context);

@@ -403,8 +403,13 @@ class BasicTestCase extends Test {
         _testWithTempSet();
     }
 
-    function testPrintMacrosCheck() {
-        _testPrintMacrosCheck();
+    var nullDefinedInHaxe = null;
+    static var staticNullDefinedInHaxe = null;
+
+    function testPrintMacros() {
+        // TODO Test the warnings
+        _testPrintMacrosInstance();
+        _testPrintMacrosStatic();
     }
 
     function testTypeCase() {
