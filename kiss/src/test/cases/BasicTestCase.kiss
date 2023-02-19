@@ -341,7 +341,8 @@
 From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" message)))
     
     (assert true)
-    (assert ![]))
+    (assert ![])
+    (assertEquals 6 6 6))
 
 (function _testApply []
     (Assert.equals 6 (apply + [1 2 3])))

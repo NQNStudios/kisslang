@@ -386,6 +386,12 @@ class Macros {
             }
         };
 
+        k.doc("assertEquals", 2, null, "(assertEquals <expected> <actual> <?more actual...>)");
+        macros["assertEquals"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            b.callSymbol("assert", [b.callSymbol("=", exps)]);
+        }
+
         function stringsThatMatch(exp:ReaderExp, formName:String) {
             return switch (exp.def) {
                 case StrExp(s):
