@@ -437,46 +437,51 @@ class Macros {
 
             var builderName:String = null;
             for (arg in argList) {
-                if (restIndex != -1) {
-                    throw KissError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
-                }
+                
                 switch (arg.def) {
-                    case Symbol(name):
-                        argNames.push(name);
-                        if (optIndex == -1) {
-                            ++minArgs;
-                            macroCallForm += ' <$name>';
-                        } else {
-                            macroCallForm += ' <?$name>';
-                        }
-                        ++maxArgs;
                     case MetaExp("builder", {pos: _, def: Symbol(name)}):
                         if (builderName == null) {
                             builderName = name;
                         } else {
                             throw KissError.fromExp(arg, 'Cannot declare multiple &builder args. Already declared: $builderName');
                         }
-                    case MetaExp("opt", {pos: _, def: Symbol(name)}):
-                        argNames.push(name);
-                        macroCallForm += ' <?$name>';
-                        optIndex = maxArgs;
-                        ++maxArgs;
-                    case MetaExp("rest", {pos: _, def: Symbol(name)}):
-                        if (name == "body") {
-                            KissError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
-                        }
-                        argNames.push(name);
-                        macroCallForm += ' <$name...>';
-                        restIndex = maxArgs;
-                        maxArgs = null;
-                    case MetaExp("body", {pos: _, def: Symbol(name)}):
-                        argNames.push(name);
-                        macroCallForm += ' <$name...>';
-                        restIndex = maxArgs;
-                        requireRest = true;
-                        maxArgs = null;
                     default:
-                        throw KissError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt or &rest or &builder");
+                        if (restIndex != -1) {
+                            throw KissError.fromExp(arg, "macros cannot declare arguments after a &rest or &body argument");
+                        }
+                        switch (arg.def) {
+                            case Symbol(name):
+                                argNames.push(name);
+                                if (optIndex == -1) {
+                                    ++minArgs;
+                                    macroCallForm += ' <$name>';
+                                } else {
+                                    macroCallForm += ' <?$name>';
+                                }
+                                ++maxArgs;
+                            
+                            case MetaExp("opt", {pos: _, def: Symbol(name)}):
+                                argNames.push(name);
+                                macroCallForm += ' <?$name>';
+                                optIndex = maxArgs;
+                                ++maxArgs;
+                            case MetaExp("rest", {pos: _, def: Symbol(name)}):
+                                if (name == "body") {
+                                    KissError.warnFromExp(arg, "Consider using &body instead of &rest when writing macros with bodies.");
+                                }
+                                argNames.push(name);
+                                macroCallForm += ' <$name...>';
+                                restIndex = maxArgs;
+                                maxArgs = null;
+                            case MetaExp("body", {pos: _, def: Symbol(name)}):
+                                argNames.push(name);
+                                macroCallForm += ' <$name...>';
+                                restIndex = maxArgs;
+                                requireRest = true;
+                                maxArgs = null;
+                            default:
+                                throw KissError.fromExp(arg, "macro argument should be an untyped symbol or a symbol annotated with &opt, &rest, &body or &builder");
+                        }
                 }
             }
 
