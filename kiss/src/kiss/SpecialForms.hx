@@ -264,16 +264,21 @@ class SpecialForms {
             var b = wholeExp.expBuilder();
             var m = macro $i{uniqueVarName};
 
+            var innerLet = false;
             var loopVarExpr:Expr = switch (namesExp.def) {
-                case KeyValueExp(_, _): k.convert(namesExp);
-                default: {
-                        bodyExps.insert(0,
-                            CallExp(Symbol("localVar").withPosOf(args[2]), [namesExp, Symbol(uniqueVarName).withPosOf(args[2])]).withPosOf(args[2]));
-                        b.haxeExpr(m);
-                    }
+                case KeyValueExp(_, _) | Symbol(_): k.convert(namesExp);
+                case ListExp(_) | TypedExp(_, {pos:_, def:Symbol(_)}): 
+                    innerLet = true;
+                    b.haxeExpr(m);
+                default:
+                    throw KissError.fromExp(namesExp, 'invalid pattern in `$formName`');
             };
 
-            var body = CallExp(Symbol("begin").withPosOf(args[2]), bodyExps).withPosOf(args[2]);
+            var body = if (innerLet) {
+                b.let([namesExp, b.symbol(uniqueVarName)], bodyExps);
+            } else {
+                b.begin(bodyExps);
+            };
             return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), k.convert(body)).withMacroPosOf(wholeExp);
         }
 
