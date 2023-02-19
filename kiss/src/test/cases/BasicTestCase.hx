@@ -399,6 +399,10 @@ class BasicTestCase extends Test {
         _testWithFunctions();
     }
 
+    function testWithTempSet() {
+        _testWithTempSet();
+    }
+
     function testPrintMacrosCheck() {
         _testPrintMacrosCheck();
     }

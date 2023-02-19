@@ -840,6 +840,30 @@ class Macros {
             ]);
         };
 
+        k.doc("withTempSet", 2, null, "(withTempSet [<bindings...>] <body...>)");
+        macros["withTempSet"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+            var bindingList = exps[0].bindingList("withTempSet");
+            var body = exps.slice(1);
+            var bindingPairs = Prelude.groups(bindingList, 2);
+            var exps = [for (pair in bindingPairs) pair[0]];
+            var values = [for (pair in bindingPairs) pair[1]];
+            var oldValueSymbols = [for (i in 0...bindingPairs.length) b.symbol()];
+            var letBindings = Lambda.flatten(Prelude.zipThrow(oldValueSymbols, exps));
+            var setBindings:Array<Array<ReaderExp>> = Prelude.zipThrow(exps, values);
+            var resetBindings:Array<Array<ReaderExp>> = Prelude.zipThrow(exps, oldValueSymbols);
+            var result = b.symbol();
+            b.let(letBindings, [
+                for (pair in setBindings)
+                    b.set(pair[0], pair[1])
+            ].concat([
+                b.let([result, b.begin(body)], [
+                    for (pair in resetBindings)
+                        b.set(pair[0], pair[1])
+                ].concat([result]))
+            ]));
+        };
+
         k.doc("defnew", 1, null, "(defNew [<args...>] [<optional property bindings...>] <optional body...>");
         macros["defnew"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
             var args = exps.shift();

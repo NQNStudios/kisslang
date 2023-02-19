@@ -751,6 +751,23 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (localFunction c [val] (+ (a val) (b val)))
         (Assert.equals 5 (c 1))))
 
+(function _testWithTempSet []  
+    (let [&mut v 5
+            &mut v2 3]
+        (assertEquals 5 v)
+        (assertEquals 3 v2)
+        (withTempSet [v 6]
+            (assertEquals 6 v)
+            (assertEquals 3 v2))
+        (assertEquals 5 v)
+        (assertEquals 3 v2)
+        (withTempSet [v 7 v2 9]
+            (assertEquals 7 v)
+            (assertEquals 9 v2))
+        (assertEquals 5 v)
+        (assertEquals 3 v2))
+    (Assert.pass))
+
 (var anotherNullToPrint null)
 (function _testPrintMacrosCheck []
     (printAllNulls)
