@@ -265,8 +265,15 @@ class SpecialForms {
             var m = macro $i{uniqueVarName};
 
             var innerLet = false;
+            var varsInScope = [];
             var loopVarExpr:Expr = switch (namesExp.def) {
-                case KeyValueExp(_, _) | Symbol(_): k.convert(namesExp);
+                case KeyValueExp({pos: _, def: Symbol(s1)}, {pos: _, def: Symbol(s2)}): 
+                    varsInScope.push({name:s1});
+                    varsInScope.push({name:s2});
+                    k.convert(namesExp);
+                case Symbol(s): 
+                    varsInScope.push({name:s});
+                    k.convert(namesExp);
                 case ListExp(_) | TypedExp(_, {pos:_, def:Symbol(_)}): 
                     innerLet = true;
                     b.haxeExpr(m);
@@ -274,12 +281,22 @@ class SpecialForms {
                     throw KissError.fromExp(namesExp, 'invalid pattern in `$formName`');
             };
 
+
             var body = if (innerLet) {
                 b.let([namesExp, b.symbol(uniqueVarName)], bodyExps);
             } else {
                 b.begin(bodyExps);
             };
-            return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), k.convert(body)).withMacroPosOf(wholeExp);
+
+            for (v in varsInScope) {
+                k.addVarInScope(v, true, false);
+            }
+            var body = k.convert(body);
+            for (v in varsInScope) {
+                k.removeVarInScope(v, true);
+            }
+
+            return EFor(EBinop(OpIn, loopVarExpr, k.convert(listExp)).withMacroPosOf(wholeExp), body).withMacroPosOf(wholeExp);
         }
 
         k.doc("doFor", 3, null, '(doFor <var> <iterable> <body...>)');

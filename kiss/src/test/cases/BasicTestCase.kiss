@@ -815,7 +815,44 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
             (set savedPrints [])
             (printLocalNulls)
             (Assert.isFalse (savedPrints.contains "anotherStaticNullToPrint: null"))
-            (Assert.isTrue (savedPrints.contains "u: null")))))
+            (Assert.isTrue (savedPrints.contains "u: null")))
+        
+        // Test for loop capture variables
+        (set savedPrints [])
+        (doFor a (for _ (range 5) null)
+            (printLocalNulls))
+        (Assert.isTrue (savedPrints.contains "a: null"))
+        (Assert.equals 5 savedPrints.length)
+        
+        (set savedPrints [])
+        (let [:Map<String,String> m (for a (range 5) =>"$a" "a")]
+            (doFor =>k v m
+                (set k null)
+                (printLocalNulls)))
+        (Assert.isTrue (savedPrints.contains "k: null"))
+        (Assert.equals 5 savedPrints.length)
+
+        (set savedPrints [])
+        (let [:Map<Int,String> m (for a (range 5) =>a null)]
+            (doFor =>k v m
+                (printLocalNulls)))
+        (Assert.isTrue (savedPrints.contains "v: null"))
+        (Assert.equals 5 savedPrints.length)
+        
+        (set savedPrints [])
+        (doFor [a b c] (for _ (range 5) [1 null 5])
+            (printLocalNulls))
+        (Assert.isTrue (savedPrints.contains "b: null"))
+        (Assert.equals 5 savedPrints.length)
+
+        (set savedPrints [])
+        (doFor :String s (for _ (range 5) null)
+            (printLocalNulls))
+        (Assert.isTrue (savedPrints.contains "s: null"))
+        (Assert.equals 5 savedPrints.length)
+
+        // TODO test case extraction locals:
+        ))
 
 (function :Void _testTypeCase []
     (typeCase ["a"]
