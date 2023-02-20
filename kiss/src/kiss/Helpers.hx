@@ -252,6 +252,7 @@ class Helpers {
         var expNames = [];
         var listVarSymbol = null;
 
+        var varsInScope:Array<Var> = [];
         function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
             return switch (patternExp.def) {
                 case CallExp({pos: _, def: Symbol("when")}, whenExps):
@@ -276,17 +277,17 @@ class Helpers {
                                 expNames.push(exp);
                             case ListRestExp(name):
                                 if (restExpIndex > -1) {
-                                    throw KissError.fromExp(patternExp, "list-eating pattern cannot have multiple ... or ...[restVar] expressions");
+                                    throw KissError.fromExp(patternExp, "list-eating pattern cannot have multiple ... or ...<restVar> expressions");
                                 }
                                 restExpIndex = idx;
                                 restExpName = name;
                             default:
-                                throw KissError.fromExp(exp, "list-eating pattern can only contain symbols, ..., or ...[restVar]");
+                                throw KissError.fromExp(exp, "list-eating pattern can only contain symbols, ..., or ...<restVar>");
                         }
                     }
 
                     if (restExpIndex == -1) {
-                        throw KissError.fromExp(patternExp, "list-eating pattern is missing ... or ...[restVar]");
+                        throw KissError.fromExp(patternExp, "list-eating pattern is missing ... or ...<restVar>");
                     }
 
                     if (expNames.length == 0) {
@@ -298,7 +299,21 @@ class Helpers {
                     guard = k.convert(b.callSymbol(">", [b.field("length", listVarSymbol), b.raw(Std.string(expNames.length))]));
                     makeSwitchPattern(listVarSymbol);
                 default:
-                    [k.forCaseParsing().convert(patternExp)];
+                    var patternExpr = k.forCaseParsing().convert(patternExp);
+                    // Recurse into the pattern expr for identifiers that must be added
+                    // to vars in scope:
+                    function findIdents(subExpr) {
+                        switch (subExpr.expr) {
+                            case EConst(CIdent(name)):
+                                varsInScope.push({name: name});
+                            default:
+                                haxe.macro.ExprTools.iter(subExpr, findIdents);
+                        }
+                    }
+
+                    findIdents(patternExpr);
+
+                    [patternExpr];
             }
         }
 
@@ -307,7 +322,14 @@ class Helpers {
                 var pattern = makeSwitchPattern(patternExp);
                 var b = caseExp.expBuilder();
                 var body = if (restExpIndex == -1) {
-                    k.convert(b.begin(caseBodyExps));
+                    for (v in varsInScope) {
+                        k.addVarInScope(v, true, false);
+                    }
+                    var e = k.convert(b.begin(caseBodyExps));
+                    for (v in varsInScope) {
+                        k.removeVarInScope(v, true);
+                    }
+                    e;
                 } else {
                     var letBindings = [];
                     for (idx in 0...restExpIndex) {

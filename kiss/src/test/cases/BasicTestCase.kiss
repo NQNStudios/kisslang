@@ -851,8 +851,23 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (Assert.isTrue (savedPrints.contains "s: null"))
         (Assert.equals 5 savedPrints.length)
 
-        // TODO test case extraction locals:
-        ))
+        // Test case extraction locals:
+        (set savedPrints [])
+        (case None
+            (None (printLocalNulls) /* Won't print */)
+            (otherwise))
+        (case (Some null)
+            ((Some v) (printLocalNulls))
+            (otherwise))
+        (Assert.isTrue (savedPrints.contains "v: null"))
+        (Assert.equals 1 savedPrints.length)
+
+        (set savedPrints [])
+        (case (Some (Some (Some [1 2 null])))
+            ((Some (Some (Some [a b c])))
+                (printLocalNulls))
+            (otherwise))
+        (Assert.isTrue (savedPrints.contains "c: null"))))
 
 (function :Void _testTypeCase []
     (typeCase ["a"]
