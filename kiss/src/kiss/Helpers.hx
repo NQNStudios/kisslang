@@ -258,7 +258,6 @@ class Helpers {
         function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
             return switch (patternExp.def) {
                 case _ if (k.hscript):
-                    trace(patternExp);
                     var patternExpr = k.forCaseParsing().convert(patternExp);
                     [switch (patternExpr.expr) {
                         case EConst(CString(_, _)):
