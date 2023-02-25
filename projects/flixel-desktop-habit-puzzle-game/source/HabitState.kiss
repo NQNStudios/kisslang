@@ -71,6 +71,23 @@
     (when entryNameText (set entryNameText.hasFocus true))
     (super.update elapsed)
 
+    (when (and pomWasRunning !pomResumeWindow)
+        (entryWindow.hide)
+        (set pomResumeWindow 
+            (SimpleWindow.promptForChoice "A pomodoro timer was interrupted. Resume it now?"
+                [
+                    "Yes"
+                    "No"
+                ]
+                ->:Void [:String choice]
+                    (case choice
+                        ("Yes" (startPomodoros)(backToEntryWindow))
+                        ("No"
+                            (set pomWasRunning false)
+                            (backToEntryWindow))
+                        (never otherwise))
+                null null FlxColor.LIME 0.9 0.9 true xKey null null ->[] {(set pomWasRunning false)(backToEntryWindow)})))
+
     (if (windowIsShown)
             {
                 (set FlxMouseControl.mouseZone disableMouse)
@@ -211,12 +228,13 @@
 (prop &mut :SimpleWindow entryEditWindow null)
 (prop &mut :SimpleWindow entryCreationWindow null)
 (prop &mut :SimpleWindow priorityWindow null)
+(prop &mut :SimpleWindow pomResumeWindow null)
 
 (method windowIsShown []
     (or (tempWindowIsShown) (and entryWindow (entryWindow.isShown))))
 
 (method tempWindowIsShown []
-    (doFor window [puzzlePackChoiceWindow entryDeletionWindow entryCreationWindow priorityWindow entryEditWindow]
+    (doFor window [puzzlePackChoiceWindow entryDeletionWindow entryCreationWindow priorityWindow entryEditWindow pomResumeWindow]
         (when (and window (window.isShown))
             (return true)))
     false)
@@ -382,21 +400,23 @@
                         (defAndCall method toggleLowerPriority
                             (set model.showLowerPriority !model.showLowerPriority)
                             (refreshModel))))
-                        (prop &mut pomRunning false)
+            (prop &mut pomRunning false)
+            (savedVar :Bool pomWasRunning false)
             (if pomRunning
                     (_makeText "Stop Pomodoro Timer Mode" m.pomodoroPoints
                             ->_ {
                                 (set pomRunning false)
+                                (set pomWasRunning false)
                                 (remove pomTimer)
                                 (refreshModel)
                                 })
                 (_makeText "Start Pomodoro Timer Mode" m.pomodoroPoints
-                    ->_ {
-                        // TODO hide puzzle pieces until the pom is over or the mode is stopped
-                        (set pomRunning true)
-                        (add pomTimer)
-                        (refreshModel)
-                        }) )    
+                    ->_
+                        (defAndCall method startPomodoros
+                            (set pomRunning true)
+                            (set pomWasRunning true)
+                            (add pomTimer)
+                            (refreshModel))) )    
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_
