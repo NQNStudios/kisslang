@@ -71,8 +71,9 @@
     (when entryNameText (set entryNameText.hasFocus true))
     (super.update elapsed)
 
-    (when (and pomWasRunning !pomResumeWindow)
+    (when (and pomWasRunning !pomResumeWindow !pomStartCheck)
         (entryWindow.hide)
+        (set pomStartCheck true)
         (set pomResumeWindow 
             (SimpleWindow.promptForChoice "A pomodoro timer was interrupted. Resume it now?"
                 [
@@ -287,7 +288,8 @@
 
 (method :Void setModel [m &opt :RewardFile currentRewardFile]
     (set model m)
-    (set pomTimer.onFinishedPom ->:Void {(model.addPomPoint) (refreshModel)})
+    (set pomTimer.onFinishedPom ->:Void {(model.addPomPoint) (refreshModel) (entryWindow.hide)})
+    (set pomTimer.onStartPom ->:Void (entryWindow.show))
 
     (let [p (m.totalPoints)
             &mut i 0
@@ -401,6 +403,7 @@
                             (set model.showLowerPriority !model.showLowerPriority)
                             (refreshModel))))
             (prop &mut pomRunning false)
+            (prop &mut pomStartCheck false)
             (savedVar :Bool pomWasRunning false)
             (if pomRunning
                     (_makeText "Stop Pomodoro Timer Mode" m.pomodoroPoints
@@ -415,8 +418,11 @@
                         (defAndCall method startPomodoros
                             (set pomRunning true)
                             (set pomWasRunning true)
+                            (if FlxPomTimer.workMode
+                                    (entryWindow.show)
+                                (entryWindow.hide))
                             (add pomTimer)
-                            (refreshModel))) )    
+                            (refreshModel))))
             (set entryWindow.textColor (FlxColor.RED.getDarkened))
             (_makeText "Delete a habit or task" 0
                 ->_

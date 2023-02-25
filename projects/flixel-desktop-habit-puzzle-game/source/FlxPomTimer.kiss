@@ -7,6 +7,7 @@
 (prop :FlxSound dingSound)
 
 (prop &mut :Void->Void onFinishedPom)
+(prop &mut :Void->Void onStartPom)
 
 (method getText []
     "$(if workMode "FOCUS ON WORK FOR " "TAKE A BREAK FOR ")$(Std.int (/ timerValue 60)):$(.lpad (Std.string (Std.int (% timerValue 60))) "0" 2)")
@@ -20,7 +21,7 @@
     (super.update elapsed)
     (-= timerValue elapsed)
     (#when debug
-        (when FlxG.keys.justPressed.P
+        (when (and FlxG.keys.pressed.CONTROL FlxG.keys.justPressed.P)
             (set timerValue 0)))
     (when (<= timerValue 0)
         (when workMode
@@ -29,5 +30,14 @@
                 (onFinishedPom)))
         (set workMode !workMode)
         (dingSound.play)
-        (set timerValue (* 60 (if workMode workMin (if (= 0 (% totalPoms 4)) longBreakMin breakMin)))))
+        (set timerValue 
+            (* 60 
+                (if workMode 
+                        {
+                            (when onStartPom (onStartPom))
+                            workMin
+                        } 
+                    (if (= 0 (% totalPoms 4))
+                            longBreakMin 
+                        breakMin)))))
     (set text (getText)))
