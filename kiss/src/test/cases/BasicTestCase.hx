@@ -431,6 +431,10 @@ class BasicTestCase extends Test {
     }
     #end
 
+    function testLambdaTypeAnnotations() {
+        _testLambdaTypeAnnotations();
+    }
+
     var aNullToPrint = null;
 }
 

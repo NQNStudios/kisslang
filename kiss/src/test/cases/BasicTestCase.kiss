@@ -736,6 +736,12 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
 (function set_staticProp [v] (set _staticProp v))
 (function get_staticProp [] _staticProp)
 
+(var :(Int,Int)->Bool lambdaTest ->[a b] true)
+(var :()->Void lambdaTest2 ->[] (return))
+(function _testLambdaTypeAnnotations []
+    (Assert.isTrue (lambdaTest 5 6))
+    (lambdaTest2))
+
 (function _testHaxeProperties []
     (Assert.equals 5 staticProp)
     (Assert.equals 9 (set staticProp 9))

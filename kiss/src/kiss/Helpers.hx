@@ -63,7 +63,7 @@ class Helpers {
 
     public static function parseComplexType(path:String, ?from:ReaderExp):ComplexType {
         // Trick Haxe into parsing it for us:
-        var typeCheckStr = '(thing : $path)';
+        var typeCheckStr = 'var thing:$path;';
         var errorMessage = 'Haxe could not parse a complex type from `$path` in `${typeCheckStr}`';
         
         function throwError() {
@@ -76,7 +76,9 @@ class Helpers {
         try {
             var typeCheckExpr = Context.parse(typeCheckStr, Context.currentPos());
             return switch (typeCheckExpr.expr) {
-                case EParenthesis({pos: _, expr: ECheckType(_, complexType)}):
+                case EVars([{
+                    type: complexType
+                }]):
                     complexType;
                 default:
                     throwError();

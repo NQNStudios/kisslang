@@ -90,7 +90,7 @@ class Reader {
             RawHaxeBlock(stream.expect("closing }#", () -> stream.takeUntilAndDrop("}#")));
         };
 
-        readTable[":"] = (stream:Stream, k) -> TypedExp(nextToken(stream, "a type path"), assertRead(stream, k));
+        readTable[":"] = (stream:Stream, k) -> TypedExp(stream.expect("a type path", () -> stream.takeUntilAndDrop(" ")), assertRead(stream, k));
 
         readTable["&"] = (stream:Stream, k) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, k));
 
