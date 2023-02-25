@@ -257,6 +257,19 @@ class Helpers {
         var varsInScope:Array<Var> = [];
         function makeSwitchPattern(patternExp:ReaderExp):Array<Expr> {
             return switch (patternExp.def) {
+                case _ if (k.hscript):
+                    trace(patternExp);
+                    var patternExpr = k.forCaseParsing().convert(patternExp);
+                    [switch (patternExpr.expr) {
+                        case EConst(CString(_, _)):
+                            patternExpr;
+                        case EConst(CInt(_) | CFloat(_)):
+                            patternExpr;
+                        case EConst(CIdent("null")):
+                            patternExpr;
+                        default:
+                            throw KissError.fromExp(caseExp, "case expressions in macros can only match literal values");
+                    }];
                 case CallExp({pos: _, def: Symbol("when")}, whenExps):
                     patternExp.checkNumArgs(2, 2, "(when <guard> <pattern>)");
                     if (guard != null)

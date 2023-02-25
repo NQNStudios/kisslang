@@ -371,6 +371,10 @@ class SpecialForms {
                     false;
             }
 
+            if (k.hscript && isTupleCase) {
+                throw KissError.fromExp(wholeExp, "tuple-matching is not supported in a macro");
+            }
+
             var b = wholeExp.expBuilder();
             var defaultExpr = switch (cases[-1].def) {
                 case CallExp({pos: _, def: Symbol("otherwise")}, otherwiseExps):

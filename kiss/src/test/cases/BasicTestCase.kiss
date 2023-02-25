@@ -742,6 +742,41 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
     (Assert.isTrue (lambdaTest 5 6))
     (lambdaTest2))
 
+(defMacro __testCaseMacroError1 []
+    (case ["thing" 2] `5))
+
+(defMacro __testCaseMacroError2 []
+    (case 5
+        ((Some v) `false)
+        (otherwise `false)))
+
+(defMacro __testCaseMacroError3 []
+    (case 5
+        ([not this] `false)
+        (otherwise `false)))
+
+(defMacro __testCaseMacroError4 [s]
+    (case (symbolNameValue s)
+        ("rightSymbol" `true)
+        (otherwise `false)))
+
+(defMacro __testCaseMacroError5 [n]
+    (case (eval n)
+        (5 `true)
+        (otherwise `false)))
+
+(function _testCaseMacroError []
+    (assertThrowsAtCompileTime
+        (__testCaseMacroError1))
+    (assertThrowsAtCompileTime
+        (__testCaseMacroError2))
+    (assertThrowsAtCompileTime
+        (__testCaseMacroError3))
+    (Assert.isTrue (__testCaseMacroError4 rightSymbol))
+    (Assert.isFalse (__testCaseMacroError4 wrongSymbol))
+    (Assert.isTrue (__testCaseMacroError5 5))
+    (Assert.isFalse (__testCaseMacroError5 6)))
+
 (function _testHaxeProperties []
     (Assert.equals 5 staticProp)
     (Assert.equals 9 (set staticProp 9))

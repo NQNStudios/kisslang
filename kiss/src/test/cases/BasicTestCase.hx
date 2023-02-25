@@ -435,6 +435,10 @@ class BasicTestCase extends Test {
         _testLambdaTypeAnnotations();
     }
 
+    function testCaseMacroError() {
+        _testCaseMacroError();
+    }
+
     var aNullToPrint = null;
 }
 
