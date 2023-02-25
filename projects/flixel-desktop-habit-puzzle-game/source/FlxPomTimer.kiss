@@ -12,7 +12,7 @@
     "$(if workMode "FOCUS ON WORK FOR " "TAKE A BREAK FOR ")$(Std.int (/ timerValue 60)):$(.lpad (Std.string (Std.int (% timerValue 60))) "0" 2)")
 
 (method new []
-    (super (fHalf FlxG.width) 0 (getText) SimpleWindow.textSize)
+    (super (fHalf FlxG.width) 0 (getText) (* 2 SimpleWindow.textSize))
     (set color FlxColor.ORANGE)
     (set dingSound (FlxG.sound.load "assets/ding.wav")))
 
