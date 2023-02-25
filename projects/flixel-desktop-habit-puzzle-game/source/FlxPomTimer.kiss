@@ -41,3 +41,8 @@
                             longBreakMin 
                         breakMin)))))
     (set text (getText)))
+
+(function resetTimer []
+    (set workMode false)
+    (set timerValue 0)
+    (set totalPoms 0))
