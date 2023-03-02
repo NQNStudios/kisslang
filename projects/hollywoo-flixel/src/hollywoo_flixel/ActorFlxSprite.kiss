@@ -1,11 +1,15 @@
-(prop :FlxStageFacing defaultFacing)
+(loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
+
+(prop :StageFacing defaultFacing)
 
 (prop :FuzzyMap<String> animationNames (new FuzzyMap<String>))
 
-(defNew [&prop :String assetPath &opt frameWidth frameHeight :FlxStageFacing defaultFacing :Map<String,AnimationArgs> animations]
+(prop :Float z 0)
+
+(defNew [&prop :String assetPath &opt frameWidth frameHeight :StageFacing defaultFacing :Map<String,AnimationArgs> animations]
     (super)
 
-    (set this.defaultFacing (or defaultFacing Right))
+    (set this.defaultFacing (or defaultFacing FacingRight))
 
     (if (and frameWidth frameHeight)
             (loadGraphic assetPath true frameWidth frameHeight)

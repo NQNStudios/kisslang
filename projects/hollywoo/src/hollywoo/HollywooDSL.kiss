@@ -1,3 +1,34 @@
+(defMacro withProp [propKey name &body body]
+    `(let [,name (dictGet props ,propKey)]
+        ,@body
+        (cc)))
+
+// like withProp, but you promise to call CC yourself in the body:
+(defMacro withPropCC [propKey name &body body]
+    `(let [,name (dictGet props ,propKey)]
+        ,@body))
+        
+(defMacro withActor [actorKey name &body body]
+    `(let [,name (dictGet actors ,actorKey)]
+        ,@body
+        (cc)))
+
+// like withActor, but you promise to call CC yourself in the body:
+(defMacro withActorCC [actorKey name &body body]
+    `(let [,name (dictGet actors ,actorKey)]
+        ,@body))
+
+// Do something with the given scene's instance of its set
+(defMacro withSceneSet [sceneKey name &body body]
+    `(let [,name .set (dictGet scenes ,sceneKey)]
+        ,@body
+        (cc)))
+
+// like withSceneSet, but you promise to call CC yourself in the body:
+(defMacro withSceneSetCC [sceneKey name &body body]
+    `(let [,name .set (dictGet scenes ,sceneKey)]
+        ,@body))
+
 // When this file is loaded, all expressions in (preload <...>) will be collected. When (end) is called, they will
 // be injected into a method called (doPreload).
 // This allows assets to be declared in Hollywoo files where they first appear, but still loaded before execution starts.

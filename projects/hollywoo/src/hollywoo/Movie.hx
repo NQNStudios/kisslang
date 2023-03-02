@@ -13,6 +13,10 @@ import uuid.Uuid;
 
 using kiss.FuzzyMapTools;
 
+typedef Cloneable<T> = {
+    function clone():T;
+}
+
 enum DelayHandling {
     Auto;
     AutoWithSkip;
@@ -37,8 +41,4 @@ enum CreditsLine {
  * Model/controller of a Hollywoo film, and main execution script
  */
 @:build(kiss.Kiss.build())
-class Movie<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> extends AsyncEmbeddedScript {
-    // TODO for some reason this wasn't working when declared in Movie.kiss:
-    // Mutable representation of frames in time:
-    var scenes:FuzzyMap<Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop>> = new FuzzyMap<Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop>>();
-}
+class Movie<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> extends AsyncEmbeddedScript {}

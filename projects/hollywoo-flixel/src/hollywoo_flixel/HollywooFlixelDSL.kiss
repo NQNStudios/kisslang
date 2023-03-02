@@ -2,16 +2,12 @@
 
 (defMacroVar subclass true)
 (loadFrom "hollywoo" "src/hollywoo/Movie.kiss")
+(loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 
-(method newFlxScene [name set time perspective]
+(method newFlxSet [name assetPath]
     (let [setSprite (new FlxSprite 0 0)]
-        (setSprite.loadGraphic (dictGet sets set) false 0 0 true) // Load uniquely so we can draw on sets for specific scenes
-        (newScene name (cast (new SceneFlxState setSprite time perspective)))))
-
-// Destroy substates when the movie end is reached:
-(cleanup
-    (doFor =>name scene scenes
-        (.destroy (cast scene SceneFlxState))))
+        (setSprite.loadGraphic assetPath false 0 0 true) // Load uniquely so we can draw on sets for specific scenes
+        (newSet name setSprite)))
 
 (method newFlxSound [name path &opt :Float volume]
     (set volume (or volume 1))
@@ -56,41 +52,11 @@
         (localVar buttonsPerColumn 25)
         (doFor [num label] (enumerate (sort (collect (runners.keys))))
             (let [runner (dictGet runners label)
-                    b (new flixel.ui.FlxButton 0 buttonY label ->{(.remove (cast (_currentScene) SceneFlxState) buttons)(runner)})]
+                    b (new flixel.ui.FlxButton 0 buttonY label ->{(FlxG.state.remove buttons)(runner)})]
                 (let [column (Std.int (/ num buttonsPerColumn))]
                     (set b.x (* b.width column)))
                 (buttons.add b))
             (+= buttonY 20)
             (when (= (- buttonsPerColumn 1) (% num buttonsPerColumn))
                 (set buttonY 0)))
-        (.add (cast (_currentScene) SceneFlxState) buttons)))
-
-(defMacro withProp [propKey name &body body]
-    `(let [,name (dictGet props ,propKey)]
-        ,@body
-        (cc)))
-
-// like withProp, but you promise to call CC yourself in the body:
-(defMacro withPropCC [propKey name &body body]
-    `(let [,name (dictGet props ,propKey)]
-        ,@body))
-        
-(defMacro withActor [actorKey name &body body]
-    `(let [,name (dictGet actors ,actorKey)]
-        ,@body
-        (cc)))
-
-// like withActor, but you promise to call CC yourself in the body:
-(defMacro withActorCC [actorKey name &body body]
-    `(let [,name (dictGet actors ,actorKey)]
-        ,@body))
-
-(defMacro withSet [sceneKey name &body body]
-    `(let [,name .setSprite (cast (dictGet scenes ,sceneKey) SceneFlxState)]
-        ,@body
-        (cc)))
-
-// like withSet, but you promise to call CC yourself in the body:
-(defMacro withSetCC [sceneKey name &body body]
-    `(let [,name .setSprite (cast (dictGet scenes ,sceneKey) SceneFlxState)]
-        ,@body))
+        (FlxG.state.add buttons)))

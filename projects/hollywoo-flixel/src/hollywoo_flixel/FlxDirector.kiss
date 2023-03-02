@@ -1,6 +1,10 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound> movie)
+(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound> movie)
+(loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
+
+(prop :Array<FlxTypedGroup<FlxSprite>> spriteLayers [])
+(var LAYER_MAX 5)
 
 (defNew []
     (set continueAction (new FlxActionDigital "Continue" onContinue))
@@ -9,110 +13,61 @@
     (continueAction.addMouse LEFT JUST_PRESSED)
     (actionManager.addAction continueAction)
     (FlxG.inputs.add actionManager)
-    (set actionManager.resetOnStateSwitch NONE))
+    (set actionManager.resetOnStateSwitch NONE)
+    
+    // TODO characters will be in front of every prop layer -- characters need their own group layer
+    (doFor i (range LAYER_MAX)
+        (let [g (new FlxTypedGroup<FlxSprite>)]
+            (spriteLayers.push g)
+            (FlxG.state.add g))))
 
-(prop &mut :SceneFlxState currentState)
-(method :Void showScene [:Scene<String,FlxStagePosition,FlxStageFacing,FlxScreenPosition,ActorFlxSprite,FlxSprite> scene :Appearance appearance :Continuation cc]
-    // Close the last scene state
-    (when currentState
-        (currentState.close))
-    // TODO on the first appearance, give a super (for some scenes but probably not others... hm....)
-    (set currentState (cast scene SceneFlxState))
-    (set currentState.parent FlxG.state)
-    (FlxG.state.openSubState currentState)
-    // Re-show characters in case their actor sprites were moved in different scenes:
-    (doFor =>name character currentState.characters
-        (showCharacter character ReAppearance ->:Void {}))
+(method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :Continuation cc]
+    (setSprite.setGraphicSize FlxG.width)
+    (when (> setSprite.height FlxG.height)
+        (setSprite.setGraphicSize 0 FlxG.height))
+    (setSprite.updateHitbox)
+    (setSprite.screenCenter)
+    (FlxG.state.add setSprite)
     (cc))
 
-(method :Void cleanup []
-    (FlxG.state.openSubState null))
+(method :Void hideSet [:FlxSprite set :Continuation cc]
+    (FlxG.state.remove set)
+    (cc))
 
-(var STAGE_LEFT_X 150)
-(var STAGE_RIGHT_X (- 1280 150))
-(var STAGE_BEHIND_DY -250)
-(var ACTOR_Y 500)
+(method :Void cleanup [] 0)
+
+(var STAGE_LEFT_X 150.0)
+(var STAGE_RIGHT_X (- FlxG.width STAGE_LEFT_X))
+(var STAGE_BEHIND_DY 250.0)
+
+(prop :Option<AutoZConfig> autoZConfig (Some (object zPerLayer STAGE_BEHIND_DY frontLayer 0)))
+
+(var ACTOR_Y 500.0)
 (var ACTOR_WIDTH 300)
 
-(method :Void showCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Appearance appearance :Continuation cc]
+(method :Void showCharacter [:Character<ActorFlxSprite> character :Appearance appearance :Continuation cc]
     // TODO on the first appearance, show name and description (maybe? also probably not for all?)
     // TODO  also allow for manually defined flipped frames so text on clothing doesn't mirror
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
+    // All actors same width, display centered on x
     (character.actor.setGraphicSize ACTOR_WIDTH)
     (character.actor.updateHitbox)
-    (ifLet [(FullControl layer rpos) character.stagePosition]
-            {
-                (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
-                (SpriteTools.scaleStampOn character.actor (canvas) rpos)
-                (let [[x y] (SpriteTools.positionOn character.actor (canvas) rpos)]
-                    (set character.actor.x x)
-                    (set character.actor.y y)
-                    (if (= layer SceneFlxState.LAYER_MAX)
-                            // In front of everything:    
-                            (currentState.add character.actor)
-                        (.add (nth currentState.spriteLayers layer) character.actor)))
-            }
-        {
-            (set character.actor.x
-                (- (case character.stagePosition
-                        (Left
-                            (set currentState.actorOnLeft character.actor)
-                            (set currentState.characterOnLeft character)
-                            STAGE_LEFT_X)
-                        (LeftBehind
-                            STAGE_LEFT_X)
-                        (Right
-                            (set currentState.actorOnRight character.actor)
-                            (set currentState.characterOnRight character)
-                            STAGE_RIGHT_X)
-                        (RightBehind
-                            STAGE_RIGHT_X)
-                        (otherwise (throw "unsupported stage position")))
-                    (/ character.actor.width 2)))
-            (set character.actor.y ACTOR_Y)
-            (let [bottom (+ character.actor.y character.actor.height)]
-                (when (> bottom 720)
-                    (-= character.actor.y (- bottom 720))))
-            (let [&mut reAddFront false]
-                (case character.stagePosition
-                    ((or LeftBehind RightBehind)
-                        (set reAddFront true)
-                        (+= character.actor.y STAGE_BEHIND_DY))
-                    (otherwise))
-                (when reAddFront
-                    (when currentState.actorOnLeft (currentState.remove currentState.actorOnLeft))
-                    (when currentState.actorOnRight (currentState.remove currentState.actorOnRight)))
-                (currentState.add character.actor)
-                (when reAddFront
-                    (when currentState.actorOnLeft (currentState.add currentState.actorOnLeft))
-                    (when currentState.actorOnRight (currentState.add currentState.actorOnRight))))
-                })
+    (set character.actor.x
+        (- character.stagePosition.x
+            (/ character.actor.width 2)))
+    (set character.actor.y character.stagePosition.y)
+    // Bump sprites up from the bottom if they're too tall
+    (let [bottom (+ character.actor.y character.actor.height)]
+        (when (> bottom FlxG.height)
+            (-= character.actor.y (- bottom FlxG.height))))
+    // Display with y adjusted by z:
+    (-= character.actor.y character.stagePosition.z)
+    (FlxG.state.add character.actor)
     (cc))
 
-(method :Void hideCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character :Continuation cc]
-    (when (= currentState.actorOnLeft character.actor)
-        (set currentState.actorOnLeft null)
-        (set currentState.characterOnLeft null))
-    (when (= currentState.actorOnRight character.actor)
-        (set currentState.actorOnRight null)
-        (set currentState.characterOnRight null))
-    (currentState.remove character.actor)
+(method :Void hideCharacter [:Character<ActorFlxSprite> character :Continuation cc]
+    (FlxG.state.remove character.actor)
     (cc))
-
-(method :Void moveCharacter [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> character toPos toFacing :Continuation cc]
-    // Directors don't have to change the character, but FlxDirector does because that state determines
-    // where actors are drawn in showCharacter:
-    (set character.stagePosition toPos)
-    (set character.stageFacing toFacing)
-    (hideCharacter character
-        ->:Void (showCharacter character ReAppearance cc)))
-
-(method :Void swapCharacters [:Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> a :Character<FlxStagePosition,FlxStageFacing,ActorFlxSprite> b :Continuation cc]
-    (let [noCC ->:Void {}
-            tempStagePos a.stagePosition
-            tempStageFacing a.stageFacing]
-        (moveCharacter a b.stagePosition b.stageFacing noCC)
-        (moveCharacter b tempStagePos tempStageFacing cc)))
 
 (prop &mut :Null<Continuation> nextCC)
 (method onContinue [:FlxActionDigital continueAction]
@@ -134,23 +89,24 @@
 (prop &mut :FlxSprite titleCard null)
 (method :Void showTitleCard [:Array<String> text :Continuation cc]
     (set titleCard (new FlxSprite))
-    (titleCard.makeGraphic 1280 720 FlxColor.BLACK true)
+    (titleCard.makeGraphic FlxG.width FlxG.height FlxColor.BLACK true)
     (SpriteTools.writeOnSprite (text.shift) TITLE_SIZE titleCard (object x (Percent 0.5) y (Pixels TITLE_Y)))
     (localVar &mut subtitleY (+ TITLE_Y TITLE_SIZE TITLE_MARGIN))
     (doFor subtitle text
         (SpriteTools.writeOnSprite subtitle SUBTITLES_SIZE titleCard (object x (Percent 0.5) y (Pixels subtitleY)))
         (+= subtitleY SUBTITLES_SIZE SUBTITLES_MARGIN))
-    (currentState.add titleCard)
+    (FlxG.state.add titleCard)
     // Allow skipping
     (startWaitForInput cc))
 
 (method :Void hideTitleCard []
-    (currentState.remove titleCard))
+    (FlxG.state.remove titleCard))
 
 (var DIALOG_X 300)
-(var DIALOG_WIDTH (- 1280 ACTOR_WIDTH ACTOR_WIDTH))
 (var DIALOG_Y 500)
-(var DIALOG_HEIGHT (- 720 DIALOG_Y))
+// Make these aliases so they get FlxG.width's current value when queried (not 0 at start time)
+(defAlias &ident DIALOG_WIDTH (- FlxG.width ACTOR_WIDTH ACTOR_WIDTH))
+(defAlias &ident DIALOG_HEIGHT (- FlxG.height DIALOG_Y))
 // TODO these could be customizable to the Actor, wrylies, etc.
 (var DIALOG_BOX_COLOR FlxColor.BLACK)
 (var DIALOG_COLOR FlxColor.WHITE)
@@ -160,29 +116,17 @@
 (var &mut :FlxText dialogText)
 (var &mut :FlxText speakerNameText)
 
-(method showDialog [:String speakerName :SpeechType<FlxStagePosition,FlxStageFacing,ActorFlxSprite> type :String wryly :String text :Continuation cc]
+(method showDialog [:String speakerName :SpeechType<ActorFlxSprite> type :String wryly :String text :Continuation cc]
     // TODO handle text messages, wrylies, off-screen, from-phone, etc. via (case type)
     // TODO attribute on-screen dialogue to the character's stageposition
 
-    // When an actor is associated with the line, check for an animation matching the wryly
     // TODO allow sounds for wrylies, like the dispatch click
     (localVar &mut nameOnRight false)
     (case type
         ((OnScreen character)
-            (case character.stagePosition
-                ((or Right RightBehind) (set nameOnRight true))
-                (otherwise))
-            // If the character is behind another character, swap them so the speaker is front
-            (case character.stagePosition
-                (LeftBehind
-                    (if currentState.characterOnLeft
-                            (swapCharacters character currentState.characterOnLeft ->:Void {}))
-                        (moveCharacter character Left character.stageFacing ->:Void {}))
-                (RightBehind
-                    (if currentState.characterOnRight
-                            (swapCharacters character currentState.characterOnRight ->:Void {}))
-                        (moveCharacter character Right character.stageFacing ->:Void {}))
-                (otherwise))
+            (when (> character.stagePosition.x (/ FlxG.width 2))
+                (set nameOnRight true))
+            // When an actor is associated with the line, check for an animation matching the wryly
             (let [actor (the ActorFlxSprite character.actor)]
                 (if wryly
                         (actor.playAnimation wryly)
@@ -198,23 +142,23 @@
         (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))
         (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR))
     
-    (currentState.add dialogBox)
+    (FlxG.state.add dialogBox)
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
         (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
-    (currentState.add dialogText)
+    (FlxG.state.add dialogText)
     (set dialogText.text text)
     // TODO actually page through the dialog instead of sizing it down?
     // ^ though that doesn't work automatically with VO unless individual word times are kept in the json
     // (which would be really clunky)
     (set dialogText.size DIALOG_SIZE)
-    (while (< 720 (+ dialogText.y dialogText.height))
+    (while (< FlxG.height (+ dialogText.y dialogText.height))
         (-= dialogText.size 6))
     // show the speaker name
     (unless speakerNameText
         (set speakerNameText (new FlxText DIALOG_X DIALOG_Y 0 "" DIALOG_SIZE)))
-    (currentState.add speakerNameText)
+    (FlxG.state.add speakerNameText)
     (if speakerName
             {
                 (set speakerNameText.text "${speakerName}:")
@@ -277,12 +221,12 @@
 (var PROP_MAX_WIDTH 500)
 
 (method :Void quickShowPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
-    (let [left (/ 1280 6)
-            right (- 1280 left)
-            upper (/ 720 6)
-            lower (- 720 upper)
-            centerX (/ 1280 2)
-            centerY (/ 720 2)
+    (let [left (/ FlxG.width 6)
+            right (- FlxG.width left)
+            upper (/ FlxG.height 6)
+            lower (- FlxG.height upper)
+            centerX (/ FlxG.width 2)
+            centerY (/ FlxG.height 2)
             [x y]
                 (case position
                     (Center [centerX centerY])
@@ -317,7 +261,7 @@
                             (-= prop.y (- propBottom FlxG.height))))
                     (otherwise)))
 
-            (currentState.add prop)))
+            (FlxG.state.add prop)))
     (cc))
 
 (prop &mut :FlxSprite _canvas null)
@@ -328,15 +272,15 @@
     _canvas)
         
 (method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
-    (assert (<= 0 layer SceneFlxState.LAYER_MAX) "Layer $layer is out of range 0-$SceneFlxState.LAYER_MAX")
+    (assert (<= 0 layer LAYER_MAX) "Layer $layer is out of range 0-$LAYER_MAX")
     (SpriteTools.scaleStampOn prop (canvas) rpos)
     (let [[x y] (SpriteTools.positionOn prop (canvas) rpos)]
         (set prop.x x)
         (set prop.y y)
-        (if (= layer SceneFlxState.LAYER_MAX)
+        (if (= layer LAYER_MAX)
                 // In front of everything:    
-                (currentState.add prop)
-            (.add (nth currentState.spriteLayers layer) prop)))
+                (FlxG.state.add prop)
+            (.add (nth spriteLayers layer) prop)))
     (cc))
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
@@ -346,8 +290,8 @@
         (quickShowPropOnScreen prop position cc)))
 
 (method :Void hideProp [:FlxSprite prop cc]
-    (currentState.remove prop)
-    (doFor layer currentState.spriteLayers
+    (FlxG.state.remove prop)
+    (doFor layer spriteLayers
         (layer.remove prop))
     (cc))
 
@@ -360,19 +304,19 @@
 (prop &mut :FlxSprite blackBG null)
 (method :Void showBlackScreen []
     (set blackBG (new FlxSprite))
-    (blackBG.makeGraphic 1280 720 FlxColor.BLACK true)
-    (currentState.add blackBG))
+    (blackBG.makeGraphic FlxG.width FlxG.height FlxColor.BLACK true)
+    (FlxG.state.add blackBG))
 
 (method :Void hideBlackScreen []
-    (currentState.remove blackBG))
+    (FlxG.state.remove blackBG))
 
 // TODO maybe credits need their own substate so an after-credits scene could be done.
 // currently the bg will cover whatever the final scene was.
 (method :Void rollCredits [:Array<CreditsLine> credits cc]
     (localVar bg (new FlxSprite))
-    (bg.makeGraphic 1280 720 FlxColor.BLACK true)
-    (currentState.add bg)
-    (localVar &mut textY 720)
+    (bg.makeGraphic FlxG.width FlxG.height FlxColor.BLACK true)
+    (FlxG.state.add bg)
+    (localVar &mut textY FlxG.height)
     (var oneColSize 64)
     (var twoColSize 48)
     (var threeColSize 32)
@@ -392,9 +336,9 @@
             ((TwoColumn col1 col2)
                 (let [t1 (_ctext col1 twoColSize)
                         t2 (_ctext col2 twoColSize)]
-                    (set t1.x (- (* 1280 0.3) t1.width (/ twoColumnGap 2)))
+                    (set t1.x (- (* FlxG.width 0.3) t1.width (/ twoColumnGap 2)))
                     (set t1.y textY)
-                    (set t2.x (+ (* 1280 0.3) (/ twoColumnGap 2)))
+                    (set t2.x (+ (* FlxG.width 0.3) (/ twoColumnGap 2)))
                     (set t2.y textY))
                 (+= textY twoColSize creditMargin))
             // Left-justified, centered, right-justified three column lines
@@ -406,11 +350,11 @@
                     (set t1.y textY)
                     (t2.screenCenter)
                     (set t2.y textY)
-                    (set t3.x (- 1280 creditMargin t3.width))
+                    (set t3.x (- FlxG.width creditMargin t3.width))
                     (set t3.y textY))
                 (+= textY threeColSize creditMargin))
             (otherwise)))
     
     (doFor text creditsText
-        (currentState.add text)
+        (FlxG.state.add text)
         (FlxTween.linearMotion text text.x text.y text.x (- text.y textY) 200 false (object onComplete ->:Void _ (cc)))))

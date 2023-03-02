@@ -5,6 +5,7 @@ import kiss.List;
 import kiss.FuzzyMap;
 import flixel.FlxSprite;
 import hollywoo_flixel.FlxMovie;
+import hollywoo.Director;
 
 typedef AnimationArgs = {
     frames:Array<Int>,

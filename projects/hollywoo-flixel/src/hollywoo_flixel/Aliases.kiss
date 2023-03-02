@@ -1,0 +1,6 @@
+(defAlias &ident Left "Left")
+(defAlias &ident LeftBehind "Left2")
+(defAlias &ident Right "Right")
+(defAlias &ident RightBehind "Right2")
+(defAlias &ident FacingLeft (TowardsPosition "OffScreenLeft"))
+(defAlias &ident FacingRight (TowardsPosition "OffScreenRight"))

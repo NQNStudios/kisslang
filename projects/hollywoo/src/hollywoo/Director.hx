@@ -2,6 +2,7 @@ package hollywoo;
 
 import hollywoo.Scene;
 import hollywoo.Movie;
+import haxe.ds.Option;
 
 enum Appearance {
     FirstAppearance;
@@ -10,13 +11,31 @@ enum Appearance {
 
 typedef Continuation = Void -> Void;
 
-interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> {
-    var movie(default, default):Movie<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack>;
-    function showScene(scene:Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop>, appearance:Appearance, cc:Continuation):Void;
-    function showCharacter(character:Character<StagePosition, StageFacing, Actor>, appearance:Appearance, cc:Continuation):Void;
-    function hideCharacter(character:Character<StagePosition, StageFacing, Actor>, cc:Continuation):Void;
-    function moveCharacter(character:Character<StagePosition, StageFacing, Actor>, toPos:StagePosition, toFacing:StageFacing, cc:Continuation):Void;
-    function swapCharacters(a:Character<StagePosition, StageFacing, Actor>, b:Character<StagePosition, StageFacing, Actor>, cc:Continuation):Void;
+typedef StagePosition = {
+    x:Float,
+    y:Float,
+    z:Float,
+};
+
+enum StageFacing {
+    TowardsCharacter(name:String);
+    AwayFromCharacter(name:String);
+    TowardsPosition(name:String);
+    AwayFromPosition(name:String);
+}
+
+typedef AutoZConfig = {
+    zPerLayer:Float,
+    frontLayer:Int
+};
+
+interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> {
+    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack>;
+    var autoZConfig(default,null):Option<AutoZConfig>;
+    function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, cc:Continuation):Void;
+    function hideSet(set:Set, cc:Continuation):Void;
+    function showCharacter(character:Character<Actor>, appearance:Appearance, cc:Continuation):Void;
+    function hideCharacter(character:Character<Actor>, cc:Continuation):Void;
     function playSound(sound:Sound, volumeMod:Float, waitForEnd:Bool, cc:Continuation):Void;
     function stopSound(sound:Sound):Void;
     function playSong(song:Song, volumeMod:Float, loop:Bool, waitForEnd:Bool, cc:Continuation):Void;
@@ -25,7 +44,7 @@ interface Director<Set, StagePosition, StageFacing, ScreenPosition, Actor, Sound
     function stopVoiceTrack(track:VoiceTrack):Void;
     function startWaitForInput(cc:Continuation):Void;
     function stopWaitForInput():Void;
-    function showDialog(speakerName:String, type:SpeechType<StagePosition, StageFacing, Actor>, wryly:String, dialog:String, cc:Continuation):Void;
+    function showDialog(speakerName:String, type:SpeechType<Actor>, wryly:String, dialog:String, cc:Continuation):Void;
     function hideDialog():Void;
     function showTitleCard(text:Array<String>, cc:Continuation):Void;
     function hideTitleCard():Void;

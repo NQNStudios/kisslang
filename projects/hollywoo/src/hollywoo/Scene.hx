@@ -1,6 +1,8 @@
 package hollywoo;
 
 import kiss.FuzzyMap;
+import hollywoo.Director;
+import hollywoo.Movie;
 
 enum SceneTime {
     Morning;
@@ -15,26 +17,31 @@ enum ScenePerspective {
     Mixed;
 }
 
-typedef Character<StagePosition, StageFacing, Actor> = {
+typedef Character<Actor> = {
     stagePosition:StagePosition,
     stageFacing:StageFacing,
     actor:Actor
 };
 
-enum SpeechType<StagePosition, StageFacing, Actor> {
+enum SpeechType<Actor> {
     Super;
     OffScreen(actor:Actor);
     VoiceOver(actor:Actor);
     TextMessage(actor:Actor);
     FromPhone(actor:Actor);
-    OnScreen(character:Character<StagePosition, StageFacing, Actor>);
+    OnScreen(character:Character<Actor>);
     Custom(type:String, actor:Actor, args:Dynamic);
 }
 
-typedef Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor, Prop> = {
+typedef ScreenProp<ScreenPosition,Prop> = {
+    screenPosition:ScreenPosition,
+    prop:Prop
+};
+
+typedef Scene<Set:Cloneable<Set>, ScreenPosition, Actor, Prop> = {
     set:Set,
-    characters:FuzzyMap<Character<StagePosition, StageFacing, Actor>>,
-    propsOnScreen:FuzzyMap<Prop>,
+    characters:FuzzyMap<Character<Actor>>,
+    propsOnScreen:FuzzyMap<ScreenProp<ScreenPosition,Prop>>,
     // TODO props on stage
     time:SceneTime,
     perspective:ScenePerspective

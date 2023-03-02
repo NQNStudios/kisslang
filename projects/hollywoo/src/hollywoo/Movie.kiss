@@ -1,3 +1,6 @@
+(defMacro makeCC [&body b]
+    `->:Void {,@b})
+
 // This file is designed to be loaded again by subclasses, with macroVar "subclass" set
 (#unless subclass
 
@@ -14,9 +17,8 @@
 
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
-    // TODO for some reason this won't work when declared in Kiss syntax:
     // Mutable representation of frames in time:
-    // var scenes:Map<String, Scene<Set, StagePosition, StageFacing, ScreenPosition, Actor>> = [];
+    (prop :FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop>> scenes (new FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop>>))
 
     (prop :FuzzyMap<Bool> shownScenes (new FuzzyMap<Bool>))
     (prop :FuzzyMap<Bool> shownCharacters (new FuzzyMap<Bool>))
@@ -40,7 +42,8 @@
     (method :Void showDialog [actorName dialogType wryly text cc]
         (when intercutMap
             (whenLet [sceneForActor (try (dictGet intercutMap actorName) (catch [e] null))]
-                (setScene sceneForActor ->{})))
+                (unless (= sceneForActor sceneKey)
+                    (setScene sceneForActor ->{}))))
         
         (let [cc ->:Void {(director.hideDialog) (cc)}
                 &mut skipCC cc]
@@ -83,11 +86,66 @@
                                 [])]
                     (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey alts))))))
 
+    (method _ccForEach <>[T] [:Iterable<T> collection :(T,Continuation)->Void do_ :Continuation finalCC]
+        (let [:Iterator<T> iter (collection.iterator)]
+            (withFunctions
+                [
+                    (:Void doNext []
+                        (if (iter.hasNext)
+                                (do_ (iter.next) doNext)
+                            (finalCC)))
+                ]
+                (doNext))))
+
+    (method _hideCurrentScene [:Continuation cc]
+        (if sceneKey
+                // hide current scene background
+                (let [currentScene (dictGet scenes sceneKey)]
+                    (director.hideSet currentScene.set 
+                        (makeCC
+                            // hide current scene characters 
+                            (_ccForEach 
+                                currentScene.characters
+                                ->[:Character<Actor> c :Continuation cc]
+                                    (director.hideCharacter c cc)
+                                (makeCC
+                                    // hide current scene props, etc.
+                                    (_ccForEach
+                                        currentScene.propsOnScreen
+                                        ->[:ScreenProp<ScreenPosition,Prop> p :Continuation cc]
+                                            (director.hideProp p.prop cc)
+                                        cc))))))
+            (cc)))
+    
+    (method _showScene [:Scene<Set,ScreenPosition,Actor,Prop> scene :Appearance appearance :Continuation cc]
+        // Show current scene background
+        (director.showSet scene.set scene.time scene.perspective appearance
+            (makeCC
+                // Show current scene characters 
+                (_ccForEach 
+                    (object iterator ->(scene.characters.keys))
+                    ->[:String key :Continuation cc]
+                        (director.showCharacter (dictGet scene.characters key) (appearanceFlag shownCharacters key) cc)
+                    (makeCC
+                        // hide current scene props, etc.
+                        (_ccForEach
+                            scene.propsOnScreen
+                            ->[:ScreenProp<ScreenPosition,Prop> p :Continuation cc]
+                                (director.showPropOnScreen p.prop p.screenPosition cc)
+                            cc))))))
+
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
-            &prop :Director<Set,StagePosition,StageFacing,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack> director
+            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack> director
             &opt :String voiceLinesJson
+            &opt :String positionsJson
+        ]
+        [
+            :Map<String,StagePosition> stagePositions
+                (if positionsJson
+                        (haxe.Json.parse (sys.io.File.getContent positionsJson))
+                    (new Map))
         ]
 
         (set director.movie this)
@@ -99,7 +157,7 @@
 
 // Some real magic happens here. This macro defines a method, AND a reader macro
 // for calling it with cc passed automatically if cc is an argument.
-
+// GOTCHA: DO NOT use (method) directly in this file!!
 (defMacro hollywooMethod [nameAndType canSkip argList &builder b &body body]
     (let [args (expList argList)
             numArgs args.length
@@ -162,25 +220,24 @@
     (dictSet scenes name (objectWith
                                 [
                                     set
-                                        (dictGet sets setKey)
+                                        (.clone (dictGet sets setKey))
                                     characters
-                                        (new FuzzyMap<Character<StagePosition,StageFacing,Actor>>)
+                                        (new FuzzyMap<Character<Actor>>)
                                     propsOnScreen
-                                        (new FuzzyMap<Prop>)
+                                        (new FuzzyMap<ScreenProp<ScreenPosition,Prop>>)
                                 ]
                                 time
                                 perspective)))
 
-(hollywooMethod newScene true [name :Scene<Set,StagePosition,StageFacing,ScreenPosition,Actor,Prop> scene]
-    (assert isLoading)
-    (dictSet scenes name scene))
-
 (hollywooMethod setScene false [name :Continuation cc]
-    (set sceneKey name)
-    (director.showScene
-        (dictGet scenes name)
-        (appearanceFlag shownScenes name)
-        cc))
+    (_hideCurrentScene
+        (makeCC
+            (set sceneKey name)
+            (_showScene
+                (dictGet scenes name)
+                (appearanceFlag shownScenes name)
+                cc))))
+    
 
 (hollywooMethod newSound true [name :Sound s]
     (assert isLoading)
@@ -221,38 +278,62 @@
     (assert isLoading)
     (dictSet actors name actor))
 
-(hollywooMethod addCharacter false [actorName :StagePosition position :StageFacing facing :Continuation cc]
-    (let [character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
-        (dictSet .characters (_currentScene) actorName character)
-        (director.showCharacter
-            character
-            (appearanceFlag shownCharacters actorName)
-            cc)))
+(hollywooMethod autoZProcess false [:StagePosition position :Continuation cc]
+    // handle auto z recursively
+    (ifLet [(Some (objectWith zPerLayer frontLayer)) director.autoZConfig]
+            {
+                (doFor =>name otherCharacter .characters (_currentScene)
+                    (when (and (= position.x otherCharacter.stagePosition.x) (= position.y otherCharacter.stagePosition.y) (= position.z otherCharacter.stagePosition.z))
+                        (moveCharacter name (object x position.x y position.y z (+ otherCharacter.stagePosition.z zPerLayer)) otherCharacter.stageFacing cc)
+                        (return)))
+                (cc)
+            }
+        (cc)))
+
+(hollywooMethod addCharacter false [actorName :Dynamic position :StageFacing facing :Continuation cc]
+    (let [position (typeCase [position]
+                            ([:String pKey] (dictGet stagePositions pKey))
+                            (otherwise position))
+            character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
+        (autoZProcess position
+            (makeCC
+                (dictSet .characters (_currentScene) actorName character)
+                (director.showCharacter
+                    character
+                    (appearanceFlag shownCharacters actorName)
+                    cc))))) 
 
 (hollywooMethod removeCharacter false [actorName :Continuation cc]
     (let [c (dictGet .characters (_currentScene) actorName)]
         (.remove .characters (_currentScene) actorName)
         (director.hideCharacter c cc)))
 
-(hollywooMethod moveCharacter false [actorName :StagePosition newPosition :StageFacing newFacing :Continuation cc]
-    (let [c (dictGet .characters (_currentScene) actorName)]
-        (director.moveCharacter c newPosition newFacing ->:Void {
-            (set c.stagePosition newPosition)
-            (set c.stageFacing newFacing)
-            (cc)
-        })))
+// INSTANTLY move a character:
+(hollywooMethod moveCharacter false [actorName :Dynamic newPosition :StageFacing newFacing :Continuation cc]
+    (let [newPosition (typeCase [newPosition]
+                            ([:String pKey] (dictGet stagePositions pKey))
+                            (otherwise newPosition))]
+        (removeCharacter actorName
+            (makeCC
+                (addCharacter actorName newPosition newFacing cc)))))
 
+// INSTANTLY swap characters
 (hollywooMethod swapCharacters false [actorNameA actorNameB :Continuation cc]
+    // remove both, then re-add both, so they don't trigger 
+    // cascading auto z adjustments on top of each other:
     (let [a (dictGet .characters (_currentScene) actorNameA)
-            b (dictGet .characters (_currentScene) actorNameB)]
-        (director.swapCharacters a b ->:Void 
-                (let [tempStagePos a.stagePosition
-                        tempStageFacing a.stageFacing]
-                    (set a.stagePosition b.stagePosition)
-                    (set a.stageFacing b.stageFacing)
-                    (set b.stagePosition tempStagePos)
-                    (set b.stageFacing tempStageFacing)
-                    (cc)))))
+            asp a.stagePosition
+            asf a.stageFacing
+            b (dictGet .characters (_currentScene) actorNameB)
+            bsp b.stagePosition
+            bsf b.stageFacing]
+        (removeCharacter actorNameA
+            (makeCC
+                (removeCharacter actorNameB
+                    (makeCC
+                        (addCharacter actorNameA bsp bsf
+                            (makeCC
+                                (addCharacter actorNameB asp asf cc)))))))))
 
 // TODO moveCharacter remove them, add them to another scene
 // TODO moveCharacterAndFollow remove them, add them to another scene, set that the scene
@@ -262,10 +343,13 @@
     (dictSet props name prop))
 
 (hollywooMethod addPropToScreen false [name :ScreenPosition position :Continuation cc]
-    (dictSet .propsOnScreen (_currentScene) name (dictGet props name))
-    (director.showPropOnScreen (dictGet props name) position cc))
+    (let [prop (dictGet props name)]
+        (dictSet .propsOnScreen (_currentScene) name (object screenPosition position prop prop))
+        (director.showPropOnScreen prop position cc)))
 
 (hollywooMethod removeProp false [name :Continuation cc]
+    (.remove .propsOnScreen (_currentScene) name)
+    // TODO (propsOnStage.remove name)
     (director.hideProp (dictGet props name) cc))
 
 // Dialogue:
