@@ -1,5 +1,4 @@
 (loadFrom "hollywoo" "src/hollywoo/HollywooDSL.kiss")
-(loadFrom "hollywoo-flixel" "src/hollywoo_flixel/AssetMacros.kiss")
 
 (defMacroVar subclass true)
 (loadFrom "hollywoo" "src/hollywoo/Movie.kiss")
