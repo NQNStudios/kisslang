@@ -90,7 +90,7 @@ class Reader {
             RawHaxeBlock(stream.expect("closing }#", () -> stream.takeUntilAndDrop("}#")));
         };
 
-        readTable[":"] = (stream:Stream, k) -> TypedExp(stream.expect("a type path", () -> stream.takeUntilAndDrop(" ")), assertRead(stream, k));
+        readTable[":"] = (stream:Stream, k) -> TypedExp(stream.expect("a type path", () -> stream.takeUntilOneOf(whitespace)), assertRead(stream, k));
 
         readTable["&"] = (stream:Stream, k) -> MetaExp(nextToken(stream, "a meta symbol like mut, optional, rest"), assertRead(stream, k));
 
@@ -228,7 +228,8 @@ class Reader {
         return readTable;
     }
 
-    public static final terminators = [")", "]", "}", '"', "/*", "\n", " "];
+    public static final whitespace = [" ", "\t", "\n"];
+    public static final terminators = [")", "]", "}", '"', "/*"].concat(whitespace);
 
     public static function nextToken(stream:Stream, expect:String, allowEmptyString = false) {
         switch (stream.takeUntilOneOf(terminators, true)) {
