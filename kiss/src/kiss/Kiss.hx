@@ -471,6 +471,7 @@ class Kiss {
     // Core functionality of Kiss: returns ReaderExp when macroExpandOnly is true, and haxe.macro.Expr otherwise
     public static function macroExpandAndConvert(exp:ReaderExp, k:KissState, macroExpandOnly:Bool):Either<ReaderExp,Expr> {
         #if kissCache
+        var str = Reader.toString(exp.def);
         if (!macroExpandOnly) {
             if (expCache == null) {
                 expCache = if (sys.FileSystem.exists(cacheFile)) {
@@ -479,9 +480,9 @@ class Kiss {
                     {};
                 }
             }
-            var str = Reader.toString(exp.def);
+            
             if (expCache.exists(str)) {
-                return Context.parse(expCache[str], Helpers.macroPos(exp));
+                return Right(Context.parse(expCache[str], Helpers.macroPos(exp)));
             }
         }
         #end
@@ -641,7 +642,10 @@ class Kiss {
         #if kissCache
         if (!macroExpandOnly) {
             if (conversionTime > cacheThreshold && !k.stateChanged) {
-                expCache[str] = expr.toString();
+                expCache[str] = switch (expr) {
+                    case Right(expr): expr.toString();
+                    default: throw "macroExpandAndConvert is broken";
+                }
                 File.saveContent(cacheFile, haxe.Json.stringify(expCache));
             }
         }
