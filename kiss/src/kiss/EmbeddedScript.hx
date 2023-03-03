@@ -6,6 +6,7 @@ import haxe.macro.Context;
 import haxe.macro.PositionTools;
 import sys.io.File;
 import haxe.io.Path;
+using kiss.Helpers;
 #end
 import kiss.Kiss;
 import kiss.cloner.Cloner;
