@@ -429,17 +429,17 @@ class SpecialForms {
             if (args.length == 3) {
                 pkg = switch (args.shift().def) {
                     case Symbol(pkg): pkg;
-                    default: throw KissError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid haxe package');
+                    default: throw KissError.fromExp(wholeExp, '$whichArg argument to (the... ) should be a valid haxe package');
                 };
                 whichArg = "second";
             }
             var type = switch (args[0].def) {
                 case Symbol(type): type;
-                default: throw KissError.fromExp(args[0], '$whichArg argument to (the... ) should be a valid type');
+                default: throw KissError.fromExp(wholeExp, '$whichArg argument to (the... ) should be a valid type');
             };
             if (pkg.length > 0)
                 type = pkg + "." + type;
-            ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, args[0])).withMacroPosOf(wholeExp);
+            ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, wholeExp, true)).withMacroPosOf(wholeExp);
         };
 
         k.doc("try", 1, null, "(try <thing> <catches...>)");
@@ -458,7 +458,7 @@ class SpecialForms {
                                             def: Symbol(name) | TypedExp(_, {pos: _, def: Symbol(name)})
                                         }
                                     ]): name;
-                                    default: throw KissError.fromExp(catchArgs[0], 'first argument to (catch... ) should be a one-element argument list');
+                                    default: throw KissError.fromExp(catchKissExp, 'first argument to (catch... ) should be a one-element argument list');
                                 },
                                 type: switch (catchArgs[0].def) {
                                     case ListExp([{pos: _, def: TypedExp(type, _)}]):
@@ -522,9 +522,9 @@ class SpecialForms {
             if (args.length > 1) {
                 switch (args[1].def) {
                     case Symbol(typePath):
-                        t = Helpers.parseComplexType(typePath, args[1]);
+                        t = Helpers.parseComplexType(typePath, wholeExp, true);
                     default:
-                        throw KissError.fromExp(args[1], 'second argument to cast should be a type path symbol');
+                        throw KissError.fromExp(wholeExp, 'second argument to cast should be a type path symbol');
                 }
             }
             ECast(e, t).withMacroPosOf(wholeExp);

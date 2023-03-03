@@ -61,7 +61,7 @@ class Helpers {
         };
     }
 
-    public static function parseComplexType(path:String, ?from:ReaderExp):ComplexType {
+    public static function parseComplexType(path:String, ?from:ReaderExp, mustResolve=false):ComplexType {
         // Trick Haxe into parsing it for us:
         var typeCheckStr = 'var thing:$path;';
         var errorMessage = 'Haxe could not parse a complex type from `$path` in `${typeCheckStr}`';
@@ -75,7 +75,7 @@ class Helpers {
         }
         try {
             var typeCheckExpr = Context.parse(typeCheckStr, Context.currentPos());
-            return switch (typeCheckExpr.expr) {
+            var t = switch (typeCheckExpr.expr) {
                 case EVars([{
                     type: complexType
                 }]):
@@ -84,6 +84,16 @@ class Helpers {
                     throwError();
                     return null;
             };
+            if (mustResolve) {
+                try {
+                    var pos = if (from != null) from.macroPos() else Context.currentPos();
+                    Context.resolveType(t, pos);
+                } catch (e:Dynamic) {
+                    errorMessage = 'Type not found: $path';
+                    throwError(); 
+                }
+            }
+            return t;
         } catch (err) {
             throwError();
             return null;
