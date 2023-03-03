@@ -71,9 +71,10 @@ class EmbeddedScript {
                     var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
 
                     if (expr != null) {
-                        commandList.push(macro function(self) {
+                        var c = macro function(self) {
                             $expr;
-                        });
+                        };
+                        commandList.push(c.expr.withMacroPosOf(nextExp));
                     }
 
                     // This return is essential for type unification of concat() and push() above... ugh.

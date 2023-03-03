@@ -181,11 +181,13 @@ class AsyncEmbeddedScript {
 
                     #if debug
                     expr = macro { Prelude.print($v{exprString}); $expr; };
+                    expr = expr.expr.withMacroPosOf(nextExp);
                     #end
                     if (expr != null) {
-                        commandList.push(macro function(self, cc) {
+                        var c = macro function(self, cc) {
                             $expr;
-                        });
+                        };
+                        commandList.push(c.expr.withMacroPosOf(nextExp));
                     }
 
                     // This return is essential for type unification of concat() and push() above... ugh.
