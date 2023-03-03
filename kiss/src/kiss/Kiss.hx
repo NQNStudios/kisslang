@@ -364,7 +364,7 @@ class Kiss {
         });
     }
 
-    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String, loadAllExps = false):Null<ReaderExp> {
+    public static function load(kissFile:String, k:KissState, ?loadingDirectory:String, loadAllExps = false, ?fromExp:ReaderExp):Null<ReaderExp> {
         if (loadingDirectory == null)
             loadingDirectory = k.loadingDirectory;
 
@@ -379,7 +379,16 @@ class Kiss {
         if (k.loadedFiles.exists(fullPath)) {
             return k.loadedFiles[fullPath];
         }
-        var stream = Stream.fromFile(fullPath);
+        var stream = try {
+            Stream.fromFile(fullPath);
+        } catch (m:Any) {
+            var message =  'Kiss file not found: $kissFile';
+            if (fromExp != null)
+                throw KissError.fromExp(fromExp, message);
+            Sys.println(message);
+            Sys.exit(1);
+            null;
+        }
         var startPosition = stream.position();
         var loadedExps = [];
         Reader.readAndProcess(stream, k, (nextExp) -> {

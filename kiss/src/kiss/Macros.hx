@@ -50,7 +50,7 @@ class Macros {
 
         k.doc("load", 1, 1, '(load "<file.kiss>")');
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            Kiss.load(compileTimeResolveToString("The only argument to (load...)", "a .kiss file path", args[0], k), k);
+            Kiss.load(compileTimeResolveToString("The only argument to (load...)", "a .kiss file path", args[0], k), k, null, false, wholeExp);
         };
 
         k.doc("loadFrom", 2, 2, '(loadFrom "<haxelib name>" "<file.kiss>")');
@@ -58,7 +58,7 @@ class Macros {
             var libName = compileTimeResolveToString("The first argument to (loadFrom...)", "a haxe library's name", args[0], k);
             var libPath = Prelude.libPath(libName);
             var otherKissFile = compileTimeResolveToString("The second argument to (loadFrom...)", "a .kiss file path", args[1], k);
-            Kiss.load(otherKissFile, k, libPath);
+            Kiss.load(otherKissFile, k, libPath, false, wholeExp);
         };
 
         function destructiveVersion(op:String, assignOp:String) {
