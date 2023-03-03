@@ -13,6 +13,7 @@ using kiss.Helpers;
 using kiss.Prelude;
 using kiss.Kiss;
 using tink.MacroApi;
+using StringTools;
 import tink.syntaxhub.*;
 
 // Special forms convert Kiss reader expressions into Haxe macro expressions
@@ -439,7 +440,7 @@ class SpecialForms {
             };
             if (pkg.length > 0)
                 type = pkg + "." + type;
-            ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, wholeExp, true)).withMacroPosOf(wholeExp);
+            ECheckType(k.convert(args[1]), Helpers.parseComplexType(type, wholeExp, !type.contains("<"))).withMacroPosOf(wholeExp);
         };
 
         k.doc("try", 1, null, "(try <thing> <catches...>)");
@@ -522,7 +523,7 @@ class SpecialForms {
             if (args.length > 1) {
                 switch (args[1].def) {
                     case Symbol(typePath):
-                        t = Helpers.parseComplexType(typePath, wholeExp, true);
+                        t = Helpers.parseComplexType(typePath, wholeExp, !typePath.contains("<"));
                     default:
                         throw KissError.fromExp(wholeExp, 'second argument to cast should be a type path symbol');
                 }
