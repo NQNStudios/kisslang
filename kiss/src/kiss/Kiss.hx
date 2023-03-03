@@ -324,8 +324,7 @@ class Kiss {
 
         return _try(() -> {
             #if profileKiss
-            haxe.Timer.measure(() -> {
-                trace(kissFile);
+            Kiss.measure('Compiling kiss: $kissFile', () -> {
             #end
                 if (k == null)
                     k = defaultKissState(context);
@@ -765,6 +764,15 @@ class Kiss {
             }
             k.localVarCalls = [];
         }
+    }
+
+    public static function measure<T>(processLabel:String, process:Void->T) {
+        var start = Sys.time();
+        Sys.print('${processLabel}... ');
+        var result = process();
+        var end = Sys.time();
+        Sys.println('${end-start}s');
+        return result;
     }
 
     #end

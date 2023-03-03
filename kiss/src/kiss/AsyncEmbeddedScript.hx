@@ -173,8 +173,7 @@ class AsyncEmbeddedScript {
         k.fieldList = [];
         Kiss._try(() -> {
             #if profileKiss
-            haxe.Timer.measure(() -> {
-                trace(scriptFile);
+            Kiss.measure('Compiling kiss: $scriptFile', () -> {
             #end
                 Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
                     var exprString = Reader.toString(nextExp.def);

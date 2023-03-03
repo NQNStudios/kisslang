@@ -65,8 +65,7 @@ class EmbeddedScript {
 
         Kiss._try(() -> {
             #if profileKiss
-            haxe.Timer.measure(() -> {
-                trace(scriptFile);
+            Kiss.measure('Compiling kiss: $scriptFile', () -> {
             #end
                 Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
                     var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
