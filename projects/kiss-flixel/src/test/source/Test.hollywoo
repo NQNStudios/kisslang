@@ -1,0 +1,8 @@
+{(prop &mut soundPlayed false)(cc)}
+(preload
+	(newFlxSound "pageFlip" AssetPaths.pageTurn__wav))
+{(delay 1 ->:Void (assert soundPlayed)) (cc)}
+AWAITPLAYSOUND "pageFlip"
+{(set soundPlayed true) (cc)}
+
+(Sys.exit 0)
