@@ -69,6 +69,17 @@
     (setMacroVar cardId 0)
     `{,@body})
 
+(defMacroVar _weight 1.0)
+(defMacro setWeight [weightV]
+    (setMacroVar _weight (eval weightV))
+    `null)
+(defMacro weight [weightV &body body]
+    `{
+        ,`(setWeight ,weightV)
+        ,@body
+        ,`(setWeight 1.0)
+    })
+
 (defMacro card [front back &builder b]
     (let [idSymbol ->name (b.symbol "${name}${groupId}_${cardId}")
             cObject (idSymbol "cObject")
@@ -77,7 +88,11 @@
             cPreviousEaseFactor (idSymbol "cPreviousEaseFactor")
             cPreviousInterval (idSymbol "cPreviousInterval")
             cNextDate (idSymbol "cNextDate")
-            cStudy (idSymbol "cStudy")]
+            cStudy (idSymbol "cStudy")
+            nonFractionalWeight (Std.int _weight)
+            fractionalWeight (- _weight nonFractionalWeight)
+            resolvedFractionalWeight (if (< (Math.random) fractionalWeight) 1 0)
+            resolvedWeight (+ nonFractionalWeight resolvedFractionalWeight)]
         (setMacroVar cardId (+ cardId 1))
         `{
             (var ,cObject (object front ,front back ,back))
@@ -115,7 +130,8 @@
                             (engine.println "skipping a card until $(nextDate.toString)")
                             (cc)
                         }))
-                (studyList.push ,cStudy))
+                ,@(for i (range resolvedWeight)
+                    `(studyList.push ,cStudy)))
         }))
 
 (defMacro reversed [front back]
