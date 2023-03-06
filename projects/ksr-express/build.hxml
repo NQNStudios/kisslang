@@ -3,6 +3,7 @@
 -lib kiss-express
 -lib kiss-spaced-rep
 -cp src
+-D engine=ksr_express.Engine
 --main kiss_spaced_rep.Main
 --js index.js
 --cmd node index.js
