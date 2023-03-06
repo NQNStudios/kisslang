@@ -33,17 +33,23 @@
                 (resolve 0)))))
 
 (function :Void clozeShow [index textLines :StudyEngine engine :Void->Void cc]
-    (doFor [idx line] (enumerate textLines)
-        (engine.println
+    (doFor [idx &mut line] (enumerate textLines)
+        ((if (StringTools.endsWith line "\\")
+                {
+                    (set line (StringTools.replace line "\\" ""))
+                    engine.print
+                }
+            engine.println)
+            
             (if (= idx index)
-                    "????"
+                    "???? "
                 (if (StringTools.startsWith line "?")
                         (line.substr 1)
                     line))))
     (engine.delayForUserInput cc))
 
 (function :Void clozeScore [index :Array<String> textLines :StudyEngine engine :Int->Void resolve]
-    (basicScore (.substr (nth textLines index) 1) engine resolve))
+    (basicScore (StringTools.replace (.substr (nth textLines index) 1) "\\" "") engine resolve))
 
 (function :CardSide basicText [:String text]
     (object
