@@ -25,11 +25,6 @@ class Main extends Sprite
 			File.saveContent(habitFile, File.getContent("assets/default.txt"));
 		}
 
-		var habitFile = if (Sys.args().length > 0 && Sys.args()[0].length > 0) {
-			 Sys.args()[0];
-		} else {
-			habitFile;
-		};
 		function reloadModel(_) {
 			if (t.draggingSprite == null && !t.tempWindowIsShown()) {
 				var showLowerPriority = t.model.showLowerPriority;
