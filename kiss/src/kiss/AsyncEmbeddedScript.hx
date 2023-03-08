@@ -176,7 +176,20 @@ class AsyncEmbeddedScript {
             #if profileKiss
             Kiss.measure('Compiling kiss: $scriptFile', () -> {
             #end
-                Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
+                function process(nextExp) {
+                    nextExp = Kiss.macroExpand(nextExp, k);
+                    
+                    // Allow packing multiple commands into one exp with a (commands <...>) statement
+                    switch (nextExp.def) {
+                        case CallExp({pos: _, def: Symbol("commands")}, 
+                        commands):
+                            for (exp in commands) {
+                                process(exp);
+                            }
+                            return;
+                        default:
+                    }
+                    
                     var exprString = Reader.toString(nextExp.def);
                     var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
                     if (Kiss.isEmpty(expr))
@@ -194,7 +207,8 @@ class AsyncEmbeddedScript {
 
                     // This return is essential for type unification of concat() and push() above... ugh.
                     return;
-                });
+                }
+                Reader.readAndProcess(Stream.fromFile(scriptFile), k, process);
                 null;
             #if profileKiss
             });
