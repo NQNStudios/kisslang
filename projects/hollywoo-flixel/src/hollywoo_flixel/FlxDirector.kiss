@@ -106,9 +106,9 @@
 (var DIALOG_COLOR FlxColor.WHITE)
 (var DIALOG_SIZE 24)
 
-(var &mut :FlxSprite dialogBox)
-(var &mut :FlxText dialogText)
-(var &mut :FlxText speakerNameText)
+(prop &mut :FlxSprite dialogBox)
+(prop &mut :FlxText dialogText)
+(prop &mut :FlxText speakerNameText)
 
 (method showDialog [:String speakerName :SpeechType<ActorFlxSprite> type :String wryly :String text :Continuation cc]
     // TODO handle text messages, wrylies, off-screen, from-phone, etc. via (case type)

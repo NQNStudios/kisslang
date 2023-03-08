@@ -61,6 +61,8 @@
                 (set buttonY 0)))
         (FlxG.state.add buttons)))
 
+(defAlias &ident flxDirector (cast director FlxDirector))
+
 (preload
     // These are set here so they're defined after FlxG.width and height have been set:
     (set STAGE_LEFT_X 150.0)
