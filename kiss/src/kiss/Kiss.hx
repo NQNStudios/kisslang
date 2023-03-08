@@ -399,24 +399,12 @@ class Kiss {
             // readerExpToHaxeExpr must be called to process readermacro, alias, and macro definitions
             macroUsed = false;
             var expr = readerExpToHaxeExpr(nextExp, k);
-
+            
             // exps in the loaded file that actually become haxe expressions can be inserted into the
             // file that loaded them at the position (load) was called.
             // conditional compiler macros like (#when) tend to return empty blocks, or blocks containing empty blocks
             // when they contain field forms, so this should also be ignored
-            function isEmpty(expr) {
-                switch (expr.expr) {
-                    case EBlock([]):
-                    case EBlock(blockExps):
-                        for (exp in blockExps) {
-                            if (!isEmpty(exp))
-                                return false;
-                        }
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            
             // When calling from build(), we can't add all expressions to the (begin) returned by (load), because that will
             // cause double-evaluation of field forms
             if (loadAllExps) {
@@ -784,6 +772,20 @@ class Kiss {
         var end = Sys.time();
         Sys.println('${end-start}s');
         return result;
+    }
+
+    public static function isEmpty(expr:Expr) {
+        switch (expr.expr) {
+            case EBlock([]):
+            case EBlock(blockExps):
+                for (exp in blockExps) {
+                    if (!isEmpty(exp))
+                        return false;
+                }
+            default:
+                return false;
+        }
+        return true;
     }
 
     #end

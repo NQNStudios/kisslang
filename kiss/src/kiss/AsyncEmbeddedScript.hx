@@ -10,6 +10,7 @@ using kiss.Helpers;
 #end
 
 import kiss.Kiss;
+import kiss.ReaderExp;
 import kiss.Prelude;
 import kiss.cloner.Cloner;
 
@@ -178,7 +179,8 @@ class AsyncEmbeddedScript {
                 Reader.readAndProcess(Stream.fromFile(scriptFile), k, (nextExp) -> {
                     var exprString = Reader.toString(nextExp.def);
                     var expr = Kiss.readerExpToHaxeExpr(nextExp, k);
-
+                    if (Kiss.isEmpty(expr))
+                        return;
                     #if debug
                     expr = macro { Prelude.print($v{exprString}); $expr; };
                     expr = expr.expr.withMacroPosOf(nextExp);
