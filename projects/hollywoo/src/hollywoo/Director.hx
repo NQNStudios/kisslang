@@ -31,7 +31,7 @@ typedef AutoZConfig = {
 
 interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> {
     var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack>;
-    var autoZConfig(default,null):Option<AutoZConfig>;
+    function autoZConfig():Option<AutoZConfig>;
     function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, cc:Continuation):Void;
     function hideSet(set:Set, cc:Continuation):Void;
     function showCharacter(character:Character<Actor>, appearance:Appearance, cc:Continuation):Void;

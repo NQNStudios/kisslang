@@ -280,7 +280,7 @@
 
 (hollywooMethod autoZProcess false [:StagePosition position :Continuation cc]
     // handle auto z recursively
-    (ifLet [(Some (objectWith zPerLayer frontLayer)) director.autoZConfig]
+    (ifLet [(Some (objectWith zPerLayer frontLayer)) (director.autoZConfig)]
             {
                 (doFor =>name otherCharacter .characters (_currentScene)
                     (when (and (= position.x otherCharacter.stagePosition.x) (= position.y otherCharacter.stagePosition.y) (= position.z otherCharacter.stagePosition.z))

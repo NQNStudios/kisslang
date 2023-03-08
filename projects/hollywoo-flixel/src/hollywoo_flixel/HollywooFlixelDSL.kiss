@@ -60,3 +60,37 @@
             (when (= (- buttonsPerColumn 1) (% num buttonsPerColumn))
                 (set buttonY 0)))
         (FlxG.state.add buttons)))
+
+(preload
+    // These are set here so they're defined after FlxG.width and height have been set:
+    (set STAGE_LEFT_X 150.0)
+    (set STAGE_RIGHT_X (- FlxG.width STAGE_LEFT_X))
+    (set ACTOR_Y (- FlxG.height 220.0))
+    (set ACTOR_WIDTH 300)
+    (set STAGE_BEHIND_DY 250.0)
+    (set DIALOG_X ACTOR_WIDTH)
+    (set DIALOG_Y (- FlxG.height 220.0))
+    (set DIALOG_WIDTH (- FlxG.width ACTOR_WIDTH ACTOR_WIDTH))
+    (set DIALOG_HEIGHT (- FlxG.height DIALOG_Y))
+    #{
+        stagePositions["Left"] = {
+            x: STAGE_LEFT_X,
+            y: ACTOR_Y,
+            z: 0.0
+        };
+        stagePositions["Right"] = {
+            x: STAGE_RIGHT_X,
+            y: ACTOR_Y,
+            z: 0.0
+        };
+        stagePositions["Left2"] = {
+            x: STAGE_LEFT_X,
+            y: ACTOR_Y,
+            z: STAGE_BEHIND_DY
+        };
+        stagePositions["Right2"] = {
+            x: STAGE_RIGHT_X,
+            y: ACTOR_Y,
+            z: STAGE_BEHIND_DY
+        };
+    }#)

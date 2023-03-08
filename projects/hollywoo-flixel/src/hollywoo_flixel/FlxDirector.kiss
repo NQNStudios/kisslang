@@ -1,6 +1,7 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
 (prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound> movie)
+(defAlias &ident flxMovie (cast movie FlxMovie))
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 
 (prop :Array<FlxTypedGroup<FlxSprite>> spriteLayers [])
@@ -39,21 +40,14 @@
 
 (method :Void cleanup [] 0)
 
-(var STAGE_LEFT_X 150.0)
-(var STAGE_RIGHT_X (- FlxG.width STAGE_LEFT_X))
-(var STAGE_BEHIND_DY 250.0)
-
-(prop :Option<AutoZConfig> autoZConfig (Some (object zPerLayer STAGE_BEHIND_DY frontLayer 0)))
-
-(var ACTOR_Y 500.0)
-(var ACTOR_WIDTH 300)
+(method :Option<AutoZConfig> autoZConfig [] (Some (object zPerLayer flxMovie.STAGE_BEHIND_DY frontLayer 0)))
 
 (method :Void showCharacter [:Character<ActorFlxSprite> character :Appearance appearance :Continuation cc]
     // TODO on the first appearance, show name and description (maybe? also probably not for all?)
     // TODO  also allow for manually defined flipped frames so text on clothing doesn't mirror
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     // All actors same width, display centered on x
-    (character.actor.setGraphicSize ACTOR_WIDTH)
+    (character.actor.setGraphicSize flxMovie.ACTOR_WIDTH)
     (character.actor.updateHitbox)
     (set character.actor.x
         (- character.stagePosition.x
@@ -105,11 +99,7 @@
 (method :Void hideTitleCard []
     (FlxG.state.remove titleCard))
 
-(var DIALOG_X 300)
-(var DIALOG_Y 500)
-// Make these aliases so they get FlxG.width's current value when queried (not 0 at start time)
-(defAlias &ident DIALOG_WIDTH (- FlxG.width ACTOR_WIDTH ACTOR_WIDTH))
-(defAlias &ident DIALOG_HEIGHT (- FlxG.height DIALOG_Y))
+
 // TODO these could be customizable to the Actor, wrylies, etc.
 (var DIALOG_BOX_COLOR FlxColor.BLACK)
 (var DIALOG_COLOR FlxColor.WHITE)
@@ -142,14 +132,14 @@
 
     // Make a dialog box
     (unless dialogBox
-        (set dialogBox (new FlxSprite DIALOG_X DIALOG_Y))
-        (dialogBox.makeGraphic DIALOG_WIDTH DIALOG_HEIGHT DIALOG_BOX_COLOR))
+        (set dialogBox (new FlxSprite flxMovie.DIALOG_X flxMovie.DIALOG_Y))
+        (dialogBox.makeGraphic flxMovie.DIALOG_WIDTH flxMovie.DIALOG_HEIGHT DIALOG_BOX_COLOR))
     
     (FlxG.state.add dialogBox)
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
-        (set dialogText (new FlxText DIALOG_X DIALOG_Y DIALOG_WIDTH "" DIALOG_SIZE)))
+        (set dialogText (new FlxText flxMovie.DIALOG_X flxMovie.DIALOG_Y flxMovie.DIALOG_WIDTH "" DIALOG_SIZE)))
     (FlxG.state.add dialogText)
     (set dialogText.text text)
     // TODO actually page through the dialog instead of sizing it down?
@@ -160,16 +150,16 @@
         (-= dialogText.size 6))
     // show the speaker name
     (unless speakerNameText
-        (set speakerNameText (new FlxText DIALOG_X DIALOG_Y 0 "" DIALOG_SIZE)))
+        (set speakerNameText (new FlxText flxMovie.DIALOG_X flxMovie.DIALOG_Y 0 "" DIALOG_SIZE)))
     (FlxG.state.add speakerNameText)
     (if speakerName
             {
                 (set speakerNameText.text "${speakerName}:")
-                (set speakerNameText.x (if nameOnRight (- (+ DIALOG_X DIALOG_WIDTH) speakerNameText.fieldWidth) DIALOG_X))
+                (set speakerNameText.x (if nameOnRight (- (+ flxMovie.DIALOG_X flxMovie.DIALOG_WIDTH) speakerNameText.fieldWidth) flxMovie.DIALOG_X))
                 (speakerNameText.revive)
-                (set dialogText.y (+ DIALOG_Y speakerNameText.height))
+                (set dialogText.y (+ flxMovie.DIALOG_Y speakerNameText.height))
             }
-        (set dialogText.y DIALOG_Y))
+        (set dialogText.y flxMovie.DIALOG_Y))
     (dialogText.revive)
     (startWaitForInput cc))
 
@@ -245,8 +235,8 @@
 
             (prop.updateHitbox)
             // if the prop is too tall, shrink it heightwise
-            (when (> prop.height DIALOG_Y)
-                (prop.setGraphicSize 0 DIALOG_Y)
+            (when (> prop.height flxMovie.DIALOG_Y)
+                (prop.setGraphicSize 0 (Std.int flxMovie.DIALOG_Y))
                 (prop.updateHitbox))
 
             (set prop.x (- x (/ prop.width 2)))
@@ -256,8 +246,8 @@
                 (case position 
                     // if a prop meant to be centered would block the dialogue box, bump it up
                     (Center
-                            (when (> propBottom DIALOG_Y)
-                                (-= prop.y (- propBottom DIALOG_Y))))
+                            (when (> propBottom flxMovie.DIALOG_Y)
+                                (-= prop.y (- propBottom flxMovie.DIALOG_Y))))
                     // If a prop meant to be on the lower half of the screen goes below the edge, bring it up
                     ((or LowerLeft LowerCenter LowerRight)
                         (when (> propBottom FlxG.height)

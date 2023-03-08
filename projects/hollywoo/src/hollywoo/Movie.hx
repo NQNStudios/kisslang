@@ -10,6 +10,7 @@ import hollywoo.Scene;
 import hollywoo.Director;
 import haxe.Json;
 import uuid.Uuid;
+import haxe.ds.Option;
 
 using kiss.FuzzyMapTools;
 

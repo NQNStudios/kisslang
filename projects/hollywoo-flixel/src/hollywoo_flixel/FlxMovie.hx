@@ -49,26 +49,15 @@ class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSo
         }
 
         super(director, voiceLinesJson);
-
-        stagePositions["Left"] = {
-            x: FlxDirector.STAGE_LEFT_X,
-            y: FlxDirector.ACTOR_Y,
-            z: 0.0
-        };
-        stagePositions["Right"] = {
-            x: FlxDirector.STAGE_RIGHT_X,
-            y: FlxDirector.ACTOR_Y,
-            z: 0.0
-        };
-        stagePositions["Left2"] = {
-            x: FlxDirector.STAGE_LEFT_X,
-            y: FlxDirector.ACTOR_Y,
-            z: FlxDirector.STAGE_BEHIND_DY
-        };
-        stagePositions["Right2"] = {
-            x: FlxDirector.STAGE_RIGHT_X,
-            y: FlxDirector.ACTOR_Y,
-            z: FlxDirector.STAGE_BEHIND_DY
-        };
     }
+
+    public var STAGE_LEFT_X:Float;
+    public var STAGE_RIGHT_X:Float;
+    public var ACTOR_WIDTH:Int;
+    public var STAGE_BEHIND_DY:Float;
+    public var ACTOR_Y:Float;
+    public var DIALOG_X:Float;
+    public var DIALOG_Y:Float;
+    public var DIALOG_WIDTH:Int;
+    public var DIALOG_HEIGHT:Int;
 }
