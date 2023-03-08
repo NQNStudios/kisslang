@@ -193,20 +193,20 @@
             (let [autoDelay
                         (Timer.delay
                             ->{
-                                (director.stopWaitForInput)
+                                (director.stopWaitForInput cc)
                                 (cc)
                             }
                             (* 1000 sec))]
                 (director.startWaitForInput 
                     ->{
-                        (director.stopWaitForInput)
+                        (director.stopWaitForInput cc)
                         (autoDelay.stop)
                         (cc)
                     })))
         (Manual
             (director.startWaitForInput
                 ->{
-                    (director.stopWaitForInput)
+                    (director.stopWaitForInput cc)
                     (cc)
                 }))
         (otherwise (throw "Unsupported delay type $delayHandling"))))

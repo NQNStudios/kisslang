@@ -43,7 +43,7 @@ interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop,
     function playVoiceTrack(track:VoiceTrack, volumeMod:Float, start:Float, end:Float, cc:Continuation):Void;
     function stopVoiceTrack(track:VoiceTrack):Void;
     function startWaitForInput(cc:Continuation):Void;
-    function stopWaitForInput():Void;
+    function stopWaitForInput(cc:Continuation):Void;
     function showDialog(speakerName:String, type:SpeechType<Actor>, wryly:String, dialog:String, cc:Continuation):Void;
     function hideDialog():Void;
     function showTitleCard(text:Array<String>, cc:Continuation):Void;

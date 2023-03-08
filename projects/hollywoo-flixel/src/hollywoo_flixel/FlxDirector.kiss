@@ -75,8 +75,9 @@
 (method :Void startWaitForInput [:Continuation cc]
     (set nextCC cc))
 
-(method :Void stopWaitForInput []
-    (set nextCC null))
+(method :Void stopWaitForInput [:Continuation cc]
+    (when (= nextCC cc)
+        (set nextCC null)))
 
 (var TITLE_Y 240)
 (var TITLE_SIZE 72)
