@@ -22,11 +22,14 @@
             (FlxG.state.add g))))
 
 (method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :Continuation cc]
-    (setSprite.setGraphicSize FlxG.width)
-    (when (> setSprite.height FlxG.height)
-        (setSprite.setGraphicSize 0 FlxG.height))
-    (setSprite.updateHitbox)
-    (setSprite.screenCenter)
+    (case appearance
+        (FirstAppearance
+            (setSprite.setGraphicSize FlxG.width)
+            (when (> setSprite.height FlxG.height)
+                (setSprite.setGraphicSize 0 FlxG.height))
+            (setSprite.updateHitbox)
+            (setSprite.screenCenter))
+        (otherwise))
     (FlxG.state.add setSprite)
     (cc))
 
