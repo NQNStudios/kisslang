@@ -1627,7 +1627,14 @@ class Macros {
                     default:
                         false;
                 };
-            // I don't think I'll ever want to match specific string literals, raw haxe, field expressions,
+            case StrExp(str):
+                return switch (instance.def) {
+                    case StrExp(instanceStr) if (instanceStr == str):
+                        true;
+                    default:
+                        false;
+                };
+            // I don't think I'll ever want to match specific  raw haxe, field expressions,
             // key-value expressions, quasiquotes, unquotes, or UnquoteLists. This function can be expanded
             // later if those features are ever needed.
             default:
