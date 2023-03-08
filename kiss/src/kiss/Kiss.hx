@@ -648,7 +648,6 @@ class Kiss {
             }
         }
         #end
-
         return expr;
     }
     

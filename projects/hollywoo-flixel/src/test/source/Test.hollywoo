@@ -1,0 +1,39 @@
+// When the sound device is non-functional, the FlxSound finish callback won't be called.
+// Don't let that stop Hollywoo:
+{(prop &mut soundPlayed false)(cc)}
+(preload
+	(newFlxSound "pageFlip" AssetPaths.pageTurn__wav))
+{(delay 1 ->:Void (assert soundPlayed)) (cc)}
+AWAITPLAYSOUND "pageFlip"
+{(set soundPlayed true) (cc)}
+
+// Through scene transitions, set background sprites need to maintain the same size.
+(defMacro makeSetAndScene [asset]
+	`(preload
+		(newFlxSet ,asset ,asset)
+		(newSceneFromSet ,asset ,asset Day Exterior)))
+
+(var basicSceneKey AssetPaths.whiteBackground1280x720__png)
+(makeSetAndScene basicSceneKey)
+(prop &mut sk "")
+(prop &mut firstWidth 0.0)
+(prop &mut firstHeight 0.0)
+(defMacro testSetBackground [asset]
+	`(commands
+		(makeSetAndScene ,asset)
+		{(set sk ,asset) (cc)}
+		SETSCENE sk
+		(withSceneSet sk set
+			(assert (or (= FlxG.width set.width) (= FlxG.height set.height)))
+			(set firstWidth set.width)
+			(set firstHeight set.height))
+		SETSCENE basicSceneKey
+		SETSCENE sk
+		(withSceneSet sk set
+			(assert (and (= firstWidth set.width) (= firstHeight set.height))))))
+
+(testSetBackground AssetPaths.grayBackground1280x720__png)
+(testSetBackground AssetPaths.grayBackground1000x720__png)
+(testSetBackground AssetPaths.grayBackground1280x580__png)
+
+(Sys.exit 0)
