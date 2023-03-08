@@ -465,14 +465,14 @@ class Kiss {
     public static function readerExpToHaxeExpr(exp, k): Expr {
         return switch (macroExpandAndConvert(exp, k, false)) {
             case Right(expr): expr;
-            default: throw "macroExpandAndConvert is broken";
+            case e: throw 'macroExpandAndConvert is broken: ${e}';
         };
     }
 
     public static function macroExpand(exp, k):ReaderExp {
         return switch (macroExpandAndConvert(exp, k, true)) {
             case Left(exp): exp;
-            default: throw "macroExpandAndConvert is broken";
+            case e: throw 'macroExpandAndConvert is broken: ${e}';
         };
     }
 
@@ -570,7 +570,9 @@ class Kiss {
                 var expanded = macros[mac](exp, args.copy(), k);
                 if (expanded != null) {
                     convert(expanded);
-                } else {
+                } else if (macroExpandOnly) {
+                    Left(None.withPosOf(exp));
+                } else{
                     Right(none);
                 };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm) && !macroExpandOnly):
