@@ -13,7 +13,7 @@ AWAITPLAYSOUND "pageFlip"
 		(newFlxSet ,asset ,asset)
 		(newSceneFromSet ,asset ,asset Day Exterior)))
 
-(var basicSceneKey AssetPaths.whiteBackground1280x720__png)
+(var basicSceneKey AssetPaths.grayBackground1280x720__png)
 (makeSetAndScene basicSceneKey)
 (prop &mut sk "")
 (prop &mut firstWidth 0.0)
@@ -35,5 +35,17 @@ AWAITPLAYSOUND "pageFlip"
 (testSetBackground AssetPaths.grayBackground1280x720__png)
 (testSetBackground AssetPaths.grayBackground1000x720__png)
 (testSetBackground AssetPaths.grayBackground1280x580__png)
+
+// Characters on stage right not appearing for some reason:
+(preload
+	(newActor "white" (new ActorFlxSprite AssetPaths.whiteSquare__png))
+	(newActor "black" (new ActorFlxSprite AssetPaths.blackSquare__png)))
+
+SETSCENE basicSceneKey
+ADDCHARACTER "white" Left FacingRight
+ADDCHARACTER "black" Right FacingLeft
+(withActor "black" actorRight
+	(withActor "white" actorLeft
+		(assert (> actorRight.x actorLeft.x))))
 
 (Sys.exit 0)
