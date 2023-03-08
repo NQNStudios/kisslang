@@ -39,39 +39,43 @@
 
     (prop &mut :FuzzyMap<String> intercutMap)
     (prop &mut :Map<String,Int> altIdx (new Map))
-    (method :Void showDialog [actorName dialogType wryly text cc]
+    (method :Void processIntercut [actorName :Continuation cc]
         (when intercutMap
             (whenLet [sceneForActor (try (dictGet intercutMap actorName) (catch [e] null))]
                 (unless (= sceneForActor sceneKey)
-                    (setScene sceneForActor ->{}))))
-        
-        (let [cc ->:Void {(director.hideDialog) (cc)}
-                &mut skipCC cc]
-            // When an actorName is given, check for a voiced line to play.
-            // Otherwise, assume it is un-voiced super text
-            (when (and actorName (< 0 (count voiceTracks)))
-                    (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
-                        ((objectWith trackKey start end alts)
-                            (case (dictGet altIdx "$actorName $text")
-                                (null
-                                    (dictSet altIdx "$actorName $text" 0)
-                                    (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
-                                ((when (>= idx alts.length) idx)
-                                    (dictSet altIdx "$actorName $text" 0)
-                                    (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
-                                (idx
-                                    (let [alt (nth alts idx)
-                                            start alt.start
-                                            end alt.end]
-                                        (+= (dictGet altIdx "$actorName $text") 1)
-                                        (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))))
-                            
-                            (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
-                        ((objectWith trackKey start end)
-                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc)
-                            (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
-                        (otherwise)))
-            (director.showDialog actorName dialogType wryly text skipCC)))
+                    (setScene sceneForActor cc)
+                    (return))))
+        (cc))
+    (method :Void showDialog [actorName dialogType wryly text cc]
+        (processIntercut actorName
+            (makeCC
+                (let [cc ->:Void {(director.hideDialog) (cc)}
+                        &mut skipCC cc]
+                    // When an actorName is given, check for a voiced line to play.
+                    // Otherwise, assume it is un-voiced super text
+                    (when (and actorName (< 0 (count voiceTracks)))
+                            (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
+                                ((objectWith trackKey start end alts)
+                                    (case (dictGet altIdx "$actorName $text")
+                                        (null
+                                            (dictSet altIdx "$actorName $text" 0)
+                                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
+                                        ((when (>= idx alts.length) idx)
+                                            (dictSet altIdx "$actorName $text" 0)
+                                            (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))
+                                        (idx
+                                            (let [alt (nth alts idx)
+                                                    start alt.start
+                                                    end alt.end]
+                                                (+= (dictGet altIdx "$actorName $text") 1)
+                                                (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc))))
+                                    
+                                    (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
+                                ((objectWith trackKey start end)
+                                    (director.playVoiceTrack (dictGet voiceTracks trackKey) 1 start end cc)
+                                    (set skipCC ->:Void {(director.stopVoiceTrack (dictGet voiceTracks trackKey)) (cc)}))
+                                (otherwise)))
+                    (director.showDialog actorName dialogType wryly text skipCC)))))
 
     (method newVoiceTrack [actorName :VoiceTrack track :String lineJson]
         (let [actorNumVoiceTracks (or (dictGet voiceTracksPerActor actorName) 0)
@@ -384,7 +388,9 @@
 // TODO themed superText
 
 (hollywooMethod normalSpeech true [actorName wryly text :Continuation cc]
-    (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))
+    (processIntercut actorName
+        (makeCC
+            (showDialog actorName (OnScreen (dictGet .characters (_currentScene) actorName)) wryly text cc))))
 
 (hollywooMethod offScreenSpeech true [actorName wryly text :Continuation cc]
     (showDialog actorName (OffScreen (dictGet actors actorName)) wryly text cc))
@@ -393,9 +399,11 @@
     (showDialog actorName (VoiceOver (dictGet actors actorName)) wryly text cc))
 
 (hollywooMethod onPhoneSpeech true [actorName wryly text :Continuation cc]
-    (showDialog actorName (ifLet [charOnScreen (try (dictGet .characters (_currentScene) actorName) (catch [e] null))]
-                                    (OnScreen charOnScreen)
-                                (FromPhone (dictGet actors actorName))) wryly text cc))
+    (processIntercut actorName
+        (makeCC
+            (showDialog actorName (ifLet [charOnScreen (try (dictGet .characters (_currentScene) actorName) (catch [e] null))]
+                                            (OnScreen charOnScreen)
+                                        (FromPhone (dictGet actors actorName))) wryly text cc))))
 
 (hollywooMethod cutToBlack true [seconds :Continuation cc]
     (director.showBlackScreen)

@@ -51,17 +51,21 @@ ADDCHARACTER "black" Right FacingLeft
 // Speaker name not being bumped to right side for stage-right actors while intercutting:
 (preload
 	(newFlxSet "intercutSet" AssetPaths.whiteBackground1280x720__png)
-	(newSceneFromSet "intercutScene" "intercutSet"))
+	(newSceneFromSet "intercutScene" "intercutSet" Day Exterior))
 
 SETSCENE "intercutScene"
-ADDCHARACTER "black" right FacingLeft
-INTERCUT [=>"white" basicSceneKey "black" "intercutScene"]
+ADDCHARACTER "black" Right FacingLeft
+INTERCUT [=>"white" basicSceneKey =>"black" "intercutScene"]
 
 (prop &mut speakerNameTextLeftX 0.0)
 {(delay 0.01 ->:Void (set speakerNameTextLeftX flxDirector.speakerNameText.x))(cc)}
 NORMALSPEECH "white" "" "Testing line one"
 {(delay 0.01 ->:Void {(assert (> flxDirector.speakerNameText.x speakerNameTextLeftX))})(cc)}
 NORMALSPEECH "black" "" "Testing line two"
+{(delay 0.01 ->:Void (set speakerNameTextLeftX flxDirector.speakerNameText.x))(cc)}
+ONPHONESPEECH "white" "" "Testing line one"
+{(delay 0.01 ->:Void {(assert (> flxDirector.speakerNameText.x speakerNameTextLeftX))})(cc)}
+ONPHONESPEECH "black" "" "Testing line two"
 
 ENDINTERCUT
 
