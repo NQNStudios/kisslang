@@ -29,13 +29,13 @@ typedef AutoZConfig = {
     frontLayer:Int
 };
 
-interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack> {
-    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack>;
+interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera> {
+    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera>;
     function autoZConfig():Option<AutoZConfig>;
-    function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, cc:Continuation):Void;
-    function hideSet(set:Set, cc:Continuation):Void;
-    function showCharacter(character:Character<Actor>, appearance:Appearance, cc:Continuation):Void;
-    function hideCharacter(character:Character<Actor>, cc:Continuation):Void;
+    function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, camera:Camera, cc:Continuation):Void;
+    function hideSet(set:Set, camera: Camera, cc:Continuation):Void;
+    function showCharacter(character:Character<Actor>, appearance:Appearance, camera:Camera, cc:Continuation):Void;
+    function hideCharacter(character:Character<Actor>, camera:Camera, cc:Continuation):Void;
     function playSound(sound:Sound, volumeMod:Float, waitForEnd:Bool, cc:Continuation):Void;
     function stopSound(sound:Sound):Void;
     function playSong(song:Song, volumeMod:Float, loop:Bool, waitForEnd:Bool, cc:Continuation):Void;

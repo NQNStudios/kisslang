@@ -38,11 +38,12 @@ typedef ScreenProp<ScreenPosition,Prop> = {
     prop:Prop
 };
 
-typedef Scene<Set:Cloneable<Set>, ScreenPosition, Actor, Prop> = {
+typedef Scene<Set:Cloneable<Set>, ScreenPosition, Actor, Prop, Camera> = {
     set:Set,
     characters:FuzzyMap<Character<Actor>>,
     propsOnScreen:FuzzyMap<ScreenProp<ScreenPosition,Prop>>,
     // TODO props on stage
     time:SceneTime,
-    perspective:ScenePerspective
+    perspective:ScenePerspective,
+    camera:Camera
 };

@@ -64,6 +64,15 @@
 (defAlias &ident flxDirector (cast director FlxDirector))
 
 (preload
+    (unless uiCamera
+        (set uiCamera (new flixel.FlxCamera))
+        (set uiCamera.bgColor FlxColor.TRANSPARENT)
+        (flixel.FlxG.cameras.add uiCamera)
+        (set kiss_flixel.SimpleWindow.defaultCamera uiCamera))
+    (unless screenCamera
+        (set screenCamera (new flixel.FlxCamera))
+        (set screenCamera.bgColor FlxColor.TRANSPARENT)
+        (FlxG.cameras.add screenCamera))
     // These are set here so they're defined after FlxG.width and height have been set:
     (set STAGE_LEFT_X 150.0)
     (set STAGE_RIGHT_X (- FlxG.width STAGE_LEFT_X))

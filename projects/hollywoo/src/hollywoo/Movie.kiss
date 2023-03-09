@@ -18,7 +18,7 @@
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
     // Mutable representation of frames in time:
-    (prop :FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop>> scenes (new FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop>>))
+    (prop :FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop,Camera>> scenes (new FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop,Camera>>))
 
     (prop :FuzzyMap<Bool> shownScenes (new FuzzyMap<Bool>))
     (prop :FuzzyMap<Bool> shownCharacters (new FuzzyMap<Bool>))
@@ -105,13 +105,13 @@
         (if sceneKey
                 // hide current scene background
                 (let [currentScene (dictGet scenes sceneKey)]
-                    (director.hideSet currentScene.set 
+                    (director.hideSet currentScene.set currentScene.camera
                         (makeCC
                             // hide current scene characters 
                             (_ccForEach 
                                 currentScene.characters
                                 ->[:Character<Actor> c :Continuation cc]
-                                    (director.hideCharacter c cc)
+                                    (director.hideCharacter c currentScene.camera cc)
                                 (makeCC
                                     // hide current scene props, etc.
                                     (_ccForEach
@@ -121,15 +121,15 @@
                                         cc))))))
             (cc)))
     
-    (method _showScene [:Scene<Set,ScreenPosition,Actor,Prop> scene :Appearance appearance :Continuation cc]
+    (method _showScene [:Scene<Set,ScreenPosition,Actor,Prop,Camera> scene :Appearance appearance :Camera camera :Continuation cc]
         // Show current scene background
-        (director.showSet scene.set scene.time scene.perspective appearance
+        (director.showSet scene.set scene.time scene.perspective appearance camera
             (makeCC
                 // Show current scene characters 
                 (_ccForEach 
                     (object iterator ->(scene.characters.keys))
                     ->[:String key :Continuation cc]
-                        (director.showCharacter (dictGet scene.characters key) (appearanceFlag shownCharacters key) cc)
+                        (director.showCharacter (dictGet scene.characters key) (appearanceFlag shownCharacters key) camera cc)
                     (makeCC
                         // hide current scene props, etc.
                         (_ccForEach
@@ -141,7 +141,7 @@
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
-            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack> director
+            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack,Camera> director
             &opt :String voiceLinesJson
             &opt :String positionsJson
         ]
@@ -219,7 +219,7 @@
     (assert isLoading)
     (dictSet sets name set))
 
-(hollywooMethod newSceneFromSet true [name :String setKey :SceneTime time :ScenePerspective perspective]
+(hollywooMethod newSceneFromSet true [name :String setKey :SceneTime time :ScenePerspective perspective :Camera camera]
     (assert isLoading)
     (dictSet scenes name (objectWith
                                 [
@@ -229,6 +229,8 @@
                                         (new FuzzyMap<Character<Actor>>)
                                     propsOnScreen
                                         (new FuzzyMap<ScreenProp<ScreenPosition,Prop>>)
+                                    camera
+                                        camera
                                 ]
                                 time
                                 perspective)))
@@ -240,6 +242,7 @@
             (_showScene
                 (dictGet scenes name)
                 (appearanceFlag shownScenes name)
+                .camera (dictGet scenes name)
                 cc))))
     
 
@@ -305,12 +308,13 @@
                 (director.showCharacter
                     character
                     (appearanceFlag shownCharacters actorName)
+                    .camera (_currentScene)
                     cc))))) 
 
 (hollywooMethod removeCharacter false [actorName :Continuation cc]
     (let [c (dictGet .characters (_currentScene) actorName)]
         (.remove .characters (_currentScene) actorName)
-        (director.hideCharacter c cc)))
+        (director.hideCharacter c .camera (_currentScene) cc)))
 
 // INSTANTLY move a character:
 (hollywooMethod moveCharacter false [actorName :Dynamic newPosition :StageFacing newFacing :Continuation cc]

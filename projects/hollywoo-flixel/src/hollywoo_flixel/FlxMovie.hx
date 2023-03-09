@@ -3,6 +3,7 @@ package hollywoo_flixel;
 import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.system.FlxSound;
+import flixel.FlxCamera;
 import hollywoo.Director;
 import hollywoo.Movie;
 import hollywoo_flixel.ActorFlxSprite;
@@ -39,7 +40,7 @@ enum FlxScreenPosition {
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
-class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound> {
+class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera> {
     // Think of HollywooFlixelDSL.kiss as the corresponding Kiss file for this class!
 
     public function new(director:FlxDirector, ?voiceLinesAssetPath:String) {
@@ -50,6 +51,8 @@ class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSo
 
         super(director, voiceLinesJson);
     }
+    public var uiCamera:FlxCamera;
+    public var screenCamera:FlxCamera;
 
     public var STAGE_LEFT_X:Float;
     public var STAGE_RIGHT_X:Float;

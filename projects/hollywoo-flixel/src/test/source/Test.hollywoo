@@ -11,7 +11,7 @@ AWAITPLAYSOUND "pageFlip"
 (defMacro makeSetAndScene [asset]
 	`(preload
 		(newFlxSet ,asset ,asset)
-		(newSceneFromSet ,asset ,asset Day Exterior)))
+		(newSceneFromSet ,asset ,asset Day Exterior (new FlxCamera))))
 
 (var basicSceneKey AssetPaths.grayBackground1280x720__png)
 (makeSetAndScene basicSceneKey)
@@ -51,7 +51,7 @@ ADDCHARACTER "black" Right FacingLeft
 // Speaker name not being bumped to right side for stage-right actors while intercutting:
 (preload
 	(newFlxSet "intercutSet" AssetPaths.whiteBackground1280x720__png)
-	(newSceneFromSet "intercutScene" "intercutSet" Day Exterior))
+	(newSceneFromSet "intercutScene" "intercutSet" Day Exterior (new FlxCamera)))
 
 SETSCENE "intercutScene"
 ADDCHARACTER "black" Right FacingLeft

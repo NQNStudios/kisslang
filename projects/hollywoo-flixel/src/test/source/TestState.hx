@@ -12,6 +12,7 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
+import flixel.FlxCamera;
 
 @:build(kiss.AsyncEmbeddedScript.build("hollywoo-flixel", "src/hollywoo_flixel/HollywooFlixelDSL.kiss", "Test.hollywoo"))
 class Test extends FlxMovie {

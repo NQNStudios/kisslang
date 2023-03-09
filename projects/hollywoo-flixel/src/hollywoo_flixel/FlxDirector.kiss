@@ -1,6 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound> movie)
+(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound,FlxCamera> movie)
 (defAlias &ident flxMovie (cast movie FlxMovie))
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 
@@ -22,7 +22,7 @@
             (spriteLayers.push g)
             (FlxG.state.add g))))
 
-(method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :Continuation cc]
+(method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :FlxCamera camera :Continuation cc]
     (case appearance
         (FirstAppearance
             (setSprite.setGraphicSize FlxG.width)
@@ -31,10 +31,17 @@
             (setSprite.updateHitbox)
             (setSprite.screenCenter))
         (otherwise))
+    (FlxG.cameras.remove flxMovie.uiCamera false)
+    (FlxG.cameras.remove flxMovie.screenCamera false)
+    (FlxG.cameras.add camera)
+    (FlxG.cameras.add flxMovie.screenCamera)
+    (FlxG.cameras.add flxMovie.uiCamera)
+    (set setSprite.cameras [camera])
     (FlxG.state.add setSprite)
     (cc))
 
-(method :Void hideSet [:FlxSprite set :Continuation cc]
+(method :Void hideSet [:FlxSprite set :FlxCamera camera :Continuation cc]
+    (FlxG.cameras.remove camera false)
     (FlxG.state.remove set)
     (cc))
 
@@ -42,9 +49,10 @@
 
 (method :Option<AutoZConfig> autoZConfig [] (Some (object zPerLayer flxMovie.STAGE_BEHIND_DY frontLayer 0)))
 
-(method :Void showCharacter [:Character<ActorFlxSprite> character :Appearance appearance :Continuation cc]
+(method :Void showCharacter [:Character<ActorFlxSprite> character :Appearance appearance :FlxCamera camera :Continuation cc]
     // TODO on the first appearance, show name and description (maybe? also probably not for all?)
     // TODO  also allow for manually defined flipped frames so text on clothing doesn't mirror
+    (set character.actor.cameras [camera])
     (set character.actor.flipX ?!(= character.stageFacing character.actor.defaultFacing))
     // All actors same width, display centered on x
     (character.actor.setGraphicSize flxMovie.ACTOR_WIDTH)
@@ -62,7 +70,7 @@
     (FlxG.state.add character.actor)
     (cc))
 
-(method :Void hideCharacter [:Character<ActorFlxSprite> character :Continuation cc]
+(method :Void hideCharacter [:Character<ActorFlxSprite> character :FlxCamera camera :Continuation cc]
     (FlxG.state.remove character.actor)
     (cc))
 
@@ -136,11 +144,13 @@
         (set dialogBox (new FlxSprite flxMovie.DIALOG_X flxMovie.DIALOG_Y))
         (dialogBox.makeGraphic flxMovie.DIALOG_WIDTH flxMovie.DIALOG_HEIGHT DIALOG_BOX_COLOR))
     
+    (set dialogBox.cameras [flxMovie.uiCamera])
     (FlxG.state.add dialogBox)
     (dialogBox.revive)
     // show the dialog
     (unless dialogText
         (set dialogText (new FlxText flxMovie.DIALOG_X flxMovie.DIALOG_Y flxMovie.DIALOG_WIDTH "" DIALOG_SIZE)))
+    (set dialogText.cameras [flxMovie.uiCamera])
     (FlxG.state.add dialogText)
     (set dialogText.text text)
     // TODO actually page through the dialog instead of sizing it down?
@@ -152,6 +162,7 @@
     // show the speaker name
     (unless speakerNameText
         (set speakerNameText (new FlxText flxMovie.DIALOG_X flxMovie.DIALOG_Y 0 "" DIALOG_SIZE)))
+    (set speakerNameText.cameras [flxMovie.uiCamera])
     (FlxG.state.add speakerNameText)
     (if speakerName
             {
@@ -278,6 +289,7 @@
     (cc))
 
 (method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
+    (set prop.cameras [flxMovie.screenCamera])
     // TODO give the prop reveal some time to land (add a delay to the cc)
     (ifLet [(FullControl layer rpos) position]
             (smartShowPropOnScreen prop layer rpos cc)
