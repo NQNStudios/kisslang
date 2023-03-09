@@ -46,20 +46,21 @@
             (showLabelSkipButtons))))
 
 (method :Void showLabelSkipButtons []
-    (let [runners (labelRunners)
-            buttons (new flixel.group.FlxGroup.FlxTypedGroup<flixel.ui.FlxButton>)]
+    (let [runners (labelRunners)]
         (localVar &mut buttonY 0)
         (localVar buttonsPerColumn 25)
-        (doFor [num label] (enumerate (sort (collect (runners.keys))))
-            (let [runner (dictGet runners label)
-                    b (new flixel.ui.FlxButton 0 buttonY label ->{(FlxG.state.remove buttons)(runner)})]
-                (let [column (Std.int (/ num buttonsPerColumn))]
-                    (set b.x (* b.width column)))
-                (buttons.add b))
-            (+= buttonY 20)
-            (when (= (- buttonsPerColumn 1) (% num buttonsPerColumn))
-                (set buttonY 0)))
-        (FlxG.state.add buttons)))
+        (kiss_flixel.SimpleWindow.promptForChoice
+            "Skip to scene?"
+            (sort (collect (runners.keys)))
+            ->label ((dictGet runners label))
+            FlxColor.BLACK
+            FlxColor.WHITE
+            0.8
+            0.8
+            true
+            "escape"
+            "left"
+            "right")))
 
 (defAlias &ident flxDirector (cast director FlxDirector))
 
