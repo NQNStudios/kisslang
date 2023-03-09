@@ -5,6 +5,7 @@
 	"dependencies": {
 		"kiss": "",
 		"kiss-flixel": "",
+		"flixel-addons": "",
 		"hollywoo": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",

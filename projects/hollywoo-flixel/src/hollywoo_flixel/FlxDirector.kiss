@@ -102,12 +102,15 @@
         (SpriteTools.writeOnSprite subtitle SUBTITLES_SIZE titleCard (object x (Percent 0.5) y (Pixels subtitleY)))
         (+= subtitleY SUBTITLES_SIZE SUBTITLES_MARGIN))
     (FlxG.state.add titleCard)
-    // Allow skipping
-    (startWaitForInput cc))
+    (cc))
+
+(method :Void doLoading [:Void->Void _load :Continuation cc]
+    (let [loop (new flixel.addons.util.FlxAsyncLoop 1 ->:Void {(_load)(cc)})]
+        (haxe.Timer.delay ->:Void (loop.start) 1)
+        (FlxG.state.add loop)))
 
 (method :Void hideTitleCard []
     (FlxG.state.remove titleCard))
-
 
 // TODO these could be customizable to the Actor, wrylies, etc.
 (var DIALOG_BOX_COLOR FlxColor.BLACK)

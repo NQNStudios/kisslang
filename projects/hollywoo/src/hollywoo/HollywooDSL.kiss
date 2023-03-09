@@ -38,10 +38,15 @@
 (defMacro end []
     `{
         (method doPreload [:Void->Void cc]
-            (set isLoading true)
-            (collectedBlocks preload)
-            (set isLoading false)
-            (cc))
+            (director.showTitleCard ["LOADING"]
+                (makeCC
+                    (set isLoading true)
+                    (director.doLoading ->:Void {
+                        (collectedBlocks preload)
+                        (set isLoading false)
+                    } (makeCC
+                        (director.hideTitleCard)
+                        (cc))))))
         (method doCleanup []
             (director.cleanup)
             (set lastInstructionPointer -2)

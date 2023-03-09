@@ -56,5 +56,6 @@ interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop,
 
     function rollCredits(credits:Array<CreditsLine>, cc:Continuation):Void;
 
+    function doLoading(_load:Void->Void, cc:Continuation):Void;
     function cleanup():Void;
 }

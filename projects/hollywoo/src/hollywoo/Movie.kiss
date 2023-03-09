@@ -374,8 +374,11 @@
 
 (hollywooMethod timedTitleCard true [time :Array<String> lines :Continuation cc]
     (let [cc ->{(director.hideTitleCard)(cc)}]
-        (director.showTitleCard lines cc)
-        (delay time cc)))
+        (director.showTitleCard lines
+            (makeCC
+                // Allow skipping
+                (director.startWaitForInput cc)
+                (delay time cc)))))
 
 // TODO themed titleCard (wait for song or sound)
 
