@@ -38,6 +38,7 @@
         // UI key controls are still available. it also handles left and right.
         :FlxKeyShortcutHandler<ShortcutAction> xHandler (new FlxKeyShortcutHandler)]
     
+    (assert FlxG.camera "SimpleWindow.new() must be called in or after create()")
     (super 0 0)
     (when defaultCamera (set this.cameras [defaultCamera]))
     (makeGraphic
@@ -60,7 +61,7 @@
         (when title (-= controlsPerColumn 1)))
     
     (when title
-        (set titleText (makeText title null)))
+        (set titleText (makeText title titleColor)))
 
     (set keyHandler.onBadKey ->:Void [key context]
         (unless (= key xKey)
