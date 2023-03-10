@@ -1,8 +1,9 @@
-(function :Void evalAndPrint [&opt :String selectedText]
-    (withValueOrInputBox selectedText
-        (infoMessage (Std.string (evalString selectedText)))))
+(defCommand context kiss.evalAndPrint "Evaluate and print a kiss expression's value" "C-; C-e" []
+    (let [st (selectedText)]
+        (withValueOrInputEditor st "kiss.evalAndPrint" "// A kiss expression to evaluate"
+            (infoMessage (Std.string (evalString st))))))
 
-(function :Void newKissClass [&opt _]
+(defCommand context kiss.newKissClass "Create a new kiss class" "C-; C-c" []
     (awaitLet [className (inputBox)]
         (when className
             (let [currentFile
@@ -51,10 +52,10 @@ class ${className} {}
                     (otherwise (throw "No corresponding file for ${kissOrHxFile}")))]
         "${base}.${correspondingExt}"))
 
-(function showCorrespondingFile [&opt _]
+(defCommand context kiss.showCorrespondingFile "Open the corresponding .kiss/.hx file to this one" "C-; C-f" []
     (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor))))
 
-(function insertUTestCase [&opt _]
+(defCommand context kiss.insertUTestCase "Generate a UTest test case in this .hx/.kiss file" "C-; C-u" []
     (awaitLet [testName (inputBox)
                 &sync testName
                     "$(.toUpperCase (testName.substr 0 1))$(testName.substr 1)"

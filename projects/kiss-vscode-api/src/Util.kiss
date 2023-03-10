@@ -19,207 +19,283 @@
                     (,onError "result status is null from $command ${args}: $result.stdout $result.stderr")
                     null)))))
 
-(#unless test
-    /**
-    * Aliases
-    */
+/**
+* Aliases
+*/
 
-    // output 
-    (defAlias &call infoMessage Vscode.window.showInformationMessage)
-    (defAlias &call warningMessage Vscode.window.showWarningMessage)
-    (defAlias &call errorMessage Vscode.window.showErrorMessage)
+// output 
+(defAlias &call infoMessage Vscode.window.showInformationMessage)
+(defAlias &call warningMessage Vscode.window.showWarningMessage)
+(defAlias &call errorMessage Vscode.window.showErrorMessage)
 
-    // input
-    (defAlias &call inputBox Vscode.window.showInputBox)
-    (defAlias &call _quickPick Vscode.window.showQuickPick)
+// input
+(defAlias &call inputBox Vscode.window.showInputBox)
+(defAlias &call _quickPick Vscode.window.showQuickPick)
 
-    (function quickPickItem [label &opt description]
-        (object
-            label label
-            description description
-            detail null
-            picked null
-            alwaysShow null))
+(function quickPickItem [label &opt description]
+    (object
+        label label
+        description description
+        detail null
+        picked null
+        alwaysShow null))
 
-    (function quickPick [:Array<String> strings]
-        (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
-            (when chosenItem chosenItem.label)))
+(function quickPick [:Array<String> strings]
+    (awaitLet [chosenItem (_quickPick (for string strings (quickPickItem string)))]
+        (when chosenItem chosenItem.label)))
 
-    // thanks https://stackoverflow.com/a/69842249
-    (function autoSuggestPick [:Array<String> strings]
-        (new js.lib.Promise
-            ->[resolve reject] (let [qp (Vscode.window.createQuickPick)
-                        :Array<Dynamic> items (for string strings (quickPickItem string))]
-                (set qp.items items)
-                (qp.onDidChangeValue
-                    ->v (unlessLet [(Some _) (indexOf strings v)]
-                            (set qp.items (concat [(quickPickItem v)] items))))
-                (qp.onDidAccept
-                    ->_ {
-                        (resolve .label (first qp.activeItems))
-                        (qp.hide)
-                    })
-                (qp.show))))
+// thanks https://stackoverflow.com/a/69842249
+(function autoSuggestPick [:Array<String> strings]
+    (new js.lib.Promise
+        ->[resolve reject] (let [qp (Vscode.window.createQuickPick)
+                    :Array<Dynamic> items (for string strings (quickPickItem string))]
+            (set qp.items items)
+            (qp.onDidChangeValue
+                ->v (unlessLet [(Some _) (indexOf strings v)]
+                        (set qp.items (concat [(quickPickItem v)] items))))
+            (qp.onDidAccept
+                ->_ {
+                    (resolve .label (first qp.activeItems))
+                    (qp.hide)
+                })
+            (qp.show))))
 
-    (function :js.lib.Promise.Thenable<Dynamic> quickPickMap [:Map<String,Dynamic> stringMap]
-        (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
-            (when chosenItem (dictGet stringMap chosenItem.label))))
+(function :js.lib.Promise.Thenable<Dynamic> quickPickMap [:Map<String,Dynamic> stringMap]
+    (awaitLet [chosenItem (_quickPick (for =>key value stringMap (quickPickItem key (Std.string value))))]
+        (when chosenItem (dictGet stringMap chosenItem.label))))
 
-    (defAlias &call openDialog Vscode.window.showOpenDialog)
+(defAlias &call openDialog Vscode.window.showOpenDialog)
 
-    // commands
-    (defAlias &call executeCommand Vscode.commands.executeCommand)
-    (function repeatCommand [command times]
-        (let [iteration
-                    ->[&opt _] (executeCommand command)
-                &mut promise
-                    (iteration)]
-            (doFor i (range (- times 1))
-                (set promise (promise.then iteration)))
-            promise))
+// commands
+(defAlias &call executeCommand Vscode.commands.executeCommand)
+(function repeatCommand [command times]
+    (let [iteration
+                ->[&opt _] (executeCommand command)
+            &mut promise
+                (iteration)]
+        (doFor i (range (- times 1))
+            (set promise (promise.then iteration)))
+        promise))
 
-    (defMacro awaitCommands [commandsAndArgs &builder b &body body]
-        (let [commandsAndArgs
-                    (if (isListExp commandsAndArgs)
-                            (.copy (expList commandsAndArgs))
-                        (throw (CompileError.fromExp commandsAndArgs "First argument to awaitCommands should be a list of commands with optional argument arrays")))
-                bindings []]
-            (while commandsAndArgs
-                (bindings.push (b.symbol "_"))
-                (let [nextCommand (commandsAndArgs.shift)]
-                    (bindings.push (b.callSymbol "executeCommand"
-                                        (concat [nextCommand] (if (and commandsAndArgs (isListExp (first commandsAndArgs))) (expList (commandsAndArgs.shift)) []))))))
-            `(awaitLet ,bindings ,@body)))
+(defMacro awaitCommands [commandsAndArgs &builder b &body body]
+    (let [commandsAndArgs
+                (if (isListExp commandsAndArgs)
+                        (.copy (expList commandsAndArgs))
+                    (throw (CompileError.fromExp commandsAndArgs "First argument to awaitCommands should be a list of commands with optional argument arrays")))
+            bindings []]
+        (while commandsAndArgs
+            (bindings.push (b.symbol "_"))
+            (let [nextCommand (commandsAndArgs.shift)]
+                (bindings.push (b.callSymbol "executeCommand"
+                                    (concat [nextCommand] (if (and commandsAndArgs (isListExp (first commandsAndArgs))) (expList (commandsAndArgs.shift)) []))))))
+        `(awaitLet ,bindings ,@body)))
 
-    // Other
+// Other
 
-    (defAlias &call showTextDocument Vscode.window.showTextDocument)
-    (defAlias &call openTextDocument Vscode.workspace.openTextDocument)
+(defAlias &call showTextDocument Vscode.window.showTextDocument)
+(defAlias &call openTextDocument Vscode.workspace.openTextDocument)
 
-    // Macros for implementing commands in Kiss
+// Macros for implementing commands in Kiss
 
-    (defMacro withValueOrInputBox [v &body body]
-        `{
-            (if ,v
-                    {,@body}
-                (awaitLet [,v (inputBox)]
-                    ,@body))
-            null
-        })
-
-    (defMacro withValueOrQuickPick [v options &body body]
-        `(if ,v
+(defMacro withValueOrInputBox [v &body body]
+    `{
+        (if ,v
                 {,@body}
-            (awaitLet [,v (quickPick ,options)]
-                ,@body)))
+            (awaitLet [,v (inputBox)]
+                ,@body))
+        null
+    })
 
-    (defMacro withValueOrQuickPickMap [v options &body body]
-        `(if ,v
+(defMacro withValueOrInputEditor [v filename prompt &body body]
+    `{
+        (if ,v
                 {,@body}
-            (awaitLet [,v (quickPickMap ,options)]
-                ,@body)))
+            (awaitLet [,v (inputEditor ,filename ,prompt)]
+                ,@body))
+        null
+    })
 
-    (function :Void chooseFileInDir [:String->Void openFile :Bool allowNew &opt :String dir]
-        (withValueOrInputBox dir
-            (set dir (dir.replace "\\" "/"))
-            (when (dir.endsWith "/") (set dir (substr dir 0 -1)))
-            (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (cast (concat [".."] (sys.FileSystem.readDirectory dir))))]
-                (let [dirOrFile
-                            (case dirOrFile
-                                (".."
-                                    (substr dir 0 (dir.lastIndexOf "/")))
-                                (otherwise (joinPath dir dirOrFile)))]
-                    (cond
-                        ((sys.FileSystem.isDirectory dirOrFile)
-                            (chooseFileInDir openFile allowNew dirOrFile))
-                        (true
-                            (openFile dirOrFile)))))))
+(defMacro withValueOrQuickPick [v options &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (quickPick ,options)]
+            ,@body)))
 
-    (function :Void showCompileError [errorMessage]
-        (ifLet [compileErrors (R.distinctMatches
-                                            (R.group
-                                                (R.namedGroup "file"
-                                                    (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
-                                                    (R.escape ".kiss:")
-                                                    (R.repeat R.anyDigit 1) // line
-                                                    (R.escape ":")
-                                                    (R.optional
-                                                        (R.group 
-                                                            (R.repeat R.anyDigit 1) // column
-                                                            (R.escape ":"))))
-                                                (R.repeat R.anyChar 1))
-                                            errorMessage)]
-                {
-                    (Vscode.window.showErrorMessage errorMessage)
-                    (awaitLet [chosen (quickPickMap (for match compileErrors =>match.match match))]
-                        (Vscode.window.showErrorMessage chosen.match)
-                        (executeCommand "workbench.action.quickOpen" (substr (chosen.namedGroup "file") 0 -1)))
-                }
-            (Vscode.window.showErrorMessage errorMessage)))
-            
-    // Example:
-    /*
-        (defCommand myExt.customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
-    */
-    (defMacro defCommand [context id description shortcut argList &body body]
-        (let [id (symbolNameValue id)
-                description (eval description)
-                shortcut (eval shortcut)
-                shortcutWithHyphensProcessed
-                    (StringTools.replace 
+(defMacro withValueOrQuickPickMap [v options &body body]
+    `(if ,v
+            {,@body}
+        (awaitLet [,v (quickPickMap ,options)]
+            ,@body)))
+
+(function :Void chooseFileInDir [:String->Void openFile :Bool allowNew &opt :String dir]
+    (withValueOrInputBox dir
+        (set dir (dir.replace "\\" "/"))
+        (when (dir.endsWith "/") (set dir (substr dir 0 -1)))
+        (awaitLet [dirOrFile ((if allowNew autoSuggestPick quickPick) (cast (concat [".."] (sys.FileSystem.readDirectory dir))))]
+            (let [dirOrFile
+                        (case dirOrFile
+                            (".."
+                                (substr dir 0 (dir.lastIndexOf "/")))
+                            (otherwise (joinPath dir dirOrFile)))]
+                (cond
+                    ((sys.FileSystem.isDirectory dirOrFile)
+                        (chooseFileInDir openFile allowNew dirOrFile))
+                    (true
+                        (openFile dirOrFile)))))))
+
+(function :Void showCompileError [errorMessage]
+    (ifLet [compileErrors (R.distinctMatches
+                                        (R.group
+                                            (R.namedGroup "file"
+                                                (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
+                                                (R.escape ".kiss:")
+                                                (R.repeat R.anyDigit 1) // line
+                                                (R.escape ":")
+                                                (R.optional
+                                                    (R.group 
+                                                        (R.repeat R.anyDigit 1) // column
+                                                        (R.escape ":"))))
+                                            (R.repeat R.anyChar 1))
+                                        errorMessage)]
+            {
+                (Vscode.window.showErrorMessage errorMessage)
+                (awaitLet [chosen (quickPickMap (for match compileErrors =>match.match match))]
+                    (Vscode.window.showErrorMessage chosen.match)
+                    (executeCommand "workbench.action.quickOpen" (substr (chosen.namedGroup "file") 0 -1)))
+            }
+        (Vscode.window.showErrorMessage errorMessage)))
+        
+// Example:
+/*
+    (defCommand myExt.customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
+*/
+(defMacroVar extensionName "Kiss-Vscode")
+(defMacro defCommand [context id description shortcut argList &body body]
+    (let [id (symbolNameValue id)
+            description (eval description)
+            shortcut (eval shortcut)
+            shortcutWithHyphensProcessed
+                (StringTools.replace 
+                    (StringTools.replace
                         (StringTools.replace
                             (StringTools.replace
                                 (StringTools.replace
-                                    (StringTools.replace
-                                        shortcut
-                                        "Cmd" "C")
-                                    "Ctrl" "C") 
-                                "--" "++")
-                            "-" "+")
-                        "++" "-+")
-                packageJson
-                    (Json.parse (File.getContent "package.json"))
-                keybindings
-                    packageJson.contributes.keybindings
-                commands
-                    packageJson.contributes.commands
-                functionName
-                    (symbol (StringTools.replace id "." "_"))
-                &mut keyBindingIndex null
-                &mut commandIndex null]
-            (doFor [idx binding] (enumerate keybindings)
-                (when (= binding.command id)
-                    (set keyBindingIndex idx)
-                    (break)))
-            (doFor [idx command] (enumerate commands)
-                (when (= command.command id)
-                    (set commandIndex idx)
-                    (break)))
-            // Manage the command entry in JSON
-            (unless commandIndex (set commandIndex commands.length))
-            (setNth commands commandIndex
-                (object
-                    command id
-                    title description))
-            // Manage the keybinding entry in JSON
-            (cond 
-                (shortcut
-                    (unless keyBindingIndex (set keyBindingIndex keybindings.length))
-                    (setNth keybindings keyBindingIndex
-                        (object
-                            command id
-                            mac (StringTools.replace shortcutWithHyphensProcessed "C" "Cmd")
-                            key (StringTools.replace shortcutWithHyphensProcessed "C" "Ctrl"))))
-                
-                // A binding element is in the JSON that needs to be removed:
-                (keyBindingIndex
-                    (keybindings.splice keyBindingIndex 1)))
-            (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
-            `{
-                (function ,functionName ,argList
-                    ,@body)
-                (.push .subscriptions ,context
-                    (Vscode.commands.registerCommand
-                        ,(ReaderExp.StrExp id )
-                        ,functionName))
-            })))
+                                    shortcut
+                                    "Cmd" "C")
+                                "Ctrl" "C") 
+                            "--" "++")
+                        "-" "+")
+                    "++" "-+")
+            packageJson
+                (Json.parse (File.getContent "package.json"))
+            keybindings
+                packageJson.contributes.keybindings
+            commands
+                packageJson.contributes.commands
+            functionName
+                (symbol (StringTools.replace id "." "_"))
+            &mut keyBindingIndex null
+            &mut commandIndex null]
+        (doFor [idx binding] (enumerate keybindings)
+            (when (= binding.command id)
+                (set keyBindingIndex idx)
+                (break)))
+        (doFor [idx command] (enumerate commands)
+            (when (= command.command id)
+                (set commandIndex idx)
+                (break)))
+        // Manage the command entry in JSON
+        (unless commandIndex (set commandIndex commands.length))
+        (setNth commands commandIndex
+            (object
+                command id
+                title "${extensionName}: ${description}"))
+        // Manage the keybinding entry in JSON
+        (cond 
+            (shortcut
+                (unless keyBindingIndex (set keyBindingIndex keybindings.length))
+                (setNth keybindings keyBindingIndex
+                    (object
+                        command id
+                        mac (StringTools.replace shortcutWithHyphensProcessed "C" "Cmd")
+                        key (StringTools.replace shortcutWithHyphensProcessed "C" "Ctrl"))))
+            
+            // A binding element is in the JSON that needs to be removed:
+            (keyBindingIndex
+                (keybindings.splice keyBindingIndex 1)))
+        (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
+        `{
+            (function ,functionName ,argList
+                ,@body)
+            (.push .subscriptions ,context
+                (Vscode.commands.registerCommand
+                    ,(ReaderExp.StrExp id )
+                    ,functionName))
+        }))
+
+// ui
+(defAlias &ident activeTextEditor Vscode.window.activeTextEditor)
+
+/**
+* Helper functions
+*/
+(function selectedText []
+    (if (and activeTextEditor activeTextEditor.selection)
+            (let [document
+                        activeTextEditor.document
+                    selection
+                        activeTextEditor.selection
+                    range (new Range selection.start selection.end)]
+                (document.getText range))
+        ""))
+
+(function insertAt [:vscode.Position pos text]
+    (activeTextEditor.edit
+        (lambda [e]
+            (e.insert pos text))))
+
+(function insert [text]
+    (insertAt activeTextEditor.selection.active text))
+
+// Way to more forgivingly get long text inputs
+(function :js.lib.Promise<String> inputEditor [:String filename :String prompt]
+    (let [previousEditor activeTextEditor
+            tempFile (joinPath (userHome) "Documents" filename)
+            uri (if (FileSystem.exists tempFile)
+                        (Uri.parse "file:$tempFile")
+                    (Uri.parse "untitled:$tempFile"))]
+        (new js.lib.Promise
+            ->[resolve reject]
+                (awaitLet [doc (openTextDocument uri)
+                            _ (doc.save)
+                            editor (showTextDocument doc)]
+                    (print "Enter ${prompt}, then save and close this editor.")
+                    (let [&mut :Disposable closeEvent null]
+                        (set closeEvent
+                            (Vscode.workspace.onDidCloseTextDocument
+                                ->closedDoc
+                                    (when (= closedDoc.fileName doc.fileName)
+                                        (closeEvent.dispose)
+                                        (awaitLet [_ (showTextDocument previousEditor.document)]
+                                            (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText))))))))))))
+
+// Open any folder in a fresh VSCode instance.
+(function openFolder [folder]
+    (executeCommand "vscode.openFolder" (Uri.file folder)))
+
+// Open any file in the current VSCode window.
+(function openFile [file]
+    (awaitLet [doc (Vscode.workspace.openTextDocument (Uri.file file))]
+    (Vscode.window.showTextDocument doc)))
+
+// Open any file through the operating system's default program.
+(function :Void osOpenFile [&opt :String file]
+    (withValueOrInputBox file
+        (case (Sys.systemName)
+            ("Windows" (assertProcess "cmd.exe" ["/C" "start" file]))
+            ("Mac" (assertProcess "open" [file]))
+            ("Linux" (assertProcess "xdg-open" [file]))
+            (otherwise (throw "Unsupported operating system")))))
+
+(function :Void osOpenFileInDir [&opt :String dir]
+    (chooseFileInDir osOpenFile false dir))

@@ -14,9 +14,6 @@
 	"extensionPack": [
 		"2gua.rainbow-brackets"
 	],
-	"dependencies": {
-		"monaco-editor": "^0.29.1"
-	},
 	"publisher": "NQNStudios",
 	"contributes": {
 		"grammars": [
@@ -38,48 +35,60 @@
 		],
 		"keybindings": [
 			{
-				"command": "kiss.runLastCommand",
-				"mac": "cmd+.",
-				"key": "ctrl+."
+				"command": "kiss.evalAndPrint",
+				"mac": "Cmd+; Cmd+e",
+				"key": "Ctrl+; Ctrl+e"
 			},
 			{
-				"command": "kiss.runKeyboardShortcut",
-				"mac": "cmd+;",
-				"key": "ctrl+;"
-			}
-		],
-		"customEditors": [
+				"command": "kiss.newKissClass",
+				"mac": "Cmd+; Cmd+c",
+				"key": "Ctrl+; Ctrl+c"
+			},
 			{
-				"selector": [
-					{
-						"filenamePattern": "*.*.*.ktxt2"
-					}
-				],
-				"priority": "default",
-				"viewType": "ktxt2.splitView",
-				"displayName": "KTxt2 Split View"
+				"command": "kiss.showCorrespondingFile",
+				"mac": "Cmd+; Cmd+f",
+				"key": "Ctrl+; Ctrl+f"
+			},
+			{
+				"command": "kiss.insertUTestCase",
+				"mac": "Cmd+; Cmd+u",
+				"key": "Ctrl+; Ctrl+u"
+			},
+			{
+				"command": "kiss.mapLinesSync",
+				"mac": "Cmd+; Cmd+l Cmd+m",
+				"key": "Ctrl+; Ctrl+l Ctrl+m"
+			},
+			{
+				"command": "kiss.sortLinesSync",
+				"mac": "Cmd+; Cmd+l Cmd+s",
+				"key": "Ctrl+; Ctrl+l Ctrl+s"
 			}
 		],
 		"commands": [
 			{
-				"title": "Kiss: Run a kiss command",
-				"command": "kiss.runCommand"
+				"title": "Kiss-Vscode: Evaluate and print a kiss expression's value",
+				"command": "kiss.evalAndPrint"
 			},
 			{
-				"title": "Kiss: Rerun the last command",
-				"command": "kiss.runLastCommand"
+				"title": "Kiss-Vscode: Create a new kiss class",
+				"command": "kiss.newKissClass"
 			},
 			{
-				"title": "Kiss: Run a Kiss keyboard shortcut command",
-				"command": "kiss.runKeyboardShortcut"
+				"title": "Kiss-Vscode: Open the corresponding .kiss/.hx file to this one",
+				"command": "kiss.showCorrespondingFile"
 			},
 			{
-				"title": "Kiss: Update Kiss-VSCode from the currently installed Haxelib package",
-				"command": "kiss.updateKissVscode"
+				"title": "Kiss-Vscode: Generate a UTest test case in this .hx/.kiss file",
+				"command": "kiss.insertUTestCase"
 			},
 			{
-				"title": "Kiss: Reload Kiss config",
-				"command": "kiss.reloadConfig"
+				"title": "Kiss-Vscode: Transform the selected text lines using a String->String kiss function",
+				"command": "kiss.mapLinesSync"
+			},
+			{
+				"title": "Kiss-Vscode: Sort the selected text lines using a (String,String)->Int comparator function",
+				"command": "kiss.sortLinesSync"
 			}
 		],
 		"languages": [
@@ -99,13 +108,10 @@
 	"engines": {
 		"vscode": "^1.4.0"
 	},
+	"devDependencies": {
+		"vsce": "^2.15.0"
+	},
 	"version": "0.0.18",
-	"activationEvents": [
-		"onStartupFinished",
-		"onCommand:kiss.runCommand",
-		"onCommand:kiss.runLastCommand",
-		"onCommand:kiss.runKeyboardShortcut",
-		"onCommand:kiss.reloadConfig"
-	],
+	"activationEvents": [],
 	"displayName": "kiss-vscode"
 }

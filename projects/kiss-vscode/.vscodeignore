@@ -1,9 +1,6 @@
 .vscode
 bin/*.map
 src
-node_modules/
-!node_modules/monaco-editor/min/
 build.hxml
-_activeConfig/
-_lastActiveConfig/
 haxelib.json
+test.sh

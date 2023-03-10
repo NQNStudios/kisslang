@@ -1,0 +1,16 @@
+// TODO provide for passing messages between webview and VSCode API
+(function :WebviewPanel quickWebview [:String title :QuickWebviewSetup setup :QuickWebviewUpdate update &opt :ViewColumn column :Int fps]
+    (let [dom (new JSDOM "<!DOCTYPE html><html><head><title>${title}</title></head><body></body></html>")
+            document dom.window.document]
+        (setup document)
+        (let [panel (Vscode.window.createWebviewPanel "kissVscodeQuickWebview" title (or column ViewColumn.Beside) (object))]
+            (set panel.webview.html document.documentElement.innerHTML)
+
+            // setInterval of the update function and allow for stopping it by disposing the panel or calling a close function passed to update
+            (let [&mut :Function close null
+                    deltaMilli (/ 1000.0 (or fps 30))
+                    deltaSec (/ deltaMilli 1000)
+                    interval (Timers.setInterval ->{(update document deltaSec close) (set panel.webview.html document.documentElement.innerHTML)}deltaMilli)]
+                (panel.onDidDispose ->e (Timers.clearInterval interval))
+                (set close ->(panel.dispose)))
+            panel)))

@@ -1,0 +1,12 @@
+"customEditors": [
+    {
+        "selector": [
+            {
+                "filenamePattern": "*.*.*.ktxt2"
+            }
+        ],
+        "priority": "default",
+        "viewType": "ktxt2.splitView",
+        "displayName": "KTxt2 Split View"
+    }
+],

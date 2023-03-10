@@ -1,0 +1,20 @@
+(var interp (new kiss.KissInterp))
+
+(function :Void prepareInterp []
+    (set .printStr (dictGet interp.variables "Prelude") ->s (infoMessage s))
+    (interp.variables.set "Vscode" Vscode)
+    (interp.variables.set "Std"
+        (object
+            parseInt Std.parseInt
+            string Std.string
+            random Std.random
+            int Std.int)))
+
+// TODO pass macros and aliases from Util.kiss to the KissState of "eval kiss expression"
+(function :Dynamic evalString [:String kissStr]
+    (once (prepareInterp))
+    (try
+            (interp.evalKiss kissStr)
+        (catch [e]
+            (errorMessage "Error `${e}` from $kissStr")
+            null)))

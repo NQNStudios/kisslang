@@ -1,9 +1,0 @@
-args.hxml
--lib hxnodejs
--lib vscode
--lib kiss
--lib kiss-vscode
--lib kiss-tools
--lib re-flex
-KissConfig
--js config.js
