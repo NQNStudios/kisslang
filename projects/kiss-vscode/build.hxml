@@ -1,5 +1,4 @@
--lib vscode
--lib hxnodejs
+-lib kiss-vscode-api
 -lib kiss
 -lib uuid
 -lib hscript

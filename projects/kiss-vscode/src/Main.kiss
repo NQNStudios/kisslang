@@ -1,5 +1,5 @@
 (#if test
-        (load "Util.kiss")
+        (loadFrom "kiss-vscode-api" "src/Util.kiss")
     // This also loads Util.kiss:
     (load "commands/ExtensionTools.kiss"))
 

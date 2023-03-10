@@ -1,0 +1,19 @@
+{
+	"main": "kiss_vscode_api.Main",
+	"name": "kiss-vscode-api",
+	"description": "API for kiss-vscode extensions",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": "",
+		"vscode": "",
+		"hxnodejs": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}

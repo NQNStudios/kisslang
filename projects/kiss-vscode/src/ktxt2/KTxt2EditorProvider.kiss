@@ -1,4 +1,4 @@
-(load "../Util.kiss")
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
 
 // Based on https://github.com/microsoft/vscode-extension-samples/blob/main/custom-editor-sample/src/catScratchEditor.ts
 

@@ -1,4 +1,4 @@
-(loadFrom "kiss-vscode" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
 
 (function kvLibpath [] (.trim (assertProcess "haxelib" ["libpath" "kiss-vscode"])))
 (function :ChildProcessSpawnSyncOptions options [] (object cwd (let [path (kvLibpath)] (path.substr 0 (- path.length 1)))))

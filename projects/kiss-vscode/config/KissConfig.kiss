@@ -1,4 +1,4 @@
-(loadFrom "kiss-vscode" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
 
 // ui
 (defAlias &ident activeTextEditor Vscode.window.activeTextEditor)
