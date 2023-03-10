@@ -299,3 +299,6 @@
 
 (function :Void osOpenFileInDir [&opt :String dir]
     (chooseFileInDir osOpenFile false dir))
+
+(function :Void printThroughInfoMessage []
+    (set Prelude.printStr ->s (infoMessage s)))

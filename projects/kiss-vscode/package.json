@@ -51,8 +51,8 @@
 			},
 			{
 				"command": "kiss.insertUTestCase",
-				"mac": "Cmd+; Cmd+u",
-				"key": "Ctrl+; Ctrl+u"
+				"mac": "Cmd+; Cmd+t Cmd+c",
+				"key": "Ctrl+; Ctrl+t Ctrl+c"
 			},
 			{
 				"command": "kiss.mapLinesSync",
@@ -63,6 +63,16 @@
 				"command": "kiss.sortLinesSync",
 				"mac": "Cmd+; Cmd+l Cmd+s",
 				"key": "Ctrl+; Ctrl+l Ctrl+s"
+			},
+			{
+				"command": "kiss.updateExtension",
+				"mac": "Cmd+; Cmd+u",
+				"key": "Ctrl+; Ctrl+u"
+			},
+			{
+				"command": "kiss.testAndUpdateExtension",
+				"mac": "Cmd+; Cmd+t Cmd+u",
+				"key": "Ctrl+; Ctrl+t Ctrl+u"
 			}
 		],
 		"commands": [
@@ -89,6 +99,14 @@
 			{
 				"title": "Kiss-Vscode: Sort the selected text lines using a (String,String)->Int comparator function",
 				"command": "kiss.sortLinesSync"
+			},
+			{
+				"title": "Kiss-Vscode: Update and reinstall the Kiss-Vscode extension you are editing",
+				"command": "kiss.updateExtension"
+			},
+			{
+				"title": "Kiss-Vscode: Check test.sh, then update and reinstall the kiss-vscode extension you are editing",
+				"command": "kiss.testAndUpdateExtension"
 			}
 		],
 		"languages": [

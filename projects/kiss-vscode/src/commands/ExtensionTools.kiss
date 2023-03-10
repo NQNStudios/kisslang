@@ -1,7 +1,7 @@
 (loadFrom "kiss-vscode-api" "src/Util.kiss")
 
-(function kvLibpath [] (.trim (assertProcess "haxelib" ["libpath" "kiss-vscode"])))
-(function :ChildProcessSpawnSyncOptions options [] (object cwd (let [path (kvLibpath)] (path.substr 0 (- path.length 1)))))
+(function extensionPath [] .fsPath .uri (first Vscode.workspace.workspaceFolders))
+(function :ChildProcessSpawnSyncOptions options [] (object cwd (extensionPath)))
 
 (function handleUpdateFailure [error]
     (showCompileError "Error updating Kiss-VSCode: $error")
@@ -14,25 +14,20 @@
         (return)
     })
 
-(function :Void updateKissVscode [&opt _]
-    (trySpawnSync "haxe" ["build.hxml"] (options) forceUpdateFailure)
+(defCommand context kiss.updateExtension "Update and reinstall the Kiss-Vscode extension you are editing" "C-; C-u" []
     (if (= "Windows" (Sys.systemName))
-            {
-                (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) forceUpdateFailure)
-                (trySpawnSync "cmd.exe" ["/c" "vsce" "package"] (options) forceUpdateFailure)
-            }
-        {
-            (trySpawnSync "npm" ["install"] (options) forceUpdateFailure)
-            (trySpawnSync "vsce" ["package"] (options) forceUpdateFailure)
-        })
+            (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) forceUpdateFailure)
+        (trySpawnSync "npm" ["install"] (options) forceUpdateFailure))
+    (trySpawnSync "haxe" ["build.hxml"] (options) forceUpdateFailure)
     (awaitLet [_ (executeCommand 
                         "workbench.extensions.command.installFromVSIX"
-                        (Uri.file (joinPath (kvLibpath) (last (filter (FileSystem.readDirectory (kvLibpath)) ->file (file.endsWith ".vsix"))))))]
+                        (Uri.file (joinPath (extensionPath) (last (filter (FileSystem.readDirectory (extensionPath)) ->file (file.endsWith ".vsix"))))))]
             (catch [error]
                 (handleUpdateFailure error)))
         
-        {})
+        {}
+    null)
 
-(function testAndUpdateKissVscode [&opt _]
+(defCommand context kiss.testAndUpdateExtension "Check test.sh, then update and reinstall the kiss-vscode extension you are editing" "C-; C-t C-u" []
     (trySpawnSync "test.sh" [] (options) handleUpdateFailure)
-    (updateKissVscode))
+    (kiss_updateExtension))

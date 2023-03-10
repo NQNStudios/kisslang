@@ -2,6 +2,7 @@
 (loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
 
 (function _activate [:ExtensionContext context]
+    (printThroughInfoMessage)
     (load "commands/ExtensionTools.kiss")
     (load "commands/KissTools.kiss")
     (load "commands/Lines.kiss"))

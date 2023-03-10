@@ -55,7 +55,7 @@ class ${className} {}
 (defCommand context kiss.showCorrespondingFile "Open the corresponding .kiss/.hx file to this one" "C-; C-f" []
     (showTextDocument (Uri.file (correspondingFile .fileName .document activeTextEditor))))
 
-(defCommand context kiss.insertUTestCase "Generate a UTest test case in this .hx/.kiss file" "C-; C-u" []
+(defCommand context kiss.insertUTestCase "Generate a UTest test case in this .hx/.kiss file" "C-; C-t C-c" []
     (awaitLet [testName (inputBox)
                 &sync testName
                     "$(.toUpperCase (testName.substr 0 1))$(testName.substr 1)"
