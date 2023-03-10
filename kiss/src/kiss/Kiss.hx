@@ -555,7 +555,14 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 checkNumArgs(mac);
                 macroUsed = true;
-                var expanded = macros[mac](exp, args.copy(), k);
+                var expanded = try {
+                    macros[mac](exp, args.copy(), k);
+                } catch (error:KissError) {
+                    throw error;
+                } catch (error:Dynamic) {
+                    throw KissError.fromExp(exp, 'Macro expansion error: $error');
+                };
+                
                 if (expanded != null) {
                     convert(expanded);
                 } else if (macroExpandOnly) {
