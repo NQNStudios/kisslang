@@ -6,7 +6,8 @@
 	"dependencies": {
 		"kiss": "",
 		"vscode": "",
-		"hxnodejs": ""
+		"hxnodejs": "",
+		"re-flex": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [
