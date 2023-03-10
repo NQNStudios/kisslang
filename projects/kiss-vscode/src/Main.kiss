@@ -150,13 +150,12 @@
             (Vscode.commands.registerCommand
                 "kiss.reloadConfig"
                 ->(tryLoadConfig true)))
-        (context.subscriptions.push
-            (Vscode.commands.registerCommand
-                "kiss.runCommand"
-                (lambda :Void [] 
-                    (if config
-                            (.runCommand (the KissConfig config))
-                        (Vscode.window.showErrorMessage "Can't run commands! No config is loaded.")))))
+        
+        (defCommand context kiss.runCommand "Kiss: Run a kiss command" "" []
+            (if config
+                    (.runCommand (the KissConfig config))
+                (Vscode.window.showErrorMessage "Can't run commands! No config is loaded."))
+            null)
 
         (context.subscriptions.push
             (Vscode.commands.registerCommand

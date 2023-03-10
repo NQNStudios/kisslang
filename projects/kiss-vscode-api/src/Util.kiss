@@ -155,4 +155,71 @@
                         (Vscode.window.showErrorMessage chosen.match)
                         (executeCommand "workbench.action.quickOpen" (substr (chosen.namedGroup "file") 0 -1)))
                 }
-            (Vscode.window.showErrorMessage errorMessage))))
+            (Vscode.window.showErrorMessage errorMessage)))
+            
+    // Example:
+    /*
+        (defCommand myExt.customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
+    */
+    (defMacro defCommand [context id description shortcut argList &body body]
+        (let [id (symbolNameValue id)
+                description (eval description)
+                shortcut (eval shortcut)
+                shortcutWithHyphensProcessed
+                    (StringTools.replace 
+                        (StringTools.replace
+                            (StringTools.replace
+                                (StringTools.replace
+                                    (StringTools.replace
+                                        shortcut
+                                        "Cmd" "C")
+                                    "Ctrl" "C") 
+                                "--" "++")
+                            "-" "+")
+                        "++" "-+")
+                packageJson
+                    (Json.parse (File.getContent "package.json"))
+                keybindings
+                    packageJson.contributes.keybindings
+                commands
+                    packageJson.contributes.commands
+                functionName
+                    (symbol (StringTools.replace id "." "_"))
+                &mut keyBindingIndex null
+                &mut commandIndex null]
+            (doFor [idx binding] (enumerate keybindings)
+                (when (= binding.command id)
+                    (set keyBindingIndex idx)
+                    (break)))
+            (doFor [idx command] (enumerate commands)
+                (when (= command.command id)
+                    (set commandIndex idx)
+                    (break)))
+            // Manage the command entry in JSON
+            (unless commandIndex (set commandIndex commands.length))
+            (setNth commands commandIndex
+                (object
+                    command id
+                    title description))
+            // Manage the keybinding entry in JSON
+            (cond 
+                (shortcut
+                    (unless keyBindingIndex (set keyBindingIndex keybindings.length))
+                    (setNth keybindings keyBindingIndex
+                        (object
+                            command id
+                            mac (StringTools.replace shortcutWithHyphensProcessed "C" "Cmd")
+                            key (StringTools.replace shortcutWithHyphensProcessed "C" "Ctrl"))))
+                
+                // A binding element is in the JSON that needs to be removed:
+                (keyBindingIndex
+                    (keybindings.splice keyBindingIndex 1)))
+            (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
+            `{
+                (function ,functionName ,argList
+                    ,@body)
+                (.push .subscriptions ,context
+                    (Vscode.commands.registerCommand
+                        ,(ReaderExp.StrExp id )
+                        ,functionName))
+            })))

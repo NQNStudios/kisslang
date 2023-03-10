@@ -11,6 +11,12 @@
 		"Programming Languages",
 		"Extension Packs"
 	],
+	"extensionPack": [
+		"2gua.rainbow-brackets"
+	],
+	"dependencies": {
+		"monaco-editor": "^0.29.1"
+	},
 	"publisher": "NQNStudios",
 	"contributes": {
 		"grammars": [
@@ -42,9 +48,21 @@
 				"key": "ctrl+;"
 			}
 		],
+		"customEditors": [
+			{
+				"selector": [
+					{
+						"filenamePattern": "*.*.*.ktxt2"
+					}
+				],
+				"priority": "default",
+				"viewType": "ktxt2.splitView",
+				"displayName": "KTxt2 Split View"
+			}
+		],
 		"commands": [
 			{
-				"title": "Kiss: Run a Kiss command",
+				"title": "Kiss: Run a kiss command",
 				"command": "kiss.runCommand"
 			},
 			{
@@ -76,18 +94,6 @@
 					"kiss"
 				]
 			}
-		],
-		"customEditors": [
-			{
-				"viewType": "ktxt2.splitView",
-				"displayName": "KTxt2 Split View",
-				"selector": [
-					{
-						"filenamePattern": "*.*.*.ktxt2"
-					}
-				],
-				"priority": "default"
-			}
 		]
 	},
 	"engines": {
@@ -101,11 +107,5 @@
 		"onCommand:kiss.runKeyboardShortcut",
 		"onCommand:kiss.reloadConfig"
 	],
-	"displayName": "kiss-vscode",
-	"dependencies": {
-		"monaco-editor": "^0.29.1"
-	},
-	"extensionPack": [
-		"2gua.rainbow-brackets"
-	]
+	"displayName": "kiss-vscode"
 }
