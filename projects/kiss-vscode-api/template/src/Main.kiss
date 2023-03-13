@@ -1,0 +1,9 @@
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
+
+@(:expose "activate")
+(function activate [:ExtensionContext context]
+    (printThroughInfoMessage)
+    // Add your extension's commands here with (defCommand <...>):
+    // (defCommand context yourExt.exampleCommand "An example command for your extension" "C-; C-1" [] (doSomething))
+    )
