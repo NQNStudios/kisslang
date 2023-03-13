@@ -322,7 +322,7 @@ class Kiss {
         }
         //trace('kiss build $kissFile');
 
-        return _try(() -> {
+        var result = _try(() -> {
             #if profileKiss
             Kiss.measure('Compiling kiss: $kissFile', () -> {
             #end
@@ -357,12 +357,22 @@ class Kiss {
                     });
                 }
 
-                k.fieldList;
             #if profileKiss
             });
+            for (label => timeSpent in profileAggregates) {
+                var usageCount = profileUsageCounts[label];
+                if (timeSpent >= SIGNIFICANT_TIME_SPENT) {
+                    Sys.println('${label} (x${usageCount}): ${timeSpent}');
+                }
+            }
+
             #end
+            k.fieldList;
         });
+        return result;
     }
+
+    static final SIGNIFICANT_TIME_SPENT = 0.05;
 
     public static function load(kissFile:String, k:KissState, ?loadingDirectory:String, loadAllExps = false, ?fromExp:ReaderExp):Null<ReaderExp> {
         if (loadingDirectory == null)
@@ -556,7 +566,7 @@ class Kiss {
                 checkNumArgs(mac);
                 macroUsed = true;
                 var expanded = try {
-                    macros[mac](exp, args.copy(), k);
+                    Kiss.measure(mac, ()->macros[mac](exp, args.copy(), k), true);
                 } catch (error:KissError) {
                     throw error;
                 } catch (error:Dynamic) {
@@ -572,7 +582,7 @@ class Kiss {
                 };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm) && !macroExpandOnly):
                 checkNumArgs(specialForm);    
-                Right(specialForms[specialForm](exp, args.copy(), k));
+                Right(Kiss.measure(specialForm, ()->specialForms[specialForm](exp, args.copy(), k), true));
             case CallExp({pos: _, def: Symbol(alias)}, args) if (k.callAliases.exists(alias)):
                 convert(CallExp(k.callAliases[alias].withPosOf(exp), args).withPosOf(exp));
             case CallExp(func, args):
@@ -771,12 +781,27 @@ class Kiss {
         }
     }
 
-    public static function measure<T>(processLabel:String, process:Void->T) {
+    static var profileAggregates:Map<String,Float> = [];
+    static var profileUsageCounts:Map<String,Int> = [];
+
+    public static function measure<T>(processLabel:String,  process:Void->T, aggregate=false) {
         var start = Sys.time();
-        Sys.print('${processLabel}... ');
+        if (aggregate) {
+            if (!profileAggregates.exists(processLabel)) {
+                profileAggregates[processLabel] = 0.0;
+                profileUsageCounts[processLabel] = 0;
+            }
+        } else {
+            Sys.print('${processLabel}... ');
+        }
         var result = process();
         var end = Sys.time();
-        Sys.println('${end-start}s');
+        if (aggregate) {
+            profileAggregates[processLabel] += (end - start);
+            profileUsageCounts[processLabel] += 1;
+        } else {
+            Sys.println('${end-start}s');
+        }
         return result;
     }
 

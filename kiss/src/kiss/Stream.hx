@@ -139,19 +139,25 @@ class Stream {
     }
 
     public function putBackString(s:String) {
-        var idx = s.length - 1;
-        while (idx >= 0) {
-            absoluteChar -= 1;
-            switch (s.charAt(idx)) {
-                case "\n":
-                    line -= 1;
-                    column = lineLengths.pop();
-                default:
-                    column -= 1;
+        #if macro
+        Kiss.measure("Stream.putBackString", () -> {
+        #end
+            var idx = s.length - 1;
+            while (idx >= 0) {
+                absoluteChar -= 1;
+                switch (s.charAt(idx)) {
+                    case "\n":
+                        line -= 1;
+                        column = lineLengths.pop();
+                    default:
+                        column -= 1;
+                }
+                --idx;
             }
-            --idx;
-        }
-        content = s + content;
+            content = s + content;
+        #if macro
+        }, true);
+        #end
     }
 
     public function takeChars(count:Int):Option<String> {

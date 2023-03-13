@@ -584,44 +584,50 @@ class Prelude {
      * So don't use raw string literals in Kiss you want parsed and evaluated at runtime.
      */
     public static function convertToHScript(kissStr:String):String {
-        #if (!macro && hxnodejs)
-        var hscript = try {
-            assertProcess("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], kissStr.split('\n'));
-        } catch (e) {
-            throw 'failed to convert ${kissStr} to hscript:\n$e';
-        }
-        if (hscript.startsWith(">>> ")) {
-            hscript = hscript.substr(4);
-        }
-        return hscript.trim();
-        #elseif (!macro && python)
-        var hscript = try {
-            assertProcess("haxelib", ["run", "kiss", "convert", "--hscript"], [kissStr.replace('\n', ' ')], false);
-        } catch (e) {
-            throw 'failed to convert ${kissStr} to hscript:\n$e';
-        }
-        if (hscript.startsWith(">>> ")) {
-            hscript = hscript.substr(4);
-        }
-        return hscript.trim();
-        #elseif sys
-        if (kissProcess == null)
-            kissProcess = new Process("haxelib", ["run", "kiss", "convert", "--hscript"]);
-
-        kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
-
-        try {
-            var output = kissProcess.stdout.readLine();
-            if (output.startsWith(">>> ")) {
-                output = output.substr(4);
+        #if macro
+        return Kiss.measure("Prelude.convertToHScript", () -> {
+        #end
+            #if (!macro && hxnodejs)
+            var hscript = try {
+                assertProcess("haxelib", ["run", "kiss", "convert", "--all", "--hscript"], kissStr.split('\n'));
+            } catch (e) {
+                throw 'failed to convert ${kissStr} to hscript:\n$e';
             }
-            return output;
-        } catch (e) {
-            var error = kissProcess.stderr.readAll().toString();
-            throw 'failed to convert ${kissStr} to hscript: ${error}';
-        }
-        #else
-        throw "Can't convert Kiss to HScript on this target.";
+            if (hscript.startsWith(">>> ")) {
+                hscript = hscript.substr(4);
+            }
+            return hscript.trim();
+            #elseif (!macro && python)
+            var hscript = try {
+                assertProcess("haxelib", ["run", "kiss", "convert", "--hscript"], [kissStr.replace('\n', ' ')], false);
+            } catch (e) {
+                throw 'failed to convert ${kissStr} to hscript:\n$e';
+            }
+            if (hscript.startsWith(">>> ")) {
+                hscript = hscript.substr(4);
+            }
+            return hscript.trim();
+            #elseif sys
+            if (kissProcess == null)
+                kissProcess = new Process("haxelib", ["run", "kiss", "convert", "--hscript"]);
+
+            kissProcess.stdin.writeString('${kissStr.replace("\n", " ")}\n');
+
+            try {
+                var output = kissProcess.stdout.readLine();
+                if (output.startsWith(">>> ")) {
+                    output = output.substr(4);
+                }
+                return output;
+            } catch (e) {
+                var error = kissProcess.stderr.readAll().toString();
+                throw 'failed to convert ${kissStr} to hscript: ${error}';
+            }
+            #else
+            throw "Can't convert Kiss to HScript on this target.";
+            #end
+        #if macro
+        }, true);
         #end
     }
 
