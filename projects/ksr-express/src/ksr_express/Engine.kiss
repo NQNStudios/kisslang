@@ -9,8 +9,10 @@
         &mut :String->Void resolve null
         &mut :Dynamic connection null]
     (let [app (Express.call)
-            port 3000]
-        (app.use (Express.static_.call (#if STATIC_DIR (#value "STATIC_DIR") (Sys.getCwd))))
+            port 3000
+            staticDir (#if STATIC_DIR (#value "STATIC_DIR") (Sys.getCwd))]
+        (print "Using $staticDir for static file directory")
+        (app.use (Express.static_.call staticDir))
         (app.get "/" ->[req :Dynamic res next]
             (res.send content))
         (app.get "/image/:path" ->[:Dynamic req :Dynamic res next]
