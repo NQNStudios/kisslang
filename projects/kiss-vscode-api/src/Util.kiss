@@ -272,9 +272,9 @@
                     (print "Enter ${prompt}, then save and close this editor.")
                     (let [&mut :Disposable closeEvent null]
                         (set closeEvent
-                            (Vscode.workspace.onDidCloseTextDocument
-                                ->closedDoc
-                                    (when (= closedDoc.fileName doc.fileName)
+                            (Vscode.window.onDidChangeVisibleTextEditors
+                                ->visibleEditors
+                                    (unless (contains visibleEditors editor)
                                         (closeEvent.dispose)
                                         (awaitLet [_ (showTextDocument previousEditor.document)]
                                             (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText))))))))))))

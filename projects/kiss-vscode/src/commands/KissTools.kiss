@@ -1,6 +1,6 @@
 (defCommand context kiss.evalAndPrint "Evaluate and print a kiss expression's value" "C-; C-e" []
     (let [st (selectedText)]
-        (withValueOrInputEditor st "kiss.evalAndPrint" "// A kiss expression to evaluate"
+        (withValueOrInputEditor st "kiss.evalAndPrint" "A kiss expression to evaluate"
             (infoMessage (Std.string (evalString st))))))
 
 (defCommand context kiss.newKissClass "Create a new kiss class" "C-; C-c" []
