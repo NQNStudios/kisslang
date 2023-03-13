@@ -24,5 +24,6 @@ enum ReaderExpDef {
     ListEatingExp(exps:Array<ReaderExp>); // [::exp exp ...exps exp]
     ListRestExp(name:String); // ...exps or ...
     TypeParams(types:Array<ReaderExp>); // <>[T :Constraint U :Constraint1 :Constraint2 V]
+    HaxeMeta(name:String, params:Null<Array<ReaderExp>>, exp:ReaderExp); // @meta <exp> or @(meta <params...>) <exp>
     None; // not an expression, i.e. (#unless falseCondition exp)
 }

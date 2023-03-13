@@ -1,7 +1,8 @@
 (loadFrom "kiss-vscode-api" "src/Util.kiss")
 (loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
 
-(function _activate [:ExtensionContext context]
+@(:expose "activate")
+(function activate [:ExtensionContext context]
     (printThroughInfoMessage)
     (load "commands/ExtensionTools.kiss")
     (load "commands/KissTools.kiss")

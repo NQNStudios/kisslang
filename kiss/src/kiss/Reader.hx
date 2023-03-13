@@ -32,11 +32,16 @@ class Reader {
             var pos = stream.position();
             CallExp(assertRead(stream, k), readExpArray(stream, ")", k, pos));
         };
+
+        readTable["@"] = (stream, k) -> HaxeMeta(nextToken(stream, "a haxe metadata entry name"), null, assertRead(stream, k));
+        readTable["@("] = (stream, k) -> HaxeMeta(nextToken(stream, "a haxe metadata entry name"), readExpArray(stream, ")", k), assertRead(stream, k));
+
         readTable["["] = (stream, k) -> ListExp(readExpArray(stream, "]", k));
         readTable["[::"] = (stream, k) -> ListEatingExp(readExpArray(stream, "]", k));
         readTable["..."] = (stream, k) -> ListRestExp(nextToken(stream, "name for list-eating rest exp", true));
-        // Provides a nice syntactic sugar for (if... {[then block]} {[else block]}),
-        // and also handles string interpolation cases like "${exp}moreString"
+
+        // Provides a nice syntactic sugar for (if... {<then block...>} {<else block...>}),
+        // and also handles string interpolation cases like "${exp}moreString":
         readTable["{"] = (stream:Stream, k) -> CallExp(Symbol("begin").withPos(stream.position()), readExpArray(stream, "}", k));
 
         readTable["<>["] = (stream, k) -> TypeParams(readExpArray(stream, "]", k));
@@ -567,6 +572,10 @@ class Reader {
                 '...${name}';
             case None:
                 '';
+            case HaxeMeta(name, null, exp):
+                '@${name} ${exp.def.toString()}';
+            case HaxeMeta(name, params, exp):
+                '@(${name} ${[for (param in params) param.def.toString()].join(" ")}) ${exp.def.toString()}';
         }
     }
 }

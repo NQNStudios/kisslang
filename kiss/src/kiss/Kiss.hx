@@ -475,7 +475,7 @@ class Kiss {
     }
 
     // Core functionality of Kiss: returns ReaderExp when macroExpandOnly is true, and haxe.macro.Expr otherwise
-    public static function macroExpandAndConvert(exp:ReaderExp, k:KissState, macroExpandOnly:Bool):Either<ReaderExp,Expr> {
+    public static function macroExpandAndConvert(exp:ReaderExp, k:KissState, macroExpandOnly:Bool, ?metaNames, ?metaParams:Array<Array<Expr>>, ?metaPos:Array<haxe.macro.Position>):Either<ReaderExp,Expr> {
         #if kissCache
         var str = Reader.toString(exp.def);
         if (!macroExpandOnly) {
@@ -544,6 +544,21 @@ class Kiss {
         var expr:Either<ReaderExp,Expr> = switch (exp.def) {
             case None:
                 if (macroExpandOnly) Left(exp) else Right(none);
+            case HaxeMeta(name, params, exp):
+                if (macroExpandOnly) {
+                    Left(HaxeMeta(name, params, left(macroExpandAndConvert(exp, k, true))).withPosOf(exp));
+                } else {
+                    if (metaNames == null) metaNames = [];
+                    if (metaParams == null) metaParams = [];
+                    if (metaPos == null) metaPos = [];
+                    metaNames.push(name);
+                    if (params == null)
+                        metaParams.push(null);
+                    else
+                        metaParams.push([for (param in params) right(macroExpandAndConvert(param, k, false))]);
+                    metaPos.push(Helpers.macroPos(exp));
+                    Right(right(macroExpandAndConvert(exp, k, false, metaNames, metaParams, metaPos)));                    
+                }
             case Symbol(alias) if (k.identAliases.exists(alias)):
                 var substitution = k.identAliases[alias].withPosOf(exp);
                 if (macroExpandOnly) Left(substitution) else macroExpandAndConvert(substitution, k, false);
@@ -558,6 +573,16 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff) && !macroExpandOnly):
                 checkNumArgs(ff);
                 var field = fieldForms[ff](exp, args.copy(), k);
+                if (metaNames != null) {
+                    field.meta = [];
+                    while (metaNames.length > 0) {
+                        field.meta.push({
+                            name: metaNames.shift(),
+                            params: metaParams.shift(),
+                            pos: metaPos.shift()
+                        });
+                    }
+                }
                 k.fieldList.push(field);
                 k.fieldDict[field.name] = field;
                 k.stateChanged = true;
@@ -665,6 +690,13 @@ class Kiss {
             }
         }
         #end
+        if (metaNames != null && !macroExpandOnly) {
+            expr = Right(EMeta({
+                            name: metaNames.pop(),
+                            params: metaParams.pop(),
+                            pos: metaPos.pop()
+                        }, right(expr)).withMacroPosOf(exp));
+        }
         return expr;
     }
     
