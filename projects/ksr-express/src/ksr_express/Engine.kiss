@@ -12,11 +12,9 @@
             port 3000
             staticDir (#if STATIC_DIR (#value "STATIC_DIR") (Sys.getCwd))]
         (print "Using $staticDir for static file directory")
-        (app.use (Express.static_.call staticDir))
+        (app.use "/static" (Express.static_.call staticDir))
         (app.get "/" ->[req :Dynamic res next]
             (res.send content))
-        (app.get "/image/:path" ->[:Dynamic req :Dynamic res next]
-            (res.sendFile req.params.path (object root (Sys.getCwd))))
         (app.get "/continue" ->[req res next] {
             (whenLet [_cc cc] (set cc null) (_cc))
             (res.redirect "/")
@@ -43,7 +41,7 @@
     (+= content text "<br />"))
 
 (method :Void showImage [path] 
-    (+= content "<img src=\"/image/${path}\" /><br />"))
+    (+= content "<img src=\"/static/${path}\" /><br />"))
 
 (method :Void delayForUserInput [cc]
     (set this.cc cc)
