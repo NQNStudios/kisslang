@@ -40,19 +40,14 @@
 				"key": "Ctrl+; Ctrl+u"
 			},
 			{
-				"command": "kiss-vscode.testAndUpdateExtension",
-				"mac": "Cmd+; Cmd+t Cmd+u",
-				"key": "Ctrl+; Ctrl+t Ctrl+u"
-			},
-			{
 				"command": "kiss-vscode.evalAndPrint",
 				"mac": "Cmd+; Cmd+e",
 				"key": "Ctrl+; Ctrl+e"
 			},
 			{
 				"command": "kiss-vscode.newKissClass",
-				"mac": "Cmd+; Cmd+c",
-				"key": "Ctrl+; Ctrl+c"
+				"mac": "Cmd+; Cmd+n",
+				"key": "Ctrl+; Ctrl+n"
 			},
 			{
 				"command": "kiss-vscode.showCorrespondingFile",
@@ -61,58 +56,18 @@
 			},
 			{
 				"command": "kiss-vscode.insertUTestCase",
-				"mac": "Cmd+; Cmd+t Cmd+c",
-				"key": "Ctrl+; Ctrl+t Ctrl+c"
-			},
-			{
-				"command": "kiss-vscode.mapLinesSync",
-				"mac": "Cmd+; Cmd+l Cmd+m",
-				"key": "Ctrl+; Ctrl+l Ctrl+m"
-			},
-			{
-				"command": "kiss-vscode.sortLinesSync",
-				"mac": "Cmd+; Cmd+l Cmd+s",
-				"key": "Ctrl+; Ctrl+l Ctrl+s"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 17, absoluteChar: 470, file: src/commands/ExtensionTools.kiss}, def: Symbol(updateExtension)}",
-				"mac": "Cmd+; Cmd+u",
-				"key": "Ctrl+; Ctrl+u"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 31, absoluteChar: 1216, file: src/commands/ExtensionTools.kiss}, def: Symbol(testAndUpdateExtension)}",
-				"mac": "Cmd+; Cmd+t Cmd+u",
-				"key": "Ctrl+; Ctrl+t Ctrl+u"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 1, absoluteChar: 20, file: src/commands/KissTools.kiss}, def: Symbol(evalAndPrint)}",
-				"mac": "Cmd+; Cmd+e",
-				"key": "Ctrl+; Ctrl+e"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 6, absoluteChar: 288, file: src/commands/KissTools.kiss}, def: Symbol(newKissClass)}",
 				"mac": "Cmd+; Cmd+c",
 				"key": "Ctrl+; Ctrl+c"
 			},
 			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 55, absoluteChar: 2420, file: src/commands/KissTools.kiss}, def: Symbol(showCorrespondingFile)}",
-				"mac": "Cmd+; Cmd+f",
-				"key": "Ctrl+; Ctrl+f"
+				"command": "kiss-vscode.mapLinesSync",
+				"mac": "Cmd+; Cmd+m",
+				"key": "Ctrl+; Ctrl+m"
 			},
 			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 58, absoluteChar: 2620, file: src/commands/KissTools.kiss}, def: Symbol(insertUTestCase)}",
-				"mac": "Cmd+; Cmd+t Cmd+c",
-				"key": "Ctrl+; Ctrl+t Ctrl+c"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 18, absoluteChar: 786, file: src/commands/Lines.kiss}, def: Symbol(mapLinesSync)}",
-				"mac": "Cmd+; Cmd+l Cmd+m",
-				"key": "Ctrl+; Ctrl+l Ctrl+m"
-			},
-			{
-				"command": "kiss-vscode.{pos: {column: 21, line: 33, absoluteChar: 1609, file: src/commands/Lines.kiss}, def: Symbol(sortLinesSync)}",
-				"mac": "Cmd+; Cmd+l Cmd+s",
-				"key": "Ctrl+; Ctrl+l Ctrl+s"
+				"command": "kiss-vscode.sortLinesSync",
+				"mac": "Cmd+; Cmd+s",
+				"key": "Ctrl+; Ctrl+s"
 			}
 		],
 		"commands": [
@@ -147,38 +102,6 @@
 			{
 				"title": "kiss-vscode: Sort the selected text lines using a (String,String)->Int comparator function",
 				"command": "kiss-vscode.sortLinesSync"
-			},
-			{
-				"title": "kiss-vscode: Update and reinstall the Kiss-Vscode extension you are editing",
-				"command": "kiss-vscode.{pos: {column: 21, line: 17, absoluteChar: 470, file: src/commands/ExtensionTools.kiss}, def: Symbol(updateExtension)}"
-			},
-			{
-				"title": "kiss-vscode: Check test.sh, then update and reinstall the kiss-vscode extension you are editing",
-				"command": "kiss-vscode.{pos: {column: 21, line: 31, absoluteChar: 1216, file: src/commands/ExtensionTools.kiss}, def: Symbol(testAndUpdateExtension)}"
-			},
-			{
-				"title": "kiss-vscode: Evaluate and print a kiss expression's value",
-				"command": "kiss-vscode.{pos: {column: 21, line: 1, absoluteChar: 20, file: src/commands/KissTools.kiss}, def: Symbol(evalAndPrint)}"
-			},
-			{
-				"title": "kiss-vscode: Create a new kiss class",
-				"command": "kiss-vscode.{pos: {column: 21, line: 6, absoluteChar: 288, file: src/commands/KissTools.kiss}, def: Symbol(newKissClass)}"
-			},
-			{
-				"title": "kiss-vscode: Open the corresponding .kiss/.hx file to this one",
-				"command": "kiss-vscode.{pos: {column: 21, line: 55, absoluteChar: 2420, file: src/commands/KissTools.kiss}, def: Symbol(showCorrespondingFile)}"
-			},
-			{
-				"title": "kiss-vscode: Generate a UTest test case in this .hx/.kiss file",
-				"command": "kiss-vscode.{pos: {column: 21, line: 58, absoluteChar: 2620, file: src/commands/KissTools.kiss}, def: Symbol(insertUTestCase)}"
-			},
-			{
-				"title": "kiss-vscode: Transform the selected text lines using a String->String kiss function",
-				"command": "kiss-vscode.{pos: {column: 21, line: 18, absoluteChar: 786, file: src/commands/Lines.kiss}, def: Symbol(mapLinesSync)}"
-			},
-			{
-				"title": "kiss-vscode: Sort the selected text lines using a (String,String)->Int comparator function",
-				"command": "kiss-vscode.{pos: {column: 21, line: 33, absoluteChar: 1609, file: src/commands/Lines.kiss}, def: Symbol(sortLinesSync)}"
 			}
 		],
 		"languages": [

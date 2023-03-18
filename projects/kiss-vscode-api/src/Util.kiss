@@ -171,8 +171,10 @@
 */
 (defMacro defCommand [context id description shortcut argList &body body]
     (let [functionName id
+            id (symbolNameValue id)
             description (eval description)
             shortcut (eval shortcut)
+            _ (assert (>= 2 .length (shortcut.split " ")) "VSCode only allows 2 keys in sequence")
             shortcutWithHyphensProcessed
                 (StringTools.replace 
                     (StringTools.replace

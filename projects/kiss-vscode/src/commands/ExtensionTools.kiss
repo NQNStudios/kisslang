@@ -28,6 +28,6 @@
         {}
     null)
 
-(defCommand context testAndUpdateExtension "Check test.sh, then update and reinstall the kiss-vscode extension you are editing" "C-; C-t C-u" []
+(defCommand context testAndUpdateExtension "Check test.sh, then update and reinstall the kiss-vscode extension you are editing" "" []
     (trySpawnSync "test.sh" [] (options) handleUpdateFailure)
     (updateExtension))
