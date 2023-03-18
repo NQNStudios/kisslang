@@ -29,7 +29,8 @@
 
 
     (prop screenCamera (new FlxCamera 0 0 FlxG.width FlxG.height))
-    (prop &mut :SimpleWindow uiWindow (new SimpleWindow 0.8 0.8 true "escape"))
+    (prop &mut :SimpleWindow uiWindow)
+    (set uiWindow (new SimpleWindow 0.8 0.8 true "escape"))
     (set uiWindow.cameras [screenCamera])
     (set uiWindow.keyboardEnabled false)
 
