@@ -14,7 +14,7 @@
         (return)
     })
 
-(defCommand context kiss.updateExtension "Update and reinstall the Kiss-Vscode extension you are editing" "C-; C-u" []
+(defCommand context updateExtension "Update and reinstall the Kiss-Vscode extension you are editing" "C-; C-u" []
     (if (= "Windows" (Sys.systemName))
             (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) forceUpdateFailure)
         (trySpawnSync "npm" ["install"] (options) forceUpdateFailure))
@@ -28,6 +28,6 @@
         {}
     null)
 
-(defCommand context kiss.testAndUpdateExtension "Check test.sh, then update and reinstall the kiss-vscode extension you are editing" "C-; C-t C-u" []
+(defCommand context testAndUpdateExtension "Check test.sh, then update and reinstall the kiss-vscode extension you are editing" "C-; C-t C-u" []
     (trySpawnSync "test.sh" [] (options) handleUpdateFailure)
-    (kiss_updateExtension))
+    (updateExtension))

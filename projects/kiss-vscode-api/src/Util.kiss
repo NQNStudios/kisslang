@@ -167,11 +167,10 @@
         
 // Example:
 /*
-    (defCommand myExt.customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
+    (defCommand customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
 */
-(defMacroVar extensionName "Kiss-Vscode")
 (defMacro defCommand [context id description shortcut argList &body body]
-    (let [id (symbolNameValue id)
+    (let [functionName id
             description (eval description)
             shortcut (eval shortcut)
             shortcutWithHyphensProcessed
@@ -188,12 +187,14 @@
                     "++" "-+")
             packageJson
                 (Json.parse (File.getContent "package.json"))
+            extensionName
+                packageJson.name
             keybindings
                 packageJson.contributes.keybindings
             commands
                 packageJson.contributes.commands
-            functionName
-                (symbol (StringTools.replace id "." "_"))
+            id
+                "${extensionName}.${id}"
             &mut keyBindingIndex null
             &mut commandIndex null]
         (doFor [idx binding] (enumerate keybindings)

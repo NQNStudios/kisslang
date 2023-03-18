@@ -15,7 +15,7 @@
                         (e.delete editor.selection)
                         (e.insert editor.selection.active mappedText))))))
 
-(defCommand context kiss.mapLinesSync "Transform the selected text lines using a String->String kiss function" "C-; C-l C-m" []
+(defCommand context mapLinesSync "Transform the selected text lines using a String->String kiss function" "C-; C-l C-m" []
     (awaitLet [mapFuncStr (inputEditor "mapLinesFunc.kiss" "a String->String function through which to map the selected lines")]
         (let [:String->String mapFunc (evalString mapFuncStr)]
             (_mapLinesSync (selectedText) mapFunc))))
@@ -30,6 +30,6 @@
                     (e.delete editor.selection)
                     (e.insert editor.selection.active (lines.join "\n")))))))
 
-(defCommand context kiss.sortLinesSync "Sort the selected text lines using a (String,String)->Int comparator function" "C-; C-l C-s" []
+(defCommand context sortLinesSync "Sort the selected text lines using a (String,String)->Int comparator function" "C-; C-l C-s" []
     (awaitLet [compareFuncStr (inputEditor "sortLinesFunc.kiss" "a (String,String) -> Int function with which to sort the selected lines")]
         (_sortLinesSync (selectedText) (if (< 0 compareFuncStr.length) (evalString compareFuncStr) Reflect.compare))))
