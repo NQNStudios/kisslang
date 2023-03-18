@@ -238,6 +238,83 @@
                     ,functionName))
         }))
 
+(defMacroFunction vscodeType [typeName &opt types]
+    (unless types (set types []))
+    (let [firstCaret (+ 1 (typeName.indexOf "<"))
+            lastCaret (typeName.lastIndexOf ">")]
+        (cond
+            ((StringTools.startsWith typeName "Null<")
+                (types.push "null")
+                (vscodeType (substr typeName firstCaret lastCaret) types))
+            ((StringTools.startsWith typeName "Array<")
+                (types.push "array")
+                (object
+                    type types
+                    items (vscodeType (substr typeName firstCaret lastCaret))))
+            (true
+                (types.push
+                    (case typeName
+                        ("Float" "number")
+                        ("Int" "integer")
+                        ("Bool" "boolean")
+                        (otherwise (typeName.toLowerCase))))
+                (object type types)))))
+
+// Example:
+/*
+    (defConfiguration
+        :Bool configBool
+            (object
+                default false
+                description "what this bool is")
+        :String configString
+            (object
+                default ""
+                pattern "^.*$"
+                minLength 1
+                maxLength 20
+                patternErrorMessage "How could you not match that pattern??"
+                format "email" // also could be "date" "time" "ipv4" or "uri"
+                markdownDescription "description *in markdown*")
+        :Float configNumber
+            (object
+                default 0
+                minimum -5
+                maximum 5)
+        :Array<Float> configNumberArray
+            (object
+                default []
+                minItems 0
+                maxItems 5))
+*/
+(defMacro defConfiguration [&builder b &body properties]
+    (let [propList (Helpers.bindingList properties "defConfiguration")
+            propPairs (Prelude.groups propList 2)
+            packageJson
+                (Json.parse (File.getContent "package.json"))
+            extensionName
+                packageJson.name
+            jsonProperties (new StringMap)]
+        (set packageJson.contributes.configuration
+            (object
+                title extensionName
+                properties jsonProperties))
+        (b.begin 
+            (for [typedName params] propPairs
+                (let [type (Helpers.explicitTypeString typedName)
+                        name (symbolNameValue typedName true)
+                        propDef (vscodeType type)
+                        params (eval params)]
+                    (doFor field (Reflect.fields params)
+                        (Reflect.setField propDef field (Reflect.field params field)))
+                    (dictSet jsonProperties "${extensionName}.${name}" propDef)
+                    (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
+                    `{
+                        (var ,typedName (property get null))
+                        (function ,(b.symbol "get_${name}") []
+                            (.get (Vscode.workspace.getConfiguration ,extensionName) ,name))
+                    })))))
+
 // ui
 (defAlias &ident activeTextEditor Vscode.window.activeTextEditor)
 
