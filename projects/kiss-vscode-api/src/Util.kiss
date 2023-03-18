@@ -192,9 +192,9 @@
             extensionName
                 packageJson.name
             keybindings
-                packageJson.contributes.keybindings
+                (or packageJson.contributes.keybindings [])
             commands
-                packageJson.contributes.commands
+                (or packageJson.contributes.commands [])
             id
                 "${extensionName}.${id}"
             &mut keyBindingIndex null
@@ -226,6 +226,8 @@
             // A binding element is in the JSON that needs to be removed:
             (keyBindingIndex
                 (keybindings.splice keyBindingIndex 1)))
+        (set packageJson.contributes.commands commands)
+        (set packageJson.contributes.keybindings keybindings)
         (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
         `{
             (function ,functionName ,argList
