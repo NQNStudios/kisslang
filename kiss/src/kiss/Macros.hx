@@ -22,6 +22,8 @@ using tink.MacroApi;
 typedef MacroFunction = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> Null<ReaderExp>;
 
 class Macros {
+    static var MACRO_RECURSION_LIMIT = 10;
+
     public static function builtins(k:KissState) {
         var macros:Map<String, MacroFunction> = [];
 
@@ -977,10 +979,10 @@ class Macros {
             var name = exps[0].symbolNameValue();
             var lambdaExp = b.callSymbol("lambda", [exps[1]].concat(exps.slice(2)));
 
-            k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
-            // Run the definition AGAIN so it can capture itself recursively:
-            k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
-
+            // It's absurd, but each time hscript evaluates the lambda expression it captures another layer of recursion:
+            for (_ in 0...MACRO_RECURSION_LIMIT) {
+                k.macroVars[name] = Helpers.runAtCompileTimeDynamic(lambdaExp, k);
+            }
             return null;
         };
 
