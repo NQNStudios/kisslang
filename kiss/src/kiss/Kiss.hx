@@ -590,21 +590,25 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(mac)}, args) if (macros.exists(mac)):
                 checkNumArgs(mac);
                 macroUsed = true;
-                var expanded = try {
-                    Kiss.measure(mac, ()->macros[mac](exp, args.copy(), k), true);
-                } catch (error:KissError) {
-                    throw error;
-                } catch (error:Dynamic) {
-                    throw KissError.fromExp(exp, 'Macro expansion error: $error');
-                };
-                
-                if (expanded != null) {
-                    convert(expanded);
-                } else if (macroExpandOnly) {
-                    Left(None.withPosOf(exp));
-                } else{
-                    Right(none);
-                };
+                var expanded =
+                    #if !macrotest
+                    try {
+                    #end
+                        Kiss.measure(mac, ()->macros[mac](exp, args.copy(), k), true);
+                    #if !macrotest
+                    } catch (error:KissError) {
+                        throw error;
+                    } catch (error:Dynamic) {
+                        throw KissError.fromExp(exp, 'Macro expansion error: $error');
+                    };
+                    #end
+                    if (expanded != null) {
+                        convert(expanded);
+                    } else if (macroExpandOnly) {
+                        Left(None.withPosOf(exp));
+                    } else{
+                        Right(none);
+                    };
             case CallExp({pos: _, def: Symbol(specialForm)}, args) if (specialForms.exists(specialForm) && !macroExpandOnly):
                 checkNumArgs(specialForm);    
                 Right(Kiss.measure(specialForm, ()->specialForms[specialForm](exp, args.copy(), k), true));

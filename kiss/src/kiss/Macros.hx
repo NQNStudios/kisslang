@@ -520,15 +520,7 @@ class Macros {
                     args[innerArgNames.shift()] = restArgs;
                 }
 
-                try {
-                    // Return the macro expansion:
-                    return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
-                } catch (error:KissError) {
-                    throw error;
-                } catch (error:Dynamic) {
-                    // TODO this could print the hscript, with some refactoring
-                    throw KissError.fromExp(wholeExp, 'Macro expansion error: $error');
-                };
+                return Helpers.runAtCompileTime(b.callSymbol("begin", exps.slice(2)), k, args);
             };
 
             null;
