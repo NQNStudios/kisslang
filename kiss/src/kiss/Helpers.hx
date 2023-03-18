@@ -539,7 +539,11 @@ class Helpers {
         interp.variables.set("eval", innerRunAtCompileTimeDynamic);
         interp.variables.set("Helpers", {
             evalUnquotes: evalUnquotes.bind(_, innerRunAtCompileTime),
-            runAtCompileTime: innerRunAtCompileTime
+            runAtCompileTime: innerRunAtCompileTime,
+            // TODO it is bad that Helpers functions have to manually be included here:
+            explicitTypeString: Helpers.explicitTypeString,
+            argList: Helpers.argList,
+            bindingList: Helpers.bindingList
         });
         interp.variables.set("__interp__", interp);
 
@@ -777,6 +781,12 @@ class Helpers {
 
     public static function argList(exp:ReaderExp, forThis:String, allowEmpty = true):Array<ReaderExp> {
         return switch (exp.def) {
+            // At macro-time, a list of exps could be passed instead of a ListExp. Handle
+            // that tricky case:
+            case null if (Std.isOfType(exp, Array)):
+                var expList = cast(exp, Array<Dynamic>);
+                var expDynamic:Dynamic = exp;
+                argList({pos:expList[0].pos, def: ListExp(expDynamic)}, forThis, allowEmpty); 
             case ListExp([]) if (allowEmpty):
                 [];
             case ListExp([]) if (!allowEmpty):
@@ -784,16 +794,22 @@ class Helpers {
             case ListExp(argExps):
                 argExps;
             default:
-                throw KissError.fromExp(exp, '$forThis arg list should be a list expression');
+                throw KissError.fromExp(exp, '$forThis arg list should be a list or list expression');
         };
     }
 
     public static function bindingList(exp:ReaderExp, forThis:String, allowEmpty = false):Array<ReaderExp> {
         return switch (exp.def) {
+            // At macro-time, a list of exps could be passed instead of a ListExp. Handle
+            // that tricky case:
+            case null if (Std.isOfType(exp, Array)):
+                var expList = cast(exp, Array<Dynamic>);
+                var expDynamic:Dynamic = exp;
+                bindingList({pos:expList[0].pos, def: ListExp(expDynamic)}, forThis, allowEmpty); 
             case ListExp(bindingExps) if ((allowEmpty || bindingExps.length > 0) && bindingExps.length % 2 == 0):
                 bindingExps;
             default:
-                throw KissError.fromExp(exp, '$forThis bindings should be a list expression with an even number of sub expressions (at least 2)');
+                throw KissError.fromExp(exp, '$forThis bindings should be a list or list expression with an even number of sub expressions (at least 2)');
         };
     }
 }
