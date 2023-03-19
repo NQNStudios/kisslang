@@ -39,6 +39,8 @@ class Main {
                 newFlixelProject(args);
             case "new-express-project":
                 newExpressProject(args);
+            case "new-vscode-project":
+                newVscodeProject(args);
             case "implement":
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
@@ -197,7 +199,30 @@ class Main {
         makeFileForNewProject(["package.json"]);
         var packageFile = Path.join([projectDir, "package.json"]);
         var packageJson = Json.parse(File.getContent(packageFile));
-        packageJson.title = title;
+        packageJson.name = title;
+        File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        makeFileForNewProject(["test.sh"]);
+    }
+
+    static function newVscodeProject(args:Array<String>) {
+		var title = promptFor("title (lower-case!)").toLowerCase();
+		var pkg = title.replace("-", "_");
+        var kissVscodeApiLibPath = new Process("haxelib", ["libpath", "kiss-vscode-api"]).stdout.readAll().toString().trim();
+        var workingDir = Sys.args().pop();
+        var projectDir = Path.join([workingDir, title]);
+        FileSystem.createDirectory(projectDir);
+
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissVscodeApiLibPath, _, workingDir, title, pkg);
+        var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissVscodeApiLibPath, _, workingDir, title, pkg);
+        makeFolderForNewProject(["src"]);
+        makeFileForNewProject([".gitignore"]);
+        makeFileForNewProject([".vscodeignore"]);
+        makeFileForNewProject(["README.md"]);
+        makeFileForNewProject(["build.hxml"]);
+        makeFileForNewProject(["package.json"]);
+        var packageFile = Path.join([projectDir, "package.json"]);
+        var packageJson = Json.parse(File.getContent(packageFile));
+        packageJson.name = title;
         File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
         makeFileForNewProject(["test.sh"]);
     }
