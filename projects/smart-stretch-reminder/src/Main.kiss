@@ -31,7 +31,7 @@
             (set timer
                 (Timer.delay 
                     ->{
-                        (+= secSpentTyping secondsAfterLastEdit)
+                        (+= secSpentTyping 0.1)
                         (set lastCheck null)
                         (when (>= secSpentTyping (* 60 minutesBetweenStretching))
                             (set secSpentTyping 0)
