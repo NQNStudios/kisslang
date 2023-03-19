@@ -258,7 +258,11 @@
                         ("Int" "integer")
                         ("Bool" "boolean")
                         (otherwise (typeName.toLowerCase))))
-                (object type types)))))
+                (object
+                    type
+                        (if (= 1 types.length)
+                                (first types)
+                            types))))))
 
 // Example:
 /*
