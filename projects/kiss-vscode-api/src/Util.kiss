@@ -165,6 +165,8 @@
             }
         (Vscode.window.showErrorMessage errorMessage)))
         
+(defMacroVar firstDefCommand true)
+
 // Example:
 /*
     (defCommand customCommand "Custom command that does something" "C-; C-c" [<args...>] <body...>)
@@ -192,40 +194,28 @@
             extensionName
                 packageJson.name
             keybindings
-                (or packageJson.contributes.keybindings [])
+                (if firstDefCommand
+                        []
+                    packageJson.contributes.keybindings)
             commands
-                (or packageJson.contributes.commands [])
+                (if firstDefCommand 
+                        []
+                    packageJson.contributes.commands)
             id
-                "${extensionName}.${id}"
-            &mut keyBindingIndex null
-            &mut commandIndex null]
-        (doFor [idx binding] (enumerate keybindings)
-            (when (= binding.command id)
-                (set keyBindingIndex idx)
-                (break)))
-        (doFor [idx command] (enumerate commands)
-            (when (= command.command id)
-                (set commandIndex idx)
-                (break)))
+                "${extensionName}.${id}"]
+        (setMacroVar firstDefCommand false)
         // Manage the command entry in JSON
-        (unless commandIndex (set commandIndex commands.length))
-        (setNth commands commandIndex
+        (commands.push
             (object
                 command id
                 title "${extensionName}: ${description}"))
         // Manage the keybinding entry in JSON
-        (cond 
-            (shortcut
-                (unless keyBindingIndex (set keyBindingIndex keybindings.length))
-                (setNth keybindings keyBindingIndex
-                    (object
-                        command id
-                        mac (StringTools.replace shortcutWithHyphensProcessed "C" "Cmd")
-                        key (StringTools.replace shortcutWithHyphensProcessed "C" "Ctrl"))))
-            
-            // A binding element is in the JSON that needs to be removed:
-            (keyBindingIndex
-                (keybindings.splice keyBindingIndex 1)))
+        (when shortcut
+            (keybindings.push 
+                (object
+                    command id
+                    mac (StringTools.replace shortcutWithHyphensProcessed "C" "Cmd")
+                    key (StringTools.replace shortcutWithHyphensProcessed "C" "Ctrl"))))
         (set packageJson.contributes.commands commands)
         (set packageJson.contributes.keybindings keybindings)
         (File.saveContent "package.json" (Json.stringify packageJson null "\t"))
