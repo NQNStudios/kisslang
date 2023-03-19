@@ -1,0 +1,41 @@
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
+
+@(:expose "activate")
+(function activate [:ExtensionContext context]
+    (printThroughInfoMessage)
+
+    (defConfiguration 
+        :Float secondsAfterLastEdit
+            (object
+                default 5
+                minimum 0)
+        :Float minutesBetweenStretching
+            (object
+                default 20
+                minimum 0)
+        :String stretchMessage
+            (object
+                default "Now might be a good time to stretch!"))
+
+    (var &mut :Float lastCheck)
+    (var &mut :Float secSpentTyping 0)
+    (var &mut :Timer timer)
+    (Vscode.workspace.onDidChangeTextDocument ->_
+        {
+            (when lastCheck
+                (+= secSpentTyping (- (Timer.stamp) lastCheck)))
+            (set lastCheck (Timer.stamp))
+            (when timer
+                (timer.stop))
+            (set timer
+                (Timer.delay 
+                    ->{
+                        (+= secSpentTyping secondsAfterLastEdit)
+                        (set lastCheck null)
+                        (when (>= secSpentTyping (* 60 minutesBetweenStretching))
+                            (set secSpentTyping 0)
+                            (infoMessage stretchMessage (object modal true)))
+                    }
+                    (* 1000 secondsAfterLastEdit)))
+        }))

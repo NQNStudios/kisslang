@@ -1,0 +1,45 @@
+{
+	"main": "bin/extension.js",
+	"name": "smart-stretch-reminder",
+	"description": "",
+	"repository": {
+		"url": "",
+		"type:": "git"
+	},
+	"homepage": "",
+	"categories": [],
+	"extensionPack": [],
+	"publisher": "",
+	"contributes": {
+		"configuration": {
+			"title": "smart-stretch-reminder",
+			"properties": {
+				"smart-stretch-reminder.secondsAfterLastEdit": {
+					"type": "number",
+					"default": 5,
+					"minimum": 0
+				},
+				"smart-stretch-reminder.stretchMessage": {
+					"type": "string",
+					"default": "Now might be a good time to stretch!"
+				},
+				"smart-stretch-reminder.minutesBetweenStretching": {
+					"type": "number",
+					"default": 20,
+					"minimum": 0
+				}
+			}
+		}
+	},
+	"engines": {
+		"vscode": "^1.4.0"
+	},
+	"devDependencies": {
+		"vsce": "^2.15.0"
+	},
+	"version": "0.0.0",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"displayName": ""
+}

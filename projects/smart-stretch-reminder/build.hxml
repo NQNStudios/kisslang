@@ -1,0 +1,10 @@
+-lib kiss-vscode-api
+-lib kiss
+-cp src
+-js bin/extension.js
+-dce full
+-D analyzer-optimize
+-D js-es=6
+-debug
+Main
+-cmd npx vsce package
