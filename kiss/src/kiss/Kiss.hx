@@ -573,7 +573,7 @@ class Kiss {
             case CallExp({pos: _, def: Symbol(ff)}, args) if (fieldForms.exists(ff) && !macroExpandOnly):
                 checkNumArgs(ff);
                 var field = fieldForms[ff](exp, args.copy(), k);
-                if (metaNames != null) {
+                if (metaNames != null && metaNames.length > 0) {
                     field.meta = [];
                     while (metaNames.length > 0) {
                         field.meta.push({
@@ -694,7 +694,7 @@ class Kiss {
             }
         }
         #end
-        if (metaNames != null && !macroExpandOnly) {
+        if (metaNames != null && metaNames.length > 0 && !macroExpandOnly) {
             expr = Right(EMeta({
                             name: metaNames.pop(),
                             params: metaParams.pop(),
