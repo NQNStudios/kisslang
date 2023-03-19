@@ -9,6 +9,9 @@
 	"homepage": "",
 	"categories": [],
 	"extensionPack": [],
+	"dependencies": {
+		"monaco-editor": "^0.36.1"
+	},
 	"publisher": "NQNStudios",
 	"contributes": {
 		"keybindings": [
@@ -45,8 +48,5 @@
 	},
 	"version": "0.0.0",
 	"activationEvents": [],
-	"displayName": "",
-	"dependencies": {
-		"monaco-editor": "^0.36.1"
-	}
+	"displayName": ""
 }

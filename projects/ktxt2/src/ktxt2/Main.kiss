@@ -10,7 +10,9 @@
     (printThroughInfoMessage)
     
     (context.subscriptions.push
-            (KTxt2EditorProvider.register context))
+        (KTxt2EditorProvider.register context))
+
+    (load "conversions/FountainToHollywoo.kiss")
 
     // Add your extension's commands here with (defCommand <...>):
     (load "Commands.kiss")
