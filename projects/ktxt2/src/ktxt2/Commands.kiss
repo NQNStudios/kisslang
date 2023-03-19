@@ -1,5 +1,4 @@
-// Command to import a file to a new KTxt2 file:
-(function :Void importKTxt2InputFile [&opt _]
+(defCommand context importKTxt2InputFile "Import a file to a new KTxt2 file" "C-; C-i" []
     (awaitLet [uris (openDialog (object openLabel "Import" title "File to import as KTxt2 input" canSelectMany false))
                 outputType (inputBox (object prompt "Output file extension"))
                 splitBy (quickPickMap [=>"↵ (new line)" "\n" =>"¶ (new paragraph)" "\n\n" =>"Other (specify via text box)" ""])]

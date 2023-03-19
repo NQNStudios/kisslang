@@ -1,6 +1,15 @@
 -lib kiss
--lib kiss-vscode
--lib re-flex
+-lib kiss-vscode-api
 -cp src
+-dce full
+-D analyzer-optimize
+-D js-es=6
+--each
+
 -js bin/ktxt2editor.js
 --main ktxt2.KTxt2Editor
+--next
+
+-js bin/extension.js
+ktxt2.Main
+-cmd npx vsce package

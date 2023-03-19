@@ -1,4 +1,0 @@
-    (var :Array<KTxt2Conversion> conversions [])
-
-    (function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion)))
-

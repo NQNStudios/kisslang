@@ -65,13 +65,13 @@
 						(makeEdit
 							->edit (edit.delete document.uri (new Range (streamPosToOffsetDocumentPos start -KTxt2.blockStartEnd.length) (streamPosToOffsetDocumentPos end KTxt2.blockStartEnd.length)))))
 					((object type "tryFullAutoConvert")
-						(let [fullConverted (KTxt2.tryFullAutoConvert document.fileName Main.config.conversions)]
+						(let [fullConverted (KTxt2.tryFullAutoConvert document.fileName Main.conversions)]
 							(makeEdit
 								->edit (edit.replace document.uri (let [fullText (document.getText)] (new Range (document.positionAt 0) (document.positionAt (- fullText.length 1)))) fullConverted))))
 					((objectWith [type "tryAutoConvert"] source output outputStart outputEnd)
 						(let [[base sourceExt outputExt _] (document.fileName.split ".")
 								conversions
-									(KTxt2.validConversions Main.config.conversions "${base}.${sourceExt}" "${base}.${outputExt}" source)]
+									(KTxt2.validConversions Main.conversions "${base}.${sourceExt}" "${base}.${outputExt}" source)]
 							(if (> (Lambda.count conversions) 0)
 									(let [overwrite (if output "" "Overwrite")
 											chosenConversion (if (= 1 (Lambda.count conversions)) (first (collect (conversions.iterator))) null)]

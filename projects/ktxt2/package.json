@@ -1,12 +1,52 @@
-"customEditors": [
-    {
-        "selector": [
-            {
-                "filenamePattern": "*.*.*.ktxt2"
-            }
-        ],
-        "priority": "default",
-        "viewType": "ktxt2.splitView",
-        "displayName": "KTxt2 Split View"
-    }
-],
+{
+	"main": "bin/extension.js",
+	"name": "ktxt2",
+	"description": "",
+	"repository": {
+		"url": "https://github.com/NQNStudios/kisslang",
+		"type:": "git"
+	},
+	"homepage": "",
+	"categories": [],
+	"extensionPack": [],
+	"publisher": "NQNStudios",
+	"contributes": {
+		"keybindings": [
+			{
+				"command": "ktxt2.importKTxt2InputFile",
+				"mac": "Cmd+; Cmd+i",
+				"key": "Ctrl+; Ctrl+i"
+			}
+		],
+		"customEditors": [
+			{
+				"selector": [
+					{
+						"filenamePattern": "*.*.*.ktxt2"
+					}
+				],
+				"priority": "default",
+				"viewType": "ktxt2.splitView",
+				"displayName": "KTxt2 Split View"
+			}
+		],
+		"commands": [
+			{
+				"title": "ktxt2: Import a file to a new KTxt2 file",
+				"command": "ktxt2.importKTxt2InputFile"
+			}
+		]
+	},
+	"engines": {
+		"vscode": "^1.4.0"
+	},
+	"devDependencies": {
+		"vsce": "^2.15.0"
+	},
+	"version": "0.0.0",
+	"activationEvents": [],
+	"displayName": "",
+	"dependencies": {
+		"monaco-editor": "^0.36.1"
+	}
+}

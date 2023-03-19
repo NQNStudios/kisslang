@@ -1,0 +1,25 @@
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
+    
+(var :Array<KTxt2Conversion> conversions [])
+
+(function registerConversion [:KTxt2Conversion conversion] (conversions.push conversion))
+
+@(:expose "activate")
+(function activate [:ExtensionContext context]
+    (printThroughInfoMessage)
+    
+    (context.subscriptions.push
+            (KTxt2EditorProvider.register context))
+
+    // Add your extension's commands here with (defCommand <...>):
+    (load "Commands.kiss")
+    // Add your extension's configuration here with (defConfiguration <...>):
+    // (defConfiguration 
+    //      :Bool configBool
+    //          (object
+    //              default false)
+    //      :String configString
+    //          (object
+    //              default ""))
+    )
