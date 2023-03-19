@@ -144,18 +144,18 @@
                         (openFile dirOrFile)))))))
 
 (function :Void showCompileError [errorMessage]
-    (ifLet [compileErrors (R.distinctMatches
-                                        (R.group
-                                            (R.namedGroup "file"
-                                                (R.repeat (R.oneOf R.anyLetter R.anyDigit (R.escape "/")) 1) // filename
-                                                (R.escape ".kiss:")
-                                                (R.repeat R.anyDigit 1) // line
-                                                (R.escape ":")
-                                                (R.optional
-                                                    (R.group 
-                                                        (R.repeat R.anyDigit 1) // column
-                                                        (R.escape ":"))))
-                                            (R.repeat R.anyChar 1))
+    (ifLet [compileErrors (re_flex.R.distinctMatches
+                                        (re_flex.R.group
+                                            (re_flex.R.namedGroup "file"
+                                                (re_flex.R.repeat (re_flex.R.oneOf re_flex.R.anyLetter re_flex.R.anyDigit (re_flex.R.escape "/")) 1) // filename
+                                                (re_flex.R.escape ".kiss:")
+                                                (re_flex.R.repeat re_flex.R.anyDigit 1) // line
+                                                (re_flex.R.escape ":")
+                                                (re_flex.R.optional
+                                                    (re_flex.R.group 
+                                                        (re_flex.R.repeat re_flex.R.anyDigit 1) // column
+                                                        (re_flex.R.escape ":"))))
+                                            (re_flex.R.repeat re_flex.R.anyChar 1))
                                         errorMessage)]
             {
                 (Vscode.window.showErrorMessage errorMessage)
@@ -343,7 +343,7 @@
 (function :js.lib.Promise<String> inputEditor [:String filename :String prompt]
     (let [previousEditor activeTextEditor
             tempFile (joinPath (userHome) "Documents" filename)
-            uri (if (FileSystem.exists tempFile)
+            uri (if (sys.FileSystem.exists tempFile)
                         (Uri.parse "file:$tempFile")
                     (Uri.parse "untitled:$tempFile"))]
         (new js.lib.Promise
