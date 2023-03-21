@@ -100,7 +100,7 @@
                 (otherwise)))
         (.map [sourceText outputText] applySpecialChars)))
 
-(function :Map<String,String> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source]
+(function :Map<String,String> validConversions [:Array<KTxt2Conversion> conversions :String sourceFile :String outputFile :String source :String->Dynamic reportError]
     (let [validMap (new Map)]
         (doFor c conversions
             (case c
@@ -112,18 +112,18 @@
                     (dictSet validMap name
                             (try (KTxt2.insertSpecialChars
                                     (convert (KTxt2.applySpecialChars source)))
-                                (catch [e] "Conversion error: $e"))))
+                                (catch [e] (reportError "Conversion error: $e")))))
                 (otherwise {})))
         validMap))
 
 (#when (or sys hxnodejs)
-    (function :String tryFullAutoConvert [:String ktxt2File :Array<KTxt2Conversion> conversions]
+    (function :String tryFullAutoConvert [:String ktxt2File :Array<KTxt2Conversion> conversions :String->Dynamic reportError]
         (let [elements (splitFileElements (Stream.fromFile ktxt2File))
                 [base sourceExt outputExt _] (ktxt2File.split ".")]
             (doFor element elements
                 (assertLet [(Block element) element]
                     (unless element.outputLocked
-                        (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source)]
+                        (let [conversions (validConversions conversions "${base}.${sourceExt}" "${base}.${outputExt}" element.source reportError)]
                             (when (= 1 (count conversions))
                                 (let [onlyConversion (first (collect (conversions.iterator)))]
                                     (set element.output onlyConversion)))))))
