@@ -3,6 +3,13 @@
 (var libPath (Prelude.libPath "bad-nlp"))
 (var namesPath (joinPath libPath "name-database"))
 
+(var :Map<String,Bool> notNames (for notName [
+    "he" // This is in the name database.
+    "she"
+] =>notName true))
+
+(var :Map<String,Bool> yesNames (new Map))
+
 (function loadFilesForToken [:String token]
     (let [firstLetter (token.charAt 0)
             firstTwoLetters (token.substr 0 2)
@@ -24,7 +31,10 @@
 (function isName [:String token]
     (let [token (token.toLowerCase)]
         (loadFilesForToken token)
-        (loadedNames.exists token)))
+        (or (yesNames.exists token)
+            (and
+                (loadedNames.exists token)
+                !(notNames.exists token)))))
 
 (function containsName [:String text]
     (doFor token (Util.splitTokens text)
