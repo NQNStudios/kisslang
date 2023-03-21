@@ -7,6 +7,8 @@ import yaml.Parser;
 import yaml.util.ObjectMap;
 import sys.FileSystem;
 import bad_nlp.Names;
+using StringTools;
+using hx.strings.Strings;
 
 @:build(kiss.Kiss.build())
 class Names {}

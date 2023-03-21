@@ -5,7 +5,8 @@
 	"classPath": "src/",
 	"dependencies": {
 		"kiss": "",
-		"yaml": ""
+		"yaml": "",
+		"haxe-strings": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [

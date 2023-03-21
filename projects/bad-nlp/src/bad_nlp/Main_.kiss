@@ -10,4 +10,6 @@
         "Valeria"
         "Vanessa"
     ]
-    (Names.isName name))
+    (assert (Names.isName name)))
+
+(assertEquals 5 .length (Names.findNames "Vanessa, Finn, and Tracy--and George--go to Troy's..."))
