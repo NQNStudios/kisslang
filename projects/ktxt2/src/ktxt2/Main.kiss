@@ -17,11 +17,12 @@
     // Add your extension's commands here with (defCommand <...>):
     (load "Commands.kiss")
     // Add your extension's configuration here with (defConfiguration <...>):
-    // (defConfiguration 
-    //      :Bool configBool
-    //          (object
-    //              default false)
-    //      :String configString
-    //          (object
-    //              default ""))
-    )
+    (defConfiguration 
+        :Array<String> nameExceptions
+            (object
+                description "Treat these tokens as names"
+                default [])))
+
+(function updateNameExceptions []
+    (doFor name nameExceptions
+        (dictSet bad_nlp.Names.yesNames (name.toLowerCase) true)))

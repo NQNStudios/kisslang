@@ -38,7 +38,22 @@
 				"title": "ktxt2: Import a file to a new KTxt2 file",
 				"command": "ktxt2.importKTxt2InputFile"
 			}
-		]
+		],
+		"configuration": {
+			"title": "ktxt2",
+			"properties": {
+				"ktxt2.nameExceptions": {
+					"description": "Treat these tokens as names",
+					"items": {
+						"type": "string"
+					},
+					"type": [
+						"array"
+					],
+					"default": []
+				}
+			}
+		}
 	},
 	"engines": {
 		"vscode": "^1.4.0"
