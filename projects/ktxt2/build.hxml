@@ -1,5 +1,6 @@
 -lib kiss
 -lib kiss-vscode-api
+-lib bad-nlp
 -cp src
 -dce full
 -D analyzer-optimize

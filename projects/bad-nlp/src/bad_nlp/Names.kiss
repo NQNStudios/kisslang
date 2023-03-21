@@ -21,69 +21,18 @@
                         (dictSet loadedNames (.next (map.keys)) true))))))
     (dictSet loadedNameFiles file true))
 
-(var quotesAndThings [
-    "\""
-    "'"
-    "`"
-    "["
-    "]"
-    "("
-    ")"    
-])
-
-(var punctuation [
-    ","
-    "."
-    ";"
-    ":"
-    "-"
-    "!"
-    "?"
-    "'s" // possessive
-])
-
-// TODO this isn't specific to Names
-(function :Array<String> splitByAll [:String text :Array<String> delims]
-    (if delims
-           (let [next (delims.shift)
-                    tokens (text.split next)]
-                (flatten (for token tokens (splitByAll token (delims.copy)))))
-        [text]))
-
-// TODO this isn't specific to Names
-(function normalize [:String token :Bool toLower]
-    (cond
-        // Remove quotes and things around
-        ((apply or (for quote quotesAndThings (token.startsWith quote)))
-            (normalize (token.substr 1) toLower))
-        ((apply or (for quote quotesAndThings (token.endsWith quote)))
-            (normalize (substr token 0 -1) toLower))
-        // Remove punctuation after
-        ((apply or (for punct punctuation (token.endsWith punct)))
-            (normalize (substr token 0 -1) toLower))
-        // Lower-case
-        (toLower (token.toLowerCase))
-        (true token)))
-
 (function isName [:String token]
     (let [token (token.toLowerCase)]
         (loadFilesForToken token)
         (loadedNames.exists token)))
 
-(var delimiters [
-    " "
-    "\n"
-    "--"
-    "/"
-])
-
 (function containsName [:String text]
-    (doFor token (splitByAll text delimiters)
-        (let [t (normalize token false)]
+    (doFor token (Util.splitTokens text)
+        (let [t (Util.normalize token false)]
             (when (and (.isUpperCase (t.substr 0 1)) (isName t))
                 (return true))))
     false)
 
 (function findNames [:String text]
-    (.map (filter (splitByAll text delimiters) ->t (containsName t))
-        ->t (normalize t false)))
+    (.map (filter (Util.splitTokens text) ->t (containsName t))
+        ->t (Util.normalize t false)))

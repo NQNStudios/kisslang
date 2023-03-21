@@ -7,6 +7,9 @@ import kiss.KissInterp;
 using haxe.io.Path;
 using StringTools;
 
+import bad_nlp.Util;
+import bad_nlp.Names;
+
 typedef KTxt2Block = {
     source:String,
     output:String,
