@@ -1,15 +1,17 @@
-(doFor name [
-        "Finn"
-        "Miguel"
-        "George"
-        "Ernest"
-        "Crawford"
-        "Howard"
-        "Troy"
-        "Tracy"
-        "Valeria"
-        "Vanessa"
-    ]
-    (assert (Names.isName name)))
+(doFor _ (range 2)
+    (doFor name [
+            "Finn"
+            "Miguel"
+            "George"
+            "Ernest"
+            "Crawford"
+            "Howard"
+            "Troy"
+            "Tracy"
+            "Valeria"
+            "Vanessa"
+        ]
+        (assert (Names.isName name)))
 
-(assertEquals 5 .length (Names.findNames "Vanessa, Finn, and Tracy--and George--go to Troy's..."))
+    (assertEquals 5 .length (Names.findNames "Vanessa, Finn, and Tracy--and George--go to Troy's..."))
+)

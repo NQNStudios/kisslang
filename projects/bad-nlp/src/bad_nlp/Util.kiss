@@ -27,7 +27,7 @@
 ])
 
 (function :Array<String> splitByAll [:String text :Array<String> delims]
-    (if delims
+    (ifLet [delims (delims.copy)]
            (let [next (delims.shift)
                     tokens (text.split next)]
                 (flatten (for token tokens (splitByAll token (delims.copy)))))
