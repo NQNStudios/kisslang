@@ -1,0 +1,27 @@
+(var :Map<String,Bool> loadedNameFiles (new Map))
+(var :Map<String,Bool> loadedNames (new Map))
+(var libPath (Prelude.libPath "bad-nlp"))
+(var namesPath (joinPath libPath "name-database"))
+
+(function loadFilesForToken [:String token]
+    (let [firstLetter (token.charAt 0)
+            firstTwoLetters (token.substr 0 2)
+            familyNameFile (joinPath namesPath "family_name" firstLetter "${firstTwoLetters}.yml")
+            givenNameFile (joinPath namesPath "given_name" firstLetter "${firstTwoLetters}.yml")]
+        (loadNameFile familyNameFile)
+        (loadNameFile givenNameFile)))
+
+(function loadNameFile [:String file]
+    (unless (or !(FileSystem.exists file) (loadedNameFiles.exists file))
+        (let [:Array<Dynamic> data (Yaml.read file)]
+            (doFor name (data.iterator)
+                (typeCase [name]
+                    ([:String name] (dictSet loadedNames name true))
+                    ([:AnyObjectMap map]
+                        (dictSet loadedNames (.next (map.keys)) true))))))
+    (dictSet loadedNameFiles file true))
+
+(function isName [:String token]
+    (let [token (token.toLowerCase)]
+        (loadFilesForToken token)
+        (loadedNames.exists token)))

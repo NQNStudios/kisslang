@@ -1,0 +1,18 @@
+{
+	"main": "bad_nlp.Main",
+	"name": "bad-nlp",
+	"description": "",
+	"classPath": "src/",
+	"dependencies": {
+		"kiss": "",
+		"yaml": ""
+	},
+	"url": "https://github.com/NQNStudios/kisslang",
+	"contributors": [
+		"NQNStudios"
+	],
+	"version": "0.0.0",
+	"releasenote": "",
+	"tags": [],
+	"license": "LGPL"
+}

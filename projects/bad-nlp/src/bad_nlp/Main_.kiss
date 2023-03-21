@@ -1,0 +1,13 @@
+(doFor name [
+        "Finn"
+        "Miguel"
+        "George"
+        "Ernest"
+        "Crawford"
+        "Howard"
+        "Troy"
+        "Tracy"
+        "Valeria"
+        "Vanessa"
+    ]
+    (Names.isName name))

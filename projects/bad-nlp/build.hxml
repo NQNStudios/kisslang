@@ -1,0 +1,5 @@
+-lib yaml
+-lib kiss
+-cp src
+--main bad_nlp.Main
+--interp
