@@ -53,3 +53,17 @@
                         (.replace stream.content "/*" "")
                         "*/" "")
                     "*" ""))\n"))
+
+(function isScreenLine [:String block]
+    (= 1 .length (filter (block.split "\n"))))
+
+(function doWithCharacters [:String thing :String args]
+    (registerConversion
+        (new ktxt2.NamesConversion "${thing} characters" "fountain" "hollywoo"
+            ->[block names] (isScreenLine block)
+            ->names (+
+                        (.join (for name names "$(thing.toUpperCase)CHARACTER \"${name}\" $args") "\n")
+                        "\n"))))
+
+(doWithCharacters "Add" "<position key> <facing>")
+(doWithCharacters "Remove" "")

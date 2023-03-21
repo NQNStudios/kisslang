@@ -1,0 +1,9 @@
+(defNew [&prop &mut :String name
+            &prop &mut :String sourceType
+            &prop &mut :String outputType
+            :(String,Array<String>)->Bool canConvertNames
+            :Array<String>->String convertNames]
+    [
+        &mut :String->Bool canConvert ->block ?(whenLet [names (Names.findNames block)] (canConvertNames block names))
+        &mut :String->String convert ->block (let [names (Names.findNames block)] (convertNames names))
+    ])
