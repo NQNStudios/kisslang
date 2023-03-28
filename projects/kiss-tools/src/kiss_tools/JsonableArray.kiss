@@ -1,0 +1,12 @@
+(defNew [&prop :Array<T> elements
+            &prop :T defaultVal])
+
+(method parse [:String representation]
+    (let [:Array<String> arr (Json.parse representation)]
+        (new JsonableArray<T>  
+            (for elem arr
+                (defaultVal.parse elem))
+            defaultVal)))
+
+(method stringify []
+    (Json.stringify (for elem elements (elem.stringify))))

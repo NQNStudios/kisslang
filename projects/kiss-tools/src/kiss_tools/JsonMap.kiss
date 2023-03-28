@@ -1,0 +1,25 @@
+(method _parseFrom [:String representation]
+    (let [:DynamicAccess<String> json (Json.parse representation)]
+        (doFor =>key representation json
+            (dictSet m key (defaultVal.parse representation)))))
+
+(method stringify []
+    (Json.stringify
+        (for =>k v m =>k (v.stringify))
+        null
+        "\t"))
+
+(defNew [&prop :String jsonPath &prop :T defaultVal]
+    [:Map<String,T> m (new Map)]
+
+    (_parseFrom (File.getContent jsonPath)))
+
+(method put [:String key :T value]
+    (dictSet m key value)
+    (File.saveContent jsonPath (stringify)))
+
+(method get [:String key]
+    (unless (m.exists key)
+        (put key defaultVal))
+    (dictGet m key))
+

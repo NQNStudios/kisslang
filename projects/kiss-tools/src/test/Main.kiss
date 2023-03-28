@@ -1,0 +1,38 @@
+// Test FuzzyJson
+(loadFrom "kiss-tools" "src/kiss_tools/FuzzyJson.kiss")
+
+(loadFuzzyJson "dogs" "test/fuzzy.json")
+(loadFuzzyJson "dogs" "test/fuzzy2.json")
+
+(assert (= "is a very good dog" (getFuzzyJson "dogs" "Albort")))
+// takeFuzzyJson removes the match to make following fuzzyJson retrievals save time:
+(assert (= "is a very good dog" (takeFuzzyJson "dogs" "Albort")))
+// No good match will cause crash at compile time:
+(assertThrowsAtCompileTime (getFuzzyJson "dogs" "Albort"))
+// duplicate definitions throw an error at compile time:
+(assertThrowsAtCompileTime (getFuzzyJson "dogs" "Rangie"))
+
+
+// Test JsonMap<JsonableArray>
+(var TEST_JSON_FILE "testJsonFile.json")
+
+(File.saveContent TEST_JSON_FILE (File.getContent "test/map-start.json"))
+(let [jsonMap (new JsonMap<JsonableArray<TestJsonable>> TEST_JSON_FILE (new JsonableArray<TestJsonable>> [] (new TestJsonable "")))
+        a (jsonMap.get "a")
+        aString (a.elements.toString)
+        b (jsonMap.get "b")
+        bString (b.elements.toString)]
+    (assert (contains aString "abc"))
+    (assert (contains aString "def"))
+    (assert (contains bString "ghi"))
+    (assert (contains bString "jkl"))
+    
+    (a.elements.push (new TestJsonable "mno"))
+    (jsonMap.put "a" a)
+    (let [c (jsonMap.get "c")]
+        (assertEquals 0 c.elements.length)))
+
+// Uncomment this line when expanding the test:
+// (File.saveContent "test/map-end.json" (File.getContent TEST_JSON_FILE))
+(assertEquals (File.getContent "test/map-end.json") (File.getContent TEST_JSON_FILE))
+(FileSystem.deleteFile TEST_JSON_FILE)

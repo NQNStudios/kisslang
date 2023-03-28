@@ -1,0 +1,5 @@
+(defNew [&prop :String s])
+
+(method parse [:String s] (new TestJsonable s))
+(method stringify [] s)
+(method toString [] s)

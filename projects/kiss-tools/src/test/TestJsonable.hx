@@ -1,8 +1,7 @@
-package kiss_tools;
+package test;
 
-import kiss.Kiss;
 import kiss.Prelude;
 import kiss.List;
 
 @:build(kiss.Kiss.build())
-class Main {}
+class TestJsonable {}
