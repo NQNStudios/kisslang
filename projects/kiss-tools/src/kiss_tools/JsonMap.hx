@@ -7,6 +7,8 @@ import kiss.List;
 
 import haxe.ds.Map;
 import haxe.Json;
+import haxe.DynamicAccess;
+import sys.io.File;
 
 typedef Jsonable<T> = {
     function stringify():String;

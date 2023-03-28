@@ -1,23 +1,23 @@
-(method parse [:String representation]
+(method _parseFrom [:String representation]
     (let [:DynamicAccess<String> json (Json.parse representation)]
         (doFor =>key representation json
             (dictSet m key (defaultVal.parse representation)))))
 
 (method stringify []
     (Json.stringify
-        (for =>k v m =>k (v.stringify))))
+        (for =>k v m =>k (v.stringify))
+        null
+        "\t"))
 
 (defNew [&prop :String jsonPath &prop :T defaultVal]
-    [:StringMap<T> m (new Map)]
+    [:Map<String,T> m (new Map)]
 
-    (parse (File.getContent jsonPath)))
+    (_parseFrom (File.getContent jsonPath)))
 
-// TODO add the arrayaccess annotation to this
 (method put [:String key :T value]
     (dictSet m key value)
     (File.saveContent jsonPath (stringify)))
 
-// TODO add the arrayaccess annotation to this
 (method get [:String key]
     (unless (m.exists key)
         (put key defaultVal))

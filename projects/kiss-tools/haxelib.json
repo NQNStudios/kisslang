@@ -1,5 +1,4 @@
 {
-	"main": "kiss_tools.Main",
 	"name": "kiss-tools",
 	"description": "Tools for Kiss programs, written in Kiss",
 	"classPath": "src/",
