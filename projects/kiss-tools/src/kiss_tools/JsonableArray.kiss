@@ -1,0 +1,14 @@
+// TODO pass on to Array constructor
+(method new [&prop :T defaultVal
+                &prop :Array<T> elements])
+
+(method parse [:String representation]
+    (let [:DynamicAccess<String> arr (Json.parse representation)])
+    (new JsonableArray defaultVal 
+        (for elem arr
+            (defaultVal.parse elem))))
+
+(method stringify []
+    (Json.stringify (for elem elements (elem.stringify))))
+
+// TODO provide an iterator
