@@ -3,6 +3,7 @@ package hollywoo;
 import hollywoo.Scene;
 import hollywoo.Movie;
 import haxe.ds.Option;
+import kiss_tools.JsonMap;
 
 enum Appearance {
     FirstAppearance;
@@ -29,8 +30,8 @@ typedef AutoZConfig = {
     frontLayer:Int
 };
 
-interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera> {
-    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera>;
+interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource:Jsonable<LightSource>> {
+    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource>;
     function autoZConfig():Option<AutoZConfig>;
     function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, camera:Camera, cc:Continuation):Void;
     function hideSet(set:Set, camera: Camera, cc:Continuation):Void;

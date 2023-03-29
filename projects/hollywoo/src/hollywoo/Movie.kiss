@@ -141,7 +141,7 @@
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
-            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack,Camera> director
+            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack,Camera,LightSource> director
             &opt :String voiceLinesJson
             &opt :String positionsJson
         ]

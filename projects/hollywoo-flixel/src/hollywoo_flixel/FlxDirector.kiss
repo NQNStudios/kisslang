@@ -1,6 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound,FlxCamera> movie)
+(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound,FlxCamera,FlxLightSource> movie)
 (defAlias &ident flxMovie (cast movie FlxMovie))
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 

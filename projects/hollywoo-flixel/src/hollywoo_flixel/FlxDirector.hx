@@ -23,4 +23,4 @@ import kiss_flixel.SpriteTools;
 import haxe.ds.Option;
 
 @:build(kiss.Kiss.build())
-class FlxDirector implements Director<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera> {}
+class FlxDirector implements Director<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {}
