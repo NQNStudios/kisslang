@@ -142,6 +142,8 @@
         [
             // "View" in the Model-View-Controller architecture:
             &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack,Camera,LightSource> director
+            :String lightSourceJsonFile
+            :LightSource defaultLightSource
             &opt :String voiceLinesJson
             &opt :String positionsJson
         ]
@@ -150,6 +152,7 @@
                 (if positionsJson
                         (haxe.Json.parse (sys.io.File.getContent positionsJson))
                     (new Map))
+            :JsonMap<JsonableArray<LightSource>> lightSources (new JsonMap lightSourceJsonFile (new JsonableArray [] defaultLightSource))
         ]
 
         (set director.movie this)
@@ -158,6 +161,8 @@
             (voiceLines.loadMatches voiceLinesJson))
 
         (super)))
+
+// END Parent class definitions
 
 // Some real magic happens here. This macro defines a method, AND a reader macro
 // for calling it with cc passed automatically if cc is an argument.

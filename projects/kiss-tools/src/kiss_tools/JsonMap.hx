@@ -9,6 +9,7 @@ import haxe.ds.Map;
 import haxe.Json;
 import haxe.DynamicAccess;
 import sys.io.File;
+import sys.FileSystem;
 
 typedef Jsonable<T> = {
     function stringify():String;

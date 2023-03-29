@@ -4,6 +4,7 @@ import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.system.FlxSound;
 import flixel.FlxCamera;
+import flixel.util.FlxColor;
 import hollywoo.Director;
 import hollywoo.Movie;
 import hollywoo_flixel.ActorFlxSprite;
@@ -43,13 +44,13 @@ enum FlxScreenPosition {
 class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
     // Think of HollywooFlixelDSL.kiss as the corresponding Kiss file for this class!
 
-    public function new(director:FlxDirector, ?voiceLinesAssetPath:String) {
+    public function new(director:FlxDirector, lightSourceJsonFile:String, ?voiceLinesAssetPath:String, ?positionsJson:String) {
         var voiceLinesJson = null;
         if (voiceLinesAssetPath != null) {
             voiceLinesJson = Assets.getText(voiceLinesAssetPath);
         }
 
-        super(director, voiceLinesJson);
+        super(director, lightSourceJsonFile, new FlxLightSource([], FlxColor.TRANSPARENT), voiceLinesJson, positionsJson);
     }
     public var uiCamera:FlxCamera;
     public var screenCamera:FlxCamera;

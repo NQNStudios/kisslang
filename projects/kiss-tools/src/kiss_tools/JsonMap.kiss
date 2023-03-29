@@ -12,6 +12,9 @@
 (defNew [&prop :String jsonPath &prop :T defaultVal]
     [:Map<String,T> m (new Map)]
 
+    (unless (FileSystem.exists jsonPath)    
+        (File.saveContent jsonPath "{}"))
+
     (_parseFrom (File.getContent jsonPath)))
 
 (method put [:String key :T value]
