@@ -1,0 +1,12 @@
+(defNew [&prop :Array<FlxPoint> points
+            &prop :FlxColor color])
+
+(method stringify []
+    "${color}|$(.join (for p points "${p.x}|${p.y}") "|")")
+
+(method parse [:String data]
+    (case (data.split "|")
+        ([::colorStr ...coordStrs]
+            (let [points (groups coordStrs 2)]
+                (new FlxLightSource (for [x y] points (new FlxPoint (Std.parseFloat x) (Std.parseFloat y))) (Std.parseInt colorStr))))
+        (never otherwise)))
