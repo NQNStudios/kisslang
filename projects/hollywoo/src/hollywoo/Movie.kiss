@@ -105,6 +105,7 @@
         (if sceneKey
                 // hide current scene background
                 (let [currentScene (dictGet scenes sceneKey)]
+                    (director.hideLighting)
                     (director.hideSet currentScene.set currentScene.camera
                         (makeCC
                             // hide current scene characters 
@@ -122,6 +123,7 @@
             (cc)))
     
     (method _showScene [:Scene<Set,ScreenPosition,Actor,Prop,Camera> scene :Appearance appearance :Camera camera :Continuation cc]
+        (director.showLighting scene.time .elements (lightSources.get sceneKey) camera)
         // Show current scene background
         (director.showSet scene.set scene.time scene.perspective appearance camera
             (makeCC

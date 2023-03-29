@@ -35,6 +35,8 @@ interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop,
     function autoZConfig():Option<AutoZConfig>;
     function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, camera:Camera, cc:Continuation):Void;
     function hideSet(set:Set, camera: Camera, cc:Continuation):Void;
+    function showLighting(sceneTime:SceneTime, lightSources:Array<LightSource>, camera:Camera):Void;
+    function hideLighting():Void;
     function showCharacter(character:Character<Actor>, appearance:Appearance, camera:Camera, cc:Continuation):Void;
     function hideCharacter(character:Character<Actor>, camera:Camera, cc:Continuation):Void;
     function playSound(sound:Sound, volumeMod:Float, waitForEnd:Bool, cc:Continuation):Void;

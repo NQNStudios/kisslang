@@ -31,6 +31,8 @@
             (setSprite.updateHitbox)
             (setSprite.screenCenter))
         (otherwise))
+    // TODO draw a sky background depending on time of day, int/ext
+
     (FlxG.cameras.remove flxMovie.uiCamera false)
     (FlxG.cameras.remove flxMovie.screenCamera false)
     (FlxG.cameras.add camera)
@@ -44,6 +46,41 @@
     (FlxG.cameras.remove camera false)
     (FlxG.state.remove set)
     (cc))
+
+(method :FlxSprite drawLight [:FlxLightSource source]
+    (lightSprite.drawPolygon source.points source.color (object color FlxColor.TRANSPARENT))
+    (lightMask.drawPolygon source.points FlxColor.BLACK (object color FlxColor.TRANSPARENT)))
+
+(var EVENING_COLOR (FlxColor.fromRGBFloat 0.5 0 0.5 0.2))
+(var NIGHT_COLOR (FlxColor.fromRGBFloat 0 0 0 0.5))
+(prop &mut :FlxSprite lightSprite null)
+(prop &mut :FlxSprite lightMask null)
+(prop &mut :FlxSprite darkness null)
+(prop &mut :FlxColor darkColor FlxColor.BLACK)
+(method :Void showLighting [:SceneTime sceneTime :Array<FlxLightSource> lightSources :FlxCamera camera]
+
+    (set lightSprite (new FlxSprite))
+    (lightSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
+    (set lightMask (new FlxSprite))
+    (lightMask.makeGraphic FlxG.width FlxG.height FlxColor.WHITE true)
+    (set darkness (new FlxSprite))
+    // TODO handle morning better
+    (set darkColor (case sceneTime
+                        (Evening EVENING_COLOR)
+                        (Night NIGHT_COLOR)
+                        (otherwise FlxColor.TRANSPARENT)))
+    (darkness.makeGraphic FlxG.width FlxG.height darkColor true)
+    (doFor source lightSources (drawLight source))
+    (blackAlphaMaskFlxSprite darkness lightMask darkness)
+    (set lightSprite.cameras [flxMovie.screenCamera])
+    (set darkness.alpha darkColor.alphaFloat)
+    (set darkness.cameras [flxMovie.screenCamera])
+    (FlxG.state.add darkness)
+    (FlxG.state.add lightSprite))
+    
+(method :Void hideLighting []
+    (FlxG.state.remove darkness)
+    (FlxG.state.remove lightSprite))
 
 (method :Void cleanup [] 0)
 
