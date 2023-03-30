@@ -8,6 +8,7 @@ import kiss.Stream;
 import kiss.FuzzyMap;
 import hollywoo.Scene;
 import hollywoo.Director;
+import hollywoo.StagePosition;
 import haxe.Json;
 import uuid.Uuid;
 import haxe.ds.Option;

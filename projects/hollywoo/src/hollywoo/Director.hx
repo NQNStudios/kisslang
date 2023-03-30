@@ -12,12 +12,6 @@ enum Appearance {
 
 typedef Continuation = Void -> Void;
 
-typedef StagePosition = {
-    x:Float,
-    y:Float,
-    z:Float,
-};
-
 enum StageFacing {
     TowardsCharacter(name:String);
     AwayFromCharacter(name:String);

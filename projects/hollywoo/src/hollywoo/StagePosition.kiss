@@ -1,0 +1,6 @@
+(defNew [&prop :Float x &prop :Float y &prop :Float z])
+
+(method stringify [] "${x}|${y}|${z}")
+(method parse [:String data]
+    (let [[x y z] (for coord (data.split "|") (Std.parseFloat coord))]
+        (new StagePosition x y z)))

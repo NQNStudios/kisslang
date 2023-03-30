@@ -44,13 +44,13 @@ enum FlxScreenPosition {
 class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
     // Think of HollywooFlixelDSL.kiss as the corresponding Kiss file for this class!
 
-    public function new(director:FlxDirector, lightSourceJsonFile:String, ?voiceLinesAssetPath:String, ?positionsJson:String) {
+    public function new(director:FlxDirector, lightSourceJsonFile:String, positionsJson:String, ?voiceLinesAssetPath:String) {
         var voiceLinesJson = null;
         if (voiceLinesAssetPath != null) {
             voiceLinesJson = Assets.getText(voiceLinesAssetPath);
         }
 
-        super(director, lightSourceJsonFile, new FlxLightSource([], FlxColor.TRANSPARENT), voiceLinesJson, positionsJson);
+        super(director, lightSourceJsonFile, new FlxLightSource([], FlxColor.TRANSPARENT), positionsJson, voiceLinesJson);
     }
     public var uiCamera:FlxCamera;
     public var screenCamera:FlxCamera;

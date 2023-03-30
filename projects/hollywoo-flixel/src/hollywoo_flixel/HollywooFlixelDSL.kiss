@@ -85,24 +85,24 @@
     (set DIALOG_WIDTH (- FlxG.width ACTOR_WIDTH ACTOR_WIDTH))
     (set DIALOG_HEIGHT (- FlxG.height DIALOG_Y))
     #{
-        stagePositions["Left"] = {
-            x: STAGE_LEFT_X,
-            y: ACTOR_Y,
-            z: 0.0
-        };
-        stagePositions["Right"] = {
-            x: STAGE_RIGHT_X,
-            y: ACTOR_Y,
-            z: 0.0
-        };
-        stagePositions["Left2"] = {
-            x: STAGE_LEFT_X,
-            y: ACTOR_Y,
-            z: STAGE_BEHIND_DY
-        };
-        stagePositions["Right2"] = {
-            x: STAGE_RIGHT_X,
-            y: ACTOR_Y,
-            z: STAGE_BEHIND_DY
-        };
+        stagePositions.put("Left", new StagePosition(
+            STAGE_LEFT_X,
+            ACTOR_Y,
+            0.0
+        ));
+        stagePositions.put("Right", new StagePosition(
+            STAGE_RIGHT_X,
+            ACTOR_Y,
+            0.0
+        ));
+        stagePositions.put("Left2", new StagePosition(
+            STAGE_LEFT_X,
+            ACTOR_Y,
+            STAGE_BEHIND_DY
+        ));
+        stagePositions.put("Right2", new StagePosition(
+            STAGE_RIGHT_X,
+            ACTOR_Y,
+            STAGE_BEHIND_DY
+        ));
     }#)
