@@ -12,6 +12,7 @@ import flixel.tweens.FlxTween;
 import hollywoo.Movie;
 import hollywoo.Scene;
 import hollywoo.Director;
+import hollywoo.StagePosition;
 import hollywoo_flixel.FlxMovie;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
@@ -29,7 +30,7 @@ import openfl.geom.Rectangle;
 import openfl.geom.Point;
 
 @:build(kiss.Kiss.build())
-class FlxDirector implements Director<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
+class FlxDirector implements Director<FlxSprite, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
     public static function blackAlphaMaskFlxSprite(sprite:FlxSprite, mask:FlxSprite, output:FlxSprite):FlxSprite
     {
         sprite.drawFrame();

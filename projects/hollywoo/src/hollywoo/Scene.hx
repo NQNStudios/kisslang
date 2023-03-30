@@ -33,16 +33,15 @@ enum SpeechType<Actor> {
     Custom(type:String, actor:Actor, args:Dynamic);
 }
 
-typedef ScreenProp<ScreenPosition,Prop> = {
-    screenPosition:ScreenPosition,
+typedef StageProp<Prop> = {
+    position:StagePosition,
     prop:Prop
 };
 
-typedef Scene<Set:Cloneable<Set>, ScreenPosition, Actor, Prop, Camera> = {
+typedef Scene<Set:Cloneable<Set>, Actor, Prop, Camera> = {
     set:Set,
     characters:FuzzyMap<Character<Actor>>,
-    propsOnScreen:FuzzyMap<ScreenProp<ScreenPosition,Prop>>,
-    // TODO props on stage
+    props:FuzzyMap<StageProp<Prop>>,
     time:SceneTime,
     perspective:ScenePerspective,
     camera:Camera

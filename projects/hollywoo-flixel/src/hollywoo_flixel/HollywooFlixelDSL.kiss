@@ -64,6 +64,19 @@
 
 (defAlias &ident flxDirector (cast director FlxDirector))
 
+(prop &mut :FlxSprite _canvas null)
+(method :FlxSprite canvas []
+    (unless _canvas
+        (set _canvas (new FlxSprite 0 0))
+        (_canvas.makeGraphic FlxG.width FlxG.height FlxColor.BLACK))
+    _canvas)
+(method :StagePosition FullControl [:Int layer :RelativePosition rpos]
+    (assert (<= 0 layer FlxDirector.LAYER_MAX) "Layer $layer is out of range 0-$FlxDirector.LAYER_MAX")
+    (localVar pixel (new FlxSprite))
+    (pixel.makeGraphic 1 1 FlxColor.BLACK)
+    (let [[x y] (SpriteTools.positionOn pixel (canvas) rpos)]
+        (new StagePosition x y layer)))
+
 (preload
     (unless uiCamera
         (set uiCamera (new flixel.FlxCamera))
@@ -105,4 +118,18 @@
             ACTOR_Y,
             STAGE_BEHIND_DY
         ));
-    }#)
+    }#
+    (let [left (/ FlxG.width 6)
+            right (- FlxG.width left)
+            upper (/ FlxG.height 6)
+            lower (- FlxG.height upper)
+            centerX (/ FlxG.width 2)
+            centerY (/ FlxG.height 2)
+            layer 5]
+        (stagePositions.put "ScreenCenter" (new StagePosition centerX centerY layer))
+        (stagePositions.put "ScreenUpperLeft" (new StagePosition left upper layer))
+        (stagePositions.put "ScreenUpperRight" (new StagePosition right upper layer))
+        (stagePositions.put "ScreenLowerLeft" (new StagePosition left lower layer))
+        (stagePositions.put "ScreenLowerRight" (new StagePosition right lower layer))
+        (stagePositions.put "ScreenLowerCenter" (new StagePosition centerX lower layer))
+        (stagePositions.put "ScreenUpperCenter" (new StagePosition centerX upper layer))))

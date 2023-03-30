@@ -18,7 +18,7 @@
     (prop &mut :DelayHandling delayHandling AutoWithSkip)
 
     // Mutable representation of frames in time:
-    (prop :FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop,Camera>> scenes (new FuzzyMap<Scene<Set,ScreenPosition,Actor,Prop,Camera>>))
+    (prop :FuzzyMap<Scene<Set,Actor,Prop,Camera>> scenes (new FuzzyMap<Scene<Set,Actor,Prop,Camera>>))
 
     (prop :FuzzyMap<Bool> shownScenes (new FuzzyMap<Bool>))
     (prop :FuzzyMap<Bool> shownCharacters (new FuzzyMap<Bool>))
@@ -116,13 +116,13 @@
                                 (makeCC
                                     // hide current scene props, etc.
                                     (_ccForEach
-                                        currentScene.propsOnScreen
-                                        ->[:ScreenProp<ScreenPosition,Prop> p :Continuation cc]
+                                        currentScene.props
+                                        ->[:StageProp<Prop> p :Continuation cc]
                                             (director.hideProp p.prop cc)
                                         cc))))))
             (cc)))
     
-    (method _showScene [:Scene<Set,ScreenPosition,Actor,Prop,Camera> scene :Appearance appearance :Camera camera :Continuation cc]
+    (method _showScene [:Scene<Set,Actor,Prop,Camera> scene :Appearance appearance :Camera camera :Continuation cc]
         (director.showLighting scene.time .elements (lightSources.get sceneKey) camera)
         // Show current scene background
         (director.showSet scene.set scene.time scene.perspective appearance camera
@@ -133,17 +133,25 @@
                     ->[:String key :Continuation cc]
                         (director.showCharacter (dictGet scene.characters key) (appearanceFlag shownCharacters key) camera cc)
                     (makeCC
-                        // hide current scene props, etc.
+                        // show current scene props, etc.
                         (_ccForEach
-                            scene.propsOnScreen
-                            ->[:ScreenProp<ScreenPosition,Prop> p :Continuation cc]
-                                (director.showPropOnScreen p.prop p.screenPosition cc)
+                            scene.props
+                            ->[:StageProp<Prop> p :Continuation cc]
+                                (director.showProp p.prop p.position cc)
                             cc))))))
+
+    (method resolvePosition [:Dynamic position]
+        (typeCase [position]
+            ([:String positionKey]
+                (stagePositions.get positionKey))
+            ([:StagePosition position]
+                position)
+            (otherwise (throw "Not a position or position key: $position"))))
 
     (defNew
         [
             // "View" in the Model-View-Controller architecture:
-            &prop :Director<Set,ScreenPosition,Actor,Sound,Song,Prop,VoiceTrack,Camera,LightSource> director
+            &prop :Director<Set,Actor,Sound,Song,Prop,VoiceTrack,Camera,LightSource> director
             :String lightSourceJsonFile
             :LightSource defaultLightSource
             :String stagePositionsJson
@@ -233,8 +241,8 @@
                                         (.clone (dictGet sets setKey))
                                     characters
                                         (new FuzzyMap<Character<Actor>>)
-                                    propsOnScreen
-                                        (new FuzzyMap<ScreenProp<ScreenPosition,Prop>>)
+                                    props
+                                        (new FuzzyMap<StageProp<Prop>>)
                                     camera
                                         camera
                                 ]
@@ -297,16 +305,14 @@
             {
                 (doFor =>name otherCharacter .characters (_currentScene)
                     (when (and (= position.x otherCharacter.stagePosition.x) (= position.y otherCharacter.stagePosition.y) (= position.z otherCharacter.stagePosition.z))
-                        (moveCharacter name (object x position.x y position.y z (+ otherCharacter.stagePosition.z zPerLayer)) otherCharacter.stageFacing cc)
+                        (moveCharacter name (new StagePosition position.x position.y (+ otherCharacter.stagePosition.z zPerLayer)) otherCharacter.stageFacing cc)
                         (return)))
                 (cc)
             }
         (cc)))
 
 (hollywooMethod addCharacter false [actorName :Dynamic position :StageFacing facing :Continuation cc]
-    (let [position (typeCase [position]
-                            ([:String pKey] (stagePositions.get pKey))
-                            (otherwise position))
+    (let [position (resolvePosition position)
             character (object stagePosition position stageFacing facing actor (dictGet actors actorName))]
         (autoZProcess position
             (makeCC
@@ -324,12 +330,9 @@
 
 // INSTANTLY move a character:
 (hollywooMethod moveCharacter false [actorName :Dynamic newPosition :StageFacing newFacing :Continuation cc]
-    (let [newPosition (typeCase [newPosition]
-                            ([:String pKey] (stagePositions.get pKey))
-                            (otherwise newPosition))]
-        (removeCharacter actorName
-            (makeCC
-                (addCharacter actorName newPosition newFacing cc)))))
+    (removeCharacter actorName
+        (makeCC
+            (addCharacter actorName newPosition newFacing cc))))
 
 // INSTANTLY swap characters
 (hollywooMethod swapCharacters false [actorNameA actorNameB :Continuation cc]
@@ -356,13 +359,14 @@
     (assert isLoading)
     (dictSet props name prop))
 
-(hollywooMethod addPropToScreen false [name :ScreenPosition position :Continuation cc]
-    (let [prop (dictGet props name)]
-        (dictSet .propsOnScreen (_currentScene) name (object screenPosition position prop prop))
-        (director.showPropOnScreen prop position cc)))
+(hollywooMethod addProp false [name :Dynamic position :Continuation cc]
+    (let [prop (dictGet props name)
+            position (resolvePosition position)]
+        (dictSet .props (_currentScene) name (objectWith position prop))
+        (director.showProp prop position cc)))
 
 (hollywooMethod removeProp false [name :Continuation cc]
-    (.remove .propsOnScreen (_currentScene) name)
+    (.remove .props (_currentScene) name)
     // TODO (propsOnStage.remove name)
     (director.hideProp (dictGet props name) cc))
 

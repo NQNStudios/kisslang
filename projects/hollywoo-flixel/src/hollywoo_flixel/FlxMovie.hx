@@ -11,37 +11,10 @@ import hollywoo_flixel.ActorFlxSprite;
 import kiss_flixel.SpriteTools;
 import openfl.Assets;
 
-/*
-enum FlxStagePosition {
-    Left;
-    Right;
-    LeftBehind;
-    RightBehind;
-
-    // Specify the layer and position relative to screen size, or in absolute coordinates, etc.
-    // AND don't move the object automatically for any reason
-    FullControl(layer:Int, pos:RelativePosition);
-}
-*/
-
-enum FlxScreenPosition {
-    // Shortcuts
-    UpperLeft;
-    UpperRight;
-    LowerLeft;
-    LowerRight;
-    LowerCenter;
-    UpperCenter;
-    Center;
-
-    // Specify the layer and position relative to screen size, or in absolute coordinates, etc.
-    FullControl(layer:Int, pos:RelativePosition);
-}
-
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
  */
-class FlxMovie extends Movie<FlxSprite, FlxScreenPosition, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
+class FlxMovie extends Movie<FlxSprite, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
     // Think of HollywooFlixelDSL.kiss as the corresponding Kiss file for this class!
 
     public function new(director:FlxDirector, lightSourceJsonFile:String, positionsJson:String, ?voiceLinesAssetPath:String) {

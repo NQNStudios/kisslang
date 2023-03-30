@@ -24,8 +24,8 @@ typedef AutoZConfig = {
     frontLayer:Int
 };
 
-interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource:Jsonable<LightSource>> {
-    var movie(default, default):Movie<Set, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource>;
+interface Director<Set:Cloneable<Set>, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource:Jsonable<LightSource>> {
+    var movie(default, default):Movie<Set, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource>;
     function autoZConfig():Option<AutoZConfig>;
     function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, camera:Camera, cc:Continuation):Void;
     function hideSet(set:Set, camera: Camera, cc:Continuation):Void;
@@ -47,8 +47,7 @@ interface Director<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop,
     function hideTitleCard():Void;
     function showBlackScreen():Void;
     function hideBlackScreen():Void;
-    function showPropOnScreen(prop:Prop, position:ScreenPosition, cc:Continuation):Void;
-    // TODO showPropOnStage
+    function showProp(prop:Prop, position:StagePosition, cc:Continuation):Void;
     function hideProp(prop:Prop, cc:Continuation):Void;
 
     function rollCredits(credits:Array<CreditsLine>, cc:Continuation):Void;

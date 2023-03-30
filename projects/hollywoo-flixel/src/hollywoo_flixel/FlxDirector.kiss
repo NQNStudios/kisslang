@@ -1,6 +1,6 @@
 (prop :FlxActionDigital continueAction) 
 (prop actionManager (new FlxActionManager))
-(prop &mut :Movie<FlxSprite,FlxScreenPosition,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound,FlxCamera,FlxLightSource> movie)
+(prop &mut :Movie<FlxSprite,ActorFlxSprite,FlxSound,String,FlxSprite,FlxSound,FlxCamera,FlxLightSource> movie)
 (defAlias &ident flxMovie (cast movie FlxMovie))
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 
@@ -17,7 +17,7 @@
     (set actionManager.resetOnStateSwitch NONE)
     
     // TODO characters will be in front of every prop layer -- characters need their own group layer
-    (doFor i (range LAYER_MAX)
+    (doFor i (range (+ 1 LAYER_MAX))
         (let [g (new FlxTypedGroup<FlxSprite>)]
             (spriteLayers.push g)
             (FlxG.state.add g))))
@@ -265,75 +265,32 @@
 (var PROP_MIN_WIDTH 200)
 (var PROP_MAX_WIDTH 500)
 
-(method :Void quickShowPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
-    (let [left (/ FlxG.width 6)
-            right (- FlxG.width left)
-            upper (/ FlxG.height 6)
-            lower (- FlxG.height upper)
-            centerX (/ FlxG.width 2)
-            centerY (/ FlxG.height 2)
-            [x y]
-                (case position
-                    (Center [centerX centerY])
-                    (UpperLeft [left upper])
-                    (UpperRight [right upper])
-                    (LowerLeft [left lower])
-                    (LowerRight [right lower])
-                    (LowerCenter [centerX lower])
-                    (UpperCenter [centerX upper])
-                    (otherwise (throw "screen position not implemented")))]
-        (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
-            (prop.setGraphicSize width)
-
-            (prop.updateHitbox)
-            // if the prop is too tall, shrink it heightwise
-            (when (> prop.height flxMovie.DIALOG_Y)
-                (prop.setGraphicSize 0 (Std.int flxMovie.DIALOG_Y))
-                (prop.updateHitbox))
-
-            (set prop.x (- x (/ prop.width 2)))
-            (set prop.y (- y (/ prop.height 2)))
-
-            (let [propBottom (+ prop.y prop.height)]
-                (case position 
-                    // if a prop meant to be centered would block the dialogue box, bump it up
-                    (Center
-                            (when (> propBottom flxMovie.DIALOG_Y)
-                                (-= prop.y (- propBottom flxMovie.DIALOG_Y))))
-                    // If a prop meant to be on the lower half of the screen goes below the edge, bring it up
-                    ((or LowerLeft LowerCenter LowerRight)
-                        (when (> propBottom FlxG.height)
-                            (-= prop.y (- propBottom FlxG.height))))
-                    (otherwise)))
-
-            (FlxG.state.add prop)))
-    (cc))
-
-(prop &mut :FlxSprite _canvas null)
-(method :FlxSprite canvas []
-    (unless _canvas
-        (set _canvas (new FlxSprite 0 0))
-        (_canvas.makeGraphic FlxG.width FlxG.height FlxColor.BLACK))
-    _canvas)
-        
-(method :Void smartShowPropOnScreen [:FlxSprite prop :Int layer :RelativePosition rpos :Continuation cc]
-    (assert (<= 0 layer LAYER_MAX) "Layer $layer is out of range 0-$LAYER_MAX")
-    (SpriteTools.scaleStampOn prop (canvas) rpos)
-    (let [[x y] (SpriteTools.positionOn prop (canvas) rpos)]
-        (set prop.x x)
-        (set prop.y y)
-        (if (= layer LAYER_MAX)
-                // In front of everything:    
-                (FlxG.state.add prop)
-            (.add (nth spriteLayers layer) prop)))
-    (cc))
-
-(method :Void showPropOnScreen [:FlxSprite prop :FlxScreenPosition position :Continuation cc]
+(method :Void showProp [:FlxSprite prop :StagePosition position :Continuation cc]
     (set prop.cameras [flxMovie.screenCamera])
-    // TODO give the prop reveal some time to land (add a delay to the cc)
-    (ifLet [(FullControl layer rpos) position]
-            (smartShowPropOnScreen prop layer rpos cc)
-        (quickShowPropOnScreen prop position cc)))
+    (let [width (min (max prop.width PROP_MIN_WIDTH) PROP_MAX_WIDTH)]
+        (prop.setGraphicSize width)
+
+        (prop.updateHitbox)
+        // if the prop is too tall, shrink it heightwise
+        (when (> prop.height flxMovie.DIALOG_Y)
+            (prop.setGraphicSize 0 (Std.int flxMovie.DIALOG_Y))
+            (prop.updateHitbox))
+
+        (set prop.x (- position.x (/ prop.width 2)))
+        (set prop.y (- position.y (/ prop.height 2)))
+
+        (let [propBottom (+ prop.y prop.height)]
+            // if a prop would block the dialogue box, bump it up
+            (when (> propBottom flxMovie.DIALOG_Y)
+                (-= prop.y (- propBottom flxMovie.DIALOG_Y)))
+            // If a prop goes below the edge, bring it up
+            (when (> propBottom FlxG.height)
+                (-= prop.y (- propBottom FlxG.height))))
+
+        (let [layerNum position.z]
+            (assertEquals layerNum (Std.int layerNum))
+            (.add (nth spriteLayers (Std.int layerNum)) prop)))
+    (cc))
 
 (method :Void hideProp [:FlxSprite prop cc]
     (FlxG.state.remove prop)

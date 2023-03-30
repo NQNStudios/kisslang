@@ -45,4 +45,4 @@ enum CreditsLine {
  * Model/controller of a Hollywoo film, and main execution script
  */
 @:build(kiss.Kiss.build())
-class Movie<Set:Cloneable<Set>, ScreenPosition, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource:Jsonable<LightSource>> extends AsyncEmbeddedScript {}
+class Movie<Set:Cloneable<Set>, Actor, Sound, Song, Prop, VoiceTrack, Camera, LightSource:Jsonable<LightSource>> extends AsyncEmbeddedScript {}
