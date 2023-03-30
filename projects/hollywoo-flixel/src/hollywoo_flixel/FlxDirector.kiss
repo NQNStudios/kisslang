@@ -22,6 +22,8 @@
             (spriteLayers.push g)
             (FlxG.state.add g))))
 
+(prop &mut :FlxSprite skySprite)
+
 (method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :FlxCamera camera :Continuation cc]
     (case appearance
         (FirstAppearance
@@ -32,6 +34,15 @@
             (setSprite.screenCenter))
         (otherwise))
     // TODO draw a sky background depending on time of day, int/ext
+    (let [skyColor (case time
+                        ((or Morning Day) DAY_SKY_COLOR)
+                        (Evening EVENING_SKY_COLOR)
+                        (Night NIGHT_SKY_COLOR)
+                        (never null))]
+        (set skySprite (new FlxSprite))
+        (skySprite.makeGraphic FlxG.width FlxG.height skyColor true)
+        (set skySprite.cameras [camera])
+        (FlxG.state.add skySprite))
 
     (FlxG.cameras.remove flxMovie.uiCamera false)
     (FlxG.cameras.remove flxMovie.screenCamera false)
@@ -44,12 +55,17 @@
 
 (method :Void hideSet [:FlxSprite set :FlxCamera camera :Continuation cc]
     (FlxG.cameras.remove camera false)
+    (FlxG.state.remove skySprite)
     (FlxG.state.remove set)
     (cc))
 
 (method :FlxSprite drawLight [:FlxLightSource source]
     (lightSprite.drawPolygon source.points source.color (object color FlxColor.TRANSPARENT))
     (lightMask.drawPolygon source.points FlxColor.BLACK (object color FlxColor.TRANSPARENT)))
+
+(var DAY_SKY_COLOR FlxColor.CYAN)
+(var NIGHT_SKY_COLOR FlxColor.BLACK)
+(var EVENING_SKY_COLOR (FlxColor.fromRGB 23 28 70))
 
 (var EVENING_COLOR (FlxColor.fromRGBFloat 0.5 0 0.5 0.2))
 (var NIGHT_COLOR (FlxColor.fromRGBFloat 0 0 0 0.5))
