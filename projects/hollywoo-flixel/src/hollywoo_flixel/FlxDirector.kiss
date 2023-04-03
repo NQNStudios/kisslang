@@ -114,11 +114,14 @@
     (let [screen (new FlxSprite)]
         (screen.makeGraphic FlxG.width FlxG.height (FlxColor.fromRGBFloat 0 1 0 0.2))
         (set screen.cameras [flxMovie.uiCamera])
+        (doFor camera FlxG.cameras.list (set camera.zoom 0.5))
         (mm.add screen
             ->screen {
                 (mm.remove screen)
                 (FlxG.state.remove screen)
-                (submit (FlxG.mouse.getScreenPosition flxMovie.uiCamera))
+                (let [pos (FlxG.mouse.getScreenPosition FlxG.camera)]
+                    (doFor camera FlxG.cameras.list (set camera.zoom 1))
+                    (submit pos))
             })
         (FlxG.state.add screen)))
 
@@ -138,10 +141,11 @@
             (sh.registerItem
                 "{enter} submit light source"
                 (onceLambda [cc]
+                    (doFor camera FlxG.cameras.list (set camera.zoom 1))
                     (when points
                         // TODO allow color choice
                         (submit (new FlxLightSource points FlxColor.TRANSPARENT)))
-                    (cc))))))
+                    (cc)) true))))
 
 (method :Void showLighting [:SceneTime sceneTime :Array<FlxLightSource> lightSources :FlxCamera camera]
     (set lightSprite (new FlxSprite))
