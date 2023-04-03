@@ -172,6 +172,29 @@
         (when voiceLinesJson
             (voiceLines.loadMatches voiceLinesJson))
 
+        (let [shortcutHandler (director.shortcutHandler)
+                cc ->(director.resume)]
+            (set shortcutHandler.onSelectItem
+                ->process {
+                    // TODO pause all delays (which will require ditching haxe.Timer!!!)
+                    (director.pause)
+                    (process cc)
+                })
+            (shortcutHandler.registerItem "{escape} Pause the movie"
+                ->cc (director.showPauseMenu cc))
+            (shortcutHandler.registerItem "[d]efine [l]ight source"
+                ->cc
+                    (director.defineLightSource
+                        ->[:LightSource source] {
+                            (let [arr (lightSources.get sceneKey)]
+                                (arr.elements.push source)
+                                (lightSources.put sceneKey arr)
+                                (director.hideLighting)
+                                (director.showLighting .time (_currentScene) arr.elements .camera (_currentScene))
+                                (cc))
+                        }))
+            (shortcutHandler.start))
+
         (super)))
 
 // END Parent class definitions

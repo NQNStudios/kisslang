@@ -39,7 +39,8 @@
     `(new FlxSprite 0 0 ,(b.field (symbolNameValue asset) (b.symbol "AssetPaths"))))
 
 (method :Void update [:Float elapsed]
-    (#when debug
+    (.update (cast (director.shortcutHandler) kiss_tools.FlxKeyShortcutHandler<Dynamic>))
+    **(#when debug
         (when FlxG.keys.justPressed.N
             (skipToNextLabel))
         (when FlxG.keys.justPressed.L

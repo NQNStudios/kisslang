@@ -24,6 +24,23 @@
 
 (prop &mut :FlxSprite skySprite)
 
+(prop :FlxKeyShortcutHandler<Continuation->Void> sh (new FlxKeyShortcutHandler))
+(method :KeyShortcutHandler<Continuation->Void> shortcutHandler []
+    (set sh.cancelKey null)
+    sh)
+
+(method :Void pause []
+    // TODO !!
+    null)
+
+(method :Void resume []
+    // TODO !!
+    null)
+
+(method :Void showPauseMenu [:Continuation resume]
+    // TODO
+    null)
+
 (method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :FlxCamera camera :Continuation cc]
     (case appearance
         (FirstAppearance
@@ -73,8 +90,12 @@
 (prop &mut :FlxSprite lightMask null)
 (prop &mut :FlxSprite darkness null)
 (prop &mut :FlxColor darkColor FlxColor.BLACK)
-(method :Void showLighting [:SceneTime sceneTime :Array<FlxLightSource> lightSources :FlxCamera camera]
 
+(method :Void defineLightSource [:FlxLightSource->Void submit]
+    // TODO 
+    (submit (new FlxLightSource [(new FlxPoint 830 225) (new FlxPoint 316 719) (new FlxPoint 1120 719)] FlxColor.TRANSPARENT)))
+
+(method :Void showLighting [:SceneTime sceneTime :Array<FlxLightSource> lightSources :FlxCamera camera]
     (set lightSprite (new FlxSprite))
     (lightSprite.makeGraphic FlxG.width FlxG.height FlxColor.TRANSPARENT true)
     (set lightMask (new FlxSprite))

@@ -1,10 +1,11 @@
 {
 	"main": "hollywoo.Main",
 	"name": "hollywoo",
-	"description": "produce Fountain screenplays as visual novels",
+	"description": "Portable interface for kinetic novel dev/animated filmmaking",
 	"classPath": "src/",
 	"dependencies": {
-		"kiss": ""
+		"kiss": "",
+		"kiss-tools": ""
 	},
 	"url": "https://github.com/NQNStudios/kisslang",
 	"contributors": [

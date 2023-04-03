@@ -23,6 +23,8 @@ import flixel.math.FlxPoint;
 import haxe.Constraints;
 import kiss_flixel.SpriteTools;
 import haxe.ds.Option;
+import kiss_tools.KeyShortcutHandler;
+import kiss_tools.FlxKeyShortcutHandler;
 using flixel.util.FlxSpriteUtil;
 import openfl.display.BitmapData;
 import openfl.display.BitmapDataChannel;
