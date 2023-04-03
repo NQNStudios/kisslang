@@ -13,6 +13,7 @@ import kiss.Kiss;
 import kiss.ReaderExp;
 import kiss.Prelude;
 import kiss.cloner.Cloner;
+using StringTools;
 
 typedef Continuation = () -> Void;
 typedef AsyncCommand = (AsyncEmbeddedScript, Continuation) -> Void;
@@ -147,9 +148,11 @@ class AsyncEmbeddedScript {
         var labelsList:Array<Expr> = [];
         var noSkipList:Array<Expr> = [];
 
+        var labelNum = 0;
         k.macros["label"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
             wholeExp.checkNumArgs(1, 1, '(label <label>)');
             var label = Prelude.symbolNameValue(args[0]);
+            label = '${++labelNum}. '.lpad("0", 5) + label;
             labelsList.push(macro labels[$v{label}] = $v{commandList.length});
             
             wholeExp.expBuilder().callSymbol("cc", []);
