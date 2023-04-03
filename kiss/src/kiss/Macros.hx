@@ -1238,6 +1238,25 @@ class Macros {
             ].concat(body))]);
         };
 
+        k.doc("onceLambda", 3, null, "(onceLambda [<argsNames...>] <body...>)");
+        macros["onceLambda"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
+            var b = wholeExp.expBuilder();
+
+            var args = exps[0];
+            var body = exps.slice(1);
+            var flagSymbol = b.symbol();
+
+            return b.let([
+                b.meta("mut", flagSymbol), b.symbol("false")
+            ], [b.callSymbol("lambda", [
+                args,
+                b.callSymbol("unless", [
+                    flagSymbol,
+                    b.set(flagSymbol, b.symbol("true"))
+                ].concat(body))
+            ])]);
+        };
+
         // Time a block's evaluation
         k.doc("measureTime",1, null, "(measureTime <body...>)");
         macros["measureTime"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k:KissState) -> {
