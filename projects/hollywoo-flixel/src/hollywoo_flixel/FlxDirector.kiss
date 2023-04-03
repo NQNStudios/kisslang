@@ -57,7 +57,7 @@
                         (Night NIGHT_SKY_COLOR)
                         (never null))]
         (set skySprite (new FlxSprite))
-        (skySprite.makeGraphic FlxG.width FlxG.height skyColor true)
+        (skySprite.makeGraphic (Std.int setSprite.width) (Std.int setSprite.height) skyColor true)
         (set skySprite.cameras [camera])
         (FlxG.state.add skySprite))
 
