@@ -30,16 +30,22 @@
     sh)
 
 (method :Void pause []
+    (FlxG.inputs.remove actionManager)
     // TODO !!
     null)
 
 (method :Void resume []
     // TODO !!
+    (FlxG.inputs.add actionManager)
     null)
 
 (method :Void showPauseMenu [:Continuation resume]
-    // TODO
-    null)
+    // TODO register escape to resume (and register escape to pause lol)
+    (chooseString "PAUSED" ["Resume"]
+        ->choice
+            (case choice
+                ("Resume" (resume))
+                (never otherwise))))
 
 (method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :FlxCamera camera :Continuation cc]
     (case appearance

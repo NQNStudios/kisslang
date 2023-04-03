@@ -1,0 +1,31 @@
+(var &mut :Array<WrappedTimer> timers [])
+
+(function :WrappedTimer delay [:Void->Void f :Float sec]
+    (let [wrapped 
+                (object 
+                    startTime (Timer.stamp)
+                    duration sec
+                    t null
+                    f f)
+            wrappedF
+                ->{(timers.remove wrapped)(f)}]
+        (set wrapped.t (Timer.delay wrappedF (Std.int (* sec 1000))))
+        (timers.push wrapped)
+        wrapped))
+
+(function stop [:WrappedTimer timer]    
+    (timer.t.stop)
+    (timers.remove timer))
+
+(function pause []
+    (let [now (Timer.stamp)]
+        (doFor timer timers
+            (let [elapsed (- now timer.startTime)]
+                (-= timer.duration elapsed)
+                (timer.t.stop)))))
+
+(function resume []
+    (let [oldTimers timers]
+        (set timers [])
+        (doFor timer oldTimers
+            (delay timer.f timer.duration))))

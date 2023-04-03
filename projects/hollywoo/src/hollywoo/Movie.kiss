@@ -144,14 +144,15 @@
 
     (method pause []
         (unless paused
-            // TODO pause all delays (which will require ditching haxe.Timer!!!)
+            (TimerWithPause.pause)
             (set paused true)
             (director.pause)))
 
     (method resume []
         (when paused
             (set paused false)
-            (director.resume)))
+            (director.resume)
+            (TimerWithPause.resume)))
 
     (method resolvePosition [:Dynamic position]
         (typeCase [position]
@@ -194,34 +195,35 @@
                     (shortcutHandler.start)
                     (process cc)
                 })
+            (set shortcutHandler.onBadKey
+                ->[_ _]
+                    (shortcutHandler.start))
             (shortcutHandler.registerItem "{escape} Pause the movie"
                 ->cc (director.showPauseMenu cc))
             
-            // TODO (#when debug)
-            (shortcutHandler.registerItem "[d]efine [l]ight source"
-                ->cc
-                    (director.defineLightSource
-                        ->[:LightSource source] {
-                            (let [arr (lightSources.get sceneKey)]
-                                (arr.elements.push source)
-                                (lightSources.put sceneKey arr)
-                                (director.hideLighting)
-                                (director.showLighting .time (_currentScene) arr.elements .camera (_currentScene))
-                                (cc))
-                        }))
+            (#when debug
+                (shortcutHandler.registerItem "[d]efine [l]ight source"
+                    ->cc
+                        (director.defineLightSource
+                            ->[:LightSource source] {
+                                (let [arr (lightSources.get sceneKey)]
+                                    (arr.elements.push source)
+                                    (lightSources.put sceneKey arr)
+                                    (director.hideLighting)
+                                    (director.showLighting .time (_currentScene) arr.elements .camera (_currentScene))
+                                    (cc))
+                            }))
 
-            (shortcutHandler.registerItem "[n]ext label"
-                ->cc
-                    (skipToNextLabel))
-            (shortcutHandler.registerItem "skip to [l]abel"
-                ->cc
-                    (let [runners (labelRunners)]
-                        (localVar &mut buttonY 0)
-                        (localVar buttonsPerColumn 25)
-                        (director.chooseString
-                            "Skip to scene?"
-                            (sort (collect (runners.keys)))
-                            ->label ((dictGet runners label)))))
+                (shortcutHandler.registerItem "[n]ext label"
+                    ->cc
+                        (skipToNextLabel))
+                (shortcutHandler.registerItem "skip to [l]abel"
+                    ->cc
+                        (let [runners (labelRunners)]
+                            (director.chooseString
+                                "Skip to scene?"
+                                (sort (collect (runners.keys)))
+                                ->label ((dictGet runners label))))))
 
             (shortcutHandler.start))
 
@@ -266,19 +268,19 @@
                     (never otherwise))]
         (case delayHandling
             (Auto
-                (Timer.delay cc (* 1000 sec)))
+                (TimerWithPause.delay cc sec))
             (AutoWithSkip
                 (let [autoDelay
-                            (Timer.delay
+                            (TimerWithPause.delay
                                 ->{
                                     (director.stopWaitForInput cc)
                                     (cc)
                                 }
-                                (* 1000 sec))]
+                                sec)]
                     (director.startWaitForInput 
                         ->{
                             (director.stopWaitForInput cc)
-                            (autoDelay.stop)
+                            (TimerWithPause.stop autoDelay)
                             (cc)
                         })))
             (Manual
