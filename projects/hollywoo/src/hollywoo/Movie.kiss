@@ -196,6 +196,8 @@
                 })
             (shortcutHandler.registerItem "{escape} Pause the movie"
                 ->cc (director.showPauseMenu cc))
+            
+            // TODO (#when debug)
             (shortcutHandler.registerItem "[d]efine [l]ight source"
                 ->cc
                     (director.defineLightSource

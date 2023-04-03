@@ -91,9 +91,57 @@
 (prop &mut :FlxSprite darkness null)
 (prop &mut :FlxColor darkColor FlxColor.BLACK)
 
+(var &mut :FlxMouseEventManager mm null)
+
+(method :Void chooseString [:String prompt :Array<String> choices :String->Void submit]
+    (kiss_flixel.SimpleWindow.promptForChoice
+        prompt
+        choices
+        submit
+        FlxColor.BLACK
+        FlxColor.WHITE
+        0.8
+        0.8
+        true
+        "escape"
+        "left"
+        "right"))
+
+(method :Void defineFlxPoint [:FlxPoint->Void submit]
+    (unless mm
+        (set mm (new FlxMouseEventManager))
+        (FlxG.state.add mm))
+    (let [screen (new FlxSprite)]
+        (screen.makeGraphic FlxG.width FlxG.height (FlxColor.fromRGBFloat 0 1 0 0.2))
+        (set screen.cameras [flxMovie.uiCamera])
+        (mm.add screen
+            ->screen {
+                (mm.remove screen)
+                (FlxG.state.remove screen)
+                (submit (FlxG.mouse.getScreenPosition flxMovie.uiCamera))
+            })
+        (FlxG.state.add screen)))
+
 (method :Void defineLightSource [:FlxLightSource->Void submit]
-    // TODO 
-    (submit (new FlxLightSource [(new FlxPoint 830 225) (new FlxPoint 316 719) (new FlxPoint 1120 719)] FlxColor.TRANSPARENT)))
+    (let [points []]
+        (withFunctions
+            [
+                (getNextPoint []
+                    (defineFlxPoint
+                        ->point
+                            {
+                                (points.push point)
+                                (getNextPoint)
+                            }))
+            ]
+            (getNextPoint)
+            (sh.registerItem
+                "{enter} submit light source"
+                (onceLambda [cc]
+                    (when points
+                        // TODO allow color choice
+                        (submit (new FlxLightSource points FlxColor.TRANSPARENT)))
+                    (cc))))))
 
 (method :Void showLighting [:SceneTime sceneTime :Array<FlxLightSource> lightSources :FlxCamera camera]
     (set lightSprite (new FlxSprite))

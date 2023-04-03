@@ -30,6 +30,7 @@ import openfl.display.BitmapData;
 import openfl.display.BitmapDataChannel;
 import openfl.geom.Rectangle;
 import openfl.geom.Point;
+import flixel.input.mouse.FlxMouseEventManager;
 
 @:build(kiss.Kiss.build())
 class FlxDirector implements Director<FlxSprite, ActorFlxSprite, FlxSound, String, FlxSprite, FlxSound, FlxCamera, FlxLightSource> {
@@ -40,6 +41,6 @@ class FlxDirector implements Director<FlxSprite, ActorFlxSprite, FlxSound, Strin
         data.copyChannel(mask.pixels, new Rectangle(0, 0, sprite.width, sprite.height), new Point(), BitmapDataChannel.RED, BitmapDataChannel.ALPHA);
         output.pixels = data;
         return output;
- }
+    }
 
 }
