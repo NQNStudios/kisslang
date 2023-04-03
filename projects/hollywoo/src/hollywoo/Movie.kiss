@@ -140,6 +140,19 @@
                                 (director.showProp p.prop p.position cc)
                             cc))))))
 
+    (prop &mut :Bool paused false)
+
+    (method pause []
+        (unless paused
+            // TODO pause all delays (which will require ditching haxe.Timer!!!)
+            (set paused true)
+            (director.pause)))
+
+    (method resume []
+        (when paused
+            (set paused false)
+            (director.resume)))
+
     (method resolvePosition [:Dynamic position]
         (typeCase [position]
             ([:String positionKey]
@@ -173,11 +186,12 @@
             (voiceLines.loadMatches voiceLinesJson))
 
         (let [shortcutHandler (director.shortcutHandler)
-                cc ->(director.resume)]
+                cc ->(resume)]
             (set shortcutHandler.onSelectItem
                 ->process {
-                    // TODO pause all delays (which will require ditching haxe.Timer!!!)
-                    (director.pause)
+                    (pause)
+                    // TODO this is dicey but it allows processes to use the handler:
+                    (shortcutHandler.start)
                     (process cc)
                 })
             (shortcutHandler.registerItem "{escape} Pause the movie"
@@ -193,6 +207,20 @@
                                 (director.showLighting .time (_currentScene) arr.elements .camera (_currentScene))
                                 (cc))
                         }))
+
+            (shortcutHandler.registerItem "[n]ext label"
+                ->cc
+                    (skipToNextLabel))
+            (shortcutHandler.registerItem "skip to [l]abel"
+                ->cc
+                    (let [runners (labelRunners)]
+                        (localVar &mut buttonY 0)
+                        (localVar buttonsPerColumn 25)
+                        (director.chooseString
+                            "Skip to scene?"
+                            (sort (collect (runners.keys)))
+                            ->label ((dictGet runners label)))))
+
             (shortcutHandler.start))
 
         (super)))

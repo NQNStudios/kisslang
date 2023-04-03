@@ -39,29 +39,7 @@
     `(new FlxSprite 0 0 ,(b.field (symbolNameValue asset) (b.symbol "AssetPaths"))))
 
 (method :Void update [:Float elapsed]
-    (.update (cast (director.shortcutHandler) kiss_tools.FlxKeyShortcutHandler<Dynamic>))
-    **(#when debug
-        (when FlxG.keys.justPressed.N
-            (skipToNextLabel))
-        (when FlxG.keys.justPressed.L
-            (showLabelSkipButtons))))
-
-(method :Void showLabelSkipButtons []
-    (let [runners (labelRunners)]
-        (localVar &mut buttonY 0)
-        (localVar buttonsPerColumn 25)
-        (kiss_flixel.SimpleWindow.promptForChoice
-            "Skip to scene?"
-            (sort (collect (runners.keys)))
-            ->label ((dictGet runners label))
-            FlxColor.BLACK
-            FlxColor.WHITE
-            0.8
-            0.8
-            true
-            "escape"
-            "left"
-            "right")))
+    (.update (cast (director.shortcutHandler) kiss_tools.FlxKeyShortcutHandler<Dynamic>)))
 
 (defAlias &ident flxDirector (cast director FlxDirector))
 

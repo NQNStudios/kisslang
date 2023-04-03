@@ -35,6 +35,8 @@ interface Director<Set:Cloneable<Set>, Actor, Sound, Song, Prop, VoiceTrack, Cam
     function resume():Void;
     function showPauseMenu(resume:Continuation):Void;
 
+    function chooseString(prompt:String, choices:Array<String>, submit:String->Void):Void;
+
     function defineLightSource(submit:LightSource->Void):Void;
 
     function showSet(set:Set, time:SceneTime, perspective:ScenePerspective, appearance:Appearance, camera:Camera, cc:Continuation):Void;
