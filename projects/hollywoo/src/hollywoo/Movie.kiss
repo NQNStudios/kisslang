@@ -155,6 +155,7 @@
             :String lightSourceJsonFile
             :LightSource defaultLightSource
             :String stagePositionsJson
+            :String delayLengthsJson
             &opt :String voiceLinesJson
         ]
         [
@@ -162,6 +163,8 @@
                 (new JsonMap stagePositionsJson (new StagePosition 0 0 0))
             :JsonMap<JsonableArray<LightSource>> lightSources
                 (new JsonMap lightSourceJsonFile (new JsonableArray [] defaultLightSource))
+            :JsonMap<DelayLength> delayLengths
+                (new JsonMap delayLengthsJson (new DelayLength 0.5))
         ]
 
         (set director.movie this)
@@ -203,31 +206,35 @@
             (#unless subclass (method ,nameAndType ,argList ,@body))
         }))
 
-(hollywooMethod :Void delay true [sec :Continuation cc]
-    (case delayHandling
-        (Auto
-            (Timer.delay cc (* 1000 sec)))
-        (AutoWithSkip
-            (let [autoDelay
-                        (Timer.delay
-                            ->{
-                                (director.stopWaitForInput cc)
-                                (cc)
-                            }
-                            (* 1000 sec))]
-                (director.startWaitForInput 
+(hollywooMethod :Void delay true [:Dynamic length :Continuation cc]
+    (let [sec (typeCase [length]
+                    ([:Float sec] sec)
+                    ([:String key] .length (delayLengths.get key))
+                    (never otherwise))]
+        (case delayHandling
+            (Auto
+                (Timer.delay cc (* 1000 sec)))
+            (AutoWithSkip
+                (let [autoDelay
+                            (Timer.delay
+                                ->{
+                                    (director.stopWaitForInput cc)
+                                    (cc)
+                                }
+                                (* 1000 sec))]
+                    (director.startWaitForInput 
+                        ->{
+                            (director.stopWaitForInput cc)
+                            (autoDelay.stop)
+                            (cc)
+                        })))
+            (Manual
+                (director.startWaitForInput
                     ->{
                         (director.stopWaitForInput cc)
-                        (autoDelay.stop)
                         (cc)
-                    })))
-        (Manual
-            (director.startWaitForInput
-                ->{
-                    (director.stopWaitForInput cc)
-                    (cc)
-                }))
-        (otherwise (throw "Unsupported delay type $delayHandling"))))
+                    }))
+            (otherwise (throw "Unsupported delay type $delayHandling")))))
 
 (hollywooMethod newSet true [name :Set set]
     (assert isLoading)

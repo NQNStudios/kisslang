@@ -1,0 +1,4 @@
+(defNew [&prop :Float length])
+
+(method stringify [] "$length")
+(method parse [:String data] (new DelayLength (Std.parseFloat data)))
