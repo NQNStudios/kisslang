@@ -441,6 +441,7 @@
 (method :Void rollCredits [:Array<CreditsLine> credits cc]
     (localVar bg (new FlxSprite))
     (bg.makeGraphic FlxG.width FlxG.height FlxColor.BLACK true)
+    (set bg.cameras [flxMovie.uiCamera])
     (FlxG.state.add bg)
     (localVar &mut textY FlxG.height)
     (var oneColSize 64)
@@ -483,4 +484,5 @@
     
     (doFor text creditsText
         (FlxG.state.add text)
+        (set text.cameras [flxMovie.uiCamera])
         (FlxTween.linearMotion text text.x text.y text.x (- text.y textY) 200 false (object onComplete ->:Void _ (cc)))))
