@@ -37,6 +37,7 @@ interface Director<Set:Cloneable<Set>, Actor, Sound, Song, Prop, VoiceTrack, Cam
     //  - current music
     //  - input checking
     //  - tweens
+    //  - credit roll
     function pause():Void;
     function resume():Void;
 

@@ -223,7 +223,10 @@
                             (director.chooseString
                                 "Skip to scene?"
                                 (sort (collect (runners.keys)))
-                                ->label ((dictGet runners label))))))
+                                ->label {
+                                            (resume)
+                                            ((dictGet runners label))
+                                        }))))
 
             (shortcutHandler.start))
 
