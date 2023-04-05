@@ -46,11 +46,14 @@
     )
 
 (method :Void showPauseMenu [:Continuation resume]
-    // TODO register escape to resume (and register escape to pause lol)
-    (chooseString "PAUSED" ["Resume"]
+    // TODO register escape to resume (and register escape to pause when resuming lol)
+    (chooseString "PAUSED" ["Resume" "Options" "Main Menu" "Quit to Desktop"]
         ->choice
             (case choice
                 ("Resume" (resume))
+                ("Options" null) // TODO
+                ("Main Menu" null) // TODO
+                ("Quit to Desktop" (Sys.exit 0))
                 (never otherwise))))
 
 (method :Void showSet [:FlxSprite setSprite :SceneTime time :ScenePerspective perspective :Appearance appearance :FlxCamera camera :Continuation cc]
