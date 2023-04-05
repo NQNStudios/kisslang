@@ -121,6 +121,7 @@
         (screen.makeGraphic FlxG.width FlxG.height (FlxColor.fromRGBFloat 0 1 0 0.2))
         (set screen.cameras [flxMovie.uiCamera])
         (doFor camera FlxG.cameras.list (set camera.zoom 0.5))
+        (set flxMovie.uiCamera.zoom 1)
         (mm.add screen
             ->screen {
                 (mm.remove screen)
