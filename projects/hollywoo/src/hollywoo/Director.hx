@@ -31,8 +31,15 @@ interface Director<Set:Cloneable<Set>, Actor, Sound, Song, Prop, VoiceTrack, Cam
 
     function shortcutHandler():KeyShortcutHandler<Continuation->Void>;
 
+    // Implementations of Director must pause and resume the following:
+    //  - current voice tracks
+    //  - current sound effects
+    //  - current music
+    //  - input checking
+    //  - tweens
     function pause():Void;
     function resume():Void;
+
     function showPauseMenu(resume:Continuation):Void;
 
     function chooseString(prompt:String, choices:Array<String>, submit:String->Void):Void;

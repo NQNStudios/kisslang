@@ -31,13 +31,19 @@
 
 (method :Void pause []
     (FlxG.inputs.remove actionManager)
-    // TODO !!
-    null)
+    (doFor sound currentSounds
+        (sound.pause))
+    // TODO music
+    // TODO tweens
+    )
 
 (method :Void resume []
-    // TODO !!
     (FlxG.inputs.add actionManager)
-    null)
+    (doFor sound currentSounds
+        (sound.resume))
+    // TODO music
+    // TODO tweens
+    )
 
 (method :Void showPauseMenu [:Continuation resume]
     // TODO register escape to resume (and register escape to pause lol)
@@ -316,18 +322,22 @@
     (speakerNameText.kill)
     (dialogBox.kill))
 
+(prop :Array<FlxSound> currentSounds [])
 (method :Void playSound [:FlxSound sound :Float volumeMod :Bool waitForEnd :Continuation cc]
     (let [originalVolume sound.volume
-            restoreOriginalVolume ->(set sound.volume originalVolume)]
+            onComplete ->{
+                            (currentSounds.remove sound)
+                            (set sound.volume originalVolume)
+                            (when waitForEnd (cc))
+                        }]
         (*= sound.volume volumeMod)
-        (set sound.onComplete 
-            (if waitForEnd
-                    ->{(restoreOriginalVolume) (cc)}
-                restoreOriginalVolume)))
+        (set sound.onComplete onComplete))
+    (currentSounds.push sound)
     (sound.play)
     (unless waitForEnd (cc)))
 
 (method :Void stopSound [:FlxSound sound]
+    (currentSounds.remove sound)
     (sound.stop))
 
 (var DELAY_BETWEEN_VOICE_TRACKS 0.1)
@@ -337,10 +347,16 @@
             restoreOriginalVolume ->(set track.volume originalVolume)]
         (dictSet restoreOriginalVolumes track restoreOriginalVolume)
         (*= track.volume volumeMod)
-        (set track.onComplete ->{(restoreOriginalVolume) (movie.delay DELAY_BETWEEN_VOICE_TRACKS cc)}))
+        (set track.onComplete ->{
+                                    currentSounds.remove track
+                                    (restoreOriginalVolume)
+                                    (movie.delay DELAY_BETWEEN_VOICE_TRACKS cc)
+                                }))
+    (currentSounds.push track)
     (track.play true (* 1000 start) (* 1000 end)))
 
 (method :Void stopVoiceTrack [:FlxSound track]
+    (currentSounds.remove track)
     (track.stop)
     ((dictGet restoreOriginalVolumes track)))
 
