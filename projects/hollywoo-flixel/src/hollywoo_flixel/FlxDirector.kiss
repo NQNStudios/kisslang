@@ -57,7 +57,7 @@
         ->choice
             (case choice
                 ("Resume" (resume))
-                ("Options" null) // TODO
+                ("Options" (MenuState.optionsMenu ->(showPauseMenu resume)))
                 ("Main Menu" (FlxG.switchState (new MenuState)))
                 ("Quit to Desktop" (Sys.exit 0))
                 (never otherwise))))
