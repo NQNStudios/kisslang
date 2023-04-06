@@ -48,13 +48,17 @@
     )
 
 (method :Void showPauseMenu [:Continuation resume]
-    // TODO register escape to resume (and register escape to pause when resuming lol)
+    // register escape to resume (and register escape to pause when resuming lol)
+    (sh.registerItem "{escape} resume" ->cc {
+        (sh.registerItem "{escape} pause" ->cc (showPauseMenu cc) true)
+        (resume)
+    } true)
     (chooseString "PAUSED" ["Resume" "Options" "Main Menu" "Quit to Desktop"]
         ->choice
             (case choice
                 ("Resume" (resume))
                 ("Options" null) // TODO
-                ("Main Menu" null) // TODO
+                ("Main Menu" (FlxG.switchState (new MenuState)))
                 ("Quit to Desktop" (Sys.exit 0))
                 (never otherwise))))
 
