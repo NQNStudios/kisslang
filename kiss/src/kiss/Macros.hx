@@ -494,8 +494,11 @@ class Macros {
             }
 
             macroCallForm += ')';
-            if (optIndex == -1)
+            if (optIndex == -1) {
                 optIndex = minArgs;
+            } else if (restIndex == -1) {
+                restIndex = optIndex + 1;
+            }
             if (restIndex == -1)
                 restIndex = optIndex;
 
