@@ -52,6 +52,8 @@
             (set lastInstructionPointer -2)
             (collectedBlocks cleanup))
         (doCleanup)
+        (when onComplete
+            (onComplete))
     })
 
 (defReaderMacro &bof "" [stream] `(#when (StringTools.contains kissFile className) (doPreload cc)))

@@ -141,6 +141,7 @@
                             cc))))))
 
     (prop &mut :Bool paused false)
+    (prop &mut :Continuation onComplete null)
 
     (method pause []
         (unless paused
