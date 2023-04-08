@@ -34,18 +34,14 @@
     (doFor sound currentSounds
         (sound.pause))
     (when music
-        (music.pause))
-    // TODO tweens
-    )
+        (music.pause)))
 
 (method :Void resume []
     (FlxG.inputs.add actionManager)
     (doFor sound currentSounds
         (sound.resume))
     (when music
-        (music.resume))
-    // TODO tweens
-    )
+        (music.resume)))
 
 (method :Void showPauseMenu [:Continuation resume]
     // register escape to resume (and register escape to pause when resuming lol)
@@ -440,8 +436,7 @@
 (method :Void hideBlackScreen []
     (FlxG.state.remove blackBG))
 
-// TODO maybe credits need their own substate so an after-credits scene could be done.
-// currently the bg will cover whatever the final scene was.
+// TODO currently the bg will cover whatever the final scene was - making after credits scenes impossible
 (method :Void rollCredits [:Array<CreditsLine> credits cc]
     (localVar bg (new FlxSprite))
     (bg.makeGraphic FlxG.width FlxG.height FlxColor.BLACK true)
@@ -489,4 +484,10 @@
     (doFor text creditsText
         (FlxG.state.add text)
         (set text.cameras [flxMovie.uiCamera])
-        (FlxTween.linearMotion text text.x text.y text.x (- text.y textY) 200 false (object onComplete ->:Void _ (cc)))))
+        (let [:Array<Dynamic> tweenArgs []]
+            (tweenArgs.push text)
+            (tweenArgs.push text.x)
+            (tweenArgs.push (- text.y textY))
+            (tweenArgs.push 200)
+            (tweenArgs.push cc)
+            (Reflect.callMethod flxMovie (Reflect.field flxMovie "linearMotion") tweenArgs))))

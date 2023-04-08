@@ -11,6 +11,7 @@ import hollywoo_flixel.ActorFlxSprite;
 import kiss_flixel.SpriteTools;
 import kiss_tools.FlxKeyShortcutHandler;
 import openfl.Assets;
+import flixel.tweens.FlxTween;
 
 /**
  * Model/controller of a Hollywoo-Flixel film, and main execution script
@@ -28,6 +29,8 @@ class FlxMovie extends Movie<FlxSprite, ActorFlxSprite, FlxSound, String, FlxSpr
     }
     public var uiCamera:FlxCamera;
     public var screenCamera:FlxCamera;
+    
+    public var tweens:Array<FlxTween> = [];
 
     public var STAGE_LEFT_X:Float;
     public var STAGE_RIGHT_X:Float;

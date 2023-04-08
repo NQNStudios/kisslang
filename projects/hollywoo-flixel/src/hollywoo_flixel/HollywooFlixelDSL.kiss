@@ -4,6 +4,25 @@
 (loadFrom "hollywoo" "src/hollywoo/Movie.kiss")
 (loadFrom "hollywoo-flixel" "src/hollywoo_flixel/Aliases.kiss")
 
+(method :Dynamic callPrivate [:Dynamic obj :String method &rest :Array<Dynamic> args]
+    (Reflect.callMethod obj (Reflect.field obj method) args))
+
+(method tween [:FlxTween tween]
+    (callPrivate FlxTween.globalManager "remove" tween false)
+    (tweens.push tween))
+(method :TweenOptions tweenOpts [&opt :Void->Void cc]
+    (object
+        onComplete 
+            ->:Void tween {
+                            (tweens.remove tween)
+                            (when cc (cc))
+                        }))
+
+(method linearMotion [:FlxSprite sprite :Float destX :Float destY :Float speed &opt :Void->Void cc]
+    (tween
+        (FlxTween.linearMotion sprite sprite.x sprite.y destX destY speed false (tweenOpts cc))))
+(defAlias &ident FlxTween.linearMotion CHANGE_TO_MOVIE_LINEARMOTION)
+
 (method newFlxSet [name assetPath]
     (let [setSprite (new FlxSprite 0 0)]
         (setSprite.loadGraphic assetPath false 0 0 true) // Load uniquely so we can draw on sets for specific scenes
@@ -39,6 +58,9 @@
     `(new FlxSprite 0 0 ,(b.field (symbolNameValue asset) (b.symbol "AssetPaths"))))
 
 (method :Void update [:Float elapsed]
+    (unless paused
+        (doFor tween tweens
+            (callPrivate tween "update" elapsed )))
     (.update (cast (director.shortcutHandler) kiss_tools.FlxKeyShortcutHandler<Dynamic>)))
 
 (defAlias &ident flxDirector (cast director FlxDirector))
