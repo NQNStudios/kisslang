@@ -169,12 +169,29 @@ class Helpers {
                         throw KissError.fromExp(funcArg, "lambda does not support &rest arguments");
                     }
 
+                    var typeOfRestArg = explicitTypeString(funcArg);
+                    var isDynamicArray = switch (typeOfRestArg) {
+                        case "Array<Dynamic>" | "kiss.List<Dynamic>" | "List<Dynamic>":
+                            true;
+                        default:
+                            false;
+                    };
+
                     // rest arguments define a Kiss special form with the function's name that wraps
                     // the rest args in a list when calling it from Kiss
                     k.specialForms[funcName] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
                         var realCallArgs = args.slice(0, numArgs);
                         var restArgs = args.slice(numArgs);
-                        realCallArgs.push(ListExp(restArgs).withPosOf(wholeExp));
+                        var arg = if (isDynamicArray) {
+                            var b = funcArg.expBuilder();
+                            b.let([b.typed("Array<Dynamic>", b.symbol("args")), b.list([])], [
+                                for (arg in restArgs)
+                                    b.callField("push", b.symbol("args"), [arg])
+                            ].concat([b.symbol("args")]));
+                        } else {
+                            ListExp(restArgs).withPosOf(wholeExp);
+                        }
+                        realCallArgs.push(arg);
                         ECall(k.convert(Symbol(funcName).withPosOf(wholeExp)), realCallArgs.map(k.convert)).withMacroPosOf(wholeExp);
                     };
 
