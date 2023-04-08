@@ -76,6 +76,8 @@
         (set skySprite (new FlxSprite))
         (skySprite.makeGraphic (Std.int setSprite.width) (Std.int setSprite.height) skyColor true)
         (set skySprite.cameras [camera])
+        (set skySprite.x setSprite.x)
+        (set skySprite.y setSprite.y)
         (FlxG.state.add skySprite))
 
     (FlxG.cameras.remove flxMovie.uiCamera false)
