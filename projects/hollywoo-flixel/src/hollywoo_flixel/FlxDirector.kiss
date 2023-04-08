@@ -33,15 +33,23 @@
     (FlxG.inputs.remove actionManager)
     (doFor sound currentSounds
         (sound.pause))
+    (doFor track currentVoiceTracks
+        (track.pause))
     (when music
         (music.pause)))
 
+(method resumeAndUpdateCurrentVolume [:Array<FlxSound> sounds :Float newVolume]
+    (doFor sound sounds
+        (let [[original mod] (dictGet currentSoundVolumes sound)]
+            (set sound.volume (* original mod newVolume))
+            (sound.resume))))
+
 (method :Void resume []
     (FlxG.inputs.add actionManager)
-    (doFor sound currentSounds
-        (sound.resume))
+    (resumeAndUpdateCurrentVolume currentSounds soundVolume)
+    (resumeAndUpdateCurrentVolume currentVoiceTracks voiceVolume)
     (when music
-        (music.resume)))
+        (resumeAndUpdateCurrentVolume [music] musicVolume)))
 
 (method :Void showPauseMenu [:Continuation resume]
     // register escape to resume (and register escape to pause when resuming lol)
@@ -53,7 +61,9 @@
         ->choice
             (case choice
                 ("Resume" (resume))
-                ("Options" (MenuState.optionsMenu ->(showPauseMenu resume)))
+                ("Options"
+                    (sh.registerItem "{escape} nil" ->cc {} true)
+                    (MenuState.optionsMenu ->(showPauseMenu resume)))
                 ("Main Menu" (FlxG.switchState (new MenuState)))
                 ("Quit to Desktop" (Sys.exit 0))
                 (never otherwise))))
@@ -122,7 +132,7 @@
         0.8
         0.8
         true
-        "escape"
+        ""
         "left"
         "right"))
 
@@ -329,15 +339,20 @@
     (speakerNameText.kill)
     (dialogBox.kill))
 
+(savedVar :Float soundVolume 1.0)
+
 (prop :Array<FlxSound> currentSounds [])
+(prop :Map<FlxSound,Array<Float>> currentSoundVolumes (new Map))
 (method :Void playSound [:FlxSound sound :Float volumeMod :Bool waitForEnd :Continuation cc]
     (let [originalVolume sound.volume
             onComplete ->{
                             (currentSounds.remove sound)
+                            (currentSoundVolumes.remove sound)
                             (set sound.volume originalVolume)
                             (when waitForEnd (cc))
                         }]
-        (*= sound.volume volumeMod)
+        (dictSet currentSoundVolumes sound [originalVolume volumeMod])
+        (*= sound.volume volumeMod soundVolume)
         (set sound.onComplete onComplete))
     (currentSounds.push sound)
     (sound.play)
@@ -347,38 +362,48 @@
     (currentSounds.remove sound)
     (sound.stop))
 
+(savedVar :Float voiceVolume 1.0)
+
+(prop :Array<FlxSound> currentVoiceTracks [])
 (var DELAY_BETWEEN_VOICE_TRACKS 0.1)
 (prop :Map<FlxSound,Function> restoreOriginalVolumes (new Map))
 (method :Void playVoiceTrack [:FlxSound track :Float volumeMod :Float start :Float end :Continuation cc]
     (let [originalVolume track.volume
-            restoreOriginalVolume ->(set track.volume originalVolume)]
+            restoreOriginalVolume ->{(set track.volume originalVolume)(currentSoundVolumes.remove track)}]
+        (dictSet currentSoundVolumes track [originalVolume volumeMod])
         (dictSet restoreOriginalVolumes track restoreOriginalVolume)
-        (*= track.volume volumeMod)
+        (*= track.volume volumeMod voiceVolume)
         (set track.onComplete ->{
-                                    currentSounds.remove track
+                                    (currentVoiceTracks.remove track)
                                     (restoreOriginalVolume)
                                     (movie.delay DELAY_BETWEEN_VOICE_TRACKS cc)
                                 }))
-    (currentSounds.push track)
+    (currentVoiceTracks.push track)
     (track.play true (* 1000 start) (* 1000 end)))
 
 (method :Void stopVoiceTrack [:FlxSound track]
-    (currentSounds.remove track)
+    (currentVoiceTracks.remove track)
     (track.stop)
     ((dictGet restoreOriginalVolumes track)))
 
 (prop &mut :FlxSound music)
 (prop MUSIC_FADE_SEC 1)
 (prop MUSIC_FADE_STEPS 10)
+(savedVar :Float musicVolume 1.0)
+
 (method :Void playSong [:String song :Float volumeMod :Bool loop :Bool waitForEnd :Continuation cc]
     (let [onFinish ->{
+                        (currentSoundVolumes.remove music)
                         (set music null)
                         (when waitForEnd (cc))
                     }]
         (set music (FlxG.sound.play song 0 loop null true onFinish))
+        (dictSet currentSoundVolumes music [0 volumeMod])
         (.start (new FlxTimer)
             (/ MUSIC_FADE_SEC MUSIC_FADE_STEPS)
-            ->:Void _ (+= music.volume (/ volumeMod MUSIC_FADE_STEPS))
+            ->:Void _ (let [originalVolumeSet (dictGet currentSoundVolumes music)]
+                            (+= (first originalVolumeSet) (/ 1.0 MUSIC_FADE_STEPS))
+                            (set music.volume (* (first originalVolumeSet) volumeMod musicVolume)))
             MUSIC_FADE_STEPS)
         (set music.persist true)
         (unless waitForEnd (cc))))
