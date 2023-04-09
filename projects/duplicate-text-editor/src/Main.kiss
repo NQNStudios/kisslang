@@ -1,0 +1,97 @@
+(loadFrom "kiss-vscode-api" "src/Util.kiss")
+(loadFrom "kiss-vscode-api" "src/KissUtil.kiss")
+
+(function :kiss.List<Dynamic>->Bool matchesLine [ltrimmedLine]
+    ->[:Array<Dynamic> lineAndIndex]
+        (let [[:Int index :String line] lineAndIndex]
+            (= (line.ltrim) ltrimmedLine)))
+
+(function :Null<Int> indentationDeltasMatch [:Array<String> indentation1 :Array<String>> indentation2]
+    "If indentation follows the same pattern, return the first lowest level of the second one"
+    (let [lengths (for list [indentation1 indentation2] (for line list line.length))
+            deltaLists (for list lengths ~(for [from to] (pairs list) (- to from)))
+            :Array<Array<Int>> zipped (apply zip deltaLists)]
+        (doFor [a b] zipped
+            (unless (= a b)
+                (return null)))
+        (apply min (second lengths))))
+
+@(:expose "activate")
+(function activate [:ExtensionContext context]
+    (printThroughInfoMessage)
+    // Add your extension's commands here with (defCommand <...>):
+    // (defCommand context yourExt.exampleCommand "An example command for your extension" "C-; C-1" [] (doSomething))
+    (defCommand context startEditingSelection "Edit the currently selected text wherever it occurs in your workspace" "C-; C-d" []
+        (assert activeTextEditor)
+        (assert activeTextEditor.selection)
+        (assert Vscode.workspace.workspaceFolders)
+        (let [start (activeTextEditor.selection.start.with (object line null character 0))
+                end (.with (activeTextEditor.selection.end.translate (object lineDelta 1 characterDelta null)) (object line null character 0))
+                :String originalText (activeTextEditor.document.getText (new Range start end))
+                originalLines (originalText.split "\n")
+                _empty (originalLines.pop)
+                ltrimmedLines (for line originalLines (line.ltrim))
+                originalIndentation (for [original ltrimmed] (zip originalLines ltrimmedLines) (original.substr 0 (- original.length ltrimmed.length)))
+                // Contains [file indentation index firstLine]
+                :Array<Array<Dynamic>> placesToEdit []]
+            (doFor folder Vscode.workspace.workspaceFolders
+                (walkDirectory "" folder.uri.fsPath
+                    ->file
+                        (let [lines (.split (sys.io.File.getContent file) "\n")
+                                enumeratedLines (enumerate lines)
+                                linesMatchingFirstLine
+                                    (filter enumeratedLines
+                                        (matchesLine (first ltrimmedLines)))]
+                            (localFunction matchesBlock [:Array<Dynamic> firstLineAndIndex]
+                                (let [indentation []
+                                        linesToCheck (enumerate (lines.slice (first firstLineAndIndex) (+ (first firstLineAndIndex) originalLines.length)))]
+                                    (unless (= linesToCheck.length originalLines.length)
+                                        (return null))
+                                    (doFor [index :String line] linesToCheck
+                                        (unless ((matchesLine (nth ltrimmedLines index)) (nth linesToCheck index))
+                                            (return null))
+                                        (indentation.push (line.substr 0 (- line.length .length (line.ltrim)))))
+                                    indentation))
+                            (doFor lineAndIndex linesMatchingFirstLine
+                                (whenLet [indentation (matchesBlock lineAndIndex)]
+                                    (lineAndIndex.unshift indentation)
+                                    (lineAndIndex.unshift file)
+                                    (placesToEdit.push lineAndIndex))))
+                    ->folder (case (haxe.io.Path.withoutDirectory folder)
+                        ((or "node_modules" "bin") true) // Don't recurse into node_modules or generated files
+                        // TODO make a list of folders to ignore part of extension configuration
+                        (otherwise false))))
+            (if placesToEdit
+                    {
+                        (doFor place placesToEdit
+                            (assert (indentationDeltasMatch originalIndentation (second place))))
+                        (print "Editing this text in ${placesToEdit.length} places.")
+                        (awaitLet [editedText (inputEditor "duplicateEditor.$(haxe.io.Path.extension activeTextEditor.document.fileName)" "Apply your edits" originalText)
+                            &sync editedLines (editedText.split "\n")
+                            &sync editedLtrimmedLines (for line editedLines (line.ltrim))
+                            &sync editedIndentation (for [edited ltrimmed] (zip editedLines editedLtrimmedLines) (edited.substr 0 (- edited.length ltrimmed.length)))
+                            &sync indentationChar (->{(doFor :String whitespace editedIndentation (when whitespace (return (whitespace.charAt 0)))) ""})
+                            &sync originalMinIndentation (apply min (for line originalIndentation line.length))
+                            &sync editedMinIndentation (apply min (for line editedIndentation line.length))]
+                                // Reverse placesToEdit so we edit files from end to start, preserving line number validity
+                                (doFor [file indentation blockLineNumber line] (reverse placesToEdit)
+                                    (let [minIndentation (indentationDeltasMatch originalIndentation indentation)
+                                            fileLines (.split (sys.io.File.getContent file) "\n")]
+                                        // TODO do this by opening all the files and using reversible edit operations
+                                        (fileLines.splice blockLineNumber originalLines.length)
+                                        (doFor [index line] (enumerate editedLtrimmedLines)
+                                            (fileLines.insert (+ blockLineNumber index) "$(* minIndentation indentationChar)$(* (- .length (nth editedIndentation index) editedMinIndentation) indentationChar)${line}"))
+                                        (sys.io.File.saveContent file (fileLines.join "\n")))))
+                        null
+                    }
+                (print "The selected text is not duplicated anywhere in your workspace folders (unless you are filtering it by accident!)."))
+            ))
+    // Add your extension's configuration here with (defConfiguration <...>):
+    // (defConfiguration 
+    //      :Bool configBool
+    //          (object
+    //              default false)
+    //      :String configString
+    //          (object
+    //              default ""))
+    )

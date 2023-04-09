@@ -1,0 +1,3 @@
+bin/
+*.vsix
+node_modules/

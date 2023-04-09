@@ -1,0 +1,37 @@
+{
+	"main": "bin/extension.js",
+	"name": "duplicate-text-editor",
+	"description": "",
+	"repository": {
+		"url": "",
+		"type:": "git"
+	},
+	"homepage": "",
+	"categories": [],
+	"extensionPack": [],
+	"publisher": "",
+	"contributes": {
+		"keybindings": [
+			{
+				"command": "duplicate-text-editor.startEditingSelection",
+				"mac": "Cmd+; Cmd+d",
+				"key": "Ctrl+; Ctrl+d"
+			}
+		],
+		"commands": [
+			{
+				"title": "duplicate-text-editor: Edit the currently selected text wherever it occurs in your workspace",
+				"command": "duplicate-text-editor.startEditingSelection"
+			}
+		]
+	},
+	"engines": {
+		"vscode": "^1.4.0"
+	},
+	"devDependencies": {
+		"vsce": "^2.15.0"
+	},
+	"version": "0.0.0",
+	"activationEvents": [],
+	"displayName": ""
+}

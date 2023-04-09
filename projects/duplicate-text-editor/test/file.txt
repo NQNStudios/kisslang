@@ -1,0 +1,4 @@
+    Contains duplicated text.
+                        A block of duplicated text.
+                        Containing 3 separate lines.
+    
