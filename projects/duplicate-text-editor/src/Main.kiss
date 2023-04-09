@@ -9,7 +9,7 @@
 (function :Null<Int> indentationDeltasMatch [:Array<String> indentation1 :Array<String>> indentation2]
     "If indentation follows the same pattern, return the first lowest level of the second one"
     (let [lengths (for list [indentation1 indentation2] (for line list line.length))
-            deltaLists (for list lengths ~(for [from to] (pairs list) (- to from)))
+            deltaLists (for list lengths (for [from to] (pairs list) (- to from)))
             :Array<Array<Int>> zipped (apply zip deltaLists)]
         (doFor [a b] zipped
             (unless (= a b)
@@ -61,12 +61,12 @@
                         ((or "node_modules" "bin") true) // Don't recurse into node_modules or generated files
                         // TODO make a list of folders to ignore part of extension configuration
                         (otherwise false))))
-            (if placesToEdit
+            (if (placesToEdit.slice 1)
                     {
                         (doFor place placesToEdit
                             (assert (indentationDeltasMatch originalIndentation (second place))))
                         (print "Editing this text in ${placesToEdit.length} places.")
-                        (awaitLet [editedText (inputEditor "duplicateEditor.$(haxe.io.Path.extension activeTextEditor.document.fileName)" "Apply your edits" originalText)
+                        (awaitLet [editedText (inputEditor "duplicateEditor.$(haxe.io.Path.extension activeTextEditor.document.fileName)" "Apply your edits" (substr originalText 0 -1))
                             &sync editedLines (editedText.split "\n")
                             &sync editedLtrimmedLines (for line editedLines (line.ltrim))
                             &sync editedIndentation (for [edited ltrimmed] (zip editedLines editedLtrimmedLines) (edited.substr 0 (- edited.length ltrimmed.length)))
