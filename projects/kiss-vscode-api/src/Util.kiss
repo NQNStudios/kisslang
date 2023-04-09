@@ -334,26 +334,25 @@
     (insertAt activeTextEditor.selection.active text))
 
 // Way to more forgivingly get long text inputs
-(function :js.lib.Promise<String> inputEditor [:String filename :String prompt]
+(function :js.lib.Promise<String> inputEditor [:String filename :String prompt &opt :String defaultContent]
     (let [previousEditor activeTextEditor
-            tempFile (joinPath (userHome) "Documents" filename)
-            uri (if (sys.FileSystem.exists tempFile)
-                        (Uri.parse "file:$tempFile")
-                    (Uri.parse "untitled:$tempFile"))]
-        (new js.lib.Promise
-            ->[resolve reject]
-                (awaitLet [doc (openTextDocument uri)
-                            _ (doc.save)
-                            editor (showTextDocument doc)]
-                    (print "Enter ${prompt}, then save and close this editor.")
-                    (let [&mut :Disposable closeEvent null]
-                        (set closeEvent
-                            (Vscode.window.onDidChangeVisibleTextEditors
-                                ->visibleEditors
-                                    (unless (contains visibleEditors editor)
-                                        (closeEvent.dispose)
-                                        (awaitLet [_ (showTextDocument previousEditor.document)]
-                                            (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText))))))))))))
+            tempFile (joinPath (userHome) "Documents" filename)]
+        (sys.io.File.saveContent tempFile (or defaultContent ""))
+        (let [uri (Uri.parse "file:$tempFile")]
+            (new js.lib.Promise
+                ->[resolve reject]
+                    (awaitLet [doc (openTextDocument uri)
+                                _ (doc.save)
+                                editor (showTextDocument doc)]
+                        (print "Enter ${prompt}, then save and close this editor.")
+                        (let [&mut :Disposable closeEvent null]
+                            (set closeEvent
+                                (Vscode.window.onDidChangeVisibleTextEditors
+                                    ->visibleEditors
+                                        (unless (contains visibleEditors editor)
+                                            (closeEvent.dispose)
+                                            (awaitLet [_ (showTextDocument previousEditor.document)]
+                                                (if editor.document.isDirty (let [error "Input editor for $prompt was closed without saving."] (warningMessage error) (reject error)) (resolve (editor.document.getText)))))))))))))
 
 // Open any folder in a fresh VSCode instance.
 (function openFolder [folder]
