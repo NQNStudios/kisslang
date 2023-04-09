@@ -5,7 +5,7 @@
 (function activate [:ExtensionContext context]
     (printThroughInfoMessage)
     // Add your extension's commands here with (defCommand <...>):
-    // (defCommand context yourExt.exampleCommand "An example command for your extension" "C-; C-1" [] (doSomething))
+    // (defCommand context exampleCommand "An example command for your extension" "C-; C-1" [] (doSomething))
     
     // Add your extension's configuration here with (defConfiguration <...>):
     // (defConfiguration 

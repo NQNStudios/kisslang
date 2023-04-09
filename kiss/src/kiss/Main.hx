@@ -215,6 +215,7 @@ class Main {
         var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissVscodeApiLibPath, _, workingDir, title, pkg);
         var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissVscodeApiLibPath, _, workingDir, title, pkg);
         makeFolderForNewProject(["src"]);
+        makeFolderForNewProject([".vscode"]);
         makeFileForNewProject([".gitignore"]);
         makeFileForNewProject([".vscodeignore"]);
         makeFileForNewProject(["README.md"]);
