@@ -119,7 +119,21 @@ class SpecialForms {
 
         k.doc("set", 2, 2, "(set <variable> <value>)");
         map["set"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {
-            EBinop(OpAssign, k.convert(args[0]), k.convert(args[1])).withMacroPosOf(wholeExp);
+            // Special case: (set ~var value)
+            var printExp = null;
+            var setVar = switch (args[0].def) {
+                case CallExp({def:Symbol("print" | "Prelude.print" | "trace")}, printArgs):
+                    printExp = args[0];
+                    printArgs[0];
+                default:
+                    args[0];
+            }
+            var setExp = EBinop(OpAssign, k.convert(setVar), k.convert(args[1])).withMacroPosOf(wholeExp);
+            if (printExp != null) {
+                EBlock([k.convert(printExp), setExp]).withMacroPosOf(wholeExp);
+            } else {
+                setExp;
+            }
         };
 
         function varName(nameExp:ReaderExp) {

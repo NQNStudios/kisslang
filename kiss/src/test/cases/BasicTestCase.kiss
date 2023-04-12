@@ -961,3 +961,12 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
                         (Assert.fail))
                     e)
                 (Assert.fail)))))
+        
+
+(function _testQuickPrintOnSetVar []
+    (let [&mut v 5]
+        (set (trace v) 7)
+        (set (print v) 8)
+        (set (Prelude.print v) 9)
+        (set ~v 6)
+        (Assert.equals v 6)))

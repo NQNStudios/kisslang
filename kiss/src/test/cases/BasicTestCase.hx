@@ -439,6 +439,10 @@ class BasicTestCase extends Test {
         _testCaseMacroError();
     }
 
+    function testQuickPrintOnSetVar() {
+        _testQuickPrintOnSetVar();
+    }
+
     var aNullToPrint = null;
 }
 
