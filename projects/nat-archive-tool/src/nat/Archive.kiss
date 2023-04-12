@@ -98,7 +98,7 @@
         (gitDo ["add" "playgrounds.json"])
         (gitDo ["add" "entries"])
         (gitDo ["add" "files"])
-        (gitDo ["commit" "-m" "$(Date.now)"])
+        (gitDo ["commit" "--no-verify" "-m" "$(Date.now)"])
         (gitDo ["push"])))
 
 (method fullString [:Entry e]
