@@ -320,7 +320,7 @@
     (localFunction addColorTagSystems [:Map<String,nat.components.ColorI> info]
         (let [colors (collect (info.iterator))]
             (doFor =>tagExp color info
-                (archive.addSystem (new TagSystem tagExp ->[archive e &opt ui]
+                (archive.addSystem (new TagSystem "ColorTagSystem{${tagExp}}" tagExp ->[archive e &opt ui]
                     (when (or !(hasComponent e ColorI) (colorsContain colors (readComponent e ColorI)))
                         (AddColorIRGBA [e] color.r color.g color.b color.a)))))))
     (addColorTagSystems [

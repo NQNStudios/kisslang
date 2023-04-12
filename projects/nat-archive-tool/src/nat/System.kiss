@@ -2,9 +2,11 @@
 
 (method :Void process [:Archive archive &opt :ArchiveUI ui]
     (doFor e (entries.iterator)
+        (print "${name} processing ${e.id}")
         (processEntry archive e ui)))
 
-(defNew [&prop :EntryChecker canProcessEntry
+(defNew [&prop :String name
+            &prop :EntryChecker canProcessEntry
             &prop :EntryProcessor processEntry]
     [])
 

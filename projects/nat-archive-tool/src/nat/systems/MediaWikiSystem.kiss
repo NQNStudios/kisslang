@@ -1,11 +1,13 @@
 (load "../Lib.kiss")
 
-(defNew [&prop :String mediaWikiUrl
+(defNew [:String name
+            &prop :String mediaWikiUrl
             // TODO make a &super annotation that passes an argument to the super constructor
             :EntryChecker canProcess
             :EntryProcessor processor
             &prop :Null<Float> maxLag] 
     (super
+        name
         canProcess
         processor))
 

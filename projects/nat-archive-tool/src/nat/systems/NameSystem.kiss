@@ -5,6 +5,7 @@
 // Stores a case-insensitive map of named entries, for instant lookup by name
 (defNew []
     (super
+        "NameSystem"
         ->[archive e] (hasComponent e Name)
         ->[archive e &opt ui] (let [name (readComponent e Name)]
                              (if (entriesByName.exists (name.toLowerCase))

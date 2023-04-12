@@ -5,6 +5,7 @@
 (defNew [&prop :ArchiveController controller]
     [&mut :Bool setup false]
     (super
+        "KeyShortcutSystem"
         ->[archive e]
             (hasComponent e KeyShortcut)
         ->[archive e &opt ui]

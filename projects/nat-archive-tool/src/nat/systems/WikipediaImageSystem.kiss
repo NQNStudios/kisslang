@@ -2,6 +2,7 @@
 
 (defNew []
     (super
+        "WikipediaImageSystem"
         "https://en.wikipedia.org/w/api.php"
         ->[archive e] (tagsMatch e "(and media !wikipediaProcessed)")
         scrapeForImages

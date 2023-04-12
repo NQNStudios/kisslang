@@ -1,10 +1,12 @@
 (load "../Lib.kiss")
 
-(defNew [:Array<String> _extensions
+(defNew [:String name
+            :Array<String> _extensions
             :AttachmentProcessor processor]
     [:Array<String> extensions (for extension _extensions (extension.toLowerCase))]    
     
     (super
+        name
         ->[archive e]
             {
                 (doFor file e.files

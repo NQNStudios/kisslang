@@ -11,7 +11,8 @@
 (prop :Map<String,ColorF> playgroundBGColors (new Map))
 (prop :Map<String,EntryRep> entryReps (new Map))
 
-(defNew [&prop :ArchiveUI ui
+(defNew [:String name
+            &prop :ArchiveUI ui
             :EntryChecker canProcess
             &prop :PlaygroundEntryProcessor createEntryRep
             &prop :PlaygroundConnectionProcessor connectionProcessor
@@ -24,6 +25,7 @@
                     (dictSet entryReps e.id eRep)))]
 
     (super
+        name
         ->[archive e]
             (or (tagsMatch e "playground")
                 (and (tagsMatch e "!(or done hidden)") (canProcess archive e)))

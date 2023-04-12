@@ -2,6 +2,7 @@
 
 (defNew [] 
     (super
+        "RemarkableAPISystem"
         ->[archive e] false
         ->[archive e &opt ui] null)
         

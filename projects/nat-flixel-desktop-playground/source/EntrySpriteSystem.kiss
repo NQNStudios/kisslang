@@ -3,6 +3,7 @@
 (defNew [&prop :PlayState playState
             :ArchiveController controller]
     (super
+        "EntrySpriteSystem"
         playState
         ->[archive e]
             ?(or (hasComponent e Name) (hasComponent e Circle) (hasComponent e Rectangle))

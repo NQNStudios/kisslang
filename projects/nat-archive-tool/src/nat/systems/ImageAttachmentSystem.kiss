@@ -2,6 +2,7 @@
 
 (defNew []
     (super
+        "ImageAttachmentSystem"
         ["jpg" "jpeg" "png" "svg"]
         ->[archive e imageFiles &opt ui]
             (unless (upgradeToVersion2 archive e)  

@@ -3,6 +3,7 @@
 (defNew []
     [:String jarPath (joinPath (libPath "nat-archive-tool") "apps/autostepper/AutoStepper.jar")]
     (super
+        "AutoStepperSystem"
         ["mp3"]
         ->[archive e mp3Files &opt ui] 
             (unless (tagsMatch e "stepperProcessed")
