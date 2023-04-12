@@ -155,6 +155,11 @@
             })
         (FlxG.state.add screen)))
 
+(method :Void defineStagePosition [:StagePosition->Void submit]
+    (defineFlxPoint
+        ->point
+            (submit (new StagePosition point.x point.y 0.0))))
+
 (method :Void defineLightSource [:FlxLightSource->Void submit]
     (let [points []]
         (withFunctions

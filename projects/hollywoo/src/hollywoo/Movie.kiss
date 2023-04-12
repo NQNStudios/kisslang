@@ -155,9 +155,13 @@
             (director.resume)
             (TimerWithPause.resume)))
 
+    (prop :Map<String,Array<String>> positionsInScene (new Map))
     (method resolvePosition [:Dynamic position]
         (typeCase [position]
             ([:String positionKey]
+                (let [positionsInThisScene (dictGet positionsInScene sceneKey)]
+                    (unless (positionsInThisScene.contains positionKey)
+                        (positionsInThisScene.push positionKey)))
                 (stagePositions.get positionKey))
             ([:StagePosition position]
                 position)
@@ -203,6 +207,15 @@
                 ->cc (director.showPauseMenu cc))
             
             (#when debug
+                (shortcutHandler.registerItem "[d]efine [p]osition"
+                    ->cc
+                        (director.chooseString "Which position?" (dictGet positionsInScene sceneKey)
+                            ->positionKey
+                                (director.defineStagePosition
+                                    ->[:StagePosition position] {
+                                        (stagePositions.put positionKey position)
+                                        (cc)
+                                    })))
                 (shortcutHandler.registerItem "[d]efine [l]ight source"
                     ->cc
                         (director.defineLightSource
@@ -319,6 +332,8 @@
     (_hideCurrentScene
         (makeCC
             (set sceneKey name)
+            (unless (positionsInScene.exists sceneKey)
+                (dictSet positionsInScene sceneKey []))
             (_showScene
                 (dictGet scenes name)
                 (appearanceFlag shownScenes name)
