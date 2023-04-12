@@ -169,6 +169,7 @@
         {
             (engine.clear)
             (engine.println "All cards studied")
+            (engine.promptForRefresh ->(studyAll engine))
         }))
 
 (defReaderMacro ["*" "?"] [stream &builder b]

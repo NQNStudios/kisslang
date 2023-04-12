@@ -43,11 +43,15 @@
 (method :Void showImage [path] 
     (+= content "<img src=\"/static/${path}\" /><br />"))
 
-(method :Void delayForUserInput [cc]
+(method :Void delayForUserInput [cc &opt :String text]
     (set this.cc cc)
-    (+= content "<br /><a href=\"/continue\">Next</a><br />"))
+    (unless text
+        (set text "Next"))
+    (+= content "<br /><a href=\"/continue\">${text}</a><br />"))
 
 (method :Void getUserInput [resolve]
     (set this.resolve resolve)
     (+= content "<br /><input type=\"text\" id=\"value\"><br /><button onclick=\"window.open('/submit?value=' + document.getElementById('value').value, '_self');\">Submit</a><br />"))
 
+(method :Void promptForRefresh [refresh]
+    (delayForUserInput refresh "Refresh"))

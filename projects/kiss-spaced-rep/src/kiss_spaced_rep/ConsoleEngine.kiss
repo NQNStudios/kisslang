@@ -28,3 +28,5 @@
 
 (method :Void getUserInput [resolve]
     (resolve (.readLine (Sys.stdin))))
+
+(method :Void promptForRefresh [:Void->Void refresh] null)
