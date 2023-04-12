@@ -10,11 +10,17 @@
 
 (defMacro forceUpdateFailure [error]
     `{
+        (statusBarItem.hide)
+        (statusBarItem.dispose)
         (handleUpdateFailure ,error)
         (return)
     })
 
+(var &mut :StatusBarItem statusBarItem null)
 (defCommand context updateExtension "Update and reinstall the Kiss-Vscode extension you are editing" "C-; C-u" []
+    (set statusBarItem (Vscode.window.createStatusBarItem))
+    (set statusBarItem.text "\$(loading~spin) Compiling extension")
+    (statusBarItem.show)
     (if (= "Windows" (Sys.systemName))
             (trySpawnSync "cmd.exe" ["/c" "npm" "install"] (options) forceUpdateFailure)
         (trySpawnSync "npm" ["install"] (options) forceUpdateFailure))
@@ -22,8 +28,14 @@
     (awaitLet [_ (executeCommand 
                         "workbench.extensions.command.installFromVSIX"
                         (Uri.file (joinPath (extensionPath) (last (filter (FileSystem.readDirectory (extensionPath)) ->file (file.endsWith ".vsix"))))))]
+
             (catch [error]
-                (handleUpdateFailure error)))
+                (statusBarItem.hide)
+                (statusBarItem.dispose)
+                (handleUpdateFailure error))
+                
+            (statusBarItem.hide)
+            (statusBarItem.dispose))
         
         {}
     null)
