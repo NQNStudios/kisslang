@@ -95,7 +95,7 @@
         (gitDo ["add" "playgrounds.json"])
         (gitDo ["add" "entries"])
         (gitDo ["add" "files"])
-        (gitDo ["commit" "--no-verify" "-m" "$(Date.now)"])
+        (gitDo ["commit" "--no-verify" "--allow-empty" "-m" "$(Date.now)"])
         (gitDo ["push"])))
 
 (method _saveEntry [:Entry e]
