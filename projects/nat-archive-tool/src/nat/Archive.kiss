@@ -39,7 +39,8 @@
 
 (method changePlaygrounds [:Dynamic->Void change]
     (change playgrounds)
-    (File.saveContent (joinPath archiveDir "playgrounds.json") (haxe.Json.stringify playgrounds "\t")))
+    (File.saveContent (joinPath archiveDir "playgrounds.json") (haxe.Json.stringify playgrounds "\t"))
+    (gitSync))
 
 (method :String currentPlayground []
     (dictGet playgrounds "default"))
@@ -87,11 +88,7 @@
     (doFor system systems
         (system.checkEntryInOrOut this e)))
 
-(method _saveEntry [:Entry e]
-    (File.saveContent
-        (joinPath archiveDir "entries" (e.id.withExtension "json"))
-        (tink.Json.stringify e))
-
+(method gitSync []
     // Sync with git if the archive is a repository:
     (whenLet [(Some gitDir) gitDir
                 gitDo ->gitArgs (assertProcess "git" gitArgs [] true archiveDir)]
@@ -100,6 +97,12 @@
         (gitDo ["add" "files"])
         (gitDo ["commit" "--no-verify" "-m" "$(Date.now)"])
         (gitDo ["push"])))
+
+(method _saveEntry [:Entry e]
+    (File.saveContent
+        (joinPath archiveDir "entries" (e.id.withExtension "json"))
+        (tink.Json.stringify e))
+    (gitSync))
 
 (method fullString [:Entry e]
     (haxe.Json.stringify e null "\t"))
