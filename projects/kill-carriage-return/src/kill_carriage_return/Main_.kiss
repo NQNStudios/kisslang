@@ -11,7 +11,7 @@
         ->:Void file
             (when (contains extensions (file.extension))
                 ((if _kill kill stun) file))
-        ->:Void dir 0
+        ->dir false
         ->:Void dir 0)
     (when stunnedFiles
         (print "Windows line ending(s) detected in:")
