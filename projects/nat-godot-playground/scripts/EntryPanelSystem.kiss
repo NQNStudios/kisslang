@@ -4,6 +4,7 @@
 (defNew [&prop :GodotUI godotUI
             &prop :RootNode rootNode]
     (super
+        "Godot EntryPanelSystem"
         godotUI
         ->[archive e] (hasComponent e Name)
         // Create Entry node:
