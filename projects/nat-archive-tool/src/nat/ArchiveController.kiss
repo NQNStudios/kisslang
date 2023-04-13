@@ -158,7 +158,7 @@
             (when (hasComponent e Tags)
                 (doFor =>tag _ (readComponent e Tags)
                     (dictSet tags tag 1))))
-        (collect (tags.keys))))
+        (sort (collect (tags.keys)))))
 
 (method :Array<String> allSelectedTags []
     (allTags _selectedEntries))
@@ -497,7 +497,7 @@
     (defCommand ChoosePlayground []
         (ui.chooseBetweenStrings
             "Choose a playground:"
-            (for =>key _ archive.playgrounds (if (= key "default") (continue) key))
+            (sort (for =>key _ archive.playgrounds (if (= key "default") (continue) key)))
             ->pg (SwitchPlayground pg))
         [])
         
