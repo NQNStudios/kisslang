@@ -75,4 +75,5 @@ jobs:
       # run target test:
       - run: echo "${{ matrix.test-target }}" >> $GITHUB_ENV
       - run: ./test.sh
+        shell: bash
       
