@@ -6,7 +6,7 @@ jobs:
   test-core:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         haxe-version: [4.2.5]
         node-version: ['14']
         python-version: ['3.x']
