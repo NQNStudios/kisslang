@@ -23,6 +23,10 @@
         (FlxTween.linearMotion sprite sprite.x sprite.y destX destY speed false (tweenOpts cc))))
 (defAlias &ident FlxTween.linearMotion CHANGE_TO_MOVIE_LINEARMOTION)
 
+(method linearMotionTo [:FlxSprite sprite :String positionKey :Float speed &opt :Void->Void cc]
+    (let [position (resolvePosition positionKey)]
+        (linearMotion sprite position.x position.y speed cc)))
+
 (method newFlxSet [name assetPath]
     (let [setSprite (new FlxSprite 0 0)]
         (setSprite.loadGraphic assetPath false 0 0 true) // Load uniquely so we can draw on sets for specific scenes
