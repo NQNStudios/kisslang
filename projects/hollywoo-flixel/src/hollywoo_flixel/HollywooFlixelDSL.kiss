@@ -64,7 +64,9 @@
 (method :Void update [:Float elapsed]
     (unless paused
         (doFor tween tweens
-            (callPrivate tween "update" elapsed )))
+            (callPrivate tween "update" elapsed)
+            (when tween.finished
+                (callPrivate tween "finish"))))
     (.update (cast (director.shortcutHandler) kiss_tools.FlxKeyShortcutHandler<Dynamic>)))
 
 (defAlias &ident flxDirector (cast director FlxDirector))
