@@ -364,6 +364,9 @@
     (unless waitForEnd (cc)))
 
 (method :Void stopSound [:FlxSound sound]
+    (when (flxMovie.loopingOnCompletes.exists sound)
+        ((dictGet flxMovie.loopingOnCompletes sound))
+        (flxMovie.loopingOnCompletes.remove sound))
     (currentSounds.remove sound)
     (sound.stop))
 

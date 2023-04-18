@@ -31,7 +31,7 @@ class FlxMovie extends Movie<FlxSprite, ActorFlxSprite, FlxSound, String, FlxSpr
     public var screenCamera:FlxCamera;
     
     public var tweens:Array<FlxTween> = [];
-
+    public var loopingOnCompletes:Map<FlxSound,Void->Void> = [];
     public var STAGE_LEFT_X:Float;
     public var STAGE_RIGHT_X:Float;
     public var ACTOR_WIDTH:Int;

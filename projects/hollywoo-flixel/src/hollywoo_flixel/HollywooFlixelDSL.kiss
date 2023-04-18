@@ -18,14 +18,22 @@
                             (when cc (cc))
                         }))
 
-(method linearMotion [:FlxSprite sprite :Float destX :Float destY :Float speed &opt :Void->Void cc]
+(method linearMotion [:FlxSprite sprite :Float destX :Float destY :Float speed &opt :Void->Void cc :String soundLoop :Float volumeMod]
+    (when soundLoop
+        (let [oldCC cc]
+            (set cc
+                (makeCC
+                    (stopSound soundLoop (makeCC null))
+                    (when oldCC
+                        (oldCC)))))
+        (loopSound soundLoop (makeCC null) volumeMod))
     (tween
         (FlxTween.linearMotion sprite sprite.x sprite.y destX destY speed false (tweenOpts cc))))
 (defAlias &ident FlxTween.linearMotion CHANGE_TO_MOVIE_LINEARMOTION)
 
-(method linearMotionTo [:FlxSprite sprite :String positionKey :Float speed &opt :Void->Void cc]
+(method linearMotionTo [:FlxSprite sprite :String positionKey :Float speed &opt :Void->Void cc :String soundLoop :Float volumeMod]
     (let [position (resolvePosition positionKey)]
-        (linearMotion sprite position.x position.y speed cc)))
+        (linearMotion sprite position.x position.y speed cc soundLoop volumeMod)))
 
 (method newFlxSet [name assetPath]
     (let [setSprite (new FlxSprite 0 0)]
@@ -86,8 +94,12 @@
 
 (method loopSound [name :Void->Void cc &opt :Float volumeMod]
     (playSound name (makeCC null) volumeMod false)
-    (let [cs flxDirector.currentSounds]
-        (set .looped (nth cs (- cs.length 1)) true))
+    (let [cs flxDirector.currentSounds
+            sound (nth cs (- cs.length 1))
+            onComplete sound.onComplete]
+        (dictSet loopingOnCompletes sound onComplete)
+        (set sound.onComplete null)
+        (set sound.looped true))
     (cc))
 
 (preload
