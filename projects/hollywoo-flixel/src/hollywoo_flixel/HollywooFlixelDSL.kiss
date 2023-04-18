@@ -84,6 +84,12 @@
     (let [[x y] (SpriteTools.positionOn pixel (canvas) rpos)]
         (new StagePosition x y layer)))
 
+(method loopSound [name :Void->Void cc &opt :Float volumeMod]
+    (playSound name (makeCC null) volumeMod false)
+    (let [cs flxDirector.currentSounds]
+        (set .looped (nth cs (- cs.length 1)) true))
+    (cc))
+
 (preload
     (unless uiCamera
         (set uiCamera (new flixel.FlxCamera))
