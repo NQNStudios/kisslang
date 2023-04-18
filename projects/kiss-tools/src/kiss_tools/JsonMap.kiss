@@ -26,3 +26,5 @@
         (put key defaultVal))
     (dictGet m key))
 
+(method exists [:String key]
+    (m.exists key))

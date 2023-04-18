@@ -54,7 +54,18 @@
                     // When an actorName is given, check for a voiced line to play.
                     // Otherwise, assume it is un-voiced super text
                     (when (and actorName (< 0 (count voiceTracks)))
-                            (case (try (dictGet (dictGet voiceLines actorName) text) (catch [e] (print e) null))
+                            (case
+                                (let [voiceLineKey
+                                            (if (voiceLineMatches.exists text)
+                                                    .value (voiceLineMatches.get text)
+                                                (FuzzyMapTools.bestMatch (dictGet voiceLines actorName) text false))]
+                                    (if voiceLineKey
+                                            {
+                                                (#when debug
+                                                    (voiceLineMatches.put text (new JsonableString voiceLineKey)))
+                                                (dictGet (dictGet voiceLines actorName) voiceLineKey)
+                                            }
+                                        null))
                                 ((objectWith trackKey start end alts)
                                     (case (dictGet altIdx "$actorName $text")
                                         (null
@@ -88,7 +99,7 @@
                             (if line.alts
                                     (for alt (the Array<Dynamic> line.alts) (objectWith [start alt.start end alt.end] trackKey))
                                 [])]
-                    (unless (voiceLines.exists actorName)
+                    (unless (voiceLines.existsExactly actorName)
                         (dictSet voiceLines actorName (new FuzzyMap<VoiceLine>)))
                     (dictSet (dictGet voiceLines actorName) key (objectWith [start line.start end line.end] trackKey alts))))))
 
