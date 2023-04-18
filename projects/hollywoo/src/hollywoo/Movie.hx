@@ -14,6 +14,7 @@ import uuid.Uuid;
 import haxe.ds.Option;
 import kiss_tools.JsonMap;
 import kiss_tools.JsonableArray;
+import kiss_tools.JsonableString;
 import kiss_tools.TimerWithPause;
 
 using kiss.FuzzyMapTools;

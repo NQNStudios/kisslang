@@ -1,0 +1,7 @@
+(defNew [&prop :String value])
+
+(method parse [:String representation]
+    (new JsonableString (Json.parse representation)))
+
+(method stringify []
+    (Json.stringify value))

@@ -16,5 +16,7 @@ typedef Jsonable<T> = {
     function parse(s:String):T;
 }
 
+typedef JsonStringMap = JsonMap<JsonableString>;
+
 @:build(kiss.Kiss.build())
 class JsonMap<T:Jsonable<T>> {}

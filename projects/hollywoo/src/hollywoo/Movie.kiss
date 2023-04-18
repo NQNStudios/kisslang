@@ -11,7 +11,7 @@
     (prop :FuzzyMap<Song> songs (new FuzzyMap<Song>))
     (prop :FuzzyMap<Prop> props (new FuzzyMap<Prop>))
     (prop :Map<String,VoiceTrack> voiceTracks (new Map))
-    (prop :FuzzyMap<VoiceLine> voiceLines (new FuzzyMap<VoiceLine>))
+    (prop :FuzzyMap<FuzzyMap<VoiceLine>> voiceLines (new FuzzyMap<FuzzyMap<VoiceLine>>))
     // Used to give unique, persistent IDs to voice tracks
     (prop :Map<String,Int> voiceTracksPerActor (new Map))
 
@@ -54,7 +54,7 @@
                     // When an actorName is given, check for a voiced line to play.
                     // Otherwise, assume it is un-voiced super text
                     (when (and actorName (< 0 (count voiceTracks)))
-                            (case (try (dictGet voiceLines "$actorName $text") (catch [e] (print e) null))
+                            (case (try (dictGet (dictGet voiceLines actorName) text) (catch [e] (print e) null))
                                 ((objectWith trackKey start end alts)
                                     (case (dictGet altIdx "$actorName $text")
                                         (null
@@ -88,7 +88,9 @@
                             (if line.alts
                                     (for alt (the Array<Dynamic> line.alts) (objectWith [start alt.start end alt.end] trackKey))
                                 [])]
-                    (dictSet voiceLines "$actorName $key" (objectWith [start line.start end line.end] trackKey alts))))))
+                    (unless (voiceLines.exists actorName)
+                        (dictSet voiceLines actorName (new FuzzyMap<VoiceLine>)))
+                    (dictSet (dictGet voiceLines actorName) key (objectWith [start line.start end line.end] trackKey alts))))))
 
     (method _ccForEach <>[T] [:Iterable<T> collection :(T,Continuation)->Void do_ :Continuation finalCC]
         (let [:Iterator<T> iter (collection.iterator)]
@@ -175,7 +177,7 @@
             :LightSource defaultLightSource
             :String stagePositionsJson
             :String delayLengthsJson
-            &opt :String voiceLinesJson
+            :String voiceLineMatchesJson
         ]
         [
             :JsonMap<StagePosition> stagePositions
@@ -184,12 +186,11 @@
                 (new JsonMap lightSourceJsonFile (new JsonableArray [] defaultLightSource))
             :JsonMap<DelayLength> delayLengths
                 (new JsonMap delayLengthsJson (new DelayLength 0.5))
+            :JsonStringMap voiceLineMatches
+                (new JsonMap voiceLineMatchesJson (new JsonableString ""))
         ]
 
         (set director.movie this)
-        (voiceLines.serializeMatches "matchedVoiceLines.json")
-        (when voiceLinesJson
-            (voiceLines.loadMatches voiceLinesJson))
 
         (let [shortcutHandler (director.shortcutHandler)
                 cc ->(resume)]
