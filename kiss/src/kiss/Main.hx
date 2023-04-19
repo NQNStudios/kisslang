@@ -213,11 +213,13 @@ class Main {
         makeFolderForNewProject(["src", "template"]);
         makeFileForNewProject([".gitignore"]);
         makeFileForNewProject(["build.hxml"]);
-        makeFileForNewProject(["package.json"]);
-        var packageFile = Path.join([projectDir, "package.json"]);
-        var packageJson = Json.parse(File.getContent(packageFile));
-        packageJson.name = title;
-        File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        {
+            makeFileForNewProject(["package.json"]);
+            var packageFile = Path.join([projectDir, "package.json"]);
+            var packageJson = Json.parse(File.getContent(packageFile));
+            packageJson.name = title;
+            File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        }
         makeFileForNewProject(["test.sh"]);
     }
 
@@ -237,11 +239,13 @@ class Main {
         makeFileForNewProject([".vscodeignore"]);
         makeFileForNewProject(["README.md"]);
         makeFileForNewProject(["build.hxml"]);
-        makeFileForNewProject(["package.json"]);
-        var packageFile = Path.join([projectDir, "package.json"]);
-        var packageJson = Json.parse(File.getContent(packageFile));
-        packageJson.name = title;
-        File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        {
+            makeFileForNewProject(["package.json"]);
+            var packageFile = Path.join([projectDir, "package.json"]);
+            var packageJson = Json.parse(File.getContent(packageFile));
+            packageJson.name = title;
+            File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        }
         makeFileForNewProject(["test.sh"]);
     }
 
@@ -267,13 +271,24 @@ class Main {
         makeFolderForNewProject(["icons"]);
         makeFileForNewProject([".gitignore"]);
         makeFileForNewProject(["build.hxml"]);
-        makeFileForNewProject(["manifest.json"]);
-        var manifestFile = Path.join([projectDir, "manifest.json"]);
-        var manifestJson = Json.parse(File.getContent(manifestFile));
-        manifestJson.name = title;
-        manifestJson.description = description;
-        manifestJson.content_scripts[0].matches = urlPatterns;
-        File.saveContent(manifestFile, Json.stringify(manifestJson, null, "\t"));
+        {
+            makeFileForNewProject(["manifest.json"]);
+            var manifestFile = Path.join([projectDir, "manifest.json"]);
+            var manifestJson = Json.parse(File.getContent(manifestFile));
+            manifestJson.name = title;
+            manifestJson.description = description;
+            manifestJson.content_scripts[0].matches = urlPatterns;
+            File.saveContent(manifestFile, Json.stringify(manifestJson, null, "\t"));
+        }
+        {
+            makeFileForNewProject(["package.json"]);
+            var packageFile = Path.join([projectDir, "package.json"]);
+            var packageJson = Json.parse(File.getContent(packageFile));
+            packageJson.name = title;
+            packageJson.description = description;
+            File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
+        }
+        makeFileForNewProject(["test.sh"])
     }
 
     static function convert(args:Array<String>) {

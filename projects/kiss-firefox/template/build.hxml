@@ -1,6 +1,7 @@
 -lib kiss
+-lib webextension-polyfill
 -cp src
 -dce full
 --main template.Main
 --js bin/main.js
--cmd zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\*
+-cmd zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\* -x node_modules/\*
