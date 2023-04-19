@@ -1,0 +1,20 @@
+{
+
+  "manifest_version": 2,
+  "name": "",
+  "version": "1.0",
+
+  "description": "",
+
+  "icons": {
+    "48": "icons/icon-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["bin/main.js"]
+    }
+  ]
+
+}

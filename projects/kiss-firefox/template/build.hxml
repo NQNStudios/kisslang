@@ -1,0 +1,6 @@
+-lib kiss
+-cp src
+-dce full
+--main template.Main
+--js bin/main.js
+-cmd zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\*
