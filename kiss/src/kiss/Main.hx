@@ -41,6 +41,8 @@ class Main {
                 newExpressProject(args);
             case "new-vscode-project":
                 newVscodeProject(args);
+            case "new-firefox-project":
+                newFirefoxProject(args);
             case "implement":
                 // kiss implement [type] [fromLib]
                 var _pwd = args.pop();
@@ -91,11 +93,26 @@ class Main {
     }
 
     static function _makeFileForNewProject(templateDir:String, templateFile:Array<String>, workingDir:String, projectName:String, pkg:String) {
+        // Expand this list when making new templates with different binary extensions
+        var extensionsForBytes = [
+            "png"
+        ];
+        var replaceStringTemplate = true;
+        var getContent:haxe.Constraints.Function = File.getContent;
+        var saveContent:haxe.Constraints.Function = File.saveContent;
+        if (extensionsForBytes.indexOf(Path.extension(templateFile[templateFile.length - 1])) != -1) {
+            replaceStringTemplate = false;
+            getContent = File.getBytes;
+            saveContent = File.saveBytes;
+        }
+
         var fullTemplateFilePath = Path.join([templateDir, "template"].concat(templateFile));
-        var newFileContent = File.getContent(fullTemplateFilePath).replace("template", pkg);
+        var newFileContent:Dynamic = getContent(fullTemplateFilePath);
+        if (replaceStringTemplate)
+            newFileContent = StringTools.replace(newFileContent, "template", pkg);
         var templateFileInNewProject = [for (part in templateFile) if (part == "template") pkg else part];
         var newFilePath = Path.join([workingDir, projectName].concat(templateFileInNewProject));
-        File.saveContent(newFilePath, newFileContent);
+        saveContent(newFilePath, newFileContent);
     }
 
     static function _makeFolderForNewProject(templateDir:String, templateFolder:Array<String>, workingDir:String, projectName:String, pkg:String) {
@@ -226,6 +243,37 @@ class Main {
         packageJson.name = title;
         File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
         makeFileForNewProject(["test.sh"]);
+    }
+
+    static function newFirefoxProject(args:Array<String>) {
+		var title = promptFor("title (lower-case!)").toLowerCase();
+		var description = promptFor("description");
+		var pkg = title.replace("-", "_");
+        var urlPatterns = [];
+        while (true) {
+            var nextPattern = promptFor("url pattern (i.e. '*://*.mozilla.org/*') (blank to finish)", "");
+            if (nextPattern.length == 0)
+                break;
+            urlPatterns.push(nextPattern);
+        }
+        var kissFirefoxLibPath = new Process("haxelib", ["libpath", "kiss-firefox"]).stdout.readAll().toString().trim();
+        var workingDir = Sys.args().pop();
+        var projectDir = Path.join([workingDir, title]);
+        FileSystem.createDirectory(projectDir);
+
+        var makeFileForNewProject:haxe.Constraints.Function = _makeFileForNewProject.bind(kissFirefoxLibPath, _, workingDir, title, pkg);
+        var makeFolderForNewProject:haxe.Constraints.Function = _makeFolderForNewProject.bind(kissFirefoxLibPath, _, workingDir, title, pkg);
+        makeFolderForNewProject(["src"]);
+        makeFolderForNewProject(["icons"]);
+        makeFileForNewProject([".gitignore"]);
+        makeFileForNewProject(["build.hxml"]);
+        makeFileForNewProject(["manifest.json"]);
+        var manifestFile = Path.join([projectDir, "manifest.json"]);
+        var manifestJson = Json.parse(File.getContent(manifestFile));
+        manifestJson.name = title;
+        manifestJson.description = description;
+        manifestJson.content_scripts[0].matches = urlPatterns;
+        File.saveContent(manifestFile, Json.stringify(manifestJson, null, "\t"));
     }
 
     static function convert(args:Array<String>) {

@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "",
-  "version": "1.0",
+  "name": "template",
+  "version": "0.0",
 
   "description": "",
 
@@ -12,9 +12,8 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.mozilla.org/*"],
+      "matches": [],
       "js": ["bin/main.js"]
     }
   ]
-
 }
