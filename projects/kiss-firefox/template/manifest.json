@@ -13,7 +13,7 @@
   "content_scripts": [
     {
       "matches": [],
-      "js": ["bin/main.js"]
+      "js": ["bin/browser-polyfill.js", "bin/main.js"]
     }
   ]
 }

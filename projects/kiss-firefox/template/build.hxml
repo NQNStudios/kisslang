@@ -1,7 +1,8 @@
 -lib kiss
+-lib kiss-firefox
 -lib webextension-polyfill
 -cp src
 -dce full
 --main template.Main
 --js bin/main.js
--cmd zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\* -x node_modules/\*
+-cmd cp node_modules/webextension-polyfill/dist/browser-polyfill.js* bin/ && zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\* -x node_modules/\* -x libs/\* -x test.sh

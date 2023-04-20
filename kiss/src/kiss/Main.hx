@@ -288,7 +288,7 @@ class Main {
             packageJson.description = description;
             File.saveContent(packageFile, Json.stringify(packageJson, null, "\t"));
         }
-        makeFileForNewProject(["test.sh"])
+        makeFileForNewProject(["test.sh"]);
     }
 
     static function convert(args:Array<String>) {

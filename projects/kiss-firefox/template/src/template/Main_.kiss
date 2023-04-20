@@ -1,1 +1,2 @@
+(import kiss_firefox.API)
 (set js.Lib.global.document.body.style.border "5px solid red")

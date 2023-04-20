@@ -7,7 +7,8 @@
     "postinstall": "dts2hx --all"
   },
   "dependencies": {
-    "@types/webextension-polyfill": "^0.10.0"
+    "@types/webextension-polyfill": "^0.10.0",
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "dts2hx": "^0.19.0"
