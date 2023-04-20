@@ -1,7 +1,22 @@
-(load "Util.kiss")
+(var &mut :Array<String> collectedAuthors [])
+(var &mut :Array<String> pages [])
 
-(API.browser.runtime.onMessage.addListener ->[message sender sendResponse] {
-    (let [:Function sendResponse (cast sendResponse)]
-        (sendResponse message))
-    true
-})
+(function sendNextPage [:Function sendResponse]
+    (awaitLet [tabs (API.browser.tabs.query (object active true))
+                &sync id .id (first tabs)]
+        (if pages
+                (API.browser.tabs.sendMessage id (object type "nextPage" data [(pages.shift)]))
+            (API.browser.tabs.sendMessage id (object type "authorList" data collectedAuthors)))))
+
+(API.browser.runtime.onMessage.addListener ->[:Message message sender sendResponse] 
+    (let [:Function sendResponse sendResponse]
+        (case message
+            ((object type "authors" data authors)
+                (set collectedAuthors (collectedAuthors.concat authors))
+                (sendNextPage sendResponse))
+            ((object type "pages" data pageUrls)
+                (set collectedAuthors [])
+                (set pages pageUrls)
+                (sendResponse ""))
+            (never otherwise))
+        true))

@@ -1,7 +1,6 @@
 (import kiss_firefox.API)
 (import js.lib.Promise)
-
-(load "Util.kiss")
+(import tig_spy.Message)
 
 (var :Dynamic document js.Lib.global.document)
 (var :Dynamic window js.Lib.global.window)
@@ -11,7 +10,35 @@
         (set element.innerHTML text)
         element))
 
+(let [analyticsDiv (document.createElement "div")]
+                        (document.body.prepend analyticsDiv)
+                        (set Prelude.printStr ->s (analyticsDiv.appendChild (p s))))
+
+(function postElements [:Dynamic document]
+    (let [postTable (.item (document.getElementsByClassName "bordercolor") 0)
+            postTableBody (postTable.children.item 0)
+            tableRows (for i (range postTableBody.children.length) (postTableBody.children.item i))]
+        // There is an empty row at the end:
+        (tableRows.pop)
+        tableRows))
+
+(function postAuthors [:Dynamic document]
+    (API.browser.runtime.sendMessage
+        (object 
+            type "authors"
+            data
+                (for [idx post] (enumerate (postElements document))
+                    (let [links (post.getElementsByTagName "a")
+                            userLink (links.item (min idx 1))]
+                        userLink.innerHTML)))))
+
 (function printPostStats [:Array<String> authors]
+    (let [:String subjectLine .innerHTML (document.getElementById "top_subject")
+            lastLeftParenIndex (subjectLine.lastIndexOf "(")
+            lastRightParenIndex (subjectLine.lastIndexOf ")")
+            [Read n times] (.split (substr subjectLine lastLeftParenIndex lastRightParenIndex) " ")]
+        (print "$n views"))
+
     (let [op (first authors)
             :Map<String,Bool> repliers (new Map)
             &mut updates 0
@@ -26,44 +53,44 @@
         (print "$updates updates by OP")
         (print "$replies replies by $(count repliers) followers")))
 
-(let [analyticsLink (document.createElement "a")]
-    (analyticsLink.addEventListener "click"
-        ->:Void {
-            (let [analyticsDiv (document.createElement "div")]
-                (document.body.prepend analyticsDiv)
-                (set Prelude.printStr ->s (analyticsDiv.appendChild (p s))))
-
-            (let [:String subjectLine .innerHTML (document.getElementById "top_subject")
-                    lastLeftParenIndex (subjectLine.lastIndexOf "(")
-                    lastRightParenIndex (subjectLine.lastIndexOf ")")
-                    [Read n times] (.split (substr subjectLine lastLeftParenIndex lastRightParenIndex) " ")]
-                (print "$n views"))
-
-
-            (let [:String url
-                        window.location.href
-                    urlWithoutStartingPost0
-                        (substr url 0 -1)
-                    postsPerPage
-                        20
-                    navPageElements
-                        (document.getElementsByClassName "navPages")
-                    numPages
-                        (if (< 0 navPageElements.length)
-                                (Std.parseInt .innerHTML (nth navPageElements (- navPageElements.length 1)))
-                            1)]
-                (for page (range 1 numPages)
-                    (let [pageUrl "${urlWithoutStartingPost0}$(* page postsPerPage)"]
-                        (awaitLet [resp (API.browser.runtime.sendMessage pageUrl)]
-                            ~resp))))
-
-            (printPostStats (postAuthors document))
-
-        })
-    (set analyticsLink.innerHTML "Run analytics")
-    (document.body.prepend analyticsLink))
+(cond
+    ((StringTools.endsWith window.location.href ".0")
+        (let [analyticsLink (document.createElement "a")]
+            (analyticsLink.addEventListener "click"
+                ->:Void {
+                    (let [:String url
+                                window.location.href
+                            urlWithoutStartingPost0
+                                (substr url 0 -1)
+                            postsPerPage
+                                20
+                            navPageElements
+                                (document.getElementsByClassName "navPages")
+                            numPages
+                                (if (< 0 navPageElements.length)
+                                        (Std.parseInt .innerHTML (nth navPageElements (- navPageElements.length 1)))
+                                    1)]
+                        
+                        (awaitLet [_
+                                        (API.browser.runtime.sendMessage
+                                            (object
+                                                type "pages"
+                                                data (for page (range 1 numPages) "${urlWithoutStartingPost0}$(* page postsPerPage)")))]
+                            (postAuthors document)))
+                })
+            (set analyticsLink.innerHTML "Run analytics")
+            (document.body.prepend analyticsLink)))
+    (true
+        (window.addEventListener "load"
+            ->:Void (postAuthors document))))
 
 (API.browser.runtime.onMessage.addListener
-    ->[message sender sendResponse] {
-        ~message
+    ->[:Message message sender sendResponse] {
+        (case message
+            ((object type "nextPage" data [pageUrl])
+                (set window.location.href pageUrl))
+            ((object type "authorList" data authors)
+                (printPostStats authors))
+            (never otherwise))
+        true
     })

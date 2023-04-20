@@ -17,7 +17,7 @@
 				"bin/main.js"
 			],
 			"matches": [
-				"*://forums.tigsource.com/index.php?topic=*.0"
+				"*://forums.tigsource.com/index.php?topic=*"
 			]
 		}
 	],
