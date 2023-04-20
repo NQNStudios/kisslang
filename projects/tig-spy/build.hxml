@@ -1,0 +1,12 @@
+-lib kiss
+-lib kiss-firefox
+-lib webextension-polyfill
+-cp src
+-dce full
+--each
+--main tig_spy.Main
+--js bin/main.js
+--next
+--main tig_spy.Background
+--js bin/background.js
+-cmd cp node_modules/webextension-polyfill/dist/browser-polyfill.js* bin/ && zip -r template.zip . -x *.git* -x *.hxml -x *.zip -x src/\* -x node_modules/\* -x libs/\* -x test.sh

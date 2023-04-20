@@ -1,0 +1,30 @@
+{
+	"name": "tig-spy",
+	"description": "analytics for TIGForum dev logs",
+	"icons": {
+		"48": "icons/icon-48.png"
+	},
+	"background": {
+		"scripts": [
+			"bin/browser-polyfill.js",
+			"bin/background.js"
+		]
+	},
+	"content_scripts": [
+		{
+			"js": [
+				"bin/browser-polyfill.js",
+				"bin/main.js"
+			],
+			"matches": [
+				"*://forums.tigsource.com/index.php?topic=*.0"
+			]
+		}
+	],
+	"permissions": [
+		"<all_urls>",
+		"tabs"
+	],
+	"version": "0.0",
+	"manifest_version": 2
+}

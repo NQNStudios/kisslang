@@ -1,0 +1,7 @@
+(load "Util.kiss")
+
+(API.browser.runtime.onMessage.addListener ->[message sender sendResponse] {
+    (let [:Function sendResponse (cast sendResponse)]
+        (sendResponse message))
+    true
+})

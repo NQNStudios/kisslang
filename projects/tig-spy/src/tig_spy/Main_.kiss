@@ -1,0 +1,69 @@
+(import kiss_firefox.API)
+(import js.lib.Promise)
+
+(load "Util.kiss")
+
+(var :Dynamic document js.Lib.global.document)
+(var :Dynamic window js.Lib.global.window)
+
+(function p [text]
+    (let [element (document.createElement "p")]
+        (set element.innerHTML text)
+        element))
+
+(function printPostStats [:Array<String> authors]
+    (let [op (first authors)
+            :Map<String,Bool> repliers (new Map)
+            &mut updates 0
+            &mut replies 0]
+        (doFor author authors
+            (cond
+                ((= op author)
+                    (+= updates 1))
+                (true
+                    (dictSet repliers author true)
+                    (+= replies 1))))
+        (print "$updates updates by OP")
+        (print "$replies replies by $(count repliers) followers")))
+
+(let [analyticsLink (document.createElement "a")]
+    (analyticsLink.addEventListener "click"
+        ->:Void {
+            (let [analyticsDiv (document.createElement "div")]
+                (document.body.prepend analyticsDiv)
+                (set Prelude.printStr ->s (analyticsDiv.appendChild (p s))))
+
+            (let [:String subjectLine .innerHTML (document.getElementById "top_subject")
+                    lastLeftParenIndex (subjectLine.lastIndexOf "(")
+                    lastRightParenIndex (subjectLine.lastIndexOf ")")
+                    [Read n times] (.split (substr subjectLine lastLeftParenIndex lastRightParenIndex) " ")]
+                (print "$n views"))
+
+
+            (let [:String url
+                        window.location.href
+                    urlWithoutStartingPost0
+                        (substr url 0 -1)
+                    postsPerPage
+                        20
+                    navPageElements
+                        (document.getElementsByClassName "navPages")
+                    numPages
+                        (if (< 0 navPageElements.length)
+                                (Std.parseInt .innerHTML (nth navPageElements (- navPageElements.length 1)))
+                            1)]
+                (for page (range 1 numPages)
+                    (let [pageUrl "${urlWithoutStartingPost0}$(* page postsPerPage)"]
+                        (awaitLet [resp (API.browser.runtime.sendMessage pageUrl)]
+                            ~resp))))
+
+            (printPostStats (postAuthors document))
+
+        })
+    (set analyticsLink.innerHTML "Run analytics")
+    (document.body.prepend analyticsLink))
+
+(API.browser.runtime.onMessage.addListener
+    ->[message sender sendResponse] {
+        ~message
+    })
