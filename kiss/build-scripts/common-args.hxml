@@ -1,3 +1,4 @@
+-w -WUnusedPattern
 -lib hscript
 -lib uuid
 -lib tink_macro
