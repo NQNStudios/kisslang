@@ -421,7 +421,7 @@ class BasicTestCase extends Test {
         // tryProcess returns null on failure:
         Assert.equals(null, Prelude.tryProcess("_ThisCoMMaNDWillSURElYFaiLLLLLL", [], error->{return;}));
         // tryProcess returns output on success:
-        Assert.equals("4.2.5", Prelude.tryProcess("haxe", ["--version"], error->{throw error;}));
+        Assert.equals("4.3.0", Prelude.tryProcess("haxe", ["--version"], error->{throw error;}));
     }
     #end
 
