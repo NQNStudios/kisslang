@@ -163,7 +163,7 @@ class SpecialForms {
                         Helpers.parseComplexType(type, nameExp);
                     default: null;
                 },
-                isFinal: isFinal,
+                isFinal: isFinal && !k.hscript,
                 expr: k.convert(valueExp)
             };
         }
