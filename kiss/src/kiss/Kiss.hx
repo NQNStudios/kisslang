@@ -235,22 +235,6 @@ class Kiss {
         #end
     }
 
-    /**
-     * Initializer macro: suppress some compiler warnings that Kiss code commonly generates
-     * Source: https://try.haxe.org/#10F18962 by @kLabz
-     */
-    public static macro function setup() {
-        haxe.macro.Context.onAfterTyping(function(_) {
-            haxe.macro.Context.filterMessages(function(msg) {
-                return switch (msg) {
-                    case Warning("This case is unused", _): false;
-                    case _: true;
-                };
-            });
-        });
-      
-        return macro {};
-    }
     #end
     public static macro function exp(kissCode:ExprOf<String>) {
         var pos = kissCode.pos;

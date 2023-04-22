@@ -35,8 +35,6 @@
 	<haxelib name="kiss" />
 	<haxelib name="kiss-flixel" />
 
-	<haxeflag name="--macro" value="kiss.Kiss.setup()" />
-
 	<haxelib name="hollywoo" />
 	<haxelib name="hollywoo-flixel" />
 
