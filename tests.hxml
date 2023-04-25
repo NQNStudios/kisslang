@@ -1,0 +1,10 @@
+-lib tink_core
+-lib tink_priority
+-lib tink_macro
+-cp src
+-cp tests
+-main Main
+extraParams.hxml
+-dce full
+--macro TxtFrontend.use()
+--macro XmlFrontend.use()
