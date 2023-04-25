@@ -29,8 +29,6 @@ typedef CompilationArgs = {
     ?skipHaxelibInstall:Bool,
     // path to a package.json, requirements.txt, or setup.py file
     ?langProjectFile:String,
-    // path to a haxe file defining the Main class
-    ?mainHxFile:String,
     // paths to extra files to copy
     ?extraFiles:Array<String>
 }
@@ -119,25 +117,18 @@ class CompilerTools {
         var messageBeforePath = "haxelib repository is now ";
         var haxelibRepositoryPath = haxelibSetupOutput.substr(haxelibSetupOutput.indexOf(messageBeforePath)).replace(messageBeforePath, "");
 
-        // If a main haxe file was given, use it.
-        // Otherwise use the default
-        var mainHxFile = "ScriptMain.hx";
-        if (args.mainHxFile != null) {
-            mainHxFile = args.mainHxFile;
-            copyToFolder(mainHxFile);
-        } else {
-            copyToFolder(mainHxFile, Path.join([Prelude.libPath("kiss"), "src", "kiss"]));
-        }
+        var mainHxFile = "ExternMain.hx";
+        copyToFolder(mainHxFile, Path.join([Prelude.libPath("kiss"), "src", "kiss"]));
 
         var mainClassName = mainHxFile.withoutDirectory().withoutExtension();
 
         // make the kiss file just the given expressions dumped into a file,
         // with a corresponding name to the mainClassName
-        var kissFileContent = "";
+        var kissFileContent = '(addMetadata #"@:expose("Fuck")"#)\n';
         for (exp in exps) {
             kissFileContent += Reader.toString(exp.def) + "\n";
         }
-        File.saveContent(Path.join([args.outputFolder, '$mainClassName.kiss']), kissFileContent);
+        File.saveContent(Path.join([args.outputFolder, 'ScriptMain.kiss']), kissFileContent);
 
         // generate build.hxml
         var buildHxmlContent = "";
