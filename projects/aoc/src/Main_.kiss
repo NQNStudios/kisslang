@@ -1,10 +1,14 @@
 (load "UtilMacros.kiss")
 
 (year 2018
+    (import year2018.Solutions2018)
     (Solutions2018.run))
 (year 2020
+    (import year2020.Solutions2020)
     (Solutions2020.run))
 (year 2021
+    (import year2021.Solutions2021)
     (Solutions2021.run))
 (year 2022
+    (import year2022.Solutions2022)
     (Solutions2022.main))
