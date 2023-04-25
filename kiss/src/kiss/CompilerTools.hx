@@ -21,8 +21,6 @@ enum CompileLang {
 typedef CompilationArgs = {
     // path to a folder where the script will be compiled
     ?outputFolder:String,
-    // path to a file with haxe import statements in it
-    ?importHxFile:String,
     // path to a file with hxml args in it (SHOULD NOT specify target or main class)
     ?hxmlFile:String,
     // whether to skip haxelib install all --always
@@ -107,7 +105,7 @@ class CompilerTools {
         if (args.extraFiles == null) {
             args.extraFiles = [];
         }
-        for (file in [args.importHxFile, args.hxmlFile, args.langProjectFile].concat(args.extraFiles)) {
+        for (file in [args.hxmlFile, args.langProjectFile].concat(args.extraFiles)) {
             if (file != null) {
                 copyToFolder(file);
             }

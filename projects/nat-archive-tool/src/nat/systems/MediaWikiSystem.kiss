@@ -20,10 +20,10 @@
                 (#extern String python
                     (object
                         hxmlFile "extern-files/python/args.hxml"
-                        importHxFile "extern-files/python/import.hx"
                         langProjectFile "extern-files/python/requirements.txt")
                     [:Map<String,Array<String>> params _ :String mediaWikiUrl _ :String maxLag (if maxLag (Std.string maxLag) "1") :Map<String,String> headers _]
                     
+                    (import requests_externs.Requests)
                     (print "extern query call $params")
                     (let [response
                                 (Requests.get mediaWikiUrl 

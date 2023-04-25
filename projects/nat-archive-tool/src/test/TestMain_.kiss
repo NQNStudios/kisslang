@@ -1,3 +1,11 @@
+(import nat.BoolExpInterp)
+(import nat.Archive)
+(import nat.ArchiveController)
+(import nat.Lib)
+(importAll nat.components)
+(importAll nat.systems)
+(import uuid.Uuid)
+
 // External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "../nat/Lib.kiss")
 

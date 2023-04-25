@@ -1,3 +1,11 @@
+(import sys.FileSystem)
+(import nat.ArchiveController)
+(import nat.systems.PlaygroundSystem)
+(importAll nat.components)
+(import haxe.ds.Option)
+
+(implements nat.ArchiveUI)
+
 // External programs can load Lib.kiss with (loadFrom "nat-archive-tool" "src/nat/Lib.kiss")
 (load "Lib.kiss")
 
@@ -6,7 +14,7 @@
         (let [controller
                     (new ArchiveController
                         (new Archive archiveDir)
-                        (new CLI))]
+                        (new CLI_))]
             (loop
                 (Sys.print ">> ")
                 (let [command
