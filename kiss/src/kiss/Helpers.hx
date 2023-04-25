@@ -248,7 +248,8 @@ class Helpers {
         var expr = if (body.length == 0) {
             EReturn(null).withMacroPosOf(if (name != null) name else argList);
         } else {
-            var block = k.convert(CallExp(Symbol("begin").withPos(body[0].pos), body).withPos(body[0].pos));
+            var builder = body[0].expBuilder();
+            var block = k.convert(builder.begin(body));
 
             if (returnsValue) {
                 EReturn(block).withMacroPosOf(body[-1]);
