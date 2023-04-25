@@ -37,18 +37,7 @@ class Macros {
             k.formDocs[newName] = k.formDocs[oldName];
         }
 
-        function compileTimeResolveToString(description:String, description2:String, exp:ReaderExp, k:KissState):String {
-            switch (exp.def) {
-                case StrExp(str):
-                    return str;
-                case CallExp({pos: _, def: Symbol(mac)}, innerArgs) if (macros.exists(mac)):
-                    var docs = k.formDocs[mac];
-                    exp.checkNumArgs(docs.minArgs, docs.maxArgs, docs.expectedForm);
-                    return compileTimeResolveToString(description, description2, macros[mac](exp, innerArgs, k), k);
-                default:
-                    throw KissError.fromExp(exp, '${description} should resolve at compile-time to a string literal of ${description2}');
-            }
-        }
+        var compileTimeResolveToString = Helpers.compileTimeResolveToString;
 
         k.doc("load", 1, 1, '(load "<file.kiss>")');
         macros["load"] = (wholeExp:ReaderExp, args:Array<ReaderExp>, k:KissState) -> {

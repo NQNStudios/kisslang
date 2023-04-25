@@ -23,6 +23,8 @@ class SpecialForms {
     public static function builtins(k:KissState, ?context:FrontendContext) {
         var map:Map<String, SpecialFormFunction> = [];
 
+        var compileTimeResolveToString = Helpers.compileTimeResolveToString;
+
         function renameAndDeprecate(oldName:String, newName:String) {
             var form = map[oldName];
             map[oldName] = (wholeExp, args, k) -> {
