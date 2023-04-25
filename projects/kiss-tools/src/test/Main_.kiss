@@ -1,3 +1,8 @@
+(import sys.io.File)
+(import sys.FileSystem)
+(import kiss_tools.JsonMap)
+(import kiss_tools.JsonableArray)
+
 // Test FuzzyJson
 (loadFrom "kiss-tools" "src/kiss_tools/FuzzyJson.kiss")
 

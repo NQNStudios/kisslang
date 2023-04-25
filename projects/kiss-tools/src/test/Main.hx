@@ -1,13 +1,8 @@
 package test;
 
-import kiss.Kiss;
-import kiss.Prelude;
-import kiss.List;
+class Main {
+    static function main() {
+        Main_.main();
+    }
+}
 
-import sys.io.File;
-import sys.FileSystem;
-import kiss_tools.JsonMap;
-import kiss_tools.JsonableArray;
-
-@:build(kiss.Kiss.build())
-class Main {}
