@@ -1,0 +1,28 @@
+(import haxe.Constraints)
+(import js.lib.Uint8Array)
+(import js.node.Fs)
+(import js.lib.Promise)
+(import Externs)
+
+
+(function loadAll [:Array<String> paths]
+    (Promise.all
+        (filter
+            (for path paths
+                (when (path.endsWith ".pdf")
+                    (PDFDocument.load (Fs.readFileSync path)))))))
+
+// TODO add sequentialPerPDF argument (which, when used, .shift()s pages from the beginning of PDFs)
+// TODO add chunkSize argument (default 1, which specifies how many pages in order to pull from a random PDF. value of -1 means take the whole PDF, and remove it from the list)
+// TODO make output page limit optional
+(let [[sourceDir numPages] (Sys.args)]
+    (awaitLet [inputPdfs (loadAll (for file (Fs.readdirSync sourceDir) (joinPath sourceDir file)))
+                saladPdf (PDFDocument.create)
+                pages (Promise.all
+                        (for _ (range 0 (Std.parseInt numPages))
+                            (let [:PDFDocument pdf (nth inputPdfs (Std.random inputPdfs.length))
+                                    page (Std.random (pdf.getPageCount))]
+                                (saladPdf.copyPages pdf [page]))))]
+        (doFor page pages (saladPdf.addPage (first page)))
+        (awaitLet [bytesOut (saladPdf.save)]
+            (Fs.writeFileSync "out.pdf" bytesOut))))

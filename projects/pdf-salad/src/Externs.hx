@@ -9,7 +9,7 @@ extern class PDFDocument {
     public static function load(bytes:Buffer, ?options:LoadOptions):Promise<PDFDocument>;
     public function save():Promise<Buffer>;
     public function getPageCount():Int;
-    public function copyPages(srcDoc:PDFDocument, indices:Array<Int>):Array<PDFPage>;
+    public function copyPages(srcDoc:PDFDocument, indices:Array<Int>):Promise<Array<PDFPage>>;
     public function addPage(page:PDFPage):Void;
 }
 
