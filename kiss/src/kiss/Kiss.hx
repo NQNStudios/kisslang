@@ -36,6 +36,7 @@ typedef FormDoc = {
 
 typedef KissState = {
     className:String,
+    pack:Array<String>,
     file:String,
     readTable:ReadTable,
     startOfLineReadTable:ReadTable,
@@ -74,13 +75,19 @@ typedef KissState = {
 class Kiss {
     #if macro
     public static function defaultKissState(?context:FrontendContext):KissState {
-        var className = if (context == null) {
-            Context.getLocalClass().get().name;
+        var className = "";
+        var pack = [];
+        if (context == null) {
+            var clazz = Context.getLocalClass().get();
+            className = clazz.name;
+            pack = clazz.pack;
         } else {
-            context.name;
+            className = context.name;
+            pack = context.pack;
         }
         var k = {
             className: className,
+            pack: pack,
             file: "",
             readTable: Reader.builtins(),
             startOfLineReadTable: new ReadTable(),
