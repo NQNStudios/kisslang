@@ -1,9 +1,9 @@
 (load "../UtilMacros.kiss")
 
 (defMacro dictInc [theMap key amount]
-    `(let [theMap ,theMap key ,key amount ,amount &mut count (dictGet theMap key)]
+    `(let [&mut theMap ,theMap key ,key amount ,amount &mut count (dictGet theMap key)]
         (unless count
-            (dictSet theMap key (set count (Int64Helper.fromFloat 0))))
+            (dictSet theMap key (set count 0i64)))
         (dictSet theMap key #{count + amount;}#)))
 
 // Remove and return an arbitrary key-value pair from the given Map

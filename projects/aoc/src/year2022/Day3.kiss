@@ -20,7 +20,7 @@
     (= 2518 
         (apply + 
             (for group (groups (Util.readLines (input 3)) GROUP_SIZE)
-                (let [freqMap (emptyGroupPossessionMap)
+                (let [&mut freqMap (emptyGroupPossessionMap)
                         &mut badge ""]
                     (doFor [idx :String elf] (enumerate group)
                         (doFor char (elf.split "")

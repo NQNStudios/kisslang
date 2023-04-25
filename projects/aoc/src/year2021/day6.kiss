@@ -5,10 +5,10 @@
         // special key -1 corresponds to total count
         (dictSet theMap -1 (Int64Helper.fromFloat list.length))
         (doFor age (range 9)
-            (dictSet theMap age (Int64Helper.fromFloat 0)))
+            (dictSet theMap age 0i64))
         (doFor age list
             (let [count (dictGet theMap age)
-                    one (Int64Helper.fromFloat 1)]
+                    one 1i64]
             (dictSet theMap age #{count + one;}#)))
         theMap))
 
