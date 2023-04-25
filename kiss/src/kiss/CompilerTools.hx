@@ -124,7 +124,7 @@ class CompilerTools {
 
         // make the kiss file just the given expressions dumped into a file,
         // with a corresponding name to the mainClassName
-        var kissFileContent = '(addMetadata #"@:expose("Fuck")"#)\n';
+        var kissFileContent = "";
         for (exp in exps) {
             kissFileContent += Reader.toString(exp.def) + "\n";
         }
