@@ -451,8 +451,8 @@ class Helpers {
                 innerExp.def;
             case MetaExp(meta, innerExp):
                 MetaExp(meta, removeTypeAnnotations(innerExp));
-            case FieldExp(field, innerExp):
-                FieldExp(field, removeTypeAnnotations(innerExp));
+            case FieldExp(field, innerExp, safe):
+                FieldExp(field, removeTypeAnnotations(innerExp), safe);
             case KeyValueExp(keyExp, valueExp):
                 KeyValueExp(removeTypeAnnotations(keyExp), removeTypeAnnotations(valueExp));
             case Unquote(innerExp):
@@ -659,8 +659,8 @@ class Helpers {
                 ListExp(evalUnquoteLists(elements, innerRunAtCompileTime).map(recurse));
             case TypedExp(type, innerExp):
                 TypedExp(type, recurse(innerExp));
-            case FieldExp(field, innerExp):
-                FieldExp(field, recurse(innerExp));
+            case FieldExp(field, innerExp, safe):
+                FieldExp(field, recurse(innerExp), safe);
             case KeyValueExp(keyExp, valueExp):
                 KeyValueExp(recurse(keyExp), recurse(valueExp));
             case Unquote(innerExp):
@@ -686,8 +686,8 @@ class Helpers {
         function callSymbol(symbol:String, args:Array<ReaderExp>) {
             return call(_symbol(symbol), args);
         }
-        function field(f:String, exp:ReaderExp) {
-            return FieldExp(f, exp).withPosOf(posRef);
+        function field(f:String, exp:ReaderExp, ?safe:Bool) {
+            return FieldExp(f, exp, safe != null && safe).withPosOf(posRef);
         }
         function list(exps:Array<ReaderExp>) {
             return ListExp(exps).withPosOf(posRef);

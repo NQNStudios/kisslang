@@ -14,15 +14,15 @@ enum ReaderExpDef {
     Symbol(name:String); // s
     RawHaxe(code:String); // #| haxeCode() |# // deprecated!
     RawHaxeBlock(code:String); // #{ haxeCode(); moreHaxeCode(); }#
-    TypedExp(path:String, exp:ReaderExp); // :Type [exp]
-    MetaExp(meta:String, exp:ReaderExp); // &meta [exp]
-    FieldExp(field:String, exp:ReaderExp); // .field [exp]
+    TypedExp(path:String, exp:ReaderExp); // :Type <exp>
+    MetaExp(meta:String, exp:ReaderExp); // &meta <exp>
+    FieldExp(field:String, exp:ReaderExp, safeField:Bool); // .field <exp> or ?.field <exp>
     KeyValueExp(key:ReaderExp, value:ReaderExp); // =>key value
-    Quasiquote(exp:ReaderExp); // `[exp]
-    Unquote(exp:ReaderExp); // ,[exp]
-    UnquoteList(exp:ReaderExp); // ,@[exp]
+    Quasiquote(exp:ReaderExp); // `<exp>
+    Unquote(exp:ReaderExp); // ,<exp>
+    UnquoteList(exp:ReaderExp); // ,@<exp>
     ListEatingExp(exps:Array<ReaderExp>); // [::exp exp ...exps exp]
-    ListRestExp(name:String); // ...exps or ...
+    ListRestExp(name:String); // ...<exp> or ...
     TypeParams(types:Array<ReaderExp>); // <>[T :Constraint U :Constraint1 :Constraint2 V]
     HaxeMeta(name:String, params:Null<Array<ReaderExp>>, exp:ReaderExp); // @meta <exp> or @(meta <params...>) <exp>
     None; // not an expression, i.e. (#unless falseCondition exp)

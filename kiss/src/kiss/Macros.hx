@@ -109,8 +109,10 @@ class Macros {
         k.doc("apply", 2, 2, '(apply <func> <argList>)' );
         macros["apply"] = (wholeExp:ReaderExp, exps:Array<ReaderExp>, k) -> {
             var b = wholeExp.expBuilder();
+            var isSafe = false;
             var callOn = switch (exps[0].def) {
-                case FieldExp(field, exp):
+                case FieldExp(field, exp, safe):
+                    isSafe = safe;
                     exp;
                 default:
                     b.symbol("null");
@@ -122,10 +124,15 @@ class Macros {
                     exps[0];
             };
             var args = exps[1];
-            b.call(
+            var exp = b.call(
                 b.symbol("Reflect.callMethod"), [
                     callOn, func, args
                 ]);
+
+            if (isSafe)
+                exp = b.callSymbol("when", [callOn, exp]);
+
+            exp;
         };
 
         k.doc("range", 1, 3, '(range <?min> <max> <?step>)');

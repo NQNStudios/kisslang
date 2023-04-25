@@ -970,3 +970,12 @@ From:[(assert false (+ \"false \" \"should \" \"have \" \"been \" \"true\"))]" m
         (set (Prelude.print v) 9)
         (set ~v 6)
         (Assert.equals v 6)))
+
+(defAlias &ident otherNameForObj obj)
+(function _testSafeAccess []
+    (let [:Dynamic obj null]
+        (obj?.doThing)
+        (otherNameForObj?.doThing)
+        (?.doThing obj)
+        (?.doThing otherNameForObj))
+    (Assert.pass))

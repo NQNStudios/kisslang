@@ -653,12 +653,12 @@ class Kiss {
                 } catch (err:Exception) {
                     throw KissError.fromExp(exp, 'Haxe parse error: $err');
                 };
-            case FieldExp(field, innerExp):
+            case FieldExp(field, innerExp, safe):
                 var convertedInnerExp = convert(innerExp);
                 if (macroExpandOnly)
-                    Left(FieldExp(field, left(convertedInnerExp)).withPosOf(exp));
+                    Left(FieldExp(field, left(convertedInnerExp), safe).withPosOf(exp));
                 else
-                    Right(EField(right(convertedInnerExp), field).withMacroPosOf(exp));
+                    Right(EField(right(convertedInnerExp), field, if (safe) Safe else Normal).withMacroPosOf(exp));
             case KeyValueExp(keyExp, valueExp) if (!macroExpandOnly):
                 Right(EBinop(OpArrow, right(convert(keyExp)), right(convert(valueExp))).withMacroPosOf(exp));
             case Quasiquote(innerExp) if (!macroExpandOnly):

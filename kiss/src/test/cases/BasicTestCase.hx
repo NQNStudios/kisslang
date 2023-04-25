@@ -443,6 +443,10 @@ class BasicTestCase extends Test {
         _testQuickPrintOnSetVar();
     }
 
+    function testSafeAccess() {
+        _testSafeAccess();
+    }
+
     var aNullToPrint = null;
 }
 

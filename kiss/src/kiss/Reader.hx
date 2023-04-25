@@ -113,7 +113,9 @@ class Reader {
         readTable["?"] = (stream:Stream, k) -> CallExp(Symbol("Prelude.truthy").withPos(stream.position()), [assertRead(stream, k)]);
 
         // Lets you dot-access a function result without binding it to a name
-        readTable["."] = (stream:Stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k));
+        readTable["."] = (stream:Stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k), false);
+        // Safe version (new feature of Haxe 4.3.0)
+        readTable["?."] = (stream:Stream, k) -> FieldExp(nextToken(stream, "a field name"), assertRead(stream, k), true);
 
         // Lets you construct key-value pairs for map literals or for-loops
         readTable["=>"] = (stream:Stream, k) -> KeyValueExp(assertRead(stream, k), assertRead(stream, k));
@@ -214,13 +216,26 @@ class Reader {
                     Symbol(token);
                 } else {
                     var tokenParts = token.split(".");
-                    var fieldExpVal = tokenParts.shift();
-                    var fieldExp = Symbol(fieldExpVal);
+                    var fieldExpVal = tokenParts[0];
+                    if (fieldExpVal.endsWith("?"))
+                        fieldExpVal = fieldExpVal.substr(0, fieldExpVal.length - 1);
+                    var fieldExp = null;
+                    var firstPart = true;
+                    var nextIsSafe = false;
                     if (k.identAliases.exists(fieldExpVal)) {
                         while (tokenParts.length > 0) {
-                            fieldExp = FieldExp(tokenParts.shift(), fieldExp.withPos(position));
+                            var nextPart = tokenParts.shift();
+                            var isSafe = nextPart.endsWith("?");
+                            if (isSafe)
+                                nextPart = nextPart.substr(0, nextPart.length - 1);
+                            fieldExp = if (fieldExp == null) {
+                                k.identAliases[fieldExpVal].withPos(position);
+                            } else {
+                                fieldExp = FieldExp(nextPart, fieldExp, nextIsSafe).withPos(position);
+                            }
+                            nextIsSafe = isSafe;
                         }
-                        fieldExp;
+                        fieldExp.def;
                     } else {
                         Symbol(token);
                     }
@@ -549,8 +564,10 @@ class Reader {
             case MetaExp(meta, exp):
                 // &meta
                 '&$meta ${exp.def.toString()}';
-            case FieldExp(field, exp):
+            case FieldExp(field, exp, false):
                 '.$field ${exp.def.toString()}';
+            case FieldExp(field, exp, true):
+                '?.$field ${exp.def.toString()}';
             case KeyValueExp(keyExp, valueExp):
                 '=>${keyExp.def.toString()} ${valueExp.def.toString()}';
             case Quasiquote(exp):
