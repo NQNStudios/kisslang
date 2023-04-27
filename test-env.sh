@@ -2,13 +2,12 @@
 
 haxelib dev kiss kiss
 
-# Every project with a haxelib.json should be made available to every other project/unit test
-projects=$(ls projects)
-for project in $projects
+# Every library with a haxelib.json should be made available to every other project/unit test
+libraries=$(ls libraries)
+for lib in $libraries
 do
-    if [ -e projects/${project}/haxelib.json ]
+    if [ -e libraries/${lib}/haxelib.json ]
     then
-        haxelib dev $project projects/$project
-        # the word project has lost all meaning at this point
+        haxelib dev $lib libraries/$lib
     fi
 done
